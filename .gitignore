@@ -1,0 +1,11 @@
+bin/
+node_modules/
+obj/
+out/
+
+
+appsettings.json
+appsettings.Development.json
+
+
+project.http
