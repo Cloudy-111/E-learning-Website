@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using project.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
