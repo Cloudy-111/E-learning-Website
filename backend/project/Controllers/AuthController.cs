@@ -5,29 +5,29 @@ using Microsoft.AspNetCore.Mvc;
 [ApiController]
 public class AuthController : ControllerBase
 {
-    private readonly UserManager<User> _userManager;
+    // private readonly UserManager<User> _userManager;
 
-    public AuthController(UserManager<User> userManager)
-    {
-        _userManager = userManager;
-    }
+    // public AuthController(UserManager<User> userManager)
+    // {
+    //     _userManager = userManager;
+    // }
 
-    [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterDto model)
-    {
-        var user = new User
-        {
-            UserName = model.Username,
-            Email = model.Email,
-        };
+    // [HttpPost("register")]
+    // public async Task<IActionResult> Register([FromBody] RegisterDto model)
+    // {
+    //     var user = new User
+    //     {
+    //         UserName = model.Username,
+    //         Email = model.Email,
+    //     };
 
-        var result = await _userManager.CreateAsync(user, model.Password);
+    //     var result = await _userManager.CreateAsync(user, model.Password);
 
-        if (result.Succeeded)
-        {
-            return Ok(new { message = "User registered successfully!" });
-        }
+    //     if (result.Succeeded)
+    //     {
+    //         return Ok(new { message = "User registered successfully!" });
+    //     }
 
-        return BadRequest(result.Errors);
-    }
+    //     return BadRequest(result.Errors);
+    // }
 }
