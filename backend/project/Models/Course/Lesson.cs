@@ -7,10 +7,10 @@ namespace project.Models;
 public class Lesson
 {
     [Key]
-    public int Id { get; set; }
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
     [Required]
-    public int CourseContentId { get; set; }
+    public string CourseContentId { get; set; } = null!;
 
     [Required, MaxLength(255)]
     public string Title { get; set; } = null!;

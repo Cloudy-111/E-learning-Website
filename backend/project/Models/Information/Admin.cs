@@ -7,7 +7,7 @@ namespace project.Models;
 public class Admin
 {
     [Key]
-    public int AdminId { get; set; }
+    public string AdminId { get; set; } = Guid.NewGuid().ToString();
     [Required]
     public string UserId { get; set; } = null!;
 

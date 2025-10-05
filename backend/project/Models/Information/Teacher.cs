@@ -7,7 +7,7 @@ namespace project.Models;
 public class Teacher
 {
     [Key]
-    public int TeacherId { get; set; }
+    public string TeacherId { get; set; } = Guid.NewGuid().ToString();
 
     [Required]
     public string UserId { get; set; } = null!;
@@ -19,7 +19,7 @@ public class Teacher
 
     // Navigation
     public ICollection<Course> Courses { get; set; } = new List<Course>();
-    
-    
+
+
 
 }

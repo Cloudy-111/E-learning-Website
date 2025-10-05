@@ -7,13 +7,13 @@ namespace project.Models;
 public class Submission
 {
     [Key]
-    public int Id { get; set; }
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
     [Required]
-    public int QuizId { get; set; }
+    public string QuizId { get; set; } = null!;
 
     [Required]
-    public int StudentId { get; set; }
+    public string StudentId { get; set; } = null!;
 
     public string? Answer { get; set; }
 

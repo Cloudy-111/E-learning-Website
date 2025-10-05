@@ -8,16 +8,16 @@ public class CourseReview
 {
 
     [Key]
-    public int Id { get; set; }
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
     [Required]
-    public int CourseId { get; set; }
+    public string CourseId { get; set; } = null!;
 
     [Required]
-    public int StudentId { get; set; }
+    public string StudentId { get; set; } = null!;
 
     [Range(1, 5)]
-    public double Rating { get; set; }  
+    public double Rating { get; set; }
 
     [MaxLength(1000)]
     public string? Comment { get; set; }

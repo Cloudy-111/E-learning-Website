@@ -7,10 +7,10 @@ namespace project.Models;
 public class Quiz
 {
     [Key]
-    public int Id { get; set; }
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
-    public int? CourseId { get; set; }
-    public int? LessonId { get; set; }
+    public string? CourseId { get; set; }
+    public string? LessonId { get; set; }
     [Required, MaxLength(255)]
     public string Title { get; set; } = null!;
 
@@ -27,7 +27,7 @@ public class Quiz
     public Lesson? Lesson { get; set; }
 
     public ICollection<Question> Questions { get; set; } = new List<Question>();
-    
-     public ICollection<Submission> Submissions { get; set; } = new List<Submission>();
+
+    public ICollection<Submission> Submissions { get; set; } = new List<Submission>();
 
 }

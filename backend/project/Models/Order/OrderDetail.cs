@@ -7,16 +7,16 @@ namespace project.Models;
 public class OrderDetail
 {
     [Key]
-    public int Id { get; set; }
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
     [Required]
-    public int OrderId { get; set; }
+    public string OrderId { get; set; } = null!;
 
     [Required]
-    public int CourseId { get; set; }
+    public string CourseId { get; set; } = null!;
 
     [Column(TypeName = "decimal(10,2)")]
-    public decimal Price { get; set; } 
+    public decimal Price { get; set; }
 
     [ForeignKey(nameof(OrderId))]
     public Order Order { get; set; } = null!;

@@ -7,7 +7,7 @@ public class Category
 {
 
     [Key]
-    public int Id { get; set; }
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
     [Required, MaxLength(255)]
     public string Name { get; set; } = null!;
