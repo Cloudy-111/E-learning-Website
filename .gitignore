@@ -5,7 +5,6 @@ out/
 
 
 appsettings.json
-appsettings.Development.json
 
 
 project.http

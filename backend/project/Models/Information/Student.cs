@@ -7,7 +7,7 @@ namespace project.Models;
 public class Student
 {
     [Key]
-    public int StudentId { get; set; }
+    public string StudentId { get; set; } = Guid.NewGuid().ToString();
     [Required]
     public string UserId { get; set; } = null!;
     public string? Bio { get; set; }
@@ -21,5 +21,5 @@ public class Student
     public ICollection<CourseReview> Reviews { get; set; } = new List<CourseReview>();
     public ICollection<Order> Orders { get; set; } = new List<Order>();
     public ICollection<Certificate> Certificates { get; set; } = new List<Certificate>();
-    
+
 }

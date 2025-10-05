@@ -7,10 +7,10 @@ namespace project.Models;
 public class Order
 {
     [Key]
-    public int Id { get; set; }
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
     [Required]
-    public int StudentId { get; set; }
+    public string StudentId { get; set; } = null!;
 
     [Column(TypeName = "decimal(10,2)")]
     public decimal TotalPrice { get; set; }

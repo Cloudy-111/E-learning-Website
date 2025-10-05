@@ -7,10 +7,10 @@ namespace project.Models;
 public class Question
 {
     [Key]
-    public int Id { get; set; }
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
     [Required]
-    public int QuizId { get; set; }
+    public string QuizId { get; set; } = null!;
 
     [Required]
     public string Content { get; set; } = null!;

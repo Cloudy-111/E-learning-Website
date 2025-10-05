@@ -7,7 +7,7 @@ namespace project.Models;
 public class Course
 {
     [Key]
-    public int Id { get; set; }
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
     [Required, MaxLength(255)]
     public string Title { get; set; } = null!;
@@ -16,11 +16,11 @@ public class Course
 
     // FK -> Category
     [Required]
-    public int CategoryId { get; set; }
+    public string CategoryId { get; set; } = null!;
 
     // FK -> Teacher
     [Required]
-    public int TeacherId { get; set; }
+    public string TeacherId { get; set; } = null!;
 
     [Column(TypeName = "decimal(10,2)")]
     public decimal Price { get; set; }

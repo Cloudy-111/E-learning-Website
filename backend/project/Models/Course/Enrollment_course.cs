@@ -7,13 +7,13 @@ namespace project.Models;
 public class Enrollment_course
 {
     [Key]
-    public int Id { get; set; }
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
     [Required]
-    public int StudentId { get; set; }
+    public string StudentId { get; set; } = null!;
 
     [Required]
-    public int CourseId { get; set; }
+    public string CourseId { get; set; } = null!;
 
     public DateTime EnrolledAt { get; set; } = DateTime.UtcNow;
     public decimal Progress { get; set; } = 0.00m;

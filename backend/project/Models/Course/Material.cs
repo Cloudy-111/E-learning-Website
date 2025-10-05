@@ -7,10 +7,10 @@ namespace project.Models;
 public class Material
 {
     [Key]
-    public int Id { get; set; }
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
     [Required]
-    public int LessonId { get; set; }
+    public string LessonId { get; set; } = null!;
 
     [Required, MaxLength(500)]
     public string FileUrl { get; set; } = null!;
@@ -20,5 +20,5 @@ public class Material
 
     [ForeignKey(nameof(LessonId))]
     public Lesson Lesson { get; set; } = null!;
-     
+
 }

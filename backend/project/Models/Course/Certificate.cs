@@ -7,13 +7,13 @@ namespace project.Models;
 public class Certificate
 {
     [Key]
-    public int Id { get; set; }
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
     [Required]
-    public int CourseId { get; set; }
+    public string CourseId { get; set; } = null!;
 
     [Required]
-    public int StudentId { get; set; }
+    public string StudentId { get; set; } = null!;
 
     [Required]
     public string CertificateUrl { get; set; } = null!;
