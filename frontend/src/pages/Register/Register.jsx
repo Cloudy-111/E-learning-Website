@@ -1,6 +1,6 @@
 import image from '../../assets/image_resources/image.png'
 import '../../assets/styles/pages/_register.scss'
-import FormRegister from '../../components/FormRegister'
+import FormRegister from '../../components/Form/FormRegister'
 
 
 function RegisterPage(){

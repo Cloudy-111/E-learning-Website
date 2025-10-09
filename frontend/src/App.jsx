@@ -5,6 +5,7 @@ import viteLogo from '/vite.svg'
 import './App.css'
 import { BrowserRouter, Routes, Route, NavLink } from "react-router-dom";
 import RegisterPage from './pages/Register/Register';
+import LoginPage from './pages/Login/Login';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -33,9 +34,11 @@ function App() {
           Click on the Vite and React logos to learn more
         </p> */}
         <NavLink to="/register">Register</NavLink>
+        <NavLink to="/login">Login</NavLink>
 
         <Routes>
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/login" element={<LoginPage/>} />
         </Routes>
       </div>
     </BrowserRouter>
