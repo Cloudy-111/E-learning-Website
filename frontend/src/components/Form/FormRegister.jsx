@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import '../assets/styles/components/_formRegister.scss'
+import '../../assets/styles/components/_formRegister_Login.scss'
 
 function FormRegister(props){
     const [regsiterInputs, setRegsiterInputs] = useState({});
@@ -50,7 +50,7 @@ function FormRegister(props){
     }
 
     return (
-        <form className='form-register' onSubmit={handleSubmit}>
+        <form className='form-register-login' onSubmit={handleSubmit}>
             <label>
                 Username:
                 <input

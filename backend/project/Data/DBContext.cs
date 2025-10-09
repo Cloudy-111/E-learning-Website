@@ -8,6 +8,7 @@ public class DBContext : IdentityDbContext<User>
     {
     }
 
+    public DbSet<User> User { get; set; } = null!;
     public DbSet<Student> Students { get; set; } = null!;
     public DbSet<Teacher> Teachers { get; set; } = null!;
     public DbSet<Admin> Admins { get; set; } = null!;
@@ -78,7 +79,7 @@ public class DBContext : IdentityDbContext<User>
             .HasOne(e => e.Student)
             .WithMany(s => s.Enrollments)
             .HasForeignKey(e => e.StudentId)
-            .OnDelete(DeleteBehavior.Restrict); 
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<Enrollment_course>()
             .HasOne(e => e.Course)
@@ -129,7 +130,7 @@ public class DBContext : IdentityDbContext<User>
            .HasOne(s => s.Student)
            .WithMany(st => st.Submissions)
            .HasForeignKey(s => s.StudentId)
-           .OnDelete(DeleteBehavior.Restrict); 
+           .OnDelete(DeleteBehavior.Restrict);
 
         // Course ↔ CourseReview (1-n)
         modelBuilder.Entity<CourseReview>()
@@ -143,7 +144,7 @@ public class DBContext : IdentityDbContext<User>
            .HasOne(r => r.Student)
            .WithMany(s => s.Reviews)
            .HasForeignKey(r => r.StudentId)
-           .OnDelete(DeleteBehavior.Restrict); 
+           .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<CourseReview>()
            .HasIndex(r => new { r.CourseId, r.StudentId })
@@ -154,7 +155,7 @@ public class DBContext : IdentityDbContext<User>
             .HasOne(o => o.Student)
             .WithMany(s => s.Orders)
             .HasForeignKey(o => o.StudentId)
-            .OnDelete(DeleteBehavior.Restrict); 
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Order ↔ OrderDetails (1-n)
         modelBuilder.Entity<OrderDetail>()
@@ -192,6 +193,6 @@ public class DBContext : IdentityDbContext<User>
             .HasOne(c => c.Student)
             .WithMany(s => s.Certificates)
             .HasForeignKey(c => c.StudentId)
-            .OnDelete(DeleteBehavior.Restrict); 
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
