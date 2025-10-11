@@ -21,5 +21,5 @@ public class Student
     public ICollection<CourseReview> Reviews { get; set; } = new List<CourseReview>();
     public ICollection<Order> Orders { get; set; } = new List<Order>();
     public ICollection<Certificate> Certificates { get; set; } = new List<Certificate>();
-
+    public ICollection<SubmissionExam> SubmissionExams { get; set; } = new List<SubmissionExam>();
 }

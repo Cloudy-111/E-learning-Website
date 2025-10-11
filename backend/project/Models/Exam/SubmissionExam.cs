@@ -14,7 +14,7 @@ public class SubmissionExam
     public double Score { get; set; } = 0.0;
 
     [ForeignKey(nameof(StudentId))]
-    public User Student { get; set; } = null!;
+    public Student Student { get; set; } = null!;
     [ForeignKey(nameof(ExamId))]
     public Exam Exam { get; set; } = null!;
 

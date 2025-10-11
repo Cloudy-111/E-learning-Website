@@ -66,6 +66,12 @@ public class DBContext : IdentityDbContext<User>
             .WithMany(cat => cat.Courses)
             .HasForeignKey(c => c.CategoryId);
 
+        // Category ↔ Exam (1-n)
+        modelBuilder.Entity<Exam>()
+            .HasOne(e => e.Category)
+            .WithMany(cat => cat.Exams)
+            .HasForeignKey(e => e.CategoryId);
+
         // Course ↔ CourseContent (1-1)
         modelBuilder.Entity<Course>()
             .HasOne(c => c.Content)
@@ -200,6 +206,13 @@ public class DBContext : IdentityDbContext<User>
             .HasForeignKey(c => c.StudentId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // Student - SubmissionExam (n - 1)
+        modelBuilder.Entity<SubmissionExam>()
+            .HasOne(se => se.Student)
+            .WithMany(s => s.SubmissionExams)
+            .HasForeignKey(se => se.StudentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         // Exam - QuestionExam (1-n)
         modelBuilder.Entity<Exam>()
             .HasMany(e => e.Questions)
@@ -228,14 +241,21 @@ public class DBContext : IdentityDbContext<User>
             .HasForeignKey(a => a.SubmissionExamId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // SubmissionAnswer - SubmissionExam (n - 1)
+        modelBuilder.Entity<SubmissionAnswer>()
+            .HasOne(a => a.SubmissionExam)
+            .WithMany(s => s.SubmissionAnswers)
+            .HasForeignKey(a => a.SubmissionExamId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         // SubmissionAnswer - QuestionExam (n - 1)
         modelBuilder.Entity<SubmissionAnswer>()
             .HasOne(a => a.QuestionExam)
-            .WithMany()
+            .WithMany(qe => qe.SubmissionAnswers)
             .HasForeignKey(a => a.QuestionExamId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // === SubmissionAnswer - Choice (0 - 1) ===
+        // SubmissionAnswer - Choice (0 - 1)
         modelBuilder.Entity<SubmissionAnswer>()
             .HasOne(a => a.SelectedChoice)
             .WithMany()

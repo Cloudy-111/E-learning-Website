@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace project.Migrations
 {
     [DbContext(typeof(DBContext))]
-    partial class DBContextModelSnapshot : ModelSnapshot
+    [Migration("20251011161639_UpdateExamCategories")]
+    partial class UpdateExamCategories
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -264,6 +267,9 @@ namespace project.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("QuestionExamId1")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<double>("ScoreAwarded")
                         .HasColumnType("float");
 
@@ -277,6 +283,8 @@ namespace project.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("QuestionExamId");
+
+                    b.HasIndex("QuestionExamId1");
 
                     b.HasIndex("SelectedChoiceId");
 
@@ -999,10 +1007,14 @@ namespace project.Migrations
             modelBuilder.Entity("SubmissionAnswer", b =>
                 {
                     b.HasOne("QuestionExam", "QuestionExam")
-                        .WithMany("SubmissionAnswers")
+                        .WithMany()
                         .HasForeignKey("QuestionExamId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("QuestionExam", null)
+                        .WithMany("SubmissionAnswers")
+                        .HasForeignKey("QuestionExamId1");
 
                     b.HasOne("Choice", "SelectedChoice")
                         .WithMany()
