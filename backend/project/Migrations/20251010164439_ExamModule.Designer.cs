@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace project.Migrations
 {
     [DbContext(typeof(DBContext))]
-    partial class DBContextModelSnapshot : ModelSnapshot
+    [Migration("20251010164439_ExamModule")]
+    partial class ExamModule
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,9 +56,8 @@ namespace project.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("CategoryId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<string>("Category")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -73,8 +75,6 @@ namespace project.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AdminId");
-
-                    b.HasIndex("CategoryId");
 
                     b.ToTable("Exams");
                 });
@@ -264,6 +264,9 @@ namespace project.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("QuestionExamId1")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<double>("ScoreAwarded")
                         .HasColumnType("float");
 
@@ -277,6 +280,8 @@ namespace project.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("QuestionExamId");
+
+                    b.HasIndex("QuestionExamId1");
 
                     b.HasIndex("SelectedChoiceId");
 
@@ -923,15 +928,7 @@ namespace project.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("project.Models.Category", "Category")
-                        .WithMany("Exams")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Admin");
-
-                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -999,10 +996,14 @@ namespace project.Migrations
             modelBuilder.Entity("SubmissionAnswer", b =>
                 {
                     b.HasOne("QuestionExam", "QuestionExam")
-                        .WithMany("SubmissionAnswers")
+                        .WithMany()
                         .HasForeignKey("QuestionExamId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("QuestionExam", null)
+                        .WithMany("SubmissionAnswers")
+                        .HasForeignKey("QuestionExamId1");
 
                     b.HasOne("Choice", "SelectedChoice")
                         .WithMany()
@@ -1030,10 +1031,10 @@ namespace project.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("project.Models.Student", "Student")
-                        .WithMany("SubmissionExams")
+                    b.HasOne("project.Models.User", "Student")
+                        .WithMany()
                         .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Exam");
@@ -1293,8 +1294,6 @@ namespace project.Migrations
             modelBuilder.Entity("project.Models.Category", b =>
                 {
                     b.Navigation("Courses");
-
-                    b.Navigation("Exams");
                 });
 
             modelBuilder.Entity("project.Models.Course", b =>
@@ -1347,8 +1346,6 @@ namespace project.Migrations
                     b.Navigation("Orders");
 
                     b.Navigation("Reviews");
-
-                    b.Navigation("SubmissionExams");
 
                     b.Navigation("Submissions");
                 });

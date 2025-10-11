@@ -26,6 +26,11 @@ public class DBContext : IdentityDbContext<User>
     public DbSet<OrderDetail> OrderDetails { get; set; } = null!;
     public DbSet<Payment> Payments { get; set; } = null!;
     public DbSet<Certificate> Certificates { get; set; } = null!;
+    public DbSet<Exam> Exams { get; set; } = null!;
+    public DbSet<QuestionExam> QuestionExams { get; set; } = null!;
+    public DbSet<Choice> Choices { get; set; } = null!;
+    public DbSet<SubmissionExam> SubmissionExams { get; set; } = null!;
+    public DbSet<SubmissionAnswer> SubmissionAnswers { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -60,6 +65,12 @@ public class DBContext : IdentityDbContext<User>
             .HasOne(c => c.Category)
             .WithMany(cat => cat.Courses)
             .HasForeignKey(c => c.CategoryId);
+
+        // Category ↔ Exam (1-n)
+        modelBuilder.Entity<Exam>()
+            .HasOne(e => e.Category)
+            .WithMany(cat => cat.Exams)
+            .HasForeignKey(e => e.CategoryId);
 
         // Course ↔ CourseContent (1-1)
         modelBuilder.Entity<Course>()
@@ -193,6 +204,62 @@ public class DBContext : IdentityDbContext<User>
             .HasOne(c => c.Student)
             .WithMany(s => s.Certificates)
             .HasForeignKey(c => c.StudentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Student - SubmissionExam (n - 1)
+        modelBuilder.Entity<SubmissionExam>()
+            .HasOne(se => se.Student)
+            .WithMany(s => s.SubmissionExams)
+            .HasForeignKey(se => se.StudentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Exam - QuestionExam (1-n)
+        modelBuilder.Entity<Exam>()
+            .HasMany(e => e.Questions)
+            .WithOne(q => q.Exam)
+            .HasForeignKey(q => q.ExamId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // QuestionExam - Choice (1-n)
+        modelBuilder.Entity<QuestionExam>()
+            .HasMany(q => q.Choices)
+            .WithOne(c => c.QuestionExam)
+            .HasForeignKey(c => c.QuestionExamId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Exam - SubmissionExam (1-n)
+        modelBuilder.Entity<Exam>()
+            .HasMany(e => e.Submissions)
+            .WithOne(s => s.Exam)
+            .HasForeignKey(s => s.ExamId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // SubmissionExam - SubmissionAnswer (1 - n)
+        modelBuilder.Entity<SubmissionExam>()
+            .HasMany(s => s.SubmissionAnswers)
+            .WithOne(a => a.SubmissionExam)
+            .HasForeignKey(a => a.SubmissionExamId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // SubmissionAnswer - SubmissionExam (n - 1)
+        modelBuilder.Entity<SubmissionAnswer>()
+            .HasOne(a => a.SubmissionExam)
+            .WithMany(s => s.SubmissionAnswers)
+            .HasForeignKey(a => a.SubmissionExamId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // SubmissionAnswer - QuestionExam (n - 1)
+        modelBuilder.Entity<SubmissionAnswer>()
+            .HasOne(a => a.QuestionExam)
+            .WithMany(qe => qe.SubmissionAnswers)
+            .HasForeignKey(a => a.QuestionExamId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // SubmissionAnswer - Choice (0 - 1)
+        modelBuilder.Entity<SubmissionAnswer>()
+            .HasOne(a => a.SelectedChoice)
+            .WithMany()
+            .HasForeignKey(a => a.SelectedChoiceId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }
