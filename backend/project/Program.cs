@@ -13,6 +13,10 @@ builder.Services.AddIdentity<User, IdentityRole>()
     .AddDefaultTokenProviders();
 
 // Add services to the container.
+builder.Services.AddScoped<IExamService, ExamService>();
+
+// Add repository to the container.
+builder.Services.AddScoped<IExamRepository, ExamRepository>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
