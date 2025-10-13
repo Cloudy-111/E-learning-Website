@@ -16,6 +16,7 @@ public class Exam
     public string? Description { get; set; }
     public int DurationMinutes { get; set; }
     public int TotalCompleted { get; set; } = 0;
+    public bool IsOpened { get; set; } = false;
 
 
     [ForeignKey(nameof(AdminId))]
