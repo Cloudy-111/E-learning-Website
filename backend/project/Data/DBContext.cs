@@ -261,5 +261,12 @@ public class DBContext : IdentityDbContext<User>
             .WithMany()
             .HasForeignKey(a => a.SelectedChoiceId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        // Admin - Exam (1 - n)
+        modelBuilder.Entity<Admin>()
+            .HasMany(a => a.Exams)
+            .WithOne(e => e.Admin)
+            .HasForeignKey(e => e.AdminId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

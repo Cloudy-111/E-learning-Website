@@ -103,7 +103,8 @@ public static class DBSeeder
                 .RuleFor(e => e.Description, f => f.Lorem.Paragraph())
                 .RuleFor(e => e.DurationMinutes, f => f.Random.Int(30, 120))
                 .RuleFor(e => e.TotalCompleted, 0)
-                .RuleFor(e => e.CategoryId, f => f.PickRandom(categories).Id);
+                .RuleFor(e => e.CategoryId, f => f.PickRandom(categories).Id)
+                .RuleFor(e => e.IsOpened, f => f.Random.Bool());
 
             var exams = examFaker.Generate(20);
             context.Exams.AddRange(exams);
