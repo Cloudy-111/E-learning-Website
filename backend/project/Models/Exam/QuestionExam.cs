@@ -16,6 +16,11 @@ public class QuestionExam
 
     public double Score { get; set; } = 1.0;
     public bool IsRequired { get; set; } = true;
+    public int? Order { get; set; }
+
+    // For versioning
+    public bool IsNewest { get; set; } = true;
+    public string? ParentQuestionId { get; set; }
 
     [ForeignKey(nameof(ExamId))]
     public Exam Exam { get; set; } = null!;

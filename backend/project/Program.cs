@@ -14,9 +14,13 @@ builder.Services.AddIdentity<User, IdentityRole>()
 
 // Add services to the container.
 builder.Services.AddScoped<IExamService, ExamService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IQuestionExamService, QuestionExamService>();
 
 // Add repository to the container.
 builder.Services.AddScoped<IExamRepository, ExamRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IQuestionExamRepository, QuestionExamRepository>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Mvc;
+
 public interface IExamService
 {
     Task<IEnumerable<Exam>> GetAllExamsAsync();
@@ -6,4 +8,5 @@ public interface IExamService
     Task UpdateExamAsync(Exam exam);
     Task<IEnumerable<Exam>> GetExamsByCategoryIdAsync(string categoryId);
     // Task DeleteExamAsync(int id);
+    Task<bool> UpdateOrderQuestionInExamAsync(UpdateQuestionOrderDTO dto);
 }
