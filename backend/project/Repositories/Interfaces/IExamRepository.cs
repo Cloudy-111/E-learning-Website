@@ -6,4 +6,5 @@ public interface IExamRepository
     Task UpdateExamAsync(Exam exam);
     Task<IEnumerable<Exam>> GetExamsByCategoryIdAsync(string categoryId);
     // Task DeleteExamAsync(int id);
+    Task UpdateOrderQuestionInExamAsync(string examId, List<QuestionExamOrderDTO> questionExams);
 }

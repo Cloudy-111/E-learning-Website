@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using project.Models;
 
 public class ExamRepository : IExamRepository
 {
@@ -39,4 +40,20 @@ public class ExamRepository : IExamRepository
     // {
 
     // }
+
+    public async Task UpdateOrderQuestionInExamAsync(string examId, List<QuestionExamOrderDTO> questionExams)
+    {
+        var questionDict = questionExams.ToDictionary(q => q.Id, q => q.Order ?? 0);
+
+        var questions = await _dbContext.QuestionExams
+            .Where(q => q.ExamId == examId && questionDict.Keys.Contains(q.Id))
+            .ToListAsync();
+
+        foreach (var q in questions)
+        {
+            q.Order = questionDict[q.Id];
+        }
+
+        await _dbContext.SaveChangesAsync();
+    }
 }

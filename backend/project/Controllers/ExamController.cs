@@ -100,4 +100,38 @@ public class ExamController : ControllerBase
             return NotFound(new { message = ex.Message });
         }
     }
+
+    [HttpPost("update-order-question")]
+    public async Task<IActionResult> UpdateOrderQuestionInExam([FromBody] UpdateQuestionOrderDTO updateQuestionOrderDTO)
+    {
+        if (updateQuestionOrderDTO == null || string.IsNullOrEmpty(updateQuestionOrderDTO.ExamId))
+            return BadRequest(new { message = "Invalid request data." });
+
+        try
+        {
+            bool result = await _examService.UpdateOrderQuestionInExamAsync(updateQuestionOrderDTO);
+
+            if (result)
+                return Ok(new { message = "List question order updated successfully." });
+
+            return StatusCode(StatusCodes.Status500InternalServerError,
+                new { message = "Failed to update question order." });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            {
+                message = "An error occurred while updating question order.",
+                detail = ex.Message
+            });
+        }
+    }
 }
