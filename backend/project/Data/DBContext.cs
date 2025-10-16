@@ -66,12 +66,6 @@ public class DBContext : IdentityDbContext<User>
             .WithMany(cat => cat.Courses)
             .HasForeignKey(c => c.CategoryId);
 
-        // Category ↔ Exam (1-n)
-        modelBuilder.Entity<Exam>()
-            .HasOne(e => e.Category)
-            .WithMany(cat => cat.Exams)
-            .HasForeignKey(e => e.CategoryId);
-
         // Course ↔ CourseContent (1-1)
         modelBuilder.Entity<Course>()
             .HasOne(c => c.Content)
@@ -261,13 +255,6 @@ public class DBContext : IdentityDbContext<User>
             .WithMany()
             .HasForeignKey(a => a.SelectedChoiceId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        // Teacher - Exam (1 - n)
-        modelBuilder.Entity<Teacher>()
-            .HasMany(a => a.Exams)
-            .WithOne(e => e.Teacher)
-            .HasForeignKey(e => e.TeacherId)
-            .OnDelete(DeleteBehavior.NoAction);
 
         // CourseContent - Exam (1 - n)
         modelBuilder.Entity<CourseContent>()

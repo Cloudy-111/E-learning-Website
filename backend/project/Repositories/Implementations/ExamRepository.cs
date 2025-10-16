@@ -31,11 +31,6 @@ public class ExamRepository : IExamRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<IEnumerable<Exam>> GetExamsByCategoryIdAsync(string categoryId)
-    {
-        return await _dbContext.Exams.Where(e => e.CategoryId == categoryId).ToListAsync();
-    }
-
     // public async Task DeleteExamAsync(string id)
     // {
 
