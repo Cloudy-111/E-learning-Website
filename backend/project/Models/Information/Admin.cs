@@ -12,6 +12,5 @@ public class Admin
     public string UserId { get; set; } = null!;
 
     [ForeignKey(nameof(UserId))]
-    public User User { get; set; } = null!;
-
+    public User User { get; set; } = null!
 }
