@@ -50,7 +50,7 @@ public class ExamController : ControllerBase
     {
         var newExam = new Exam
         {
-            AdminId = exam.AdminId,
+            TeacherId = exam.TeacherId,
             CategoryId = exam.CategoryId,
             Title = exam.Title,
             Description = exam.Description,

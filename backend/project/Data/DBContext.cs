@@ -77,7 +77,7 @@ public class DBContext : IdentityDbContext<User>
             .HasOne(c => c.Content)
             .WithOne(cc => cc.Course)
             .HasForeignKey<CourseContent>(cc => cc.CourseId)
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
         // CourseContent ↔ Lesson (1-n)
         modelBuilder.Entity<Lesson>()
@@ -262,11 +262,25 @@ public class DBContext : IdentityDbContext<User>
             .HasForeignKey(a => a.SelectedChoiceId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // Admin - Exam (1 - n)
-        modelBuilder.Entity<Admin>()
+        // Teacher - Exam (1 - n)
+        modelBuilder.Entity<Teacher>()
             .HasMany(a => a.Exams)
-            .WithOne(e => e.Admin)
-            .HasForeignKey(e => e.AdminId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .WithOne(e => e.Teacher)
+            .HasForeignKey(e => e.TeacherId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        // CourseContent - Exam (1 - n)
+        modelBuilder.Entity<CourseContent>()
+            .HasMany(c => c.Exams)
+            .WithOne(e => e.CourseContent)
+            .HasForeignKey(e => e.CourseContentId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        // Lesson - Exam (1 - n)
+        modelBuilder.Entity<Lesson>()
+            .HasMany(l => l.Exams)
+            .WithOne(e => e.Lesson)
+            .HasForeignKey(e => e.LessonId)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }
