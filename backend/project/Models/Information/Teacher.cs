@@ -19,6 +19,5 @@ public class Teacher
 
     // Navigation
     public ICollection<Course> Courses { get; set; } = new List<Course>();
-    public ICollection<Exam> Exams { get; set; } = new List<Exam>();
 
 }

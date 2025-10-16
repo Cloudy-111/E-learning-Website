@@ -31,27 +31,11 @@ public class ExamController : ControllerBase
         }
     }
 
-    [HttpGet("category/{categoryId}")]
-    public async Task<IActionResult> GetExamsByCategoryId(string categoryId)
-    {
-        try
-        {
-            var listExams = await _examService.GetExamsByCategoryIdAsync(categoryId);
-            return Ok(listExams);
-        }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(new { message = ex.Message });
-        }
-    }
-
     [HttpPost("create-new-exam")]
     public async Task<IActionResult> CreateNewExam([FromBody] CreateExamDTO exam)
     {
         var newExam = new Exam
         {
-            TeacherId = exam.TeacherId,
-            CategoryId = exam.CategoryId,
             Title = exam.Title,
             Description = exam.Description,
             DurationMinutes = exam.DurationMinutes,

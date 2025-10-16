@@ -36,16 +36,6 @@ public class ExamService : IExamService
         await _examRepository.UpdateExamAsync(exam);
     }
 
-    public async Task<IEnumerable<Exam>> GetExamsByCategoryIdAsync(string categoryId)
-    {
-        var listExams = await _examRepository.GetExamsByCategoryIdAsync(categoryId);
-        if (!listExams.Any())
-        {
-            throw new KeyNotFoundException($"No exams found for category id {categoryId}.");
-        }
-        return listExams;
-    }
-
     // public async Task DeleteExamAsync(int id)
     // {
 

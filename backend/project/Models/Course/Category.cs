@@ -15,5 +15,4 @@ public class Category
 
     // Navigation 1-n
     public ICollection<Course> Courses { get; set; } = new List<Course>();
-    public ICollection<Exam> Exams { get; set; } = new List<Exam>();
 }
