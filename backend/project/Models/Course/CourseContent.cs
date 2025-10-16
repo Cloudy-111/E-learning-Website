@@ -23,4 +23,5 @@ public class CourseContent
 
     // Navigation 1-n
     public ICollection<Lesson> Lessons { get; set; } = new List<Lesson>();
+    public ICollection<Exam> Exams { get; set; } = new List<Exam>();
 }
