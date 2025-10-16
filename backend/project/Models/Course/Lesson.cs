@@ -24,6 +24,5 @@ public class Lesson
     [ForeignKey(nameof(CourseContentId))]
     public CourseContent CourseContent { get; set; } = null!;
     public ICollection<Material> Materials { get; set; } = new List<Material>();
-    public ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();
     public ICollection<Exam> Exams { get; set; } = new List<Exam>();
 }

@@ -23,6 +23,6 @@ public class Payment
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
     [ForeignKey(nameof(OrderId))]
-    public Order Order { get; set; } = null!;
+    public Orders Order { get; set; } = null!;
 
 }

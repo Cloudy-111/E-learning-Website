@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using project.Models;
+using project.Models.Order;
+using project.Models.Posts;
+using project.Models.Stats;
 
 public class DBContext : IdentityDbContext<User>
 {
@@ -18,19 +21,18 @@ public class DBContext : IdentityDbContext<User>
     public DbSet<Lesson> Lessons { get; set; } = null!;
     public DbSet<Enrollment_course> Enrollments { get; set; } = null!;
     public DbSet<Material> Materials { get; set; } = null!;
-    public DbSet<Quiz> Quizzes { get; set; } = null!;
-    public DbSet<Question> Questions { get; set; } = null!;
-    public DbSet<Submission> Submissions { get; set; } = null!;
     public DbSet<CourseReview> CourseReviews { get; set; } = null!;
-    public DbSet<Order> Orders { get; set; } = null!;
+    public DbSet<Orders> Orders { get; set; } = null!;
     public DbSet<OrderDetail> OrderDetails { get; set; } = null!;
     public DbSet<Payment> Payments { get; set; } = null!;
-    public DbSet<Certificate> Certificates { get; set; } = null!;
     public DbSet<Exam> Exams { get; set; } = null!;
     public DbSet<QuestionExam> QuestionExams { get; set; } = null!;
     public DbSet<Choice> Choices { get; set; } = null!;
     public DbSet<SubmissionExam> SubmissionExams { get; set; } = null!;
     public DbSet<SubmissionAnswer> SubmissionAnswers { get; set; } = null!;
+
+    public DbSet<Post> Posts { get; set; }
+    public DbSet<ForumQuestion> ForumQuestions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -103,46 +105,6 @@ public class DBContext : IdentityDbContext<User>
             .WithMany(l => l.Materials)
             .HasForeignKey(m => m.LessonId);
 
-        // Quiz ↔ Course (1-n)
-        modelBuilder.Entity<Quiz>()
-            .HasOne(q => q.Course)
-            .WithMany(c => c.Quizzes)
-            .HasForeignKey(q => q.CourseId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        // Lesson ↔ Quiz (1-n)
-        modelBuilder.Entity<Quiz>()
-            .HasOne(q => q.Lesson)
-            .WithMany(l => l.Quizzes)
-            .HasForeignKey(q => q.LessonId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        // Quiz ↔ Question (1-n)
-        modelBuilder.Entity<Question>()
-            .HasOne(ques => ques.Quiz)
-            .WithMany(q => q.Questions)
-            .HasForeignKey(ques => ques.QuizId);
-
-        // Quiz ↔ Submission (1-n)
-        modelBuilder.Entity<Submission>()
-           .HasOne(s => s.Quiz)
-           .WithMany(q => q.Submissions)
-           .HasForeignKey(s => s.QuizId)
-           .OnDelete(DeleteBehavior.Cascade);
-
-        // Student ↔ Submission (1-n)
-        modelBuilder.Entity<Submission>()
-           .HasOne(s => s.Student)
-           .WithMany(st => st.Submissions)
-           .HasForeignKey(s => s.StudentId)
-           .OnDelete(DeleteBehavior.Restrict);
-
-        // Course ↔ CourseReview (1-n)
-        modelBuilder.Entity<CourseReview>()
-           .HasOne(r => r.Course)
-           .WithMany(c => c.Reviews)
-           .HasForeignKey(r => r.CourseId)
-           .OnDelete(DeleteBehavior.Cascade);
 
         // Student ↔ CourseReview (1-n)
         modelBuilder.Entity<CourseReview>()
@@ -156,7 +118,7 @@ public class DBContext : IdentityDbContext<User>
            .IsUnique();
 
         // Student ↔ Orders (1-n)
-        modelBuilder.Entity<Order>()
+        modelBuilder.Entity<Orders>()
             .HasOne(o => o.Student)
             .WithMany(s => s.Orders)
             .HasForeignKey(o => o.StudentId)
@@ -164,7 +126,7 @@ public class DBContext : IdentityDbContext<User>
 
         // Order ↔ OrderDetails (1-n)
         modelBuilder.Entity<OrderDetail>()
-           .HasOne(od => od.Order)
+           .HasOne(od => od.Orders)
            .WithMany(o => o.OrderDetails)
            .HasForeignKey(od => od.OrderId)
            .OnDelete(DeleteBehavior.Cascade);
@@ -183,22 +145,6 @@ public class DBContext : IdentityDbContext<User>
            .HasForeignKey(p => p.OrderId)
            .OnDelete(DeleteBehavior.Cascade);
 
-        // Certificate
-        modelBuilder.Entity<Certificate>()
-            .HasIndex(c => new { c.CourseId, c.StudentId })
-            .IsUnique();
-
-        modelBuilder.Entity<Certificate>()
-            .HasOne(c => c.Course)
-            .WithMany(c => c.Certificates)
-            .HasForeignKey(c => c.CourseId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<Certificate>()
-            .HasOne(c => c.Student)
-            .WithMany(s => s.Certificates)
-            .HasForeignKey(c => c.StudentId)
-            .OnDelete(DeleteBehavior.Restrict);
 
         // Student - SubmissionExam (n - 1)
         modelBuilder.Entity<SubmissionExam>()
@@ -269,5 +215,94 @@ public class DBContext : IdentityDbContext<User>
             .WithOne(e => e.Lesson)
             .HasForeignKey(e => e.LessonId)
             .OnDelete(DeleteBehavior.NoAction);
+
+        // Quan hệ Member - Discussion (1-nhiều)
+        modelBuilder.Entity<Student>()
+            .HasMany(m => m.Discussions)
+            .WithOne(d => d.Student)
+            .HasForeignKey(d => d.StudentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Quan hệ Discussion tự tham chiếu (1-nhiều)
+        modelBuilder.Entity<Discussion>()
+            .HasOne(d => d.ParentDiscussion)
+            .WithMany(p => p.Replies)
+            .HasForeignKey(d => d.ParentDiscussionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Index hữu ích
+        modelBuilder.Entity<Discussion>()
+            .HasIndex(d => new { d.TargetType, d.TargetTypeId });
+
+
+          // Member - Discussion (1-nhiều)
+        modelBuilder.Entity<Student>()
+            .HasMany(m => m.Discussions)
+            .WithOne(d => d.Student)
+            .HasForeignKey(d => d.StudentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Discussion tự tham chiếu (1-nhiều)
+        modelBuilder.Entity<Discussion>()
+            .HasOne(d => d.ParentDiscussion)
+            .WithMany(p => p.Replies)
+            .HasForeignKey(d => d.ParentDiscussionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Member - Like (1-nhiều)
+        modelBuilder.Entity<Student>()
+            .HasMany<Likes>()
+            .WithOne(l => l.Student)
+            .HasForeignKey(l => l.StudentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Index để tìm nhanh Like theo đối tượng
+        modelBuilder.Entity<Likes>()
+            .HasIndex(l => new { l.TargetType, l.TargetId });
+
+        // ========== REPORT ==========
+        modelBuilder.Entity<Reports>()
+            .HasOne(r => r.Student)
+            .WithMany(m => m.Reports)
+            .HasForeignKey(r => r.ReporterId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Reports>()
+            .HasIndex(r => new { r.TargetType, r.TargetTypeId });
+
+
+
+        // ========== STUDENT STATS (1-1) ==========
+        modelBuilder.Entity<Student>()
+            .HasOne(m => m.StudentStats)
+            .WithOne(ms => ms.Student)
+            .HasForeignKey<StudentStats>(ms => ms.StudentId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+
+        // ========== COURSE STATS ==========
+        modelBuilder.Entity<Course>()
+            .HasOne(c => c.CourseStats)
+            .WithOne(cs => cs.Course)
+            .HasForeignKey<CourseStats>(cs => cs.CourseId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        
+         // ========== TEACHER PAYOUT ==========
+        modelBuilder.Entity<TeacherPayout>()
+            .HasOne(tp => tp.Teacher)
+            .WithMany(t => t.TeacherPayouts)
+            .HasForeignKey(tp => tp.TeacherId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<TeacherPayout>()
+            .HasIndex(tp => new { tp.TeacherId, tp.Month, tp.Year })
+            .IsUnique(); // mỗi giáo viên chỉ có 1 payout/tháng/năm
+
+        
+
+
+
+
     }
 }

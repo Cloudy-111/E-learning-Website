@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace project.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20251016155733_ModifiedInExam")]
-    partial class ModifiedInExam
+    [Migration("20251016165723_TenMigration")]
+    partial class TenMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -73,10 +73,6 @@ namespace project.Migrations
                     b.Property<string>("AdminId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("CategoryId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("CourseContentId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -94,10 +90,6 @@ namespace project.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("TeacherId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -109,13 +101,9 @@ namespace project.Migrations
 
                     b.HasIndex("AdminId");
 
-                    b.HasIndex("CategoryId");
-
                     b.HasIndex("CourseContentId");
 
                     b.HasIndex("LessonId");
-
-                    b.HasIndex("TeacherId");
 
                     b.ToTable("Exams");
                 });
@@ -701,65 +689,6 @@ namespace project.Migrations
                     b.ToTable("Payments");
                 });
 
-            modelBuilder.Entity("project.Models.Question", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CorrectAnswer")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("QuizId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("QuizId");
-
-                    b.ToTable("Questions");
-                });
-
-            modelBuilder.Entity("project.Models.Quiz", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("CourseId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LessonId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CourseId");
-
-                    b.HasIndex("LessonId");
-
-                    b.ToTable("Quizzes");
-                });
-
             modelBuilder.Entity("project.Models.Student", b =>
                 {
                     b.Property<string>("StudentId")
@@ -778,37 +707,6 @@ namespace project.Migrations
                         .IsUnique();
 
                     b.ToTable("Students");
-                });
-
-            modelBuilder.Entity("project.Models.Submission", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Answer")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("QuizId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<decimal?>("Score")
-                        .HasColumnType("decimal(5,2)");
-
-                    b.Property<string>("StudentId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("SubmitAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("QuizId");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("Submissions");
                 });
 
             modelBuilder.Entity("project.Models.Teacher", b =>
@@ -953,12 +851,6 @@ namespace project.Migrations
                         .WithMany("Exams")
                         .HasForeignKey("AdminId");
 
-                    b.HasOne("Category", "Category")
-                        .WithMany("Exams")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("project.Models.CourseContent", "CourseContent")
                         .WithMany("Exams")
                         .HasForeignKey("CourseContentId")
@@ -971,19 +863,9 @@ namespace project.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("project.Models.Teacher", "Teacher")
-                        .WithMany("Exams")
-                        .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Category");
-
                     b.Navigation("CourseContent");
 
                     b.Navigation("Lesson");
-
-                    b.Navigation("Teacher");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -1156,7 +1038,7 @@ namespace project.Migrations
             modelBuilder.Entity("project.Models.CourseReview", b =>
                 {
                     b.HasOne("project.Models.Course", "Course")
-                        .WithMany("Reviews")
+                        .WithMany()
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1254,34 +1136,6 @@ namespace project.Migrations
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("project.Models.Question", b =>
-                {
-                    b.HasOne("project.Models.Quiz", "Quiz")
-                        .WithMany("Questions")
-                        .HasForeignKey("QuizId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Quiz");
-                });
-
-            modelBuilder.Entity("project.Models.Quiz", b =>
-                {
-                    b.HasOne("project.Models.Course", "Course")
-                        .WithMany("Quizzes")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("project.Models.Lesson", "Lesson")
-                        .WithMany("Quizzes")
-                        .HasForeignKey("LessonId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Course");
-
-                    b.Navigation("Lesson");
-                });
-
             modelBuilder.Entity("project.Models.Student", b =>
                 {
                     b.HasOne("project.Models.User", "User")
@@ -1291,25 +1145,6 @@ namespace project.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("project.Models.Submission", b =>
-                {
-                    b.HasOne("project.Models.Quiz", "Quiz")
-                        .WithMany("Submissions")
-                        .HasForeignKey("QuizId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("project.Models.Student", "Student")
-                        .WithMany("Submissions")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Quiz");
-
-                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("project.Models.Teacher", b =>
@@ -1326,8 +1161,6 @@ namespace project.Migrations
             modelBuilder.Entity("Category", b =>
                 {
                     b.Navigation("Courses");
-
-                    b.Navigation("Exams");
                 });
 
             modelBuilder.Entity("Exam", b =>
@@ -1363,10 +1196,6 @@ namespace project.Migrations
                     b.Navigation("Enrollments");
 
                     b.Navigation("OrderDetails");
-
-                    b.Navigation("Quizzes");
-
-                    b.Navigation("Reviews");
                 });
 
             modelBuilder.Entity("project.Models.CourseContent", b =>
@@ -1381,8 +1210,6 @@ namespace project.Migrations
                     b.Navigation("Exams");
 
                     b.Navigation("Materials");
-
-                    b.Navigation("Quizzes");
                 });
 
             modelBuilder.Entity("project.Models.Order", b =>
@@ -1390,13 +1217,6 @@ namespace project.Migrations
                     b.Navigation("OrderDetails");
 
                     b.Navigation("Payments");
-                });
-
-            modelBuilder.Entity("project.Models.Quiz", b =>
-                {
-                    b.Navigation("Questions");
-
-                    b.Navigation("Submissions");
                 });
 
             modelBuilder.Entity("project.Models.Student", b =>
@@ -1410,15 +1230,11 @@ namespace project.Migrations
                     b.Navigation("Reviews");
 
                     b.Navigation("SubmissionExams");
-
-                    b.Navigation("Submissions");
                 });
 
             modelBuilder.Entity("project.Models.Teacher", b =>
                 {
                     b.Navigation("Courses");
-
-                    b.Navigation("Exams");
                 });
 
             modelBuilder.Entity("project.Models.User", b =>

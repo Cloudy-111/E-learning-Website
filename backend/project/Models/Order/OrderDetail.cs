@@ -19,7 +19,7 @@ public class OrderDetail
     public decimal Price { get; set; }
 
     [ForeignKey(nameof(OrderId))]
-    public Order Order { get; set; } = null!;
+    public Orders Orders { get; set; } = null!;
 
     [ForeignKey(nameof(CourseId))]
     public Course Course { get; set; } = null!;

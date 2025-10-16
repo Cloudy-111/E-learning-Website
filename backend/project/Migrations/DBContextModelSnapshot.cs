@@ -67,9 +67,6 @@ namespace project.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("AdminId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("CourseContentId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -95,8 +92,6 @@ namespace project.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AdminId");
 
                     b.HasIndex("CourseContentId");
 
@@ -368,36 +363,6 @@ namespace project.Migrations
                     b.ToTable("Admins");
                 });
 
-            modelBuilder.Entity("project.Models.Certificate", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("CertificateUrl")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CourseId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("IssuedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("StudentId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StudentId");
-
-                    b.HasIndex("CourseId", "StudentId")
-                        .IsUnique();
-
-                    b.ToTable("Certificates");
-                });
-
             modelBuilder.Entity("project.Models.Course", b =>
                 {
                     b.Property<string>("Id")
@@ -516,6 +481,9 @@ namespace project.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("CertificateUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("CourseId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -601,7 +569,69 @@ namespace project.Migrations
                     b.ToTable("Materials");
                 });
 
-            modelBuilder.Entity("project.Models.Order", b =>
+            modelBuilder.Entity("project.Models.Order.TeacherPayout", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("EarningPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Month")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("PaidAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("TeacherId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TeacherId", "Month", "Year")
+                        .IsUnique();
+
+                    b.ToTable("TeacherPayout");
+                });
+
+            modelBuilder.Entity("project.Models.OrderDetail", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CourseId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("OrderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(10,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("OrderDetails");
+                });
+
+            modelBuilder.Entity("project.Models.Orders", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -629,31 +659,6 @@ namespace project.Migrations
                     b.HasIndex("StudentId");
 
                     b.ToTable("Orders");
-                });
-
-            modelBuilder.Entity("project.Models.OrderDetail", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("CourseId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("OrderId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CourseId");
-
-                    b.HasIndex("OrderId");
-
-                    b.ToTable("OrderDetails");
                 });
 
             modelBuilder.Entity("project.Models.Payment", b =>
@@ -686,7 +691,7 @@ namespace project.Migrations
                     b.ToTable("Payments");
                 });
 
-            modelBuilder.Entity("project.Models.Question", b =>
+            modelBuilder.Entity("project.Models.Posts.Discussion", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -695,27 +700,166 @@ namespace project.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("CorrectAnswer")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("QuizId")
+                    b.Property<string>("ParentDiscussionId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("StudentId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("TargetType")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("TargetTypeId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("QuizId");
+                    b.HasIndex("ParentDiscussionId");
 
-                    b.ToTable("Questions");
+                    b.HasIndex("StudentId");
+
+                    b.HasIndex("TargetType", "TargetTypeId");
+
+                    b.ToTable("Discussion");
                 });
 
-            modelBuilder.Entity("project.Models.Quiz", b =>
+            modelBuilder.Entity("project.Models.Posts.ForumQuestion", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("CourseId")
+                    b.Property<string>("ContentJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DiscussionCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StudentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Tags")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("ForumQuestions");
+                });
+
+            modelBuilder.Entity("project.Models.Posts.Likes", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("StudentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("StudentId1")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("TargetId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("TargetType")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StudentId");
+
+                    b.HasIndex("StudentId1");
+
+                    b.HasIndex("TargetType", "TargetId");
+
+                    b.ToTable("Likes");
+                });
+
+            modelBuilder.Entity("project.Models.Posts.Post", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AuthorId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ContentJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DiscussionCount")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsPublished")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("LikeCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Tags")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("ThumbnailUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ViewCount")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
+
+                    b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("project.Models.Posts.Reports", b =>
+                {
+                    b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("CreatedAt")
@@ -724,25 +868,80 @@ namespace project.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("LessonId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
+                    b.Property<string>("Reason")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<string>("Type")
+                    b.Property<string>("ReporterId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("TargetType")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("TargetTypeId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CourseId");
+                    b.HasIndex("ReporterId");
 
-                    b.HasIndex("LessonId");
+                    b.HasIndex("TargetType", "TargetTypeId");
 
-                    b.ToTable("Quizzes");
+                    b.ToTable("Reports");
+                });
+
+            modelBuilder.Entity("project.Models.Stats.CourseStats", b =>
+                {
+                    b.Property<string>("CourseId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<double>("AverageRating")
+                        .HasColumnType("float");
+
+                    b.Property<int>("TotalEnrollment")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TotalReview")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("CourseId");
+
+                    b.ToTable("CourseStats");
+                });
+
+            modelBuilder.Entity("project.Models.Stats.StudentStats", b =>
+                {
+                    b.Property<string>("StudentId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("ContributePoint")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DiscussionCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PostCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuestionCount")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("StudentId");
+
+                    b.ToTable("StudentStats");
                 });
 
             modelBuilder.Entity("project.Models.Student", b =>
@@ -763,37 +962,6 @@ namespace project.Migrations
                         .IsUnique();
 
                     b.ToTable("Students");
-                });
-
-            modelBuilder.Entity("project.Models.Submission", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Answer")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("QuizId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<decimal?>("Score")
-                        .HasColumnType("decimal(5,2)");
-
-                    b.Property<string>("StudentId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("SubmitAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("QuizId");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("Submissions");
                 });
 
             modelBuilder.Entity("project.Models.Teacher", b =>
@@ -934,10 +1102,6 @@ namespace project.Migrations
 
             modelBuilder.Entity("Exam", b =>
                 {
-                    b.HasOne("project.Models.Admin", null)
-                        .WithMany("Exams")
-                        .HasForeignKey("AdminId");
-
                     b.HasOne("project.Models.CourseContent", "CourseContent")
                         .WithMany("Exams")
                         .HasForeignKey("CourseContentId")
@@ -1073,25 +1237,6 @@ namespace project.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("project.Models.Certificate", b =>
-                {
-                    b.HasOne("project.Models.Course", "Course")
-                        .WithMany("Certificates")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("project.Models.Student", "Student")
-                        .WithMany("Certificates")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-
-                    b.Navigation("Student");
-                });
-
             modelBuilder.Entity("project.Models.Course", b =>
                 {
                     b.HasOne("Category", "Category")
@@ -1125,7 +1270,7 @@ namespace project.Migrations
             modelBuilder.Entity("project.Models.CourseReview", b =>
                 {
                     b.HasOne("project.Models.Course", "Course")
-                        .WithMany("Reviews")
+                        .WithMany()
                         .HasForeignKey("CourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1182,15 +1327,15 @@ namespace project.Migrations
                     b.Navigation("Lesson");
                 });
 
-            modelBuilder.Entity("project.Models.Order", b =>
+            modelBuilder.Entity("project.Models.Order.TeacherPayout", b =>
                 {
-                    b.HasOne("project.Models.Student", "Student")
-                        .WithMany("Orders")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                    b.HasOne("project.Models.Teacher", "Teacher")
+                        .WithMany("TeacherPayouts")
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Student");
+                    b.Navigation("Teacher");
                 });
 
             modelBuilder.Entity("project.Models.OrderDetail", b =>
@@ -1201,7 +1346,7 @@ namespace project.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("project.Models.Order", "Order")
+                    b.HasOne("project.Models.Orders", "Orders")
                         .WithMany("OrderDetails")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1209,12 +1354,23 @@ namespace project.Migrations
 
                     b.Navigation("Course");
 
-                    b.Navigation("Order");
+                    b.Navigation("Orders");
+                });
+
+            modelBuilder.Entity("project.Models.Orders", b =>
+                {
+                    b.HasOne("project.Models.Student", "Student")
+                        .WithMany("Orders")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("project.Models.Payment", b =>
                 {
-                    b.HasOne("project.Models.Order", "Order")
+                    b.HasOne("project.Models.Orders", "Order")
                         .WithMany("Payments")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1223,32 +1379,92 @@ namespace project.Migrations
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("project.Models.Question", b =>
+            modelBuilder.Entity("project.Models.Posts.Discussion", b =>
                 {
-                    b.HasOne("project.Models.Quiz", "Quiz")
-                        .WithMany("Questions")
-                        .HasForeignKey("QuizId")
+                    b.HasOne("project.Models.Posts.Discussion", "ParentDiscussion")
+                        .WithMany("Replies")
+                        .HasForeignKey("ParentDiscussionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("project.Models.Student", "Student")
+                        .WithMany("Discussions")
+                        .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Quiz");
+                    b.Navigation("ParentDiscussion");
+
+                    b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("project.Models.Quiz", b =>
+            modelBuilder.Entity("project.Models.Posts.ForumQuestion", b =>
+                {
+                    b.HasOne("project.Models.Student", "Student")
+                        .WithMany("ForumQuestions")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("project.Models.Posts.Likes", b =>
+                {
+                    b.HasOne("project.Models.Student", "Student")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("project.Models.Student", null)
+                        .WithMany("Likes")
+                        .HasForeignKey("StudentId1");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("project.Models.Posts.Post", b =>
+                {
+                    b.HasOne("project.Models.Student", "Student")
+                        .WithMany("Posts")
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("project.Models.Posts.Reports", b =>
+                {
+                    b.HasOne("project.Models.Student", "Student")
+                        .WithMany("Reports")
+                        .HasForeignKey("ReporterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("project.Models.Stats.CourseStats", b =>
                 {
                     b.HasOne("project.Models.Course", "Course")
-                        .WithMany("Quizzes")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("project.Models.Lesson", "Lesson")
-                        .WithMany("Quizzes")
-                        .HasForeignKey("LessonId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .WithOne("CourseStats")
+                        .HasForeignKey("project.Models.Stats.CourseStats", "CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Course");
+                });
 
-                    b.Navigation("Lesson");
+            modelBuilder.Entity("project.Models.Stats.StudentStats", b =>
+                {
+                    b.HasOne("project.Models.Student", "Student")
+                        .WithOne("StudentStats")
+                        .HasForeignKey("project.Models.Stats.StudentStats", "StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("project.Models.Student", b =>
@@ -1260,25 +1476,6 @@ namespace project.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("project.Models.Submission", b =>
-                {
-                    b.HasOne("project.Models.Quiz", "Quiz")
-                        .WithMany("Submissions")
-                        .HasForeignKey("QuizId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("project.Models.Student", "Student")
-                        .WithMany("Submissions")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Quiz");
-
-                    b.Navigation("Student");
                 });
 
             modelBuilder.Entity("project.Models.Teacher", b =>
@@ -1316,24 +1513,15 @@ namespace project.Migrations
                     b.Navigation("SubmissionAnswers");
                 });
 
-            modelBuilder.Entity("project.Models.Admin", b =>
-                {
-                    b.Navigation("Exams");
-                });
-
             modelBuilder.Entity("project.Models.Course", b =>
                 {
-                    b.Navigation("Certificates");
-
                     b.Navigation("Content");
+
+                    b.Navigation("CourseStats");
 
                     b.Navigation("Enrollments");
 
                     b.Navigation("OrderDetails");
-
-                    b.Navigation("Quizzes");
-
-                    b.Navigation("Reviews");
                 });
 
             modelBuilder.Entity("project.Models.CourseContent", b =>
@@ -1348,42 +1536,48 @@ namespace project.Migrations
                     b.Navigation("Exams");
 
                     b.Navigation("Materials");
-
-                    b.Navigation("Quizzes");
                 });
 
-            modelBuilder.Entity("project.Models.Order", b =>
+            modelBuilder.Entity("project.Models.Orders", b =>
                 {
                     b.Navigation("OrderDetails");
 
                     b.Navigation("Payments");
                 });
 
-            modelBuilder.Entity("project.Models.Quiz", b =>
+            modelBuilder.Entity("project.Models.Posts.Discussion", b =>
                 {
-                    b.Navigation("Questions");
-
-                    b.Navigation("Submissions");
+                    b.Navigation("Replies");
                 });
 
             modelBuilder.Entity("project.Models.Student", b =>
                 {
-                    b.Navigation("Certificates");
+                    b.Navigation("Discussions");
 
                     b.Navigation("Enrollments");
 
+                    b.Navigation("ForumQuestions");
+
+                    b.Navigation("Likes");
+
                     b.Navigation("Orders");
+
+                    b.Navigation("Posts");
+
+                    b.Navigation("Reports");
 
                     b.Navigation("Reviews");
 
-                    b.Navigation("SubmissionExams");
+                    b.Navigation("StudentStats");
 
-                    b.Navigation("Submissions");
+                    b.Navigation("SubmissionExams");
                 });
 
             modelBuilder.Entity("project.Models.Teacher", b =>
                 {
                     b.Navigation("Courses");
+
+                    b.Navigation("TeacherPayouts");
                 });
 
             modelBuilder.Entity("project.Models.User", b =>

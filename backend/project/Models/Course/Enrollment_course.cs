@@ -18,6 +18,7 @@ public class Enrollment_course
     public DateTime EnrolledAt { get; set; } = DateTime.UtcNow;
     public decimal Progress { get; set; } = 0.00m;
     public string Status { get; set; } = "active";
+    public string? CertificateUrl { get; set; }
 
     [ForeignKey(nameof(StudentId))]
     public Student Student { get; set; } = null!;
