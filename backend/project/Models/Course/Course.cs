@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using project.Models.Stats;
 
 namespace project.Models;
 
@@ -50,9 +51,11 @@ public class Course
     public CourseContent? Content { get; set; }
 
 
-    public ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>(); public ICollection<CourseReview> Reviews { get; set; } = new List<CourseReview>();
     public ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
-    public ICollection<Certificate> Certificates { get; set; } = new List<Certificate>();
+
+    // Thêm liên kết 1–1
+    public CourseStats? CourseStats { get; set; }
+
 
 
 }
