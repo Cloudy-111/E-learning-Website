@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using project.Models;
 
 public class CourseRepository : ICourseRepository
 {
@@ -8,27 +9,12 @@ public class CourseRepository : ICourseRepository
         _dbContext = dbContext;
     }
 
-    public async Task<IEnumerable<CourseInformationDTO>> GetAllCoursesAsync()
+    public async Task<IEnumerable<Course>> GetAllCoursesAsync()
     {
         return await _dbContext.Courses
             .Include(c => c.Category)
             .Include(c => c.Teacher)
-            .Select(c => new CourseInformationDTO
-            {
-                Id = c.Id,
-                Title = c.Title,
-                Description = c.Description,
-                Price = c.Price,
-                DiscountPrice = c.DiscountPrice,
-                Status = c.Status,
-                ThumbnailUrl = c.ThumbnailUrl,
-                CreatedAt = c.CreatedAt,
-                UpdatedAt = c.UpdatedAt,
-                CategoryId = c.CategoryId,
-                CategoryName = c.Category.Name,
-                TeacherId = c.TeacherId,
-                TeacherName = c.Teacher.User.FullName
-            })
+            .ThenInclude(t => t.User)
             .ToListAsync();
     }
 
