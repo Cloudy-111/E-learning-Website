@@ -492,7 +492,7 @@ namespace project.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<decimal>("Progress")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("decimal(5,2)");
 
                     b.Property<string>("Status")
                         .IsRequired()

@@ -16,6 +16,7 @@ public class Enrollment_course
     public string CourseId { get; set; } = null!;
 
     public DateTime EnrolledAt { get; set; } = DateTime.UtcNow;
+    [Column(TypeName = "decimal(5,2)")]
     public decimal Progress { get; set; } = 0.00m;
     public string Status { get; set; } = "active";
     public string? CertificateUrl { get; set; }

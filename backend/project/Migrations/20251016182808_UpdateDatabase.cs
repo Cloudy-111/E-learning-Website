@@ -11,20 +11,7 @@ namespace project.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Exams_Admins_AdminId",
-                table: "Exams");
-
-            migrationBuilder.DropTable(
-                name: "Certificates");
-
-            migrationBuilder.DropIndex(
-                name: "IX_Exams_AdminId",
-                table: "Exams");
-
-            migrationBuilder.DropColumn(
-                name: "AdminId",
-                table: "Exams");
+            
 
             migrationBuilder.AddColumn<string>(
                 name: "CertificateUrl",
@@ -322,12 +309,6 @@ namespace project.Migrations
                 name: "CertificateUrl",
                 table: "Enrollments");
 
-            migrationBuilder.AddColumn<string>(
-                name: "AdminId",
-                table: "Exams",
-                type: "nvarchar(450)",
-                nullable: true);
-
             migrationBuilder.CreateTable(
                 name: "Certificates",
                 columns: table => new
@@ -356,11 +337,6 @@ namespace project.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Exams_AdminId",
-                table: "Exams",
-                column: "AdminId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Certificates_CourseId_StudentId",
                 table: "Certificates",
                 columns: new[] { "CourseId", "StudentId" },
@@ -371,12 +347,6 @@ namespace project.Migrations
                 table: "Certificates",
                 column: "StudentId");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_Exams_Admins_AdminId",
-                table: "Exams",
-                column: "AdminId",
-                principalTable: "Admins",
-                principalColumn: "AdminId");
         }
     }
 }
