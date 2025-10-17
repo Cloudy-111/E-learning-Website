@@ -5,5 +5,5 @@ public interface IExamRepository
     Task AddExamAsync(Exam exam);
     Task UpdateExamAsync(Exam exam);
     // Task DeleteExamAsync(int id);
-    Task UpdateOrderQuestionInExamAsync(string examId, List<QuestionExamOrderDTO> questionExams);
+    Task UpdateOrderQuestionInExamAsync(string examId, List<QuestionExam> questionExams);
 }

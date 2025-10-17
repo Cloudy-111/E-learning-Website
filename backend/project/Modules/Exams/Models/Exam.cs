@@ -7,8 +7,8 @@ public class Exam
     [Key]
     public string Id { get; set; } = Guid.NewGuid().ToString();
 
-    public string CourseContentId { get; set; } = null!;
-    public string LessonId { get; set; } = null!;
+    public string? CourseContentId { get; set; }
+    public string? LessonId { get; set; }
 
     [Required]
     public string Title { get; set; } = null!;
@@ -20,9 +20,9 @@ public class Exam
 
 
     [ForeignKey(nameof(CourseContentId))]
-    public CourseContent CourseContent { get; set; } = null!;
+    public CourseContent? CourseContent { get; set; }
     [ForeignKey(nameof(LessonId))]
-    public Lesson Lesson { get; set; } = null!;
+    public Lesson? Lesson { get; set; }
 
     public ICollection<QuestionExam> Questions { get; set; } = new List<QuestionExam>();
     public ICollection<SubmissionExam> Submissions { get; set; } = new List<SubmissionExam>();

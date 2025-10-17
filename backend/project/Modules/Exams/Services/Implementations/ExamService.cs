@@ -54,7 +54,14 @@ public class ExamService : IExamService
         if (!questionIdsFromDb.SetEquals(questionIdsFromDto))
             throw new Exception("Question list does not match the exam.");
 
-        await _examRepository.UpdateOrderQuestionInExamAsync(examId, questionExams);
+        var updatedEntities = questionExams.Select(q => new QuestionExam
+        {
+            Id = q.Id,
+            ExamId = examId,
+            Order = q.Order
+        }).ToList();
+
+        await _examRepository.UpdateOrderQuestionInExamAsync(examId, updatedEntities);
         return true;
     }
 }

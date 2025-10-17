@@ -121,7 +121,7 @@ public static class DBSeeder
             var courses = context.Courses.ToList();
             var courseContents = new List<CourseContent>();
 
-            foreach(Course course in courses)
+            foreach (Course course in courses)
             {
                 var courseContent = new CourseContent
                 {
@@ -140,7 +140,7 @@ public static class DBSeeder
         }
 
         // // Seed Lessons
-        if(!context.Lessons.Any())
+        if (!context.Lessons.Any())
         {
             var courseContents = context.CourseContents.ToList();
 
@@ -154,6 +154,42 @@ public static class DBSeeder
 
             var lessons = lessonFaker.Generate(100);
             context.Lessons.AddRange(lessons);
+
+            context.SaveChanges();
+        }
+
+        // // Seed Exams
+        if (!context.Exams.Any())
+        {
+            var coursesContents = context.CourseContents.ToList();
+            var lessons = context.Lessons.ToList();
+
+            var examFaker = new Faker<Exam>()
+                .RuleFor(e => e.Id, f => Guid.NewGuid().ToString())
+                .RuleFor(e => e.Title, f => f.Lorem.Sentence(5))
+                .RuleFor(e => e.Description, f => f.Lorem.Paragraph())
+                .RuleFor(e => e.DurationMinutes, f => f.Random.Int(30, 120))
+                .RuleFor(e => e.TotalCompleted, 0)
+                .RuleFor(e => e.IsOpened, f => f.Random.Bool());
+
+            var exams = new List<Exam>();
+
+            foreach (var courseContent in coursesContents)
+            {
+                var exam = examFaker.Generate();
+                exam.CourseContentId = courseContent.Id;
+                exam.LessonId = null;
+                exams.Add(exam);
+            }
+
+            foreach (var lesson in lessons.Take(20))
+            {
+                var exam = examFaker.Generate();
+                exam.LessonId = lesson.Id;
+                exam.CourseContentId = null;
+                exams.Add(exam);
+            }
+            context.Exams.AddRange(exams);
 
             context.SaveChanges();
         }
