@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-[Route("api/choices")]
+[Route("api/[Controller]")]
 [ApiController]
 public class ChoiceController : ControllerBase
 {
