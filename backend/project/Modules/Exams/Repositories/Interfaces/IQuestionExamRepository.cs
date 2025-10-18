@@ -1,5 +1,6 @@
 public interface IQuestionExamRepository
 {
+    Task<bool> ExistQuestionAsync(string questionId);
     Task AddQuestionToExamAsync(QuestionExam questionExam);
     Task RemoveQuestionFromExamAsync(string questionId, string examId);
     Task UpdateQuestionInExamAsync(QuestionExam questionExam);

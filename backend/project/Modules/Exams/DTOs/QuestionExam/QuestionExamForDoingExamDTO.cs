@@ -9,4 +9,5 @@ public class QuestionExamForDoingExamDTO
     public bool IsRequired { get; set; }
     public int? Order { get; set; }
     public bool IsNewest { get; set; }
+    public List<ChoiceForExamDTO>? Choices { get; set; }
 }

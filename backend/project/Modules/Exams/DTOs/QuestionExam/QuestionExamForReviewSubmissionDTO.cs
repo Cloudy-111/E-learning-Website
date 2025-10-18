@@ -10,4 +10,5 @@ public class QuestionExamForReviewSubmissionDTO
     public bool IsRequired { get; set; }
     public int? Order { get; set; }
     public bool IsNewest { get; set; }
+    public List<ChoiceForReviewDTO>? Choices { get; set; }
 }

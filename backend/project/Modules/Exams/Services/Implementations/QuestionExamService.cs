@@ -2,20 +2,32 @@ public class QuestionExamService : IQuestionExamService
 {
     private readonly IQuestionExamRepository _questionExamRepository;
     private readonly IExamRepository _examRepository;
+    private readonly IChoiceService _choiceService;
 
     public QuestionExamService(
         IQuestionExamRepository questionExamRepository,
-        IExamRepository examRepository
+        IExamRepository examRepository,
+        IChoiceService choiceService
     )
     {
         _questionExamRepository = questionExamRepository;
         _examRepository = examRepository;
+        _choiceService = choiceService;
+    }
+
+    public async Task<bool> ExistQuestionAsync(string questionId)
+    {
+        return await _questionExamRepository.ExistQuestionAsync(questionId);
     }
 
     public async Task AddQuestionToExamAsync(QuestionExam questionExam)
     {
-        var exam = await _examRepository.GetExamByIdAsync(questionExam.ExamId) ?? throw new KeyNotFoundException($"Exam with id {questionExam.ExamId} not found.");
-        if (exam.IsOpened == true)
+        var (exists, isOpened) = await _examRepository.GetExamStatusAsync(questionExam.ExamId);
+        if (!exists)
+        {
+            throw new KeyNotFoundException($"Exam with ID '{questionExam.ExamId}' does not exist.");
+        }
+        if (isOpened)
         {
             throw new InvalidOperationException("Cannot add question to an opened exam.");
         }
@@ -52,6 +64,7 @@ public class QuestionExamService : IQuestionExamService
             IsRequired = qe.IsRequired,
             Order = qe.Order,
             IsNewest = qe.IsNewest,
+            Choices = _choiceService.GetChoicesForExamByQuestionExamIdAsync(qe.Id).Result.ToList()
         });
 
         return result;
@@ -73,6 +86,7 @@ public class QuestionExamService : IQuestionExamService
             IsRequired = qe.IsRequired,
             Order = qe.Order,
             IsNewest = qe.IsNewest,
+            Choices = _choiceService.GetChoicesForReviewByQuestionExamIdAsync(qe.Id).Result.ToList()
         })
         .ToList();
 
@@ -109,6 +123,7 @@ public class QuestionExamService : IQuestionExamService
             IsRequired = questionExam.IsRequired,
             Order = questionExam.Order,
             IsNewest = questionExam.IsNewest,
+            Choices = _choiceService.GetChoicesForExamByQuestionExamIdAsync(questionExam.Id).Result.ToList()
         };
     }
 
@@ -127,6 +142,7 @@ public class QuestionExamService : IQuestionExamService
             IsRequired = questionExam.IsRequired,
             Order = questionExam.Order,
             IsNewest = questionExam.IsNewest,
+            Choices = _choiceService.GetChoicesForReviewByQuestionExamIdAsync(questionExam.Id).Result.ToList()
         };
     }
 }
