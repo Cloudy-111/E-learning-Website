@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 public interface IExamService
 {
     Task<IEnumerable<Exam>> GetAllExamsAsync();
-    Task<Exam?> GetExamByIdAsync(string id);
-    Task AddExamAsync(Exam exam);
-    Task UpdateExamAsync(Exam exam);
+    Task<InformationExamDTO?> GetExamByIdAsync(string id);
+    Task AddExamAsync(CreateExamDTO exam);
+    Task UpdateExamAsync(InformationExamDTO examUpdate);
     // Task DeleteExamAsync(int id);
     Task<bool> UpdateOrderQuestionInExamAsync(UpdateQuestionOrderDTO dto);
 }

@@ -36,17 +36,20 @@ public class ExamRepository : IExamRepository
 
     // }
 
-    public async Task UpdateOrderQuestionInExamAsync(string examId, List<QuestionExamOrderDTO> questionExams)
+    public async Task UpdateOrderQuestionInExamAsync(string examId, List<QuestionExam> questionExams)
     {
-        var questionDict = questionExams.ToDictionary(q => q.Id, q => q.Order ?? 0);
-
-        var questions = await _dbContext.QuestionExams
-            .Where(q => q.ExamId == examId && questionDict.Keys.Contains(q.Id))
+        var existingQuestions = await _dbContext.QuestionExams
+            .Where(q => q.ExamId == examId)
             .ToListAsync();
 
-        foreach (var q in questions)
+        var questionMap = questionExams.ToDictionary(q => q.Id, q => q.Order);
+
+        foreach (var question in existingQuestions)
         {
-            q.Order = questionDict[q.Id];
+            if (questionMap.TryGetValue(question.Id, out var newOrder))
+            {
+                question.Order = newOrder;
+            }
         }
 
         await _dbContext.SaveChangesAsync();

@@ -20,19 +20,64 @@ public class ExamService : IExamService
         return await _examRepository.GetAllExamsAsync();
     }
 
-    public async Task<Exam?> GetExamByIdAsync(string id)
+    public async Task<InformationExamDTO?> GetExamByIdAsync(string id)
     {
         var exam = await _examRepository.GetExamByIdAsync(id) ?? throw new KeyNotFoundException($"Exam with id {id} not found.");
-        return exam;
+        return new InformationExamDTO
+        {
+            Id = exam.Id,
+            Title = exam.Title,
+            Description = exam.Description,
+            DurationMinutes = exam.DurationMinutes,
+            TotalCompleted = exam.TotalCompleted,
+            IsOpened = exam.IsOpened,
+            CourseContentId = exam.CourseContentId,
+            LessonId = exam.LessonId
+        };
     }
 
-    public async Task AddExamAsync(Exam exam)
+    public async Task AddExamAsync(CreateExamDTO exam)
     {
-        await _examRepository.AddExamAsync(exam);
+        if (exam.DurationMinutes <= 0)
+        {
+            throw new ArgumentException("DurationMinutes must be greater than zero.");
+        }
+        if (string.IsNullOrWhiteSpace(exam.Title))
+        {
+            throw new ArgumentException("Title cannot be null or empty.");
+        }
+        if (exam.CourseContentId == null && exam.LessonId == null)
+        {
+            throw new ArgumentException("Either CourseContentId or LessonId must be provided.");
+        }
+        if (exam.CourseContentId != null && exam.LessonId != null)
+        {
+            throw new ArgumentException("Only one of CourseContentId or LessonId should be provided.");
+        }
+        var newExam = new Exam
+        {
+            Title = exam.Title,
+            Description = exam.Description,
+            DurationMinutes = exam.DurationMinutes,
+            TotalCompleted = 0,
+            IsOpened = false,
+            CourseContentId = exam.CourseContentId,
+            LessonId = exam.LessonId
+        };
+        await _examRepository.AddExamAsync(newExam);
     }
 
-    public async Task UpdateExamAsync(Exam exam)
+    public async Task UpdateExamAsync(InformationExamDTO examUpdate)
     {
+        var exam = await _examRepository.GetExamByIdAsync(examUpdate.Id) ?? throw new KeyNotFoundException($"Exam with id {examUpdate.Id} not found.");
+        if (exam.IsOpened == true && examUpdate.IsOpened == false)
+        {
+            throw new InvalidOperationException("Cannot update to an opened exam.");
+        }
+        exam.Title = examUpdate.Title ?? exam.Title;
+        exam.Description = examUpdate.Description ?? exam.Description;
+        exam.DurationMinutes = examUpdate.DurationMinutes >= 0 ? examUpdate.DurationMinutes : exam.DurationMinutes;
+        exam.IsOpened = examUpdate.IsOpened;
         await _examRepository.UpdateExamAsync(exam);
     }
 
@@ -54,7 +99,14 @@ public class ExamService : IExamService
         if (!questionIdsFromDb.SetEquals(questionIdsFromDto))
             throw new Exception("Question list does not match the exam.");
 
-        await _examRepository.UpdateOrderQuestionInExamAsync(examId, questionExams);
+        var updatedEntities = questionExams.Select(q => new QuestionExam
+        {
+            Id = q.Id,
+            ExamId = examId,
+            Order = q.Order
+        }).ToList();
+
+        await _examRepository.UpdateOrderQuestionInExamAsync(examId, updatedEntities);
         return true;
     }
 }
