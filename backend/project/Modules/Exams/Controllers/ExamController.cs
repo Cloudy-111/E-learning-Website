@@ -34,17 +34,19 @@ public class ExamController : ControllerBase
     [HttpPost("create-new-exam")]
     public async Task<IActionResult> CreateNewExam([FromBody] CreateExamDTO exam)
     {
-        var newExam = new Exam
+        try
         {
-            Title = exam.Title,
-            Description = exam.Description,
-            DurationMinutes = exam.DurationMinutes,
-            TotalCompleted = 0,
-            IsOpened = false
-        };
-
-        await _examService.AddExamAsync(newExam);
-        return CreatedAtAction(nameof(GetExamById), new { id = newExam.Id }, exam);
+            await _examService.AddExamAsync(exam);
+            return Ok(new { message = "Create new exam successfully" });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            {
+                message = "An error occurred while creating the exam.",
+                detail = ex.Message
+            });
+        }
     }
 
     [HttpPatch("update-exam/{id}")]

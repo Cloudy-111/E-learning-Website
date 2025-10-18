@@ -4,5 +4,5 @@ public interface IQuestionExamRepository
     Task RemoveQuestionFromExamAsync(string questionId, string examId);
     Task UpdateQuestionInExamAsync(QuestionExam questionExam);
     Task<IEnumerable<QuestionExam>> GetQuestionsByExamIdAsync(string examId);
-    Task<QuestionExam?> GetQuestionInExamAsync(string questionId, string examId);
+    Task<QuestionExam?> GetQuestionInExamAsync(string questionId);
 }

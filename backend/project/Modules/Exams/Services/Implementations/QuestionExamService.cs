@@ -97,7 +97,7 @@ public class QuestionExamService : IQuestionExamService
 
     public async Task<QuestionExamForDoingExamDTO?> GetQuestionInExamForDoingExamAsync(string questionId)
     {
-        var questionExam = await _questionExamRepository.GetQuestionInExamAsync(questionId, null!) ?? throw new KeyNotFoundException($"Question with {questionId} not found.");
+        var questionExam = await _questionExamRepository.GetQuestionInExamAsync(questionId) ?? throw new KeyNotFoundException($"Question with {questionId} not found.");
         return new QuestionExamForDoingExamDTO
         {
             Id = questionExam.Id,
@@ -114,7 +114,7 @@ public class QuestionExamService : IQuestionExamService
 
     public async Task<QuestionExamForReviewSubmissionDTO?> GetQuestionInExamForReviewSubmissionAsync(string questionId)
     {
-        var questionExam = await _questionExamRepository.GetQuestionInExamAsync(questionId, null!) ?? throw new KeyNotFoundException($"Question with {questionId} not found.");
+        var questionExam = await _questionExamRepository.GetQuestionInExamAsync(questionId) ?? throw new KeyNotFoundException($"Question with {questionId} not found.");
         return new QuestionExamForReviewSubmissionDTO
         {
             Id = questionExam.Id,

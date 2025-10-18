@@ -21,10 +21,10 @@ public class QuestionExamRepository : IQuestionExamRepository
             .ToListAsync();
     }
 
-    public async Task<QuestionExam?> GetQuestionInExamAsync(string questionId, string examId)
+    public async Task<QuestionExam?> GetQuestionInExamAsync(string questionId)
     {
         return await _dbContext.QuestionExams
-            .FirstOrDefaultAsync(qe => qe.Id == questionId && qe.ExamId == examId);
+            .FirstOrDefaultAsync(qe => qe.Id == questionId);
     }
 
     public Task RemoveQuestionFromExamAsync(string questionId, string examId)
