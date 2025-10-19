@@ -14,3 +14,5 @@
 
 - POST api/choice/add-choice
 - DELETE api/choice/delete-choice/{id}
+
+- POST api/submit/submit-exam

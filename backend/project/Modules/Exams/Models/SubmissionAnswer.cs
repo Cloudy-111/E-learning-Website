@@ -12,7 +12,7 @@ public class SubmissionAnswer
     public string? SelectedChoiceId { get; set; } // Nullable to handle unanswered questions
     public string? AnswerText { get; set; } // For text-based answers
     public bool IsCorrect { get; set; } = false;
-    public double ScoreAwarded { get; set; } = 0.0;
+    public double? ScoreAwarded { get; set; } = 0.0;
 
     [ForeignKey(nameof(SubmissionExamId))]
     public SubmissionExam SubmissionExam { get; set; } = null!;

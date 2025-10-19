@@ -18,6 +18,9 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IQuestionExamService, QuestionExamService>();
 builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<IChoiceService, ChoiceService>();
+builder.Services.AddScoped<ISubmissionExamService, SubmissionExamService>();
+builder.Services.AddScoped<ISubmissionAnswerService, SubmissionAnswerService>();
+// builder.Services.AddScoped<IStudentService, StudentService>();
 
 // Add repository to the container.
 builder.Services.AddScoped<IExamRepository, ExamRepository>();
@@ -25,6 +28,9 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IQuestionExamRepository, QuestionExamRepository>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
 builder.Services.AddScoped<IChoiceRepository, ChoiceRepository>();
+builder.Services.AddScoped<ISubmissionExamRepository, SubmissionExamRepository>();
+builder.Services.AddScoped<ISubmissionAnswerRepository, SubmissionAnswerRepository>();
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
