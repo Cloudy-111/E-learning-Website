@@ -14,6 +14,12 @@ public class QuestionExamRepository : IQuestionExamRepository
         await _dbContext.SaveChangesAsync();
     }
 
+    public async Task<bool> ExistQuestionAsync(string questionId)
+    {
+        return await _dbContext.QuestionExams
+            .AnyAsync(qe => qe.Id == questionId);
+    }
+
     public async Task<IEnumerable<QuestionExam>> GetQuestionsByExamIdAsync(string examId)
     {
         return await _dbContext.QuestionExams

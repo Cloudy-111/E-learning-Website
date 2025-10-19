@@ -1,5 +1,6 @@
 public interface IQuestionExamService
 {
+    Task<bool> ExistQuestionAsync(string questionId);
     Task AddQuestionToExamAsync(QuestionExam questionExam);
     // Task RemoveQuestionFromExamAsync(int questionId, string examId);
     // Task UpdateQuestionInExamAsync(QuestionExam questionExam);

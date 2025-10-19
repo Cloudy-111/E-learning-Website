@@ -10,7 +10,7 @@ public class Choice
     public string QuestionExamId { get; set; } = null!;
     [Required]
     public string Content { get; set; } = null!;
-    public bool IsCorrect { get; set; }
+    public bool? IsCorrect { get; set; }
 
     [ForeignKey(nameof(QuestionExamId))]
     public QuestionExam QuestionExam { get; set; } = null!;

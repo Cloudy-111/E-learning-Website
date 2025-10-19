@@ -9,6 +9,20 @@ public class ExamRepository : IExamRepository
         _dbContext = dbContext;
     }
 
+    public async Task<(bool Exists, bool IsOpened)> GetExamStatusAsync(string examId)
+    {
+        var exam = await _dbContext.Exams
+            .Where(e => e.Id == examId)
+            .Select(e => new { e.Id, e.IsOpened })
+            .FirstOrDefaultAsync();
+
+        if (exam == null)
+        {
+            return (false, false);
+        }
+        return (true, exam.IsOpened);
+    }
+
     public async Task<IEnumerable<Exam>> GetAllExamsAsync()
     {
         return await _dbContext.Exams.ToListAsync();

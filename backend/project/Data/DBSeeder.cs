@@ -158,7 +158,7 @@ public static class DBSeeder
             context.SaveChanges();
         }
 
-        // // Seed Exams
+        // Seed Exams
         if (!context.Exams.Any())
         {
             var coursesContents = context.CourseContents.ToList();
@@ -194,26 +194,94 @@ public static class DBSeeder
             context.SaveChanges();
         }
 
-        // if (!context.Exams.Any())
-        // {
-        //     var admins = context.Admins.ToList();
-        //     var categories = context.Categories.ToList();
+        // Seed Questions
+        if (!context.QuestionExams.Any())
+        {
+            var exams = context.Exams.ToList();
 
-        //     var examFaker = new Faker<Exam>()
-        //         .RuleFor(e => e.Id, f => Guid.NewGuid().ToString())
-        //         .RuleFor(e => e.AdminId, f => f.PickRandom(admins).AdminId)
-        //         .RuleFor(e => e.Title, f => f.Lorem.Sentence(5))
-        //         .RuleFor(e => e.Description, f => f.Lorem.Paragraph())
-        //         .RuleFor(e => e.DurationMinutes, f => f.Random.Int(30, 120))
-        //         .RuleFor(e => e.TotalCompleted, 0)
-        //         .RuleFor(e => e.CategoryId, f => f.PickRandom(categories).Id)
-        //         .RuleFor(e => e.IsOpened, f => f.Random.Bool());
+            var questionExamFaker = new Faker<QuestionExam>()
+                .RuleFor(q => q.Id, f => Guid.NewGuid().ToString())
+                .RuleFor(q => q.ExamId, f => f.PickRandom(exams).Id)
+                .RuleFor(q => q.Content, f => f.Lorem.Sentence(10))
+                .RuleFor(q => q.ImageUrl, f => f.Random.Bool(0.3f) ? f.Image.PicsumUrl() : null)
+                .RuleFor(q => q.Type, f => f.PickRandom(new[] { "MultipleChoice", "TrueFalse", "MultiSelectChoice" }))
+                .RuleFor(q => q.Exaplanation, f => f.Lorem.Sentence(5))
+                .RuleFor(q => q.Score, f => f.Random.Double(1, 2))
+                .RuleFor(q => q.IsRequired, f => f.Random.Bool(0.8f))
+                .RuleFor(q => q.IsNewest, true);
 
-        //     var exams = examFaker.Generate(20);
-        //     context.Exams.AddRange(exams);
+            var questions = questionExamFaker.Generate(300);
+            context.QuestionExams.AddRange(questions);
+            context.SaveChanges();
+        }
 
-        //     context.SaveChanges();
-        // }
+        // Seed Choices
+        if (!context.Choices.Any())
+        {
+            var questions = context.QuestionExams.ToList();
+
+            var choices = new List<Choice>();
+
+            foreach (var question in questions)
+            {
+                if (question.Type == "MultipleChoice")
+                {
+                    var correctIndex = faker.Random.Int(0, 3);
+                    for (int i = 0; i < 4; i++)
+                    {
+                        var choice = new Choice
+                        {
+                            Id = Guid.NewGuid().ToString(),
+                            QuestionExamId = question.Id,
+                            Content = faker.Lorem.Word(),
+                            IsCorrect = (i == correctIndex)
+                        };
+                        choices.Add(choice);
+                    }
+                }
+                else if (question.Type == "TrueFalse")
+                {
+                    var trueChoice = new Choice
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        QuestionExamId = question.Id,
+                        Content = "True",
+                        IsCorrect = faker.Random.Bool()
+                    };
+                    var falseChoice = new Choice
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        QuestionExamId = question.Id,
+                        Content = "False",
+                        IsCorrect = !trueChoice.IsCorrect
+                    };
+                    choices.Add(trueChoice);
+                    choices.Add(falseChoice);
+                }
+                else if (question.Type == "MultiSelectChoice")
+                {
+                    var correctCount = faker.Random.Int(1, 4);
+                    var correctIndices = Enumerable.Range(0, 5)
+                                            .OrderBy(x => faker.Random.Int())
+                                            .Take(correctCount)
+                                            .ToHashSet();
+                    for (int i = 0; i < 5; i++)
+                    {
+                        var choice = new Choice
+                        {
+                            Id = Guid.NewGuid().ToString(),
+                            QuestionExamId = question.Id,
+                            Content = faker.Lorem.Word(),
+                            IsCorrect = correctIndices.Contains(i)
+                        };
+                        choices.Add(choice);
+                    }
+                }
+            }
+
+            context.Choices.AddRange(choices);
+            context.SaveChanges();
+        }
 
         return;
     }

@@ -1,5 +1,6 @@
 public interface IExamRepository
 {
+    Task<(bool Exists, bool IsOpened)> GetExamStatusAsync(string examId);
     Task<IEnumerable<Exam>> GetAllExamsAsync();
     Task<Exam?> GetExamByIdAsync(string id);
     Task AddExamAsync(Exam exam);
