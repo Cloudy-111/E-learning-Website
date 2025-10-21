@@ -2,11 +2,11 @@ using project.Models;
 
 public interface ICourseRepository
 {
-    // Task<Course?> GetCourseByIdAsync(string id);
+    Task<Course?> GetCourseByIdAsync(string id);
     Task<IEnumerable<Course>> GetAllCoursesAsync();
     // Task<IEnumerable<Course>> GetCoursesByCategoryAsync(string categoryId);
     // Task<IEnumerable<Course>> GetCoursesByTeacherAsync(string teacherId);
-    // Task AddCourseAsync(Course course);
-    // Task UpdateCourseAsync(Course course);
+    Task AddCourseAsync(Course course);
+    Task UpdateCourseAsync(Course course);
     // Task DeleteCourseAsync(string id);
 }

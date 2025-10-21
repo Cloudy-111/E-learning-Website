@@ -18,13 +18,11 @@ public class CourseRepository : ICourseRepository
             .ToListAsync();
     }
 
-    // public async Task<Course?> GetCourseByIdAsync(string id)
-    // {
-    //     return await _dbContext.Courses
-    //         .Include(c => c.Category)
-    //         .Include(c => c.Teacher)
-    //         .FirstOrDefaultAsync(c => c.Id == id);
-    // }
+    public async Task<Course?> GetCourseByIdAsync(string id)
+    {
+        return await _dbContext.Courses
+            .FirstOrDefaultAsync(c => c.Id == id);
+    }
 
     // public async Task<IEnumerable<Course>> GetCoursesByCategoryAsync(string categoryId)
     // {
@@ -44,17 +42,17 @@ public class CourseRepository : ICourseRepository
     //         .ToListAsync();
     // }
 
-    // public async Task AddCourseAsync(Course course)
-    // {
-    //     await _dbContext.Courses.AddAsync(course);
-    //     await _dbContext.SaveChangesAsync();
-    // }
+    public async Task AddCourseAsync(Course course)
+    {
+        await _dbContext.Courses.AddAsync(course);
+        await _dbContext.SaveChangesAsync();
+    }
 
-    // public async Task UpdateCourseAsync(Course course)
-    // {
-    //     _dbContext.Courses.Update(course);
-    //     await _dbContext.SaveChangesAsync();
-    // }
+    public async Task UpdateCourseAsync(Course course)
+    {
+        _dbContext.Courses.Update(course);
+        await _dbContext.SaveChangesAsync();
+    }
 
     // public async Task DeleteCourseAsync(string id)
     // {
