@@ -30,11 +30,11 @@ public class LessonController : ControllerBase
     }
 
     [HttpGet("{lessonId}")]
-    public async Task<IActionResult> GetLessonById(string lessonId)
+    public async Task<IActionResult> GetLessonById(string courseContentId, string lessonId)
     {
         try
         {
-            var lesson = await _lessonService.GetLessonByIdAsync(lessonId);
+            var lesson = await _lessonService.GetLessonByIdAsync(courseContentId, lessonId);
             return Ok(lesson);
         }
         catch (Exception ex)
@@ -45,7 +45,7 @@ public class LessonController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddLesson([FromBody] LessonCreateDTO lessonDto)
+    public async Task<IActionResult> AddLesson(string courseContentId, [FromBody] LessonCreateDTO lessonDto)
     {
         if (!ModelState.IsValid)
         {
@@ -54,7 +54,7 @@ public class LessonController : ControllerBase
 
         try
         {
-            await _lessonService.AddLessonAsync(lessonDto);
+            await _lessonService.AddLessonAsync(courseContentId, lessonDto);
             return Ok(new { message = "Lesson created successfully." });
         }
         catch (Exception ex)

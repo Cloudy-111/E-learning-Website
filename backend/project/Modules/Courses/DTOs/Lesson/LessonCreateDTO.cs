@@ -3,8 +3,6 @@ using System.ComponentModel.DataAnnotations;
 public class LessonCreateDTO
 {
     [Required]
-    public string CourseContentId { get; set; } = null!;
-    [Required]
     public string Title { get; set; } = null!;
     public string? VideoUrl { get; set; }
     [Required, Range(0, int.MaxValue)]

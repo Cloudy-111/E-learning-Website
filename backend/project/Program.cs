@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using project.Models;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,6 +22,7 @@ builder.Services.AddScoped<IChoiceService, ChoiceService>();
 builder.Services.AddScoped<ISubmissionExamService, SubmissionExamService>();
 builder.Services.AddScoped<ISubmissionAnswerService, SubmissionAnswerService>();
 builder.Services.AddScoped<ILessonService, LessonService>();
+builder.Services.AddScoped<ICourseContentService, CourseContentService>();
 // builder.Services.AddScoped<IStudentService, StudentService>();
 
 // Add repository to the container.
@@ -46,6 +48,11 @@ builder.Services.AddCors(options =>
         policy => policy.AllowAnyOrigin()
                         .AllowAnyMethod()
                         .AllowAnyHeader());
+});
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
 });
 
 var app = builder.Build();
