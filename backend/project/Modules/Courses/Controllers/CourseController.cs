@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
-[Route("api/[controller]")]
+[Route("api/courses")]
 [ApiController]
 public class CourseController : ControllerBase
 {
@@ -19,18 +19,18 @@ public class CourseController : ControllerBase
         return Ok(courses);
     }
 
-    [HttpPost("create")]
+    [HttpPost]
     public async Task<IActionResult> CreateCourse([FromBody] CourseCreateDTO courseDto)
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest(ModelState);
+            return BadRequest(new APIResponse("error", "Invalid input data", ModelState));
         }
 
         try
         {
             await _courseService.AddCourseAsync(courseDto);
-            return Ok(new { message = "Create new exam successfully" });
+            return Ok(new APIResponse("Success", "Create new Course successfully"));
         }
         catch (Exception ex)
         {
@@ -42,22 +42,30 @@ public class CourseController : ControllerBase
         }
     }
 
-    [HttpPatch("update-course/{id}")]
+    [HttpPatch("{id}")]
     public async Task<IActionResult> UpdateCourse(string id, [FromBody] CourseUpdateDTO courseDto)
     {
         if (!ModelState.IsValid)
         {
-            return BadRequest(ModelState);
+            return BadRequest(new APIResponse("error", "Invalid input data", ModelState));
         }
 
         try
         {
-            await _courseService.UpdateCourseAsync(courseDto);
-            return Ok(new { message = "Update course successfully" });
+            await _courseService.UpdateCourseAsync(id, courseDto);
+            return Ok(new APIResponse("success", "Update course successfully"));
         }
         catch (KeyNotFoundException ex)
         {
-            return NotFound(new { message = ex.Message });
+            return NotFound(new APIResponse("error", ex.Message));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new APIResponse("error", ex.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new APIResponse("error", "An error occurred while updating the course", ex.Message));
         }
     }
 }

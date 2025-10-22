@@ -1,0 +1,54 @@
+using project.Models;
+
+public class CourseContentService : ICourseContentService
+{
+    private readonly ICourseContentRepository _courseContentRepository;
+    private readonly ICourseRepository _courseRepository;
+
+    public CourseContentService(
+        ICourseContentRepository courseContentRepository,
+        ICourseRepository courseRepository)
+    {
+        _courseContentRepository = courseContentRepository;
+        _courseRepository = courseRepository;
+    }
+
+    public async Task AddCourseContentAsync(string courseId, CourseContentCreateDTO contentDto)
+    {
+        var courseExist = await _courseRepository.CourseExistsAsync(courseId);
+        if (!courseExist)
+        {
+            throw new KeyNotFoundException("Course not found");
+        }
+        var courseContentExist = await _courseContentRepository.CourseContentExistsAsync(courseId);
+        if (courseContentExist)
+        {
+            throw new Exception("Course content already exists for this course");
+        }
+
+        var content = new CourseContent
+        {
+            CourseId = courseId,
+            Title = contentDto.Title,
+            Introduce = contentDto.Introduce,
+        };
+
+        await _courseContentRepository.AddCourseContentAsync(content);
+    }
+
+    public async Task<CourseContentInformationDTO> GetCourseContentInformationDTOAsync(string courseId)
+    {
+        var courseExist = await _courseRepository.CourseExistsAsync(courseId);
+        if (!courseExist)
+        {
+            throw new KeyNotFoundException("Course not found");
+        }
+        var courseContent = await _courseContentRepository.GetCourseContentByCourseIdAsync(courseId) ?? throw new KeyNotFoundException("Course content not found");
+
+        return new CourseContentInformationDTO
+        {
+            Title = courseContent.Title,
+            Introduce = courseContent.Introduce,
+        };
+    }
+}

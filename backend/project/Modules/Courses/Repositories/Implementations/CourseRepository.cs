@@ -9,6 +9,12 @@ public class CourseRepository : ICourseRepository
         _dbContext = dbContext;
     }
 
+    public async Task<bool> CourseExistsAsync(string id)
+    {
+        return await _dbContext.Courses
+            .AnyAsync(c => c.Id == id);
+    }
+
     public async Task<IEnumerable<Course>> GetAllCoursesAsync()
     {
         return await _dbContext.Courses

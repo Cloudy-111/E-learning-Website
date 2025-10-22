@@ -2,6 +2,7 @@ using project.Models;
 
 public interface ICourseRepository
 {
+    Task<bool> CourseExistsAsync(string id);
     Task<Course?> GetCourseByIdAsync(string id);
     Task<IEnumerable<Course>> GetAllCoursesAsync();
     // Task<IEnumerable<Course>> GetCoursesByCategoryAsync(string categoryId);

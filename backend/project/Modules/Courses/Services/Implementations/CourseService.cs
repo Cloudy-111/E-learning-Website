@@ -71,20 +71,12 @@ public class CourseService : ICourseService
             ThumbnailUrl = courseDto.ThumbnailUrl,
         };
 
-        var content = new CourseContent
-        {
-            CourseId = course.Id,
-            Introduce = courseDto.Introduce,
-            Title = "Course Content for " + courseDto.Title,
-        };
-
         await _courseRepository.AddCourseAsync(course);
-        await _courseContentRepository.AddCourseContentAsync(content);
     }
 
-    public async Task UpdateCourseAsync(CourseUpdateDTO courseDto)
+    public async Task UpdateCourseAsync(string courseId, CourseUpdateDTO courseDto)
     {
-        var courseExist = await _courseRepository.GetCourseByIdAsync(courseDto.Id) ??
+        var courseExist = await _courseRepository.GetCourseByIdAsync(courseId) ??
             throw new KeyNotFoundException("Course not found");
         if (courseExist.Status != "draft")
         {

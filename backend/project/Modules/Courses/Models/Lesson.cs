@@ -17,6 +17,8 @@ public class Lesson
 
     [MaxLength(500)]
     public string? VideoUrl { get; set; }
+    // [Required]
+    public int Order { get; set; } = 0;
 
     public int? Duration { get; set; }
     public string? TextContent { get; set; }
