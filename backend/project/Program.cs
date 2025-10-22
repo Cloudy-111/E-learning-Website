@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using project.Models;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +21,8 @@ builder.Services.AddScoped<ICourseService, CourseService>();
 builder.Services.AddScoped<IChoiceService, ChoiceService>();
 builder.Services.AddScoped<ISubmissionExamService, SubmissionExamService>();
 builder.Services.AddScoped<ISubmissionAnswerService, SubmissionAnswerService>();
+builder.Services.AddScoped<ILessonService, LessonService>();
+builder.Services.AddScoped<ICourseContentService, CourseContentService>();
 // builder.Services.AddScoped<IStudentService, StudentService>();
 
 // Add repository to the container.
@@ -31,6 +34,8 @@ builder.Services.AddScoped<IChoiceRepository, ChoiceRepository>();
 builder.Services.AddScoped<ISubmissionExamRepository, SubmissionExamRepository>();
 builder.Services.AddScoped<ISubmissionAnswerRepository, SubmissionAnswerRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped<ICourseContentRepository, CourseContentRepository>();
+builder.Services.AddScoped<ILessonRepository, LessonRepository>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -43,6 +48,11 @@ builder.Services.AddCors(options =>
         policy => policy.AllowAnyOrigin()
                         .AllowAnyMethod()
                         .AllowAnyHeader());
+});
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.SuppressModelStateInvalidFilter = true;
 });
 
 var app = builder.Build();
