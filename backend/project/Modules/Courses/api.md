@@ -6,6 +6,7 @@
 - GET api/courses/{id}
 - POST api/courses
 - PATCH api/courses/{id}
+- PATCH api/courses/{id}/request-publish
 
 ### CourseContent
 

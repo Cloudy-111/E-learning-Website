@@ -87,4 +87,28 @@ public class CourseController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, new APIResponse("error", "An error occurred while updating the course", ex.Message));
         }
     }
+
+    [HttpPatch("{id}/request-publish")]
+    public async Task<IActionResult> RequestPublishCourse(string id)
+    {
+        try
+        {
+            await _courseService.RequestPublishCourseAsync(id);
+            return Ok(new APIResponse("success", "Course requested publish successfully"));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new APIResponse("error", ex.Message));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new APIResponse("error", ex.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new APIResponse("error", "An error occurred while publishing the course", ex.Message));
+        }
+    }
+
+    [HttpPost("{id}/request-update")]
 }
