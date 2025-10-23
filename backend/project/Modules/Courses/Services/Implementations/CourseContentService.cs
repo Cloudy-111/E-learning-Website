@@ -36,6 +36,22 @@ public class CourseContentService : ICourseContentService
         await _courseContentRepository.AddCourseContentAsync(content);
     }
 
+    public async Task UpdateCourseContentAsync(string contentId, CourseContentUpdateDTO contentDto)
+    {
+        var contentExist = await _courseContentRepository.CourseContentExistsByContentIdAsync(contentId);
+        if (!contentExist)
+        {
+            throw new KeyNotFoundException("Course content not found");
+        }
+
+        var existingContent = await _courseContentRepository.GetCourseContentByIdAsync(contentId) ?? throw new KeyNotFoundException("Course content not found");
+
+        existingContent.Title = contentDto.Title;
+        existingContent.Introduce = contentDto.Introduce;
+
+        await _courseContentRepository.UpdateCourseContentAsync(existingContent);
+    }
+
     public async Task<CourseContentInformationDTO> GetCourseContentInformationDTOAsync(string courseId)
     {
         var courseExist = await _courseRepository.CourseExistsAsync(courseId);

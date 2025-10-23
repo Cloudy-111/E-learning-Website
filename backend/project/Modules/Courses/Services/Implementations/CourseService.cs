@@ -37,9 +37,12 @@ public class CourseService : ICourseService
 
     public async Task<CourseInformationDTO> GetCourseByIdAsync(string id)
     {
-        var course = await _courseRepository.GetCourseByIdAsync(id) ??
+        var courseExist = await _courseRepository.CourseExistsAsync(id);
+        if (!courseExist)
+        {
             throw new KeyNotFoundException("Course not found");
-
+        }
+        var course = await _courseRepository.GetCourseByIdAsync(id) ?? throw new KeyNotFoundException("Course not found");
         return new CourseInformationDTO
         {
             Id = course.Id,

@@ -19,6 +19,25 @@ public class CourseController : ControllerBase
         return Ok(courses);
     }
 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetCourseById(string id)
+    {
+        try
+        {
+            var course = await _courseService.GetCourseByIdAsync(id);
+            return Ok(course);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new APIResponse("error", ex.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while retrieving the course", ex.Message));
+        }
+    }
+
     [HttpPost]
     public async Task<IActionResult> CreateCourse([FromBody] CourseCreateDTO courseDto)
     {

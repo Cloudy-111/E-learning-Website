@@ -15,6 +15,12 @@ public class CourseContentRepository : ICourseContentRepository
         await _dbContext.SaveChangesAsync();
     }
 
+    public async Task UpdateCourseContentAsync(CourseContent content)
+    {
+        _dbContext.CourseContents.Update(content);
+        await _dbContext.SaveChangesAsync();
+    }
+
     public async Task<CourseContent?> GetCourseContentByIdAsync(string courseContentId)
     {
         return await _dbContext.CourseContents
