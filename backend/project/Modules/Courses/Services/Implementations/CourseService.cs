@@ -37,9 +37,12 @@ public class CourseService : ICourseService
 
     public async Task<CourseInformationDTO> GetCourseByIdAsync(string id)
     {
-        var course = await _courseRepository.GetCourseByIdAsync(id) ??
+        var courseExist = await _courseRepository.CourseExistsAsync(id);
+        if (!courseExist)
+        {
             throw new KeyNotFoundException("Course not found");
-
+        }
+        var course = await _courseRepository.GetCourseByIdAsync(id) ?? throw new KeyNotFoundException("Course not found");
         return new CourseInformationDTO
         {
             Id = course.Id,
@@ -78,7 +81,7 @@ public class CourseService : ICourseService
     {
         var courseExist = await _courseRepository.GetCourseByIdAsync(courseId) ??
             throw new KeyNotFoundException("Course not found");
-        if (courseExist.Status != "draft")
+        if (!courseExist.Status.Equals("draft", StringComparison.InvariantCultureIgnoreCase))
         {
             throw new InvalidOperationException("Only draft courses can be updated");
         }
@@ -88,7 +91,19 @@ public class CourseService : ICourseService
         courseExist.Price = courseDto.Price;
         courseExist.DiscountPrice = courseDto.DiscountPrice;
         courseExist.ThumbnailUrl = courseDto.ThumbnailUrl;
-        courseExist.Status = courseDto.Status;
+
+        await _courseRepository.UpdateCourseAsync(courseExist);
+    }
+
+    public async Task RequestPublishCourseAsync(string courseId)
+    {
+        var courseExist = await _courseRepository.GetCourseByIdAsync(courseId) ??
+            throw new KeyNotFoundException("Course not found");
+        if (!courseExist.Status.Equals("draft", StringComparison.InvariantCultureIgnoreCase))
+        {
+            throw new InvalidOperationException("Only draft courses can request publish");
+        }
+        courseExist.Status = "pending";
 
         await _courseRepository.UpdateCourseAsync(courseExist);
     }

@@ -4,6 +4,7 @@ public interface ICourseContentRepository
 {
     // Task<IEnumerable<CourseContent>> GetContentsByCourseIdAsync(string courseId);
     Task AddCourseContentAsync(CourseContent content);
+    Task UpdateCourseContentAsync(CourseContent content);
     Task<CourseContent?> GetCourseContentByIdAsync(string courseContentId);
     Task<CourseContent?> GetCourseContentByCourseIdAsync(string courseId);
     Task<bool> CourseContentExistsAsync(string courseId);

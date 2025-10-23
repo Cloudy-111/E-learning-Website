@@ -13,6 +13,4 @@ public class CourseUpdateDTO
     public decimal? DiscountPrice { get; set; }
     public string? ThumbnailUrl { get; set; }
     public string? Introduce { get; set; }
-    [Required]
-    public string Status { get; set; } = null!;
 }

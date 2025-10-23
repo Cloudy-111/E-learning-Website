@@ -27,4 +27,15 @@ public class LessonRepository : ILessonRepository
         await _dbContext.Lessons.AddAsync(lesson);
         await _dbContext.SaveChangesAsync();
     }
+
+    public async Task UpdateLessonAsync(Lesson lesson)
+    {
+        _dbContext.Lessons.Update(lesson);
+        await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task UpdateOrderLessonsAsync(List<Lesson> lessons)
+    {
+
+    }
 }

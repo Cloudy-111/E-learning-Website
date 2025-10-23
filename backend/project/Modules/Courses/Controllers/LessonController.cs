@@ -66,4 +66,47 @@ public class LessonController : ControllerBase
             });
         }
     }
+
+    [HttpPatch("{lessonId}")]
+    public async Task<IActionResult> UpdateLesson(string courseContentId, string lessonId, [FromBody] LessonUpdateDTO lessonDto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new APIResponse("error", "Invalid input data", ModelState));
+        }
+
+        try
+        {
+            await _lessonService.UpdateLessonAsync(courseContentId, lessonId, lessonDto);
+            return Ok(new { message = "Lesson updated successfully." });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            {
+                message = "An error occurred while updating the lesson.",
+                detail = ex.Message
+            });
+        }
+    }
+
+    [HttpPost("order")]
+    public async Task<IActionResult> UpdateLessonOrder(string courseContentId, [FromBody] List<LessonOrderDTO> lessonOrders)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new APIResponse("error", "Invalid input data", ModelState));
+        }
+
+        try
+        {
+            await _lessonService.UpdateOrderLessonsAsync(courseContentId, lessonOrders);
+            return Ok(new { message = "Lesson orders updated successfully." });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while updating lesson orders", ex.Message));
+        }
+    }
 }

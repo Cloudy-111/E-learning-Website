@@ -4,4 +4,5 @@ public interface ICourseService
     Task<CourseInformationDTO> GetCourseByIdAsync(string id);
     Task AddCourseAsync(CourseCreateDTO courseDto);
     Task UpdateCourseAsync(string courseId, CourseUpdateDTO courseDto);
+    Task RequestPublishCourseAsync(string courseId);
 }

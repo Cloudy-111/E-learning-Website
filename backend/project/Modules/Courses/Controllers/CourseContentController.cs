@@ -53,4 +53,28 @@ public class CourseContentController : ControllerBase
             APIResponse("error", "An error occurred while retrieving course content", ex.Message));
         }
     }
+
+    [HttpPatch]
+    public async Task<IActionResult> UpdateCourseContent(string contentId, [FromBody] CourseContentUpdateDTO contentDto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new APIResponse("error", "Invalid input data", ModelState));
+        }
+
+        try
+        {
+            await _courseContentService.UpdateCourseContentAsync(contentId, contentDto);
+            return Ok(new APIResponse("success", "Course content updated successfully"));
+        }
+        catch (KeyNotFoundException knfEx)
+        {
+            return NotFound(new APIResponse("error", knfEx.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while updating course content", ex.Message));
+        }
+    }
 }
