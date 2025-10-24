@@ -5,10 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 public class LessonController : ControllerBase
 {
     private readonly ILessonService _lessonService;
+    private readonly IRequestUpdateService _requestUpdateService;
 
-    public LessonController(ILessonService lessonService)
+    public LessonController(
+        ILessonService lessonService,
+        IRequestUpdateService requestUpdateService)
     {
         _lessonService = lessonService;
+        _requestUpdateService = requestUpdateService;
     }
 
     [HttpGet]
@@ -107,6 +111,29 @@ public class LessonController : ControllerBase
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new
             APIResponse("error", "An error occurred while updating lesson orders", ex.Message));
+        }
+    }
+
+    [HttpPost("{lessonId}/request-update")]
+    public async Task<IActionResult> RequestUpdateLesson([FromBody] RequestUpdateRequestDTO requestDto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new APIResponse("error", "Invalid input data", ModelState));
+        }
+
+        try
+        {
+            await _requestUpdateService.CreateRequestUpdateAsync(requestDto);
+            return Ok(new { message = "Lesson update request created successfully." });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            {
+                message = "An error occurred while creating the lesson update request.",
+                detail = ex.Message
+            });
         }
     }
 }

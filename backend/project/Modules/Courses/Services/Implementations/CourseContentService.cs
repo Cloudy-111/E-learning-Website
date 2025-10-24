@@ -46,6 +46,12 @@ public class CourseContentService : ICourseContentService
 
         var existingContent = await _courseContentRepository.GetCourseContentByIdAsync(contentId) ?? throw new KeyNotFoundException("Course content not found");
 
+        var courseExist = await _courseRepository.GetCourseByIdAsync(existingContent.CourseId) ?? throw new KeyNotFoundException("Course not found");
+        if (courseExist.Status != "draft")
+        {
+            throw new InvalidOperationException("Cannot update course content unless the course is in draft status");
+        }
+
         existingContent.Title = contentDto.Title;
         existingContent.Introduce = contentDto.Introduce;
 

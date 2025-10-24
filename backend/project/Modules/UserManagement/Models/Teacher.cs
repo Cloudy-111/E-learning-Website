@@ -20,8 +20,9 @@ public class Teacher
 
     // Navigation
     public ICollection<Course> Courses { get; set; } = new List<Course>();
-    
+
     // Liên kết 1–n với TeacherPayout
     public ICollection<TeacherPayout> TeacherPayouts { get; set; } = new List<TeacherPayout>();
 
+    public ICollection<UpdateRequestCourse> UpdateRequests { get; set; } = new List<UpdateRequestCourse>();
 }

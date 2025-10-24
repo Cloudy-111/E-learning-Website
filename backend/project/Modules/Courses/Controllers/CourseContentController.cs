@@ -5,10 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 public class CourseContentController : ControllerBase
 {
     private readonly ICourseContentService _courseContentService;
+    private readonly IRequestUpdateService _requestUpdateService;
 
-    public CourseContentController(ICourseContentService courseContentService)
+    public CourseContentController(
+        ICourseContentService courseContentService,
+        IRequestUpdateService requestUpdateService)
     {
         _courseContentService = courseContentService;
+        _requestUpdateService = requestUpdateService;
     }
 
     [HttpPost]
@@ -75,6 +79,30 @@ public class CourseContentController : ControllerBase
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new
             APIResponse("error", "An error occurred while updating course content", ex.Message));
+        }
+    }
+
+    [HttpPost("request-update")]
+    public async Task<IActionResult> RequestUpdateCourseContent([FromBody] RequestUpdateRequestDTO requestDto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new APIResponse("error", "Invalid input data", ModelState));
+        }
+
+        try
+        {
+            await _requestUpdateService.CreateRequestUpdateAsync(requestDto);
+            return Ok(new APIResponse("success", "Update request created successfully"));
+        }
+        catch (ArgumentException argEx)
+        {
+            return BadRequest(new APIResponse("error", argEx.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while creating update request", ex.Message));
         }
     }
 }

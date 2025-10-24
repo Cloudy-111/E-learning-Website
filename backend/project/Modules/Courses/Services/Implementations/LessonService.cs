@@ -54,10 +54,14 @@ public class LessonService : ILessonService
 
     public async Task AddLessonAsync(string courseContentId, LessonCreateDTO lessonDto)
     {
-        var courseContentExist = await _courseContentRepository.CourseContentExistsByContentIdAsync(courseContentId);
-        if (!courseContentExist)
+        // Check if the course is in Draft status
+        var courseContent = await _courseContentRepository.GetCourseContentByIdAsync(courseContentId) ?? throw new Exception($"Course content with id: {courseContentId} not found");
+
+        var course = await _courseRepository.GetCourseByIdAsync(courseContent.CourseId);
+
+        if (course == null || !course.Status.ToLower().Equals("draft", StringComparison.InvariantCultureIgnoreCase))
         {
-            throw new Exception($"Course content with id: {courseContentId} not found");
+            throw new Exception("Can only update lessons for courses in Draft status");
         }
 
         var lesson = new Lesson
@@ -80,7 +84,7 @@ public class LessonService : ILessonService
 
         var course = await _courseRepository.GetCourseByIdAsync(courseContent.CourseId);
 
-        if (course == null || !course.Status.ToLower().Equals("draft", StringComparison.CurrentCultureIgnoreCase))
+        if (course == null || !course.Status.ToLower().Equals("draft", StringComparison.InvariantCultureIgnoreCase))
         {
             throw new Exception("Can only update lessons for courses in Draft status");
         }
@@ -97,10 +101,14 @@ public class LessonService : ILessonService
 
     public async Task UpdateOrderLessonsAsync(string courseContentId, List<LessonOrderDTO> lessonOrders)
     {
-        var couseContentExist = await _courseContentRepository.CourseContentExistsByContentIdAsync(courseContentId);
-        if (!couseContentExist)
+        // Check if the course is in Draft status
+        var courseContent = await _courseContentRepository.GetCourseContentByIdAsync(courseContentId) ?? throw new Exception($"Course content with id: {courseContentId} not found");
+
+        var course = await _courseRepository.GetCourseByIdAsync(courseContent.CourseId);
+
+        if (course == null || !course.Status.ToLower().Equals("draft", StringComparison.InvariantCultureIgnoreCase))
         {
-            throw new Exception($"Course content with id: {courseContentId} not found");
+            throw new Exception("Can only update lessons for courses in Draft status");
         }
 
         var lessons = await _lessonRepository.GetLessonsByCourseContentIdAsync(courseContentId);

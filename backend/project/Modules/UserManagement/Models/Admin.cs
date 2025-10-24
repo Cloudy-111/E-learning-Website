@@ -13,4 +13,6 @@ public class Admin
 
     [ForeignKey(nameof(UserId))]
     public User User { get; set; } = null!;
+
+    public ICollection<UpdateRequestCourse> ReviewedRequests { get; set; } = new List<UpdateRequestCourse>();
 }
