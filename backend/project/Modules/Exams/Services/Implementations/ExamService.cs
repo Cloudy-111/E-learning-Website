@@ -97,19 +97,22 @@ public class ExamService : IExamService
 
     // }
 
-    public async Task<bool> UpdateOrderQuestionInExamAsync(string examId, UpdateQuestionOrderDTO dto)
+    public async Task UpdateOrderQuestionInExamAsync(string examId, List<QuestionExamOrderDTO> questionOrders)
     {
-        var questionExams = dto.QuestionExamOrderDTOs;
-
         var exam = await _examRepository.GetExamByIdAsync(examId) ?? throw new KeyNotFoundException($"Exam with id {examId} not found.");
+
+        if (exam.IsOpened)
+            throw new InvalidOperationException("Cannot update question order for an opened exam.");
+
         var questions = await _questionExamService.GetQuestionExamOrderAsync(examId);
+
         var questionIdsFromDb = questions.Select(q => q.Id).ToHashSet();
-        var questionIdsFromDto = questionExams.Select(q => q.Id).ToHashSet();
+        var questionIdsFromDto = questionOrders.Select(q => q.Id).ToHashSet();
 
         if (!questionIdsFromDb.SetEquals(questionIdsFromDto))
             throw new Exception("Question list does not match the exam.");
 
-        var updatedEntities = questionExams.Select(q => new QuestionExam
+        var updatedEntities = questionOrders.Select(q => new QuestionExam
         {
             Id = q.Id,
             ExamId = examId,
@@ -117,6 +120,5 @@ public class ExamService : IExamService
         }).ToList();
 
         await _examRepository.UpdateOrderQuestionInExamAsync(examId, updatedEntities);
-        return true;
     }
 }
