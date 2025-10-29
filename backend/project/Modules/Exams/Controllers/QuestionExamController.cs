@@ -1,52 +1,40 @@
 using Microsoft.AspNetCore.Mvc;
 
-[Route("api/[controller]")]
+[Route("api/{examId}/question-exams")]
 [ApiController]
 public class QuestionExamController : ControllerBase
 {
     private readonly IQuestionExamService _questionExamService;
-    private readonly IExamService _examService;
     public QuestionExamController(
-        IQuestionExamService questionExamService,
-        IExamService examService
+        IQuestionExamService questionExamService
     )
     {
-        _examService = examService;
         _questionExamService = questionExamService;
     }
 
-    [HttpPost("create-question-exam")]
-    public async Task<IActionResult> CreateQuestionExam([FromBody] CreateQuestionExamDTO questionExam)
+    [HttpPost]
+    public async Task<IActionResult> CreateQuestionExam(string examId, [FromBody] CreateQuestionExamDTO questionExam)
     {
-        var newQuestionExam = new QuestionExam
+        if (!ModelState.IsValid)
         {
-            ExamId = questionExam.ExamId,
-            Content = questionExam.Content,
-            ImageUrl = questionExam.ImageUrl,
-            Type = questionExam.Type,
-            Exaplanation = questionExam.Exaplanation,
-            Score = questionExam.Score,
-            IsRequired = questionExam.IsRequired,
-            // For versioning
-            IsNewest = true,
-            ParentQuestionId = null
-        };
+            return BadRequest(new APIResponse("error", "Invalid input data", ModelState));
+        }
         try
         {
-            await _questionExamService.AddQuestionToExamAsync(newQuestionExam);
-            return Ok(new { message = "Question added to exam successfully" });
+            await _questionExamService.AddQuestionToExamAsync(examId, questionExam);
+            return Ok(new APIResponse("Success", "Create new QuestionExam successfully"));
         }
         catch (KeyNotFoundException ex)
         {
-            return NotFound(new { message = ex.Message });
+            return NotFound(new APIResponse("error", ex.Message));
         }
         catch (InvalidOperationException ex)
         {
-            return BadRequest(new { message = ex.Message });
+            return BadRequest(new APIResponse("error", ex.Message));
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
+            return StatusCode(500, new APIResponse("error", "An error occurred while creating the QuestionExam", ex.Message));
         }
     }
 
@@ -64,31 +52,31 @@ public class QuestionExamController : ControllerBase
     //     }
     // }
 
-    [HttpGet("questions-for-doing-exam")]
+    [HttpGet("for-exam")]
     public async Task<IActionResult> GetQuestionsForDoingExam(string examId)
     {
         try
         {
             var questionExams = await _questionExamService.GetQuestionsByExamIdForDoingExamAsync(examId);
-            return Ok(questionExams);
+            return Ok(new APIResponse("success", "Get questions successfully", questionExams));
         }
         catch
         {
-            return NotFound(new { message = $"Not found questions with {examId}" });
+            return NotFound(new APIResponse("error", $"Not found questions with {examId}"));
         }
     }
 
-    [HttpGet("questions-for-review-submission")]
+    [HttpGet("for-review")]
     public async Task<IActionResult> GetQuestionsForReviewSubmission(string examId)
     {
         try
         {
             var questionExams = await _questionExamService.GetQuestionsByExamIdForReviewSubmissionAsync(examId);
-            return Ok(questionExams);
+            return Ok(new APIResponse("success", "Get questions successfully", questionExams));
         }
         catch
         {
-            return NotFound(new { message = $"Not found questions with {examId}" });
+            return NotFound(new APIResponse("error", $"Not found questions with {examId}"));
         }
     }
 
@@ -98,11 +86,11 @@ public class QuestionExamController : ControllerBase
         try
         {
             var questionExam = await _questionExamService.GetQuestionInExamForDoingExamAsync(id);
-            return Ok(questionExam);
+            return Ok(new APIResponse("success", "Get question successfully", questionExam));
         }
         catch (KeyNotFoundException ex)
         {
-            return NotFound(new { message = ex.Message });
+            return NotFound(new APIResponse("error", ex.Message));
         }
     }
 
@@ -112,11 +100,11 @@ public class QuestionExamController : ControllerBase
         try
         {
             var questionExam = await _questionExamService.GetQuestionInExamForReviewSubmissionAsync(id);
-            return Ok(questionExam);
+            return Ok(new APIResponse("success", "Get question successfully", questionExam));
         }
         catch (KeyNotFoundException ex)
         {
-            return NotFound(new { message = ex.Message });
+            return NotFound(new APIResponse("error", ex.Message));
         }
     }
 }

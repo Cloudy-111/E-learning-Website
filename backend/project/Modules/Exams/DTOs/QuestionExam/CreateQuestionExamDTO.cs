@@ -1,6 +1,5 @@
 public class CreateQuestionExamDTO
 {
-    public string ExamId { get; set; } = null!;
     public string Content { get; set; } = null!;
     public string? ImageUrl { get; set; }
     public string Type { get; set; } = null!;

@@ -20,13 +20,13 @@ public class SubmissionExamService : ISubmissionExamService
         _questionExamService = questionExamService;
     }
 
-    public async Task CreateSubmissionExamAsync(SubmissionExamSubmitDTO submissionExamDto)
+    public async Task CreateSubmissionExamAsync(string examId, SubmissionExamSubmitDTO submissionExamDto)
     {
         // Check ExamId existence could be added here
-        var (exist, opened) = await _examRepository.GetExamStatusAsync(submissionExamDto.ExamId);
+        var (exist, opened) = await _examRepository.GetExamStatusAsync(examId);
         if (!exist)
         {
-            throw new KeyNotFoundException($"Exam with ID '{submissionExamDto.ExamId}' does not exist.");
+            throw new KeyNotFoundException($"Exam with ID '{examId}' does not exist.");
         }
         // Check StudentId existence could be added here
         var studentExists = await _studentRepository.IsStudentExistAsync(submissionExamDto.StudentId);
@@ -36,7 +36,7 @@ public class SubmissionExamService : ISubmissionExamService
         }
 
         // Retrieve questions for the exam
-        var questionExams = await _questionExamService.GetQuestionsByExamIdForReviewSubmissionAsync(submissionExamDto.ExamId);
+        var questionExams = await _questionExamService.GetQuestionsByExamIdForReviewSubmissionAsync(examId);
 
         // Validate that all question IDs in the submission exist in the exam
         var validQuestionIds = questionExams.Select(q => q.Id).ToHashSet();
@@ -53,7 +53,7 @@ public class SubmissionExamService : ISubmissionExamService
 
         var submissionExam = new SubmissionExam
         {
-            ExamId = submissionExamDto.ExamId,
+            ExamId = examId,
             StudentId = submissionExamDto.StudentId
         };
 

@@ -6,10 +6,14 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 public class CourseController : ControllerBase
 {
     private readonly ICourseService _courseService;
+    private readonly IRequestUpdateService _requestUpdateService;
 
-    public CourseController(ICourseService courseService)
+    public CourseController(
+        ICourseService courseService,
+        IRequestUpdateService requestUpdateService)
     {
         _courseService = courseService;
+        _requestUpdateService = requestUpdateService;
     }
 
     [HttpGet]
@@ -111,4 +115,25 @@ public class CourseController : ControllerBase
     }
 
     [HttpPost("{id}/request-update")]
+    public async Task<IActionResult> RequestUpdateCourse([FromBody] RequestUpdateRequestDTO requestDto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new APIResponse("error", "Invalid input data", ModelState));
+        }
+
+        try
+        {
+            await _requestUpdateService.CreateRequestUpdateAsync(requestDto);
+            return Ok(new APIResponse("success", "Course update request created successfully"));
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new APIResponse("error", ex.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new APIResponse("error", "An error occurred while creating the update request", ex.Message));
+        }
+    }
 }

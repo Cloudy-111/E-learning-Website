@@ -17,6 +17,7 @@ public class DBContext : IdentityDbContext<User>
     public DbSet<Admin> Admins { get; set; } = null!;
     public DbSet<Category> Categories { get; set; } = null!;
     public DbSet<Course> Courses { get; set; } = null!;
+    public DbSet<UpdateRequestCourse> UpdateRequestCourses { get; set; } = null!;
     public DbSet<CourseContent> CourseContents { get; set; } = null!;
     public DbSet<Lesson> Lessons { get; set; } = null!;
     public DbSet<Enrollment_course> Enrollments { get; set; } = null!;
@@ -56,11 +57,23 @@ public class DBContext : IdentityDbContext<User>
             .WithOne(a => a.User)
             .HasForeignKey<Admin>(a => a.UserId);
 
+        // Admin ↔ UpdateRequestCourse (1-n)
+        modelBuilder.Entity<UpdateRequestCourse>()
+            .HasOne(ur => ur.ReviewBy)
+            .WithMany(a => a.ReviewedRequests)
+            .HasForeignKey(ur => ur.ReviewById);
+
         // Teacher ↔ Course (1-n)
         modelBuilder.Entity<Course>()
             .HasOne(c => c.Teacher)
             .WithMany(t => t.Courses)
             .HasForeignKey(c => c.TeacherId);
+
+        // Teacher ↔ UpdateRequestCourse (1-n)
+        modelBuilder.Entity<UpdateRequestCourse>()
+            .HasOne(ur => ur.RequestBy)
+            .WithMany(t => t.UpdateRequests)
+            .HasForeignKey(ur => ur.RequestById);
 
         // Category ↔ Course (1-n)
         modelBuilder.Entity<Course>()
@@ -235,7 +248,7 @@ public class DBContext : IdentityDbContext<User>
             .HasIndex(d => new { d.TargetType, d.TargetTypeId });
 
 
-          // Member - Discussion (1-nhiều)
+        // Member - Discussion (1-nhiều)
         modelBuilder.Entity<Student>()
             .HasMany(m => m.Discussions)
             .WithOne(d => d.Student)
@@ -286,9 +299,9 @@ public class DBContext : IdentityDbContext<User>
             .WithOne(cs => cs.Course)
             .HasForeignKey<CourseStats>(cs => cs.CourseId)
             .OnDelete(DeleteBehavior.Cascade);
-        
-        
-         // ========== TEACHER PAYOUT ==========
+
+
+        // ========== TEACHER PAYOUT ==========
         modelBuilder.Entity<TeacherPayout>()
             .HasOne(tp => tp.Teacher)
             .WithMany(t => t.TeacherPayouts)
@@ -299,7 +312,7 @@ public class DBContext : IdentityDbContext<User>
             .HasIndex(tp => new { tp.TeacherId, tp.Month, tp.Year })
             .IsUnique(); // mỗi giáo viên chỉ có 1 payout/tháng/năm
 
-        
+
 
 
 

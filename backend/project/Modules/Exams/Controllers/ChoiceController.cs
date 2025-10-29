@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-[Route("api/[Controller]")]
+[Route("api/{questionExamId}/choices")]
 [ApiController]
 public class ChoiceController : ControllerBase
 {
@@ -12,22 +12,22 @@ public class ChoiceController : ControllerBase
     }
 
     // Controller actions go here
-    [HttpPost("add-choice")]
-    public async Task<IActionResult> AddChoice([FromBody] AddChoiceDTO addChoiceDTO)
+    [HttpPost]
+    public async Task<IActionResult> AddChoice(string questionExamId, [FromBody] AddChoiceDTO addChoiceDTO)
     {
         if (!ModelState.IsValid)
         {
             return Ok(new APIResponse("Error", "Invalid data."));
         }
-        await _choiceService.AddChoiceAsync(addChoiceDTO);
-        return Ok(new { Message = "Choice added successfully." });
+        await _choiceService.AddChoiceAsync(questionExamId, addChoiceDTO);
+        return Ok(new APIResponse("Success", "Add choice successfully."));
     }
 
-    [HttpDelete("delete-choice/{choiceId}")]
+    [HttpDelete("{choiceId}")]
     public async Task<IActionResult> DeleteChoice(string choiceId)
     {
         await _choiceService.DeleteChoiceAsync(choiceId);
-        return Ok(new { Message = "Choice deleted successfully." });
+        return Ok(new APIResponse("Success", "Delete choice successfully."));
     }
 
 }

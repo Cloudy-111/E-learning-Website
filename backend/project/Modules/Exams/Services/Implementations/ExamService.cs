@@ -15,9 +15,20 @@ public class ExamService : IExamService
         _questionExamService = questionExamService;
     }
 
-    public async Task<IEnumerable<Exam>> GetAllExamsAsync()
+    public async Task<IEnumerable<InformationExamDTO>> GetAllExamsAsync()
     {
-        return await _examRepository.GetAllExamsAsync();
+        var exams = await _examRepository.GetAllExamsAsync();
+        return exams.Select(exam => new InformationExamDTO
+        {
+            Id = exam.Id,
+            Title = exam.Title,
+            Description = exam.Description,
+            DurationMinutes = exam.DurationMinutes,
+            TotalCompleted = exam.TotalCompleted,
+            IsOpened = exam.IsOpened,
+            CourseContentId = exam.CourseContentId,
+            LessonId = exam.LessonId
+        });
     }
 
     public async Task<InformationExamDTO?> GetExamByIdAsync(string id)
@@ -67,9 +78,9 @@ public class ExamService : IExamService
         await _examRepository.AddExamAsync(newExam);
     }
 
-    public async Task UpdateExamAsync(InformationExamDTO examUpdate)
+    public async Task UpdateExamAsync(string examId, UpdateExamDTO examUpdate)
     {
-        var exam = await _examRepository.GetExamByIdAsync(examUpdate.Id) ?? throw new KeyNotFoundException($"Exam with id {examUpdate.Id} not found.");
+        var exam = await _examRepository.GetExamByIdAsync(examId) ?? throw new KeyNotFoundException($"Exam with id {examId} not found.");
         if (exam.IsOpened == true && examUpdate.IsOpened == false)
         {
             throw new InvalidOperationException("Cannot update to an opened exam.");
@@ -86,9 +97,8 @@ public class ExamService : IExamService
 
     // }
 
-    public async Task<bool> UpdateOrderQuestionInExamAsync(UpdateQuestionOrderDTO dto)
+    public async Task<bool> UpdateOrderQuestionInExamAsync(string examId, UpdateQuestionOrderDTO dto)
     {
-        var examId = dto.ExamId;
         var questionExams = dto.QuestionExamOrderDTOs;
 
         var exam = await _examRepository.GetExamByIdAsync(examId) ?? throw new KeyNotFoundException($"Exam with id {examId} not found.");
