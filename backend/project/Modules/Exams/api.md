@@ -1,18 +1,26 @@
 ## Các API dùng trong Module Exam
 
+### Exam
+
 - GET api/exam
 - GET api/exam/{id}
-- POST api/exam/create-new-exam
-- PATCH api/exam/update-exam/{id}
-- POST api/exam/update-order-question
+- POST api/exam
+- POST api/exam/{id}/order
+- PATCH api/exam/{id}
 
-- POST api/questionexam/create-question-exam
-- GET api/questionexam/question-for-doing-exam
-- GET api/questionexam/questions-for-review-submission
-- GET api/questionExam/for-exam/{id}
-- GET api/questionExam/for-review/{id}
+### QuestionExam
 
-- POST api/choice/add-choice
-- DELETE api/choice/delete-choice/{id}
+- GET api/{examId}/question-exams/for-exam
+- GET api/{examId}/question-exams/for-review
+- GET api/{examId}/question-exams/for-exam/{id}
+- GET api/{examId}/question-exams/for-review/{id}
+- POST api/{examId}/question-exams
 
-- POST api/submit/submit-exam
+### Choice
+
+- POST api/{questionExamId}/choices
+- DELETE api/{questionExamId}/choices/{id}
+
+### Submit
+
+- POST api/submit/{examId}

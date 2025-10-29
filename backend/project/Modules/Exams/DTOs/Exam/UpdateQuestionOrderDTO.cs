@@ -1,5 +1,7 @@
+using System.ComponentModel.DataAnnotations;
+
 public class UpdateQuestionOrderDTO
 {
-    public string ExamId { get; set; } = null!;
+    [Required]
     public List<QuestionExamOrderDTO> QuestionExamOrderDTOs { get; set; } = new List<QuestionExamOrderDTO>();
 }

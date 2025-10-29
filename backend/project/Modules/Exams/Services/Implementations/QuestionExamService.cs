@@ -20,18 +20,32 @@ public class QuestionExamService : IQuestionExamService
         return await _questionExamRepository.ExistQuestionAsync(questionId);
     }
 
-    public async Task AddQuestionToExamAsync(QuestionExam questionExam)
+    public async Task AddQuestionToExamAsync(string examId, CreateQuestionExamDTO questionExam)
     {
-        var (exists, isOpened) = await _examRepository.GetExamStatusAsync(questionExam.ExamId);
+        var (exists, isOpened) = await _examRepository.GetExamStatusAsync(examId);
         if (!exists)
         {
-            throw new KeyNotFoundException($"Exam with ID '{questionExam.ExamId}' does not exist.");
+            throw new KeyNotFoundException($"Exam with ID '{examId}' does not exist.");
         }
         if (isOpened)
         {
             throw new InvalidOperationException("Cannot add question to an opened exam.");
         }
-        await _questionExamRepository.AddQuestionToExamAsync(questionExam);
+
+        var newQuestionExam = new QuestionExam
+        {
+            ExamId = examId,
+            Content = questionExam.Content,
+            ImageUrl = questionExam.ImageUrl,
+            Type = questionExam.Type,
+            Exaplanation = questionExam.Exaplanation,
+            Score = questionExam.Score,
+            IsRequired = questionExam.IsRequired,
+            // For versioning
+            IsNewest = true,
+            ParentQuestionId = null
+        };
+        await _questionExamRepository.AddQuestionToExamAsync(newQuestionExam);
     }
 
     // public async Task RemoveQuestionFromExamAsync(int questionId, string examId)

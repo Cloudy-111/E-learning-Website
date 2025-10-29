@@ -17,8 +17,8 @@ public class SubmitController : ControllerBase
     }
 
     // API go here
-    [HttpPost("submit-exam")]
-    public async Task<IActionResult> SubmitExam([FromBody] SubmissionExamSubmitDTO submissionExamDto)
+    [HttpPost("{examId}")]
+    public async Task<IActionResult> SubmitExam(string examId, [FromBody] SubmissionExamSubmitDTO submissionExamDto)
     {
         if (!ModelState.IsValid)
         {
@@ -28,8 +28,8 @@ public class SubmitController : ControllerBase
         try
         {
             // Create a new SubmissionExam
-            await _submissionExamService.CreateSubmissionExamAsync(submissionExamDto);
-            return Ok(new { Message = "Exam submitted successfully" });
+            await _submissionExamService.CreateSubmissionExamAsync(examId, submissionExamDto);
+            return Ok(new APIResponse("Success", "Submit exam successfully"));
         }
         catch (KeyNotFoundException ex)
         {

@@ -11,20 +11,19 @@ public class ChoiceService : IChoiceService
     }
 
     // Implement methods defined in IChoiceService here
-    public async Task AddChoiceAsync(AddChoiceDTO addChoiceDTO)
+    public async Task AddChoiceAsync(string questionExamId, AddChoiceDTO addChoiceDTO)
     {
-        bool exists = await _questionExamRepository.ExistQuestionAsync(addChoiceDTO.QuestionExamId);
+        bool exists = await _questionExamRepository.ExistQuestionAsync(questionExamId);
         if (!exists)
         {
-            throw new ArgumentException($"QuestionExam with ID '{addChoiceDTO.QuestionExamId}' does not exist.");
+            throw new ArgumentException($"QuestionExam with ID '{questionExamId}' does not exist.");
         }
 
         try
         {
-            Choice choice = new Choice
+            var choice = new Choice
             {
-                Id = Guid.NewGuid().ToString(),
-                QuestionExamId = addChoiceDTO.QuestionExamId,
+                QuestionExamId = questionExamId,
                 Content = addChoiceDTO.Content,
                 IsCorrect = addChoiceDTO.IsCorrect
             };

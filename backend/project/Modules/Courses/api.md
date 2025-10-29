@@ -6,7 +6,7 @@
 - GET api/courses/{id}
 - POST api/courses
 - POST api/courses/{id}/request-update
-- PATCH api/courses/{id}
+- PATCH api/courses/{id} ------- Only When Draft
 - PATCH api/courses/{id}/request-publish ------- When published
 
 ### CourseContent
@@ -14,7 +14,7 @@
 - GET api/courses/{courseId}/content
 - POST api/course/{courseId}/content
 - POST api/course/{courseId}/content/request-update ------- When published
-- PATCH api/course/{courseId}/content
+- PATCH api/course/{courseId}/content ------- Only When Draft
 
 ### Lesson
 

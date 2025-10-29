@@ -59,15 +59,12 @@ public class LessonController : ControllerBase
         try
         {
             await _lessonService.AddLessonAsync(courseContentId, lessonDto);
-            return Ok(new { message = "Lesson created successfully." });
+            return Ok(new APIResponse("success", "Create lesson successfully"));
         }
         catch (Exception ex)
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new
-            {
-                message = "An error occurred while creating the lesson.",
-                detail = ex.Message
-            });
+            APIResponse("error", "An error occurred while creating the lesson", ex.Message));
         }
     }
 
@@ -82,15 +79,12 @@ public class LessonController : ControllerBase
         try
         {
             await _lessonService.UpdateLessonAsync(courseContentId, lessonId, lessonDto);
-            return Ok(new { message = "Lesson updated successfully." });
+            return Ok(new APIResponse("success", "Update lesson successfully"));
         }
         catch (Exception ex)
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new
-            {
-                message = "An error occurred while updating the lesson.",
-                detail = ex.Message
-            });
+            APIResponse("error", "An error occurred while updating the lesson", ex.Message));
         }
     }
 
@@ -105,7 +99,7 @@ public class LessonController : ControllerBase
         try
         {
             await _lessonService.UpdateOrderLessonsAsync(courseContentId, lessonOrders);
-            return Ok(new { message = "Lesson orders updated successfully." });
+            return Ok(new APIResponse("success", "Update lesson orders successfully"));
         }
         catch (Exception ex)
         {
@@ -125,15 +119,12 @@ public class LessonController : ControllerBase
         try
         {
             await _requestUpdateService.CreateRequestUpdateAsync(requestDto);
-            return Ok(new { message = "Lesson update request created successfully." });
+            return Ok(new APIResponse("success", "Lesson update request created successfully"));
         }
         catch (Exception ex)
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new
-            {
-                message = "An error occurred while creating the lesson update request.",
-                detail = ex.Message
-            });
+            APIResponse("error", "An error occurred while creating the lesson update request", ex.Message));
         }
     }
 }

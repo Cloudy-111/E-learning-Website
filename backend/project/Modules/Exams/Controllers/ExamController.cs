@@ -27,97 +27,87 @@ public class ExamController : ControllerBase
         }
         catch (KeyNotFoundException ex)
         {
-            return NotFound(new { message = ex.Message });
+            return NotFound(new APIResponse("error", ex.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while retrieving the Exam", ex.Message));
         }
     }
 
-    [HttpPost("create-new-exam")]
+    [HttpPost]
     public async Task<IActionResult> CreateNewExam([FromBody] CreateExamDTO exam)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new APIResponse("error", "Invalid input data", ModelState));
+        }
+
         try
         {
             await _examService.AddExamAsync(exam);
-            return Ok(new { message = "Create new exam successfully" });
+            return Ok(new APIResponse("Success", "Create new Exam successfully"));
         }
         catch (Exception ex)
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new
-            {
-                message = "An error occurred while creating the exam.",
-                detail = ex.Message
-            });
+            APIResponse("error", "An error occurred while creating the exam", ex.Message));
         }
     }
 
-    [HttpPatch("update-exam/{id}")]
+    [HttpPatch("{id}")]
     public async Task<IActionResult> UpdateExam(string id, [FromBody] UpdateExamDTO exam)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new APIResponse("error", "Invalid input data", ModelState));
+        }
+
         try
         {
-            var existingExam = await _examService.GetExamByIdAsync(id);
-            if (existingExam == null)
-            {
-                return NotFound(new { message = $"Exam with id {id} not found." });
-            }
-
-            // Update only the fields that are provided in the DTO
-            if (!string.IsNullOrEmpty(exam.Title))
-            {
-                existingExam.Title = exam.Title;
-            }
-            if (!string.IsNullOrEmpty(exam.Description))
-            {
-                existingExam.Description = exam.Description;
-            }
-            if (exam.DurationMinutes.HasValue)
-            {
-                existingExam.DurationMinutes = exam.DurationMinutes.Value;
-            }
-            if (exam.IsOpened.HasValue)
-            {
-                existingExam.IsOpened = exam.IsOpened.Value;
-            }
-
-            await _examService.UpdateExamAsync(existingExam);
-            return Ok(new { messenge = "Update exam successfully" });
+            await _examService.UpdateExamAsync(id, exam);
+            return Ok(new APIResponse("Success", "Update exam successfully"));
         }
         catch (KeyNotFoundException ex)
         {
-            return NotFound(new { message = ex.Message });
+            return NotFound(new APIResponse("error", ex.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while updating the exam", ex.Message));
         }
     }
 
-    [HttpPost("update-order-question")]
-    public async Task<IActionResult> UpdateOrderQuestionInExam([FromBody] UpdateQuestionOrderDTO updateQuestionOrderDTO)
+    [HttpPost("{id}/order")]
+    public async Task<IActionResult> UpdateOrderQuestionInExam(string id, [FromBody] UpdateQuestionOrderDTO updateQuestionOrderDTO)
     {
-        if (updateQuestionOrderDTO == null || string.IsNullOrEmpty(updateQuestionOrderDTO.ExamId))
-            return BadRequest(new { message = "Invalid request data." });
+        if (updateQuestionOrderDTO == null || string.IsNullOrEmpty(id))
+            return BadRequest(new APIResponse("error", "Invalid input data"));
 
         try
         {
-            bool result = await _examService.UpdateOrderQuestionInExamAsync(updateQuestionOrderDTO);
+            bool result = await _examService.UpdateOrderQuestionInExamAsync(id, updateQuestionOrderDTO);
 
             if (result)
-                return Ok(new { message = "List question order updated successfully." });
+                return Ok(new APIResponse("success", "Question order updated successfully"));
 
             return StatusCode(StatusCodes.Status500InternalServerError,
-                new { message = "Failed to update question order." });
+                new APIResponse("error", "Failed to update question order"));
         }
         catch (KeyNotFoundException ex)
         {
-            return NotFound(new { message = ex.Message });
+            return NotFound(new APIResponse("error", ex.Message));
         }
         catch (ArgumentException ex)
         {
-            return BadRequest(new { message = ex.Message });
+            return BadRequest(new APIResponse("error", ex.Message));
         }
         catch (Exception ex)
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new
-            {
-                message = "An error occurred while updating question order.",
-                detail = ex.Message
-            });
+            APIResponse("error", "An error occurred while updating question order", ex.Message));
         }
     }
 }

@@ -1,4 +1,4 @@
 public interface ISubmissionExamService
 {
-    Task CreateSubmissionExamAsync(SubmissionExamSubmitDTO submissionExamDto);
+    Task CreateSubmissionExamAsync(string examId, SubmissionExamSubmitDTO submissionExamDto);
 }
