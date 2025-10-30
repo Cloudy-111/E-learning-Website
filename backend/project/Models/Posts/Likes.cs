@@ -26,3 +26,5 @@ public class Likes
     public Student Student { get; set; } = null!;
 
 }
+
+

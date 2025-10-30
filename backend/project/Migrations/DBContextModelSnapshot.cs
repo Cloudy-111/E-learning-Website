@@ -775,7 +775,7 @@ namespace project.Migrations
 
                     b.HasIndex("TargetType", "TargetTypeId");
 
-                    b.ToTable("Discussion");
+                    b.ToTable("Discussions");
                 });
 
             modelBuilder.Entity("project.Models.Posts.ForumQuestion", b =>

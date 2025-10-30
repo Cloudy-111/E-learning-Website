@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace project.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20251021143213_AddOrderToLesson")]
-    partial class AddOrderToLesson
+    [Migration("20251030072908_CreateEnrollments")]
+    partial class CreateEnrollments
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -345,6 +345,52 @@ namespace project.Migrations
                     b.HasIndex("StudentId");
 
                     b.ToTable("SubmissionExams");
+                });
+
+            modelBuilder.Entity("UpdateRequestCourse", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("RequestById")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("RequestedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ResponseComment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ReviewById")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("ReviewedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TargetId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UpdatedDataJSON")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RequestById");
+
+                    b.HasIndex("ReviewById");
+
+                    b.ToTable("UpdateRequestCourses");
                 });
 
             modelBuilder.Entity("project.Models.Admin", b =>
@@ -732,7 +778,7 @@ namespace project.Migrations
 
                     b.HasIndex("TargetType", "TargetTypeId");
 
-                    b.ToTable("Discussion");
+                    b.ToTable("Discussions");
                 });
 
             modelBuilder.Entity("project.Models.Posts.ForumQuestion", b =>
@@ -1228,6 +1274,23 @@ namespace project.Migrations
                     b.Navigation("Student");
                 });
 
+            modelBuilder.Entity("UpdateRequestCourse", b =>
+                {
+                    b.HasOne("project.Models.Teacher", "RequestBy")
+                        .WithMany("UpdateRequests")
+                        .HasForeignKey("RequestById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("project.Models.Admin", "ReviewBy")
+                        .WithMany("ReviewedRequests")
+                        .HasForeignKey("ReviewById");
+
+                    b.Navigation("RequestBy");
+
+                    b.Navigation("ReviewBy");
+                });
+
             modelBuilder.Entity("project.Models.Admin", b =>
                 {
                     b.HasOne("project.Models.User", "User")
@@ -1515,6 +1578,11 @@ namespace project.Migrations
                     b.Navigation("SubmissionAnswers");
                 });
 
+            modelBuilder.Entity("project.Models.Admin", b =>
+                {
+                    b.Navigation("ReviewedRequests");
+                });
+
             modelBuilder.Entity("project.Models.Course", b =>
                 {
                     b.Navigation("Content");
@@ -1580,6 +1648,8 @@ namespace project.Migrations
                     b.Navigation("Courses");
 
                     b.Navigation("TeacherPayouts");
+
+                    b.Navigation("UpdateRequests");
                 });
 
             modelBuilder.Entity("project.Models.User", b =>

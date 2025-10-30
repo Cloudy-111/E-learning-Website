@@ -31,3 +31,4 @@ public class Reports
     [ForeignKey(nameof(ReporterId))]
     public Student Student { get; set; } = null!;
 }
+
