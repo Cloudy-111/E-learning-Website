@@ -24,3 +24,9 @@
 - POST api/course-content/{courseContentId}/lessons/order
 - POST api/course-content/{courseContentId}/lessons/{lessonId}/request-update ------- When published
 - PATCH api/course-content/{courseContentId}/lessons/{lessonId} ------- Only When Draft
+
+### CourseReview
+
+- GET api/{courseId}/reviews
+- POST api/{courseId}/reviews
+- PATCH api/{courseId}/reviews/{reviewId}

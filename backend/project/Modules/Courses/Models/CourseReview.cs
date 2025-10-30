@@ -22,7 +22,12 @@ public class CourseReview
     [MaxLength(1000)]
     public string? Comment { get; set; }
 
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; }
+
+    // For versioning
+    public bool IsNewest { get; set; } = true;
+
+    public string? ParentId { get; set; }
 
     [ForeignKey(nameof(CourseId))]
     public Course Course { get; set; } = null!;
