@@ -2,6 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using project.Models;
 using Microsoft.AspNetCore.Mvc;
+using project.Modules.Posts.Repositories.Interfaces;
+using project.Modules.Posts.Services.Interfaces;
+using project.Modules.Posts.Services.Implements;
+using project.Modules.Posts.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +28,9 @@ builder.Services.AddScoped<ISubmissionAnswerService, SubmissionAnswerService>();
 builder.Services.AddScoped<ILessonService, LessonService>();
 builder.Services.AddScoped<ICourseContentService, CourseContentService>();
 builder.Services.AddScoped<IRequestUpdateService, RequestUpdateService>();
+builder.Services.AddScoped<IPostService, PostService>();
+builder.Services.AddScoped<IDiscussionService, DiscussionService>();
+
 // builder.Services.AddScoped<IStudentService, StudentService>();
 
 // Add repository to the container.
@@ -39,6 +46,14 @@ builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
 builder.Services.AddScoped<ICourseContentRepository, CourseContentRepository>();
 builder.Services.AddScoped<ILessonRepository, LessonRepository>();
 builder.Services.AddScoped<IRequestUpdateRepository, RequestUpdateRepository>();
+builder.Services.AddScoped<IPostRepository, PostRepository>();
+builder.Services.AddScoped<IDiscussionRepository, DiscussionRepository>();
+
+
+
+//
+
+
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
