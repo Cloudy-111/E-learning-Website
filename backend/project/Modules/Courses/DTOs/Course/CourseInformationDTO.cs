@@ -10,9 +10,9 @@ public class CourseInformationDTO
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
-    public string CategoryId { get; set; } = null!;
-    public string CategoryName { get; set; } = null!;
+    public string? CategoryId { get; set; }
+    public string? CategoryName { get; set; }
 
-    public string TeacherId { get; set; } = null!;
-    public string TeacherName { get; set; } = null!;
+    public string? TeacherId { get; set; }
+    public string? TeacherName { get; set; }
 }
