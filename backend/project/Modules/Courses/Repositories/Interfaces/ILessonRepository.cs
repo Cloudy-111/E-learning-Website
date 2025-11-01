@@ -2,6 +2,7 @@ using project.Models;
 
 public interface ILessonRepository
 {
+    Task<bool> LessonExistsAsync(string id);
     Task<Lesson?> GetLessonByIdAsync(string id);
     Task<IEnumerable<Lesson>> GetLessonsByCourseContentIdAsync(string courseId);
     Task AddLessonAsync(Lesson lesson);

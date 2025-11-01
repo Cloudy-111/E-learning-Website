@@ -23,6 +23,13 @@ public class ExamRepository : IExamRepository
         return (true, exam.IsOpened);
     }
 
+    public async Task<int> TotalExamsInCourseAsync(string courseId)
+    {
+        return await _dbContext.Exams
+            .Where(e => e.CourseContent != null && e.CourseContent.CourseId == courseId)
+            .CountAsync();
+    }
+
     public async Task<IEnumerable<Exam>> GetAllExamsAsync()
     {
         return await _dbContext.Exams.ToListAsync();

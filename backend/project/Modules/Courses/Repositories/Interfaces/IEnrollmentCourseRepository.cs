@@ -6,5 +6,5 @@ public interface IEnrollmentCourseRepository
     Task CreateEnrollmentAsync(Enrollment_course enrollment);
     Task<Enrollment_course?> GetEnrrollmentByIdAsync(string enrollmentId);
     Task UpdateProgressEnrollmentAsync(Enrollment_course enrollment);
-    Task CompletedEnrollmentAsync(Enrollment_course enrollment);
+    // Task CompletedEnrollmentAsync(Enrollment_course enrollment);
 }

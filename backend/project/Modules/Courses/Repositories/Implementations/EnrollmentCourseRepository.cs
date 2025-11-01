@@ -34,4 +34,9 @@ public class EnrollmentCourseRepository : IEnrollmentCourseRepository
         _dbContext.Enrollments.Update(enrollment);
         await _dbContext.SaveChangesAsync();
     }
+
+    // public async Task CompletedEnrollmentAsync(Enrollment_course enrollment)
+    // {
+
+    // }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace project.Migrations
 {
     [DbContext(typeof(DBContext))]
-    partial class DBContextModelSnapshot : ModelSnapshot
+    [Migration("20251101163528_LessonProgress")]
+    partial class LessonProgress
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -807,7 +810,7 @@ namespace project.Migrations
 
                     b.HasIndex("TargetType", "TargetTypeId");
 
-                    b.ToTable("Discussions");
+                    b.ToTable("Discussion");
                 });
 
             modelBuilder.Entity("project.Models.Posts.ForumQuestion", b =>
@@ -822,9 +825,6 @@ namespace project.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int>("DiscussionCount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("LikeCount")
                         .HasColumnType("int");
 
                     b.Property<string>("StudentId")

@@ -27,4 +27,5 @@ public class Lesson
     public CourseContent CourseContent { get; set; } = null!;
     public ICollection<Material> Materials { get; set; } = new List<Material>();
     public ICollection<Exam> Exams { get; set; } = new List<Exam>();
+    public ICollection<LessonProgress> LessonProgresses { get; set; } = new List<LessonProgress>();
 }

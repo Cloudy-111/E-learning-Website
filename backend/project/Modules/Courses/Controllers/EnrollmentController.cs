@@ -72,11 +72,15 @@ public class EnrollmentController : ControllerBase
     }
 
     [HttpPatch("{enrollmentId}/progress")]
-    public async Task<IActionResult> UpdateProgressEnrollmentAsync(string courseId, string enrollmentId)
+    public async Task<IActionResult> UpdateProgressEnrollmentAsync(string courseId, string enrollmentId, [FromBody] EnrollmentProgressUpdateDTO enrollmentUpdateDTO)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new APIResponse("error", "Invalid input data", ModelState));
+        }
         try
         {
-            await _enrollmentCourseService.UpdateProgressEnrollmentAsync(courseId, enrollmentId);
+            await _enrollmentCourseService.UpdateProgressEnrollmentAsync(courseId, enrollmentId, enrollmentUpdateDTO);
             return Ok(new APIResponse("Success", "Update Progress Enrollment Successfully"));
         }
         catch (KeyNotFoundException knfE)

@@ -46,6 +46,9 @@ public class CourseRepository : ICourseRepository
     public async Task<Course?> GetCourseByIdAsync(string id)
     {
         return await _dbContext.Courses
+            .Include(c => c.Category)
+            .Include(c => c.Teacher)
+            .ThenInclude(t => t.User)
             .FirstOrDefaultAsync(c => c.Id == id);
     }
 
