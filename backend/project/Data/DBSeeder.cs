@@ -393,9 +393,9 @@ public static class DBSeeder
             context.Discussions.AddRange(discussions);
             context.SaveChanges();
         }
-         
-          
-         // Seed Reports
+
+
+        // Seed Reports
         if (!context.Reports.Any())
         {
             var random = new Random();
@@ -537,6 +537,7 @@ public static class DBSeeder
                 fq.LikeCount = context.Likes.Count(l => l.TargetType == "ForumQuestion" && l.TargetId == fq.Id);
             }
             context.SaveChanges();
+        }
 
 
         // Seed CourseReviews
