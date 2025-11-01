@@ -13,7 +13,7 @@ public class Reports
     public string? ReporterId { get; set; }
 
     [MaxLength(50)]
-    public string? TargetType { get; set; } // Ví dụ: "Post", "Discussion", "Comment"
+    public string? TargetType { get; set; } // Ví dụ: "Post", "Discussion", "ForumQuestion"
 
     public string? TargetTypeId { get; set; }
 

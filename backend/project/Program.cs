@@ -33,6 +33,8 @@ builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IDiscussionService, DiscussionService>();
 builder.Services.AddScoped<IForumQuestionService, ForumQuestionService>();
 builder.Services.AddScoped<ILikesService, LikesService>();
+builder.Services.AddScoped<IReportService, ReportService>();
+
 
 // builder.Services.AddScoped<IStudentService, StudentService>();
 
@@ -53,6 +55,8 @@ builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IDiscussionRepository, DiscussionRepository>();
 builder.Services.AddScoped<IForumQuestionRepository, ForumQuestionRepository>();
 builder.Services.AddScoped<ILikesRepository, LikesRepository>();
+builder.Services.AddScoped<IReportRepository, ReportRepository>();
+
 
 
 
