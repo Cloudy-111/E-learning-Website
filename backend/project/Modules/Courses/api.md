@@ -35,3 +35,10 @@
 ### Category
 
 - POST api/categories
+
+### Enrollments
+
+- GET api/courses/{courseId}/enrollments
+- GET api/courses/{courseId}/enrollments/{enrollmentId}
+- POST api/courses/{courseId}/enrollments
+- PATCH api/courses/{courseId}/enrollments/{enrollmentId}/progress
