@@ -35,6 +35,35 @@ public class CourseService : ICourseService
         });
     }
 
+    public async Task<IEnumerable<CourseInformationDTO>> GetCoursesAsync(string? keyword, string? category, int page, int pageSize)
+    {
+        try
+        {
+            var courses = await _courseRepository.GetCoursesAsync(keyword, category, page, pageSize);
+            return courses.Select(c => new CourseInformationDTO
+            {
+                Id = c.Id,
+                Title = c.Title,
+                Description = c.Description,
+                Price = c.Price,
+                DiscountPrice = c.DiscountPrice,
+                Status = c.Status,
+                ThumbnailUrl = c.ThumbnailUrl,
+                CreatedAt = c.CreatedAt,
+                UpdatedAt = c.UpdatedAt,
+                CategoryId = c.CategoryId,
+                CategoryName = c.Category?.Name ?? "Unknown",
+                TeacherId = c.TeacherId,
+                TeacherName = c.Teacher?.User?.FullName ?? "Unknown"
+            });
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error when retriev course: ", ex);
+        }
+
+    }
+
     public async Task<CourseInformationDTO> GetCourseByIdAsync(string id)
     {
         var courseExist = await _courseRepository.CourseExistsAsync(id);

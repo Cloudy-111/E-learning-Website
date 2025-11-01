@@ -129,9 +129,17 @@ public class DBContext : IdentityDbContext<User>
            .HasForeignKey(r => r.StudentId)
            .OnDelete(DeleteBehavior.Restrict);
 
+        // Course ↔ CourseReview (1-n)
+        modelBuilder.Entity<CourseReview>()
+           .HasOne(r => r.Course)
+           .WithMany(c => c.Reviews)
+           .HasForeignKey(r => r.CourseId)
+           .OnDelete(DeleteBehavior.Restrict);
+
         modelBuilder.Entity<CourseReview>()
            .HasIndex(r => new { r.CourseId, r.StudentId })
-           .IsUnique();
+           .IsUnique()
+           .HasFilter("[IsNewest] = 1");
 
         // Student ↔ Orders (1-n)
         modelBuilder.Entity<Orders>()

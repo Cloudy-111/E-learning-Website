@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authorization;
+
 public class CategoryService : ICategoryService
 {
     private readonly ICategoryRepository _categoryRepository;
@@ -18,10 +20,16 @@ public class CategoryService : ICategoryService
         return category;
     }
 
-    // public async Task AddCategoryAsync(Category category)
-    // {
-    //     await _categoryRepository.AddCategoryAsync(category);
-    // }
+    public async Task CreateCategoryAsync(CategoryCreateDTO categoryCreateDTO)
+    {
+        var category = new Category
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = categoryCreateDTO.Name,
+            Description = categoryCreateDTO.Description
+        };
+        await _categoryRepository.CreateCategoryAsync(category);
+    }
 
     // public async Task UpdateCategoryAsync(Category category)
     // {

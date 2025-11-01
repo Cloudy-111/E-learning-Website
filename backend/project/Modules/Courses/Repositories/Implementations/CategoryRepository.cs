@@ -18,10 +18,11 @@ public class CategoryRepository : ICategoryRepository
         return await _dbContext.Categories.FirstOrDefaultAsync(c => c.Id == id);
     }
 
-    // public async Task AddCategoryAsync(Category category)
-    // {
-
-    // }
+    public async Task CreateCategoryAsync(Category category)
+    {
+        await _dbContext.Categories.AddAsync(category);
+        await _dbContext.SaveChangesAsync();
+    }
 
     // public async Task UpdateCategoryAsync(Category category)
     // {

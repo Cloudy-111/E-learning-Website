@@ -5,5 +5,5 @@ public interface IExamService
     Task AddExamAsync(CreateExamDTO exam);
     Task UpdateExamAsync(string examId, UpdateExamDTO examUpdate);
     // Task DeleteExamAsync(int id);
-    Task<bool> UpdateOrderQuestionInExamAsync(string examId, UpdateQuestionOrderDTO dto);
+    Task UpdateOrderQuestionInExamAsync(string examId, List<QuestionExamOrderDTO> questionOrders);
 }

@@ -2,7 +2,7 @@ bin/
 node_modules/
 obj/
 out/
-
+.vscode
 
 appsettings.json
 

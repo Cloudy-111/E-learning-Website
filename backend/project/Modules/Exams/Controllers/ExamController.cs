@@ -81,20 +81,16 @@ public class ExamController : ControllerBase
     }
 
     [HttpPost("{id}/order")]
-    public async Task<IActionResult> UpdateOrderQuestionInExam(string id, [FromBody] UpdateQuestionOrderDTO updateQuestionOrderDTO)
+    public async Task<IActionResult> UpdateOrderQuestionInExam(string id, [FromBody] List<QuestionExamOrderDTO> questionOrders)
     {
-        if (updateQuestionOrderDTO == null || string.IsNullOrEmpty(id))
-            return BadRequest(new APIResponse("error", "Invalid input data"));
-
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new APIResponse("error", "Invalid input data", ModelState));
+        }
         try
         {
-            bool result = await _examService.UpdateOrderQuestionInExamAsync(id, updateQuestionOrderDTO);
-
-            if (result)
-                return Ok(new APIResponse("success", "Question order updated successfully"));
-
-            return StatusCode(StatusCodes.Status500InternalServerError,
-                new APIResponse("error", "Failed to update question order"));
+            await _examService.UpdateOrderQuestionInExamAsync(id, questionOrders);
+            return Ok(new APIResponse("success", "Update question order successfully"));
         }
         catch (KeyNotFoundException ex)
         {
