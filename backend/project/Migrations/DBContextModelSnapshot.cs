@@ -782,7 +782,7 @@ namespace project.Migrations
 
                     b.HasIndex("TargetType", "TargetTypeId");
 
-                    b.ToTable("Discussion");
+                    b.ToTable("Discussions");
                 });
 
             modelBuilder.Entity("project.Models.Posts.ForumQuestion", b =>
@@ -797,6 +797,9 @@ namespace project.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int>("DiscussionCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LikeCount")
                         .HasColumnType("int");
 
                     b.Property<string>("StudentId")

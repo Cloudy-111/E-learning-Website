@@ -13,7 +13,7 @@ public class Discussion
     public string? StudentId { get; set; }
 
     [MaxLength(50)]
-    public string? TargetType { get; set; } // ví dụ: "Post", "Lesson"
+    public string? TargetType { get; set; } 
 
     public string? TargetTypeId { get; set; }
 

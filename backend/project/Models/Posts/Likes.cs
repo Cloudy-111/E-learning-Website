@@ -10,7 +10,7 @@ public class Likes
     public string Id { get; set; } = Guid.NewGuid().ToString();
 
     [Required]
-    public string? StudentId { get; set; }
+    public string StudentId { get; set; } = null!;
 
     [MaxLength(50)]
     public string? TargetType { get; set; } // Ví dụ: "Discussion", "Post", "Lesson"
@@ -26,3 +26,5 @@ public class Likes
     public Student Student { get; set; } = null!;
 
 }
+
+

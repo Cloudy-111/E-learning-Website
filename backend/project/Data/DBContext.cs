@@ -31,9 +31,12 @@ public class DBContext : IdentityDbContext<User>
     public DbSet<Choice> Choices { get; set; } = null!;
     public DbSet<SubmissionExam> SubmissionExams { get; set; } = null!;
     public DbSet<SubmissionAnswer> SubmissionAnswers { get; set; } = null!;
+    public DbSet<Discussion> Discussions { get; set; } = null!;
 
-    public DbSet<Post> Posts { get; set; }
-    public DbSet<ForumQuestion> ForumQuestions { get; set; }
+    public DbSet<Post> Posts { get; set; } = null!;
+    public DbSet<ForumQuestion> ForumQuestions { get; set; } = null!;
+    public DbSet<Likes> Likes { get; set; }  = null!;
+    public DbSet<Reports> Reports { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
