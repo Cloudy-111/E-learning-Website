@@ -166,6 +166,10 @@ public class EnrollmentCourseService : IEnrollmentCourseService
                     CompletedAt = DateTime.UtcNow
                 });
             }
+            else
+            {
+                return;
+            }
         }
         else if (dto.ExamId != null && dto.LessonId == null)
         {

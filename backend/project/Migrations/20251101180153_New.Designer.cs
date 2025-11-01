@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace project.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20251101163528_LessonProgress")]
-    partial class LessonProgress
+    [Migration("20251101180153_New")]
+    partial class New
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -810,7 +810,7 @@ namespace project.Migrations
 
                     b.HasIndex("TargetType", "TargetTypeId");
 
-                    b.ToTable("Discussion");
+                    b.ToTable("Discussions");
                 });
 
             modelBuilder.Entity("project.Models.Posts.ForumQuestion", b =>
@@ -825,6 +825,9 @@ namespace project.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int>("DiscussionCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LikeCount")
                         .HasColumnType("int");
 
                     b.Property<string>("StudentId")
