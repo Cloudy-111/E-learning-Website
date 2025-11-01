@@ -13,11 +13,27 @@ public class PostRepository : IPostRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<Post>> GetPostsByStudentIdAsync(string studentId)
+    public async Task<IEnumerable<Post>> GetAllPostsAsync()
     {
         return await _context.Posts
-            .Where(p => p.AuthorId == studentId)
-            .OrderByDescending(p => p.CreatedAt)
+            .Include(p => p.Student)
+                .ThenInclude(s => s.User)
             .ToListAsync();
     }
+
+    public async Task<IEnumerable<Post>> GetPostsByMemberIdAsync(string memberId)
+    {
+        return await _context.Posts
+            .Include(p => p.Student)
+                .ThenInclude(s => s.User)
+            .Where(p => p.AuthorId == memberId)
+            .ToListAsync();
+    }
+      public async Task<Post?> GetPostByIdAsync(string id)
+        {
+            return await _context.Posts
+                .Include(p => p.Student)
+                    .ThenInclude(s => s.User)
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
 }

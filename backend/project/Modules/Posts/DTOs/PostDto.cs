@@ -11,6 +11,8 @@ namespace project.Models.Posts.DTOs
         public int DiscussionCount { get; set; }
         public bool IsPublished { get; set; }
         public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
+
+        public string AuthorId { get; set; } = null!;
+        public string AuthorName { get; set; } = null!;
     }
 }

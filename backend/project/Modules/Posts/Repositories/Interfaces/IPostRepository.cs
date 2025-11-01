@@ -5,9 +5,17 @@ using project.Models.Posts;
 public interface IPostRepository
 {
 
-    // Lấy danh sách bài đăng của thành viên
+    // Lấy danh sách tất cả bài đăng 
+    Task<IEnumerable<Post>> GetAllPostsAsync();
 
-    Task<IEnumerable<Post>> GetPostsByStudentIdAsync(string studentId);
+    // Lấy danh sách bài đăng của 1 thành viên
+    Task<IEnumerable<Post>> GetPostsByMemberIdAsync(string memberId);
+     
+     // Lấy chi tiết bài viết 
+     Task<Post?> GetPostByIdAsync(string id);
+
+     
+     
     
     
 }
