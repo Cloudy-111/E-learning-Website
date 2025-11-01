@@ -20,6 +20,7 @@ public class DBContext : IdentityDbContext<User>
     public DbSet<UpdateRequestCourse> UpdateRequestCourses { get; set; } = null!;
     public DbSet<CourseContent> CourseContents { get; set; } = null!;
     public DbSet<Lesson> Lessons { get; set; } = null!;
+    public DbSet<LessonProgress> LessonProgresses { get; set; } = null!;
     public DbSet<Enrollment_course> Enrollments { get; set; } = null!;
     public DbSet<Material> Materials { get; set; } = null!;
     public DbSet<CourseReview> CourseReviews { get; set; } = null!;
@@ -107,6 +108,13 @@ public class DBContext : IdentityDbContext<User>
             .HasForeignKey(e => e.CourseId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        // Student ↔ LessonProgress
+        modelBuilder.Entity<LessonProgress>()
+            .HasOne(l => l.Student)
+            .WithMany(s => s.LessonProgresses)
+            .HasForeignKey(l => l.StudentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         // Unique constraint
         modelBuilder.Entity<Enrollment_course>()
             .HasIndex(e => new { e.StudentId, e.CourseId })
@@ -118,6 +126,12 @@ public class DBContext : IdentityDbContext<User>
             .WithMany(l => l.Materials)
             .HasForeignKey(m => m.LessonId);
 
+        // Lesson ↔ LessonProgress
+        modelBuilder.Entity<LessonProgress>()
+            .HasOne(lp => lp.Lesson)
+            .WithMany(s => s.LessonProgresses)
+            .HasForeignKey(lp => lp.LessonId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Student ↔ CourseReview (1-n)
         modelBuilder.Entity<CourseReview>()

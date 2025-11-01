@@ -15,6 +15,14 @@ public class CourseContentRepository : ICourseContentRepository
         await _dbContext.SaveChangesAsync();
     }
 
+    public async Task<int> TotalLessons(string courseId)
+    {
+        return await _dbContext.CourseContents
+            .Where(cc => cc.CourseId == courseId)
+            .SelectMany(cc => cc.Lessons)
+            .CountAsync();
+    }
+
     public async Task UpdateCourseContentAsync(CourseContent content)
     {
         _dbContext.CourseContents.Update(content);

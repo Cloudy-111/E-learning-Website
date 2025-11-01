@@ -9,6 +9,11 @@ public class LessonRepository : ILessonRepository
         _dbContext = dbContext;
     }
 
+    public async Task<bool> LessonExistsAsync(string id)
+    {
+        return await _dbContext.Lessons.AnyAsync(l => l.Id == id);
+    }
+
     public async Task<Lesson?> GetLessonByIdAsync(string id)
     {
         return await _dbContext.Lessons
