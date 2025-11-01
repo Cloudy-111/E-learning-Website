@@ -449,7 +449,7 @@ public static class DBSeeder
         if (!context.Likes.Any())
         {
             var students = context.Students.ToList();
-            var discussions = context.Discussions.ToList();
+            var postss = context.Posts.ToList();
             var forumQuestions = context.ForumQuestions.ToList();
             var lessons = context.Lessons.ToList();
 
@@ -459,13 +459,13 @@ public static class DBSeeder
             for (int i = 0; i < 200; i++)
             {
                 var student = faker.PickRandom(students);
-                var targetType = faker.PickRandom(new[] { "Discussion", "ForumQuestion", "Lesson" });
+                var targetType = faker.PickRandom(new[] { "Post", "ForumQuestion", "Lesson" });
                 string targetId;
 
                 switch (targetType)
                 {
-                    case "Discussion":
-                        targetId = faker.PickRandom(discussions).Id;
+                    case "Post":
+                        targetId = faker.PickRandom(postss).Id;
                         break;
                     case "ForumQuestion":
                         targetId = faker.PickRandom(forumQuestions).Id;

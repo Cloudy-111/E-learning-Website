@@ -32,6 +32,7 @@ builder.Services.AddScoped<IRequestUpdateService, RequestUpdateService>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IDiscussionService, DiscussionService>();
 builder.Services.AddScoped<IForumQuestionService, ForumQuestionService>();
+builder.Services.AddScoped<ILikesService, LikesService>();
 
 // builder.Services.AddScoped<IStudentService, StudentService>();
 
@@ -51,6 +52,8 @@ builder.Services.AddScoped<IRequestUpdateRepository, RequestUpdateRepository>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IDiscussionRepository, DiscussionRepository>();
 builder.Services.AddScoped<IForumQuestionRepository, ForumQuestionRepository>();
+builder.Services.AddScoped<ILikesRepository, LikesRepository>();
+
 
 
 
