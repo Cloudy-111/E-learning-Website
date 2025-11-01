@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace project.Migrations
 {
     /// <inheritdoc />
-    public partial class CreateEnrollments : Migration
+    public partial class FixLikesStudentFK : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -277,6 +277,7 @@ namespace project.Migrations
                     Tags = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
                     ViewCount = table.Column<int>(type: "int", nullable: false),
                     DiscussionCount = table.Column<int>(type: "int", nullable: false),
+                    LikeCount = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },

@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace project.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20251030072908_CreateEnrollments")]
-    partial class CreateEnrollments
+    [Migration("20251101134607_Fix")]
+    partial class Fix
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -793,6 +793,9 @@ namespace project.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<int>("DiscussionCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("LikeCount")
                         .HasColumnType("int");
 
                     b.Property<string>("StudentId")

@@ -27,6 +27,7 @@ public class ForumQuestion
     public int ViewCount { get; set; } = 0;
     public int DiscussionCount { get; set; } = 0;
 
+    public int LikeCount { get; set; } = 0;
     public DateTime CreatedAt { get; set; } = DateTime.Now;
     public DateTime UpdatedAt { get; set; } = DateTime.Now;
 

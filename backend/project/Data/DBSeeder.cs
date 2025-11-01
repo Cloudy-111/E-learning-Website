@@ -285,7 +285,7 @@ public static class DBSeeder
         }
 
 
-        
+
 
         // Seed ForumQuestions
         if (!context.ForumQuestions.Any())
@@ -300,6 +300,7 @@ public static class DBSeeder
                 .RuleFor(fq => fq.Tags, f => string.Join(",", f.Lorem.Words(3)))
                 .RuleFor(fq => fq.ViewCount, f => f.Random.Int(0, 500))
                 .RuleFor(fq => fq.DiscussionCount, f => f.Random.Int(0, 50))
+                .RuleFor(p => p.LikeCount, f => f.Random.Int(0, 100))
                 .RuleFor(fq => fq.CreatedAt, f => f.Date.Past(1))
                 .RuleFor(fq => fq.UpdatedAt, f => DateTime.UtcNow);
 
@@ -444,7 +445,7 @@ public static class DBSeeder
             context.SaveChanges();
         }
 
-         // Seed Likes
+        // Seed Likes
         if (!context.Likes.Any())
         {
             var students = context.Students.ToList();
@@ -492,6 +493,24 @@ public static class DBSeeder
 
             context.Likes.AddRange(likes);
             context.SaveChanges();
+
+            var posts = context.Posts.ToList();
+            foreach (var post in posts)
+            {
+                post.DiscussionCount = context.Discussions.Count(d => d.TargetType == "Post" && d.TargetTypeId == post.Id);
+                post.LikeCount = context.Likes.Count(l => l.TargetType == "Post" && l.TargetId == post.Id);
+            }
+            context.SaveChanges();
+
+            var forumQuestionss = context.ForumQuestions.ToList();
+            foreach (var fq in forumQuestionss)
+            {
+                fq.DiscussionCount = context.Discussions.Count(d => d.TargetType == "ForumQuestion" && d.TargetTypeId == fq.Id);
+                fq.LikeCount = context.Likes.Count(l => l.TargetType == "ForumQuestion" && l.TargetId == fq.Id);
+            }
+            context.SaveChanges();
+
+
         }
 
         return;
