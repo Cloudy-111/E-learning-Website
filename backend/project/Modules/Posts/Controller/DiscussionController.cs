@@ -5,7 +5,7 @@ using project.Modules.Posts.Services.Interfaces;
 
 namespace project.Modules.Posts.Controller
 {
-    [Route("api/members/{studentId}/comments")]
+    [Route("api/[controller]")]
     [ApiController]
     public class DiscussionController : ControllerBase
     {
@@ -16,17 +16,20 @@ namespace project.Modules.Posts.Controller
             _discussionService = discussionService;
         }
 
+
+        // ✅ GET /api/comments
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<DiscussionDto>>> GetAllComments()
+    {
+        var comments = await _discussionService.GetAllCommentsAsync();
+
+        if (!comments.Any())
+            return NotFound(new { message = "Không có bình luận nào trong hệ thống." });
+
+        return Ok(comments);
+    }
         
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<DiscussionDto>>> GetCommentsByStudentId(string studentId)
-        {
-            var discussions = await _discussionService.GetDiscussionsByStudentIdAsync(studentId);
 
-            if (!discussions.Any())
-                return NotFound(new { Message = "No comments found for this member." });
-
-            return Ok(discussions);
-        }
     }
 }

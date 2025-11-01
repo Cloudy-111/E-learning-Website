@@ -7,19 +7,34 @@ namespace project.Modules.Posts.Repositories;
 
 public class DiscussionRepository : IDiscussionRepository
 {
-   private readonly DBContext _context;
+    private readonly DBContext _context;
 
-        public DiscussionRepository(DBContext context)
-        {
-            _context = context;
-        }
+    public DiscussionRepository(DBContext context)
+    {
+        _context = context;
+    }
 
-        public async Task<IEnumerable<Discussion>> GetDiscussionsByStudentIdAsync(string studentId)
-        {
-            return await _context.Discussions
-                .Where(d => d.StudentId == studentId)
-                .OrderByDescending(d => d.CreatedAt)
-                .ToListAsync();
-        }
+     // ✅ Lấy tất cả comment trong hệ thống
+    public async Task<IEnumerable<Discussion>> GetAllCommentsAsync()
+    {
+        return await _context.Discussions
+            .Include(d => d.Student)
+                .ThenInclude(s => s.User)
+            .OrderByDescending(d => d.CreatedAt)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Discussion>> GetCommentsByPostIdAsync(string postId)
+    {
+        return await _context.Discussions
+            .Include(d => d.Student)
+                .ThenInclude(s => s.User)
+            .Where(d =>
+                d.TargetType != null &&
+                d.TargetType.ToLower() == "Post" &&
+                d.TargetTypeId == postId)
+            .OrderByDescending(d => d.CreatedAt)
+            .ToListAsync();
+    }
 
 }

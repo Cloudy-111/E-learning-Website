@@ -5,6 +5,8 @@ namespace project.Modules.Posts.Repositories.Interfaces;
 
 public interface IDiscussionRepository
 {
-  //  Lấy tất cả comment của thành viên
- Task<IEnumerable<Discussion>> GetDiscussionsByStudentIdAsync(string studentId);
+   //  Lấy tất cả comment trong hệ thống
+    Task<IEnumerable<Discussion>> GetAllCommentsAsync();
+  //  Lấy = comment của một bài Post
+ Task<IEnumerable<Discussion>> GetCommentsByPostIdAsync(string postId);
 }
