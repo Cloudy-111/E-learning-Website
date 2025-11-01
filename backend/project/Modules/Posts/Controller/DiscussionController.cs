@@ -17,7 +17,7 @@ namespace project.Modules.Posts.Controller
         }
 
 
-        // ✅ GET /api/comments
+    // ✅ GET /api/comments
     [HttpGet]
     public async Task<ActionResult<IEnumerable<DiscussionDto>>> GetAllComments()
     {

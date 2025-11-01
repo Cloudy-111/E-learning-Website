@@ -335,13 +335,75 @@ public static class DBSeeder
             context.SaveChanges();
         }
 
-        // Seed Reports
+
+
+        // Seed Discussions
+        if (!context.Discussions.Any())
+        {
+            var students = context.Students.ToList();
+            var discussions = new List<Discussion>();
+            var posts = context.Posts.ToList();
+            var courses = context.Courses.ToList();
+            var forums = context.ForumQuestions.ToList();
+
+            // Faker để tạo nội dung
+            var discussionFaker = new Faker<Discussion>()
+                .RuleFor(d => d.Id, f => Guid.NewGuid().ToString())
+                .RuleFor(d => d.StudentId, f => f.PickRandom(students).StudentId)
+                .RuleFor(d => d.TargetType, f => f.PickRandom(new[] { "Post", "ForumQuestion", "Course" }))
+                .RuleFor(d => d.TargetTypeId, (f, d) =>
+                {
+                    return d.TargetType switch
+                    {
+                        "Post" => f.PickRandom(posts).Id,
+                        "Course" => f.PickRandom(courses).Id,
+                        "ForumQuestion" => f.PickRandom(forums).Id,
+                        _ => Guid.NewGuid().ToString()
+                    };
+                })
+                .RuleFor(d => d.Content, f => f.Lorem.Sentence())
+                .RuleFor(d => d.CreatedAt, f => f.Date.Past(1))
+                .RuleFor(d => d.UpdatedAt, f => DateTime.UtcNow);
+
+            // Tạo 100 discussion chính
+            var mainDiscussions = discussionFaker.Generate(100);
+            discussions.AddRange(mainDiscussions);
+
+            // Tạo reply cho một số discussion
+            foreach (var parent in mainDiscussions.Take(30)) // chỉ tạo reply cho 30 discussion đầu
+            {
+                int replyCount = new Random().Next(1, 5);
+                for (int i = 0; i < replyCount; i++)
+                {
+                    var reply = new Discussion
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        StudentId = students[new Random().Next(students.Count)].StudentId,
+                        TargetType = parent.TargetType,
+                        TargetTypeId = parent.TargetTypeId,
+                        Content = faker.Lorem.Sentence(),
+                        ParentDiscussionId = parent.Id,
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = null
+                    };
+                    discussions.Add(reply);
+                }
+            }
+
+            context.Discussions.AddRange(discussions);
+            context.SaveChanges();
+        }
+         
+          
+         // Seed Reports
         if (!context.Reports.Any())
         {
             var random = new Random();
             var students = context.Students.ToList();
             var posts = context.Posts.ToList();
             var discussions = context.Discussions.ToList();
+            var forums = context.ForumQuestions.ToList();
+
             var reports = new List<Reports>();
 
             // Tạo reports cho posts
@@ -384,66 +446,32 @@ public static class DBSeeder
                 }
             }
 
+            // Tạo reports cho forum questions
+            foreach (var forum in forums.Take(20))
+            {
+                if (random.NextDouble() < 0.2)
+                {
+                    var reporter = students[random.Next(students.Count)];
+                    reports.Add(new Reports
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        ReporterId = reporter.StudentId,
+                        TargetType = "ForumQuestion",
+                        TargetTypeId = forum.Id,
+                        Reason = "Câu thảo luận không phù hợp",
+                        Description = "Câu thảo luận gây khó chịu",
+                        Status = "Pending",
+                        CreatedAt = DateTime.Now
+                    });
+                }
+            }
+
             context.Reports.AddRange(reports);
             context.SaveChanges();
         }
 
-        // Seed Discussions
-        if (!context.Discussions.Any())
-        {
-            var students = context.Students.ToList();
-            var discussions = new List<Discussion>();
-            var posts = context.Posts.ToList();
-            var lessons = context.Lessons.ToList();
-            var forums = context.ForumQuestions.ToList();
 
-            // Faker để tạo nội dung
-            var discussionFaker = new Faker<Discussion>()
-                .RuleFor(d => d.Id, f => Guid.NewGuid().ToString())
-                .RuleFor(d => d.StudentId, f => f.PickRandom(students).StudentId)
-                .RuleFor(d => d.TargetType, f => f.PickRandom(new[] { "Post", "Lesson" }))
-                .RuleFor(d => d.TargetTypeId, (f, d) =>
-                {
-                    return d.TargetType switch
-                    {
-                        "Post" => f.PickRandom(posts).Id,
-                        "Lesson" => f.PickRandom(lessons).Id,
-                        "ForumQuestion" => f.PickRandom(forums).Id,
-                        _ => Guid.NewGuid().ToString()
-                    };
-                })
-                .RuleFor(d => d.Content, f => f.Lorem.Sentence())
-                .RuleFor(d => d.CreatedAt, f => f.Date.Past(1))
-                .RuleFor(d => d.UpdatedAt, f => DateTime.UtcNow);
 
-            // Tạo 100 discussion chính
-            var mainDiscussions = discussionFaker.Generate(100);
-            discussions.AddRange(mainDiscussions);
-
-            // Tạo reply cho một số discussion
-            foreach (var parent in mainDiscussions.Take(30)) // chỉ tạo reply cho 30 discussion đầu
-            {
-                int replyCount = new Random().Next(1, 5);
-                for (int i = 0; i < replyCount; i++)
-                {
-                    var reply = new Discussion
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        StudentId = students[new Random().Next(students.Count)].StudentId,
-                        TargetType = parent.TargetType,
-                        TargetTypeId = parent.TargetTypeId,
-                        Content = faker.Lorem.Sentence(),
-                        ParentDiscussionId = parent.Id,
-                        CreatedAt = DateTime.Now,
-                        UpdatedAt = null
-                    };
-                    discussions.Add(reply);
-                }
-            }
-
-            context.Discussions.AddRange(discussions);
-            context.SaveChanges();
-        }
 
         // Seed Likes
         if (!context.Likes.Any())
@@ -451,7 +479,7 @@ public static class DBSeeder
             var students = context.Students.ToList();
             var postss = context.Posts.ToList();
             var forumQuestions = context.ForumQuestions.ToList();
-            var lessons = context.Lessons.ToList();
+            var course = context.Courses.ToList();
 
             var likes = new List<Likes>();
 
@@ -459,7 +487,7 @@ public static class DBSeeder
             for (int i = 0; i < 200; i++)
             {
                 var student = faker.PickRandom(students);
-                var targetType = faker.PickRandom(new[] { "Post", "ForumQuestion", "Lesson" });
+                var targetType = faker.PickRandom(new[] { "Post", "ForumQuestion", "Course" });
                 string targetId;
 
                 switch (targetType)
@@ -470,8 +498,8 @@ public static class DBSeeder
                     case "ForumQuestion":
                         targetId = faker.PickRandom(forumQuestions).Id;
                         break;
-                    case "Lesson":
-                        targetId = faker.PickRandom(lessons).Id;
+                    case "Course":
+                        targetId = faker.PickRandom(course).Id;
                         break;
                     default:
                         targetId = null!;

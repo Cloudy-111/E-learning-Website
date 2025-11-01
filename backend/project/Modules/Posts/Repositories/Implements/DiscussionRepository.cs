@@ -37,4 +37,30 @@ public class DiscussionRepository : IDiscussionRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<Discussion>> GetCommentsByForumQuestionIdAsync(string forumQuestionId)
+    {
+        return await _context.Discussions
+            .Include(d => d.Student)
+                .ThenInclude(s => s.User)
+                .Where(d =>
+                    d.TargetType != null &&
+                    d.TargetType.ToLower() == "ForumQuestion" &&
+                    d.TargetTypeId == forumQuestionId)
+            .OrderByDescending(d => d.CreatedAt)
+            .ToListAsync();
+    }
+    public async Task<IEnumerable<Discussion>> GetCommentsByCourseIdAsync(string courseId)
+    {
+        return await _context.Discussions
+            .Include(d => d.Student)
+                .ThenInclude(s => s.User)
+                .Where(d =>
+                    d.TargetType != null &&
+                    d.TargetType.ToLower() == "Course" &&
+                    d.TargetTypeId == courseId)
+            .OrderByDescending(d => d.CreatedAt)
+            .ToListAsync();
+
+    }
+
 }

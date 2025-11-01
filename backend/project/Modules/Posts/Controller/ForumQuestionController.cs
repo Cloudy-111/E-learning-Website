@@ -9,11 +9,13 @@ namespace project.Modules.Posts.Controller
     [ApiController]
     public class ForumQuestionController : ControllerBase
     {
-         private readonly IForumQuestionService _forumService;
+        private readonly IForumQuestionService _forumService;
+        private readonly IDiscussionService _discussionService;
 
-        public ForumQuestionController(IForumQuestionService forumService)
+        public ForumQuestionController(IForumQuestionService forumService, IDiscussionService discussionService)
         {
             _forumService = forumService;
+            _discussionService = discussionService;
         }
          /// GET /api/forum/questions
         /// Lấy danh sách câu hỏi
@@ -38,5 +40,18 @@ namespace project.Modules.Posts.Controller
 
             return Ok(question);
         }
+
+         //  GET /api/forum/{id}/comments
+        [HttpGet("{id}/comments")]
+        public async Task<ActionResult<IEnumerable<DiscussionDto>>> GetCommentsByPost(string id)
+        {
+            var comments = await _discussionService.GetCommentsByForumQuestionIdAsync(id);
+            if (!comments.Any())
+                return NotFound(new { message = "Không có bình luận nào cho câu thảo luận này." });
+
+            return Ok(comments);
+        }
+
+
     }
 }

@@ -54,5 +54,45 @@ public class DiscussionService : IDiscussionService
         });
     }
 
+    public async Task<IEnumerable<DiscussionDto>> GetCommentsByForumQuestionIdAsync(string forumQuestionId)
+    {
+        var discussions = await _discussionRepository.GetCommentsByForumQuestionIdAsync(forumQuestionId);
+
+        return discussions.Select(d => new DiscussionDto
+        {
+            Id = d.Id,
+            StudentId = d.StudentId,
+            StudentName = d.Student?.User?.FullName ?? "(Ẩn danh)",
+            AvatarUrl = d.Student?.User?.AvatarUrl,
+            TargetType = d.TargetType,
+            TargetTypeId = d.TargetTypeId,
+            ParentDiscussionId = d.ParentDiscussionId,
+            Content = d.Content,
+            CreatedAt = d.CreatedAt,
+            UpdatedAt = d.UpdatedAt
+
+        });
+    }
+
+    public async Task<IEnumerable<DiscussionDto>> GetCommentsByCourseIdAsync(string forumQuestionId)
+    {
+        var discussions = await _discussionRepository.GetCommentsByCourseIdAsync(forumQuestionId);
+
+        return discussions.Select(d => new DiscussionDto
+        {
+            Id = d.Id,
+            StudentId = d.StudentId,
+            StudentName = d.Student?.User?.FullName ?? "(Ẩn danh)",
+            AvatarUrl = d.Student?.User?.AvatarUrl,
+            TargetType = d.TargetType,
+            TargetTypeId = d.TargetTypeId,
+            ParentDiscussionId = d.ParentDiscussionId,
+            Content = d.Content,
+            CreatedAt = d.CreatedAt,
+            UpdatedAt = d.UpdatedAt
+
+        });
+    }
+
     
 }
