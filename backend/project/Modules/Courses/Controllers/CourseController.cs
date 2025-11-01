@@ -42,6 +42,26 @@ public class CourseController : ControllerBase
         }
     }
 
+    [HttpGet("search")]
+    public async Task<IActionResult> GetCourse(
+        [FromQuery] string? keyword,
+        [FromQuery] string? category,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10
+        )
+    {
+        try
+        {
+            var courses = await _courseService.GetCoursesAsync(keyword, category, page, pageSize);
+            return Ok(new APIResponse("Success", "Retrieve Course Successfully", courses));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while retrieving the course", ex.Message));
+        }
+    }
+
     [HttpPost]
     public async Task<IActionResult> CreateCourse([FromBody] CourseCreateDTO courseDto)
     {

@@ -25,6 +25,7 @@ builder.Services.AddScoped<ILessonService, LessonService>();
 builder.Services.AddScoped<ICourseContentService, CourseContentService>();
 builder.Services.AddScoped<IRequestUpdateService, RequestUpdateService>();
 builder.Services.AddScoped<ICourseReviewService, CourseReviewService>();
+builder.Services.AddScoped<IEnrollmentCourseService, EnrollmentCourseService>();
 // builder.Services.AddScoped<IStudentService, StudentService>();
 
 // Add repository to the container.
@@ -41,6 +42,7 @@ builder.Services.AddScoped<ICourseContentRepository, CourseContentRepository>();
 builder.Services.AddScoped<ILessonRepository, LessonRepository>();
 builder.Services.AddScoped<IRequestUpdateRepository, RequestUpdateRepository>();
 builder.Services.AddScoped<ICourseReviewRepository, CourseReviewRepository>();
+builder.Services.AddScoped<IEnrollmentCourseRepository, EnrollmentCourseRepository>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi

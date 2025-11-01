@@ -7,7 +7,7 @@ namespace project.Models;
 public class Enrollment_course
 {
     [Key]
-    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public string Id { get; set; } = null!;
 
     [Required]
     public string StudentId { get; set; } = null!;
@@ -15,7 +15,7 @@ public class Enrollment_course
     [Required]
     public string CourseId { get; set; } = null!;
 
-    public DateTime EnrolledAt { get; set; } = DateTime.UtcNow;
+    public DateTime EnrolledAt { get; set; }
     [Column(TypeName = "decimal(5,2)")]
     public decimal Progress { get; set; } = 0.00m;
     public string Status { get; set; } = "active";

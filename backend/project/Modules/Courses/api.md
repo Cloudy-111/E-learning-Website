@@ -4,6 +4,7 @@
 
 - GET api/courses
 - GET api/courses/{id}
+- GET api/courses/search
 - POST api/courses
 - POST api/courses/{id}/request-update
 - PATCH api/courses/{id} ------- Only When Draft
@@ -30,3 +31,14 @@
 - GET api/{courseId}/reviews
 - POST api/{courseId}/reviews
 - PATCH api/{courseId}/reviews/{reviewId}
+
+### Category
+
+- POST api/categories
+
+### Enrollments
+
+- GET api/courses/{courseId}/enrollments
+- GET api/courses/{courseId}/enrollments/{enrollmentId}
+- POST api/courses/{courseId}/enrollments
+- PATCH api/courses/{courseId}/enrollments/{enrollmentId}/progress
