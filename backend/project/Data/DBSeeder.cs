@@ -285,50 +285,7 @@ public static class DBSeeder
         }
 
 
-        // Seed Discussions
-        if (!context.Discussions.Any())
-        {
-            var students = context.Students.ToList();
-            var discussions = new List<Discussion>();
-
-            // Faker để tạo nội dung
-            var discussionFaker = new Faker<Discussion>()
-                .RuleFor(d => d.Id, f => Guid.NewGuid().ToString())
-                .RuleFor(d => d.StudentId, f => f.PickRandom(students).StudentId)
-                .RuleFor(d => d.TargetType, f => f.PickRandom(new[] { "Post", "Lesson" }))
-                .RuleFor(d => d.TargetTypeId, f => f.Random.Guid().ToString()) // Hoặc ID thực nếu có
-                .RuleFor(d => d.Content, f => f.Lorem.Sentence())
-                .RuleFor(d => d.CreatedAt, f => f.Date.Past(1))
-                .RuleFor(d => d.UpdatedAt, f => DateTime.UtcNow);
-
-            // Tạo 100 discussion chính
-            var mainDiscussions = discussionFaker.Generate(100);
-            discussions.AddRange(mainDiscussions);
-
-            // Tạo reply cho một số discussion
-            foreach (var parent in mainDiscussions.Take(30)) // chỉ tạo reply cho 30 discussion đầu
-            {
-                int replyCount = new Random().Next(1, 5);
-                for (int i = 0; i < replyCount; i++)
-                {
-                    var reply = new Discussion
-                    {
-                        Id = Guid.NewGuid().ToString(),
-                        StudentId = students[new Random().Next(students.Count)].StudentId,
-                        TargetType = parent.TargetType,
-                        TargetTypeId = parent.TargetTypeId,
-                        Content = faker.Lorem.Sentence(),
-                        ParentDiscussionId = parent.Id,
-                        CreatedAt = DateTime.Now,
-                        UpdatedAt = null
-                    };
-                    discussions.Add(reply);
-                }
-            }
-
-            context.Discussions.AddRange(discussions);
-            context.SaveChanges();
-        }
+        
 
         // Seed ForumQuestions
         if (!context.ForumQuestions.Any())
@@ -352,55 +309,6 @@ public static class DBSeeder
             context.SaveChanges();
         }
 
-        // Seed Likes
-        if (!context.Likes.Any())
-        {
-            var students = context.Students.ToList();
-            var discussions = context.Discussions.ToList();
-            var forumQuestions = context.ForumQuestions.ToList();
-            var lessons = context.Lessons.ToList();
-
-            var likes = new List<Likes>();
-
-            // Tạo 200 likes ngẫu nhiên
-            for (int i = 0; i < 200; i++)
-            {
-                var student = faker.PickRandom(students);
-                var targetType = faker.PickRandom(new[] { "Discussion", "ForumQuestion", "Lesson" });
-                string targetId;
-
-                switch (targetType)
-                {
-                    case "Discussion":
-                        targetId = faker.PickRandom(discussions).Id;
-                        break;
-                    case "ForumQuestion":
-                        targetId = faker.PickRandom(forumQuestions).Id;
-                        break;
-                    case "Lesson":
-                        targetId = faker.PickRandom(lessons).Id;
-                        break;
-                    default:
-                        targetId = null!;
-                        break;
-                }
-
-                var like = new Likes
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    StudentId = student.StudentId,
-                    TargetType = targetType,
-                    TargetId = targetId,
-                    CreatedAt = faker.Date.Past(1),
-                    UpdatedAt = null
-                };
-
-                likes.Add(like);
-            }
-
-            context.Likes.AddRange(likes);
-            context.SaveChanges();
-        }
 
         // Seed Posts
         if (!context.Posts.Any())
@@ -476,6 +384,113 @@ public static class DBSeeder
             }
 
             context.Reports.AddRange(reports);
+            context.SaveChanges();
+        }
+
+        // Seed Discussions
+        if (!context.Discussions.Any())
+        {
+            var students = context.Students.ToList();
+            var discussions = new List<Discussion>();
+            var posts = context.Posts.ToList();
+            var lessons = context.Lessons.ToList();
+            var forums = context.ForumQuestions.ToList();
+
+            // Faker để tạo nội dung
+            var discussionFaker = new Faker<Discussion>()
+                .RuleFor(d => d.Id, f => Guid.NewGuid().ToString())
+                .RuleFor(d => d.StudentId, f => f.PickRandom(students).StudentId)
+                .RuleFor(d => d.TargetType, f => f.PickRandom(new[] { "Post", "Lesson" }))
+                .RuleFor(d => d.TargetTypeId, (f, d) =>
+                {
+                    return d.TargetType switch
+                    {
+                        "Post" => f.PickRandom(posts).Id,
+                        "Lesson" => f.PickRandom(lessons).Id,
+                        "ForumQuestion" => f.PickRandom(forums).Id,
+                        _ => Guid.NewGuid().ToString()
+                    };
+                })
+                .RuleFor(d => d.Content, f => f.Lorem.Sentence())
+                .RuleFor(d => d.CreatedAt, f => f.Date.Past(1))
+                .RuleFor(d => d.UpdatedAt, f => DateTime.UtcNow);
+
+            // Tạo 100 discussion chính
+            var mainDiscussions = discussionFaker.Generate(100);
+            discussions.AddRange(mainDiscussions);
+
+            // Tạo reply cho một số discussion
+            foreach (var parent in mainDiscussions.Take(30)) // chỉ tạo reply cho 30 discussion đầu
+            {
+                int replyCount = new Random().Next(1, 5);
+                for (int i = 0; i < replyCount; i++)
+                {
+                    var reply = new Discussion
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        StudentId = students[new Random().Next(students.Count)].StudentId,
+                        TargetType = parent.TargetType,
+                        TargetTypeId = parent.TargetTypeId,
+                        Content = faker.Lorem.Sentence(),
+                        ParentDiscussionId = parent.Id,
+                        CreatedAt = DateTime.Now,
+                        UpdatedAt = null
+                    };
+                    discussions.Add(reply);
+                }
+            }
+
+            context.Discussions.AddRange(discussions);
+            context.SaveChanges();
+        }
+
+         // Seed Likes
+        if (!context.Likes.Any())
+        {
+            var students = context.Students.ToList();
+            var discussions = context.Discussions.ToList();
+            var forumQuestions = context.ForumQuestions.ToList();
+            var lessons = context.Lessons.ToList();
+
+            var likes = new List<Likes>();
+
+            // Tạo 200 likes ngẫu nhiên
+            for (int i = 0; i < 200; i++)
+            {
+                var student = faker.PickRandom(students);
+                var targetType = faker.PickRandom(new[] { "Discussion", "ForumQuestion", "Lesson" });
+                string targetId;
+
+                switch (targetType)
+                {
+                    case "Discussion":
+                        targetId = faker.PickRandom(discussions).Id;
+                        break;
+                    case "ForumQuestion":
+                        targetId = faker.PickRandom(forumQuestions).Id;
+                        break;
+                    case "Lesson":
+                        targetId = faker.PickRandom(lessons).Id;
+                        break;
+                    default:
+                        targetId = null!;
+                        break;
+                }
+
+                var like = new Likes
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    StudentId = student.StudentId,
+                    TargetType = targetType,
+                    TargetId = targetId,
+                    CreatedAt = faker.Date.Past(1),
+                    UpdatedAt = null
+                };
+
+                likes.Add(like);
+            }
+
+            context.Likes.AddRange(likes);
             context.SaveChanges();
         }
 
