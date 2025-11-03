@@ -34,4 +34,5 @@ public class Student
     public ICollection<Post> Posts { get; set; } = new List<Post>();
     public ICollection<ForumQuestion> ForumQuestions { get; set; } = new List<ForumQuestion>();
     public ICollection<LessonProgress> LessonProgresses { get; set; } = new List<LessonProgress>();
+    public ICollection<RefundRequestCourse> RefundRequestCourses { get; set; } = new List<RefundRequestCourse>();
 }

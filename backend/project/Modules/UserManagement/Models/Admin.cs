@@ -15,4 +15,5 @@ public class Admin
     public User User { get; set; } = null!;
 
     public ICollection<UpdateRequestCourse> ReviewedRequests { get; set; } = new List<UpdateRequestCourse>();
+    public ICollection<RefundRequestCourse> RefundRequestCourses { get; set; } = new List<RefundRequestCourse>();
 }

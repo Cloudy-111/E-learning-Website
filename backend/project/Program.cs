@@ -58,18 +58,10 @@ builder.Services.AddScoped<IDiscussionRepository, DiscussionRepository>();
 builder.Services.AddScoped<IForumQuestionRepository, ForumQuestionRepository>();
 builder.Services.AddScoped<ILikesRepository, LikesRepository>();
 builder.Services.AddScoped<IReportRepository, ReportRepository>();
-
-
-
-
-
-
-//
-
-
 builder.Services.AddScoped<ICourseReviewRepository, CourseReviewRepository>();
 builder.Services.AddScoped<IEnrollmentCourseRepository, EnrollmentCourseRepository>();
 builder.Services.AddScoped<ILessonProgressRepository, LessonProgressRepository>();
+builder.Services.AddScoped<IRequestRefundCourseRepository, RequestRefundCourseRepository>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
