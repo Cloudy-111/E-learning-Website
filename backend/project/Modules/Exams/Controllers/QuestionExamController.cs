@@ -107,4 +107,19 @@ public class QuestionExamController : ControllerBase
             return NotFound(new APIResponse("error", ex.Message));
         }
     }
+
+    [HttpDelete("{questionExamId}")]
+    public async Task<IActionResult> DeleteQuestionExamAsync(string examId, string questionExamId)
+    {
+        try
+        {
+            await _questionExamService.DeleteQuestionExamAsync(examId, questionExamId);
+            return Ok(new APIResponse("success", "Delete question successfully"));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while Delete question", ex.Message));
+        }
+    }
 }

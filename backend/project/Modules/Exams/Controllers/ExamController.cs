@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-[Route("api/[controller]")]
+[Route("api/exams")]
 [ApiController]
 public class ExamController : ControllerBase
 {
@@ -104,6 +104,44 @@ public class ExamController : ControllerBase
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new
             APIResponse("error", "An error occurred while updating question order", ex.Message));
+        }
+    }
+
+    [HttpGet("course/{courseId}")]
+    public async Task<IActionResult> GetExamsInCourseAsync(string courseId)
+    {
+        try
+        {
+            var exams = await _examService.GetExamsInCourseAsync(courseId);
+            return Ok(new APIResponse("success", "Retrieve Exams in course Successfully", exams));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new APIResponse("error", ex.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while Retrieve Exams", ex.Message));
+        }
+    }
+
+    [HttpGet("lesson/{lessonId}")]
+    public async Task<IActionResult> GetExamsInLessonAsync(string lessonId)
+    {
+        try
+        {
+            var exams = await _examService.GetExamsInLessonAsync(lessonId);
+            return Ok(new APIResponse("success", "Retrieve Exams in lesson Successfully", exams));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new APIResponse("error", ex.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while Retrieve Exams", ex.Message));
         }
     }
 }

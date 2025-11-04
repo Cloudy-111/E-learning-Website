@@ -38,6 +38,9 @@ public class Course
     [MaxLength(500)]
     public string? ThumbnailUrl { get; set; }
 
+    public double AverageRating { get; set; } = 0;
+    public int ReviewCount { get; set; } = 0;
+
     // Navigation
     [ForeignKey(nameof(CategoryId))]
     public Category Category { get; set; } = null!;

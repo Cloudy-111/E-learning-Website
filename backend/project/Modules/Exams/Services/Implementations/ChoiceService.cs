@@ -1,13 +1,18 @@
+using Microsoft.AspNetCore.Http.HttpResults;
+
 public class ChoiceService : IChoiceService
 {
     private readonly IChoiceRepository _choiceRepository;
     private readonly IQuestionExamRepository _questionExamRepository;
+    private readonly IExamRepository _examRepository;
     public ChoiceService(
         IChoiceRepository choiceRepository,
-        IQuestionExamRepository questionExamRepository)
+        IQuestionExamRepository questionExamRepository,
+        IExamRepository examRepository)
     {
         _choiceRepository = choiceRepository;
         _questionExamRepository = questionExamRepository;
+        _examRepository = examRepository;
     }
 
     // Implement methods defined in IChoiceService here
@@ -36,11 +41,11 @@ public class ChoiceService : IChoiceService
         }
     }
 
-    public async Task DeleteChoiceAsync(string choiceId)
+    public async Task DeleteChoiceByIdAsync(string choiceId)
     {
         try
         {
-            await _choiceRepository.DeleteChoiceAsync(choiceId);
+            await _choiceRepository.DeleteChoiceByIdAsync(choiceId);
         }
         catch (Exception ex)
         {
@@ -82,6 +87,27 @@ public class ChoiceService : IChoiceService
         catch (Exception ex)
         {
             throw new ApplicationException("An error occurred while retrieving choices for review.", ex);
+        }
+    }
+
+    public async Task UpdateChoiceAsync(string choiceId, ChoiceUpdateDTO dto)
+    {
+        var choice = await _choiceRepository.GetChoiceByIdAsync(choiceId) ?? throw new KeyNotFoundException("Choice not found");
+
+        var exam = await _examRepository.GetExamByIdAsync(choice.QuestionExam.ExamId) ?? throw new KeyNotFoundException($"Exam with id {choice.QuestionExam.ExamId} not found.");
+        if (exam.IsOpened == true)
+        {
+            throw new InvalidOperationException("Cannot update to an opened exam.");
+        }
+
+        try
+        {
+            choice.Content = dto.Content;
+            await _choiceRepository.UpdateChoiceAsync(choice);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("An error occurred while update choice.", ex);
         }
     }
 }

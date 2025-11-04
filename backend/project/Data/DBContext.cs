@@ -22,6 +22,7 @@ public class DBContext : IdentityDbContext<User>
     public DbSet<Lesson> Lessons { get; set; } = null!;
     public DbSet<LessonProgress> LessonProgresses { get; set; } = null!;
     public DbSet<Enrollment_course> Enrollments { get; set; } = null!;
+    public DbSet<RefundRequestCourse> RefundRequestCourses { get; set; } = null!;
     public DbSet<Material> Materials { get; set; } = null!;
     public DbSet<CourseReview> CourseReviews { get; set; } = null!;
     public DbSet<Orders> Orders { get; set; } = null!;
@@ -36,7 +37,7 @@ public class DBContext : IdentityDbContext<User>
 
     public DbSet<Post> Posts { get; set; } = null!;
     public DbSet<ForumQuestion> ForumQuestions { get; set; } = null!;
-    public DbSet<Likes> Likes { get; set; }  = null!;
+    public DbSet<Likes> Likes { get; set; } = null!;
     public DbSet<Reports> Reports { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -66,6 +67,13 @@ public class DBContext : IdentityDbContext<User>
             .HasOne(ur => ur.ReviewBy)
             .WithMany(a => a.ReviewedRequests)
             .HasForeignKey(ur => ur.ReviewById);
+
+        // Admin - RefundRequestCourses(1 - n)
+        modelBuilder.Entity<RefundRequestCourse>()
+            .HasOne(r => r.Admin)
+            .WithMany(ad => ad.RefundRequestCourses)
+            .HasForeignKey(r => r.ProcessedBy)
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Teacher ↔ Course (1-n)
         modelBuilder.Entity<Course>()
@@ -142,6 +150,20 @@ public class DBContext : IdentityDbContext<User>
            .WithMany(s => s.Reviews)
            .HasForeignKey(r => r.StudentId)
            .OnDelete(DeleteBehavior.Restrict);
+
+        // Student - RefundRequestCourse(1 - n)
+        modelBuilder.Entity<RefundRequestCourse>()
+            .HasOne(r => r.Student)
+            .WithMany(s => s.RefundRequestCourses)
+            .HasForeignKey(r => r.StudentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // EnrollmentCourse - RefundRequestCourse(1 - n)
+        modelBuilder.Entity<RefundRequestCourse>()
+            .HasOne(r => r.Enrollment)
+            .WithMany(en => en.RefundRequestCourses)
+            .HasForeignKey(r => r.EnrollmentId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Course ↔ CourseReview (1-n)
         modelBuilder.Entity<CourseReview>()
