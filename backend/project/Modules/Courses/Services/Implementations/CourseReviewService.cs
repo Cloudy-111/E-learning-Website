@@ -20,11 +20,7 @@ public class CourseReviewService : ICourseReviewService
     {
         var courseIdGuid = GuidHelper.ParseOrThrow(courseId, nameof(courseId));
 
-        var courseExists = await _courseRepository.CourseExistsAsync(courseIdGuid.ToString());
-        if (!courseExists)
-        {
-            throw new Exception($"Course with id {courseId} not found");
-        }
+        var course = await _courseRepository.GetCourseByIdAsync(courseId) ?? throw new KeyNotFoundException($"Course with id {courseId} not found");
 
         var review = new CourseReview
         {
@@ -38,6 +34,11 @@ public class CourseReviewService : ICourseReviewService
         };
 
         await _courseReviewRepository.CreateCourseReviewAsync(review);
+
+        // Update rating course
+        course.ReviewCount += 1;
+        course.AverageRating = ((course.AverageRating * (course.ReviewCount - 1)) + courseReviewCreateDTO.Rating) / course.ReviewCount;
+        await _courseRepository.UpdateCourseAsync(course);
     }
 
     public async Task UpdateCourseReviewAsync(string reviewId, CourseReviewUpdateDTO courseReviewUpdateDTO)
@@ -53,6 +54,8 @@ public class CourseReviewService : ICourseReviewService
         var review = await _courseReviewRepository.GetCourseReviewByIdAsync(reviewId) ??
             throw new Exception($"Review with id {reviewId} not found");
 
+        var course = await _courseRepository.GetCourseByIdAsync(review.CourseId) ?? throw new KeyNotFoundException($"Course with id {review.CourseId} not found");
+
         var newestReview = new CourseReview
         {
             Id = Guid.NewGuid().ToString(),
@@ -67,6 +70,10 @@ public class CourseReviewService : ICourseReviewService
         review.IsNewest = false;
 
         await _courseReviewRepository.CreateCourseReviewAsync(newestReview);
+
+        // Update rating course
+        course.AverageRating = ((course.AverageRating * (course.ReviewCount - 1)) + courseReviewUpdateDTO.Rating ?? review.Rating) / course.ReviewCount;
+        await _courseRepository.UpdateCourseAsync(course);
     }
 
     public async Task<IEnumerable<CourseReviewInforDTO>> GetAllReviewsByCourseIdAsync(string courseId)

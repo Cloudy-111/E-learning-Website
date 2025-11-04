@@ -43,3 +43,5 @@
 - POST api/courses/{courseId}/enrollments - Người dùng ghi danh tham gia khóa học
 - PATCH api/courses/{courseId}/enrollments/{enrollmentId}/progress - Cập nhật tiến độ học tập của người học trong khóa học
 - POST api/courses/{courseId}/enrollments/{enrollmentId}/request-cancel
+
+Certificate ???

@@ -26,8 +26,22 @@ public class ChoiceController : ControllerBase
     [HttpDelete("{choiceId}")]
     public async Task<IActionResult> DeleteChoice(string choiceId)
     {
-        await _choiceService.DeleteChoiceAsync(choiceId);
+        await _choiceService.DeleteChoiceByIdAsync(choiceId);
         return Ok(new APIResponse("Success", "Delete choice successfully."));
     }
 
+    [HttpPatch("{choiceId}")]
+    public async Task<IActionResult> UpdateChoiceContent(string choiceId, [FromBody] ChoiceUpdateDTO dto)
+    {
+        try
+        {
+            await _choiceService.UpdateChoiceAsync(choiceId, dto);
+            return Ok(new APIResponse("success", "Update choice Successfully!"));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while update choice", ex.Message));
+        }
+    }
 }

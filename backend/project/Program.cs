@@ -62,6 +62,7 @@ builder.Services.AddScoped<ICourseReviewRepository, CourseReviewRepository>();
 builder.Services.AddScoped<IEnrollmentCourseRepository, EnrollmentCourseRepository>();
 builder.Services.AddScoped<ILessonProgressRepository, LessonProgressRepository>();
 builder.Services.AddScoped<IRequestRefundCourseRepository, RequestRefundCourseRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
