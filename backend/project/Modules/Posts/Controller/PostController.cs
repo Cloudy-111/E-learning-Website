@@ -52,7 +52,7 @@ namespace project.Modules.Posts.Controller
 
         // GET /api/posts/search?tag=LINQ
         [HttpGet("search")]
-       public async Task<ActionResult<IEnumerable<PostDto>>> SearchPostsByTag([FromQuery] string tag)
+        public async Task<ActionResult<IEnumerable<PostDto>>> SearchPostsByTag([FromQuery] string tag)
         {
             if (string.IsNullOrWhiteSpace(tag))
                 return BadRequest(new { message = "Thiếu tham số tag để tìm kiếm." });
@@ -64,6 +64,19 @@ namespace project.Modules.Posts.Controller
 
             return Ok(posts);
         }
+        
+         [HttpPost]
+    public async Task<ActionResult<PostDto>> CreatePost([FromBody] PostCreateDto dto)
+    {
+        // var studentId = User.FindFirst("StudentId")?.Value;
+        var authorName = User.FindFirst("FullName")?.Value;
+
+        if ( authorName == null)
+            return Unauthorized("User info not found in token");
+
+        var postDto = await _postService.CreatePostAsync(dto, authorName);
+        return Ok(postDto);
+    }
 
       
         

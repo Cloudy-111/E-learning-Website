@@ -38,6 +38,11 @@ public class QuestionExamRepository : IQuestionExamRepository
         throw new NotImplementedException();
     }
 
+    public void DeleteQuestionExam(QuestionExam questionExam)
+    {
+        _dbContext.QuestionExams.Remove(questionExam);
+    }
+
     public Task UpdateQuestionInExamAsync(QuestionExam questionExam)
     {
         throw new NotImplementedException();

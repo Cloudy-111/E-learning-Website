@@ -27,4 +27,6 @@ public class Enrollment_course
     [ForeignKey(nameof(CourseId))]
     public Course Course { get; set; } = null!;
 
+    public ICollection<RefundRequestCourse> RefundRequestCourses { get; set; } = new List<RefundRequestCourse>();
+
 }

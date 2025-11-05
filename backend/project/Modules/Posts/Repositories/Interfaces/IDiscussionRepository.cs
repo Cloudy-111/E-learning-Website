@@ -10,7 +10,7 @@ public interface IDiscussionRepository
     
   //  Lấy = comment của một bài Post hoặc ForumQuestion hoặc Course
   Task<IEnumerable<Discussion>> GetCommentsByTargetAsync(string targetType, string targetId);
-
+  
 
   
 }

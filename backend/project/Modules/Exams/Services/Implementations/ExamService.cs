@@ -1,18 +1,25 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Razor;
 using project.Models;
 
 public class ExamService : IExamService
 {
     private readonly IExamRepository _examRepository;
     private readonly IQuestionExamService _questionExamService;
+    private readonly ICourseRepository _courseRepository;
+    private readonly ILessonRepository _lessonRepository;
 
     public ExamService(
         IExamRepository examRepository,
-        IQuestionExamService questionExamService)
+        IQuestionExamService questionExamService,
+        ICourseRepository courseRepository,
+        ILessonRepository lessonRepository)
     {
         _examRepository = examRepository;
         _questionExamService = questionExamService;
+        _courseRepository = courseRepository;
+        _lessonRepository = lessonRepository;
     }
 
     public async Task<IEnumerable<InformationExamDTO>> GetAllExamsAsync()
@@ -28,6 +35,52 @@ public class ExamService : IExamService
             IsOpened = exam.IsOpened,
             CourseContentId = exam.CourseContentId,
             LessonId = exam.LessonId
+        });
+    }
+
+    public async Task<IEnumerable<InformationExamDTO>> GetExamsInCourseAsync(string courseId)
+    {
+        var courseGuid = GuidHelper.ParseOrThrow(courseId, nameof(courseId));
+        var courseExist = await _courseRepository.CourseExistsAsync(courseId);
+        if (!courseExist)
+        {
+            throw new KeyNotFoundException($"Course with id: {courseId} not found.");
+        }
+
+        var exams = await _examRepository.GetExamsInCourseAsync(courseId);
+        return exams.Select(e => new InformationExamDTO
+        {
+            Id = e.Id,
+            Title = e.Title,
+            Description = e.Description,
+            DurationMinutes = e.DurationMinutes,
+            TotalCompleted = e.TotalCompleted,
+            IsOpened = e.IsOpened,
+            CourseContentId = e.CourseContentId,
+            LessonId = e.LessonId
+        });
+    }
+
+    public async Task<IEnumerable<InformationExamDTO>> GetExamsInLessonAsync(string lessonId)
+    {
+        var lessonGuid = GuidHelper.ParseOrThrow(lessonId, nameof(lessonId));
+        var lessonExist = await _lessonRepository.LessonExistsAsync(lessonId);
+        if (!lessonExist)
+        {
+            throw new KeyNotFoundException($"Lesson with id: {lessonId} not found.");
+        }
+
+        var exams = await _examRepository.GetExamsInLessonAsync(lessonId);
+        return exams.Select(e => new InformationExamDTO
+        {
+            Id = e.Id,
+            Title = e.Title,
+            Description = e.Description,
+            DurationMinutes = e.DurationMinutes,
+            TotalCompleted = e.TotalCompleted,
+            IsOpened = e.IsOpened,
+            CourseContentId = e.CourseContentId,
+            LessonId = e.LessonId
         });
     }
 
