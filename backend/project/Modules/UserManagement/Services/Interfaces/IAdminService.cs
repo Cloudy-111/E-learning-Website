@@ -6,5 +6,5 @@ public interface IAdminService
     Task AdminRejectCourseAsync(string courseId, RejectCourseRequestDTO rejectDto);
 
     // Admin methods for managing enrollment
-    // Task<IEnumerable<RefundRequestCourseDTO>> GetRefundRequestsByStatusAsync(string status);
+    Task<IEnumerable<RefundRequestCourseDTO>> GetPendingRefundRequestsAsync();
 }
