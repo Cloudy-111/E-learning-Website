@@ -15,6 +15,7 @@ public class CourseContentController : ControllerBase
         _requestUpdateService = requestUpdateService;
     }
 
+    // Teacher only
     [HttpPost]
     public async Task<IActionResult> AddCourseContent(string courseId, [FromBody] CourseContentCreateDTO contentDto)
     {
@@ -39,6 +40,7 @@ public class CourseContentController : ControllerBase
         }
     }
 
+    // All users
     [HttpGet]
     public async Task<IActionResult> GetCourseContentByCourseId(string courseId)
     {
@@ -58,6 +60,7 @@ public class CourseContentController : ControllerBase
         }
     }
 
+    // Teacher only
     [HttpPatch]
     public async Task<IActionResult> UpdateCourseContent(string contentId, [FromBody] CourseContentUpdateDTO contentDto)
     {
@@ -82,6 +85,7 @@ public class CourseContentController : ControllerBase
         }
     }
 
+    // Teacher only
     [HttpPost("request-update")]
     public async Task<IActionResult> RequestUpdateCourseContent([FromBody] RequestUpdateRequestDTO requestDto)
     {

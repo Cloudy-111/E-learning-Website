@@ -10,6 +10,7 @@ public class EnrollmentController : ControllerBase
         _enrollmentCourseService = enrollmentCourseService;
     }
 
+    // Teacher/Admin only
     [HttpGet]
     public async Task<IActionResult> GetEnrollmentInCourse(string courseId)
     {
@@ -29,6 +30,7 @@ public class EnrollmentController : ControllerBase
         }
     }
 
+    // Student only
     [HttpPost]
     public async Task<IActionResult> CreateEnrollmentAsync(string courseId, [FromBody] EnrollmentCreateDTO enrollment)
     {
@@ -52,6 +54,7 @@ public class EnrollmentController : ControllerBase
         }
     }
 
+    // Student/Admin/Teacher only
     [HttpGet("{enrollmentId}")]
     public async Task<IActionResult> GetEnrollmentByIdAsync(string courseId, string enrollmentId)
     {
@@ -71,6 +74,7 @@ public class EnrollmentController : ControllerBase
         }
     }
 
+    // Student only
     [HttpPatch("{enrollmentId}/progress")]
     public async Task<IActionResult> UpdateProgressEnrollmentAsync(string courseId, string enrollmentId, [FromBody] EnrollmentProgressUpdateDTO enrollmentUpdateDTO)
     {
@@ -94,6 +98,7 @@ public class EnrollmentController : ControllerBase
         }
     }
 
+    // Student only
     [HttpPost("{enrollmentId}/request-cancel")]
     public async Task<IActionResult> RequestCancelEnrollmentAsync(string courseId, string enrollmentId, [FromBody] RequestCancelEnrollmentDTO dto)
     {

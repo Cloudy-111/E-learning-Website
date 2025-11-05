@@ -10,6 +10,7 @@ public class CourseReviewController : ControllerBase
         _courseReviewService = courseReviewService;
     }
 
+    // Student only
     [HttpPost]
     public async Task<IActionResult> AddCourseReviewAsync(string courseId, [FromBody] CourseReviewCreateDTO courseReviewCreateDTO)
     {
@@ -29,6 +30,7 @@ public class CourseReviewController : ControllerBase
         }
     }
 
+    // All users
     [HttpGet]
     public async Task<IActionResult> GetAllReviewsByCourseIdAsync(string courseId)
     {
@@ -43,6 +45,7 @@ public class CourseReviewController : ControllerBase
         }
     }
 
+    // Student only
     [HttpPatch("{reviewId}")]
     public async Task<IActionResult> UpdateCourseReviewAsync(string reviewId, [FromBody] CourseReviewUpdateDTO courseReviewUpdateDTO)
     {
