@@ -22,6 +22,7 @@ public class LikesService : ILikesService
             Id = l.Id,
             StudentId = l.StudentId,
             StudentName = l.Student.User.FullName,
+            AvatarUrl = l.Student.User.AvatarUrl,
             TargetType = l.TargetType!,
             TargetId = l.TargetId!,
             CreatedAt = l.CreatedAt
@@ -36,6 +37,7 @@ public class LikesService : ILikesService
             Id = l.Id,
             StudentId = l.StudentId,
             StudentName = l.Student.User.FullName,
+            AvatarUrl = l.Student.User.AvatarUrl,
             TargetType = l.TargetType!,
             TargetId = l.TargetId!,
             CreatedAt = l.CreatedAt
@@ -50,6 +52,7 @@ public class LikesService : ILikesService
             Id = l.Id,
             StudentId = l.StudentId,
             StudentName = l.Student.User.FullName,
+            AvatarUrl = l.Student.User.AvatarUrl,
             TargetType = l.TargetType!,
             TargetId = l.TargetId!,
             CreatedAt = l.CreatedAt
@@ -64,6 +67,7 @@ public class LikesService : ILikesService
             Id = l.Id,
             StudentId = l.StudentId,
             StudentName = l.Student.User.FullName,
+            AvatarUrl = l.Student.User.AvatarUrl,
             TargetType = l.TargetType!,
             TargetId = l.TargetId!,
             CreatedAt = l.CreatedAt

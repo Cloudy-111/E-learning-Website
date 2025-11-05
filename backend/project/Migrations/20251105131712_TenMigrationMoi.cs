@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace project.Migrations
 {
     /// <inheritdoc />
-    public partial class FixLikesStudentFK : Migration
+    public partial class TenMigrationMoi : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -555,7 +555,9 @@ namespace project.Migrations
                     StudentId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Rating = table.Column<double>(type: "float", nullable: false),
                     Comment = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsNewest = table.Column<bool>(type: "bit", nullable: false),
+                    ParentId = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -565,7 +567,7 @@ namespace project.Migrations
                         column: x => x.CourseId,
                         principalTable: "Courses",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_CourseReviews_Students_StudentId",
                         column: x => x.StudentId,
@@ -699,6 +701,32 @@ namespace project.Migrations
                         column: x => x.LessonId,
                         principalTable: "Lessons",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "LessonProgresses",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    StudentId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    LessonId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CompletedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_LessonProgresses", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_LessonProgresses_Lessons_LessonId",
+                        column: x => x.LessonId,
+                        principalTable: "Lessons",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_LessonProgresses_Students_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "Students",
+                        principalColumn: "StudentId",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -891,7 +919,8 @@ namespace project.Migrations
                 name: "IX_CourseReviews_CourseId_StudentId",
                 table: "CourseReviews",
                 columns: new[] { "CourseId", "StudentId" },
-                unique: true);
+                unique: true,
+                filter: "[IsNewest] = 1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CourseReviews_StudentId",
@@ -947,6 +976,16 @@ namespace project.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_ForumQuestions_StudentId",
                 table: "ForumQuestions",
+                column: "StudentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LessonProgresses_LessonId",
+                table: "LessonProgresses",
+                column: "LessonId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_LessonProgresses_StudentId",
+                table: "LessonProgresses",
                 column: "StudentId");
 
             migrationBuilder.CreateIndex(
@@ -1100,6 +1139,9 @@ namespace project.Migrations
 
             migrationBuilder.DropTable(
                 name: "ForumQuestions");
+
+            migrationBuilder.DropTable(
+                name: "LessonProgresses");
 
             migrationBuilder.DropTable(
                 name: "Likes");
