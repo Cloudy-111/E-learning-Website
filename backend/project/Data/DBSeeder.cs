@@ -346,6 +346,7 @@ public static class DBSeeder
             var courses = context.Courses.ToList();
             var forums = context.ForumQuestions.ToList();
 
+
             // Faker để tạo nội dung
             var discussionFaker = new Faker<Discussion>()
                 .RuleFor(d => d.Id, f => Guid.NewGuid().ToString())
@@ -393,9 +394,9 @@ public static class DBSeeder
             context.Discussions.AddRange(discussions);
             context.SaveChanges();
         }
-         
-          
-         // Seed Reports
+
+
+        // Seed Reports
         if (!context.Reports.Any())
         {
             var random = new Random();
@@ -403,6 +404,8 @@ public static class DBSeeder
             var posts = context.Posts.ToList();
             var discussions = context.Discussions.ToList();
             var forums = context.ForumQuestions.ToList();
+            var courses = context.Courses.ToList();
+
 
             var reports = new List<Reports>();
 
@@ -466,6 +469,28 @@ public static class DBSeeder
                 }
             }
 
+            // Tạo reports cho course
+            foreach (var c in courses.Take(20))
+            {
+                if (random.NextDouble() < 0.2)
+                {
+                    var reporter = students[random.Next(students.Count)];
+                    reports.Add(new Reports
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        ReporterId = reporter.StudentId,
+                        TargetType = "ForumQuestion",
+                        TargetTypeId = c.Id,
+                        Reason = "Khóa học không phù hợp",
+                        Description = "Khóa học gây khó chịu",
+                        Status = "Pending",
+                        CreatedAt = DateTime.Now
+                    });
+                }
+            }
+
+
+
             context.Reports.AddRange(reports);
             context.SaveChanges();
         }
@@ -480,6 +505,8 @@ public static class DBSeeder
             var postss = context.Posts.ToList();
             var forumQuestions = context.ForumQuestions.ToList();
             var course = context.Courses.ToList();
+            var discussions = context.Discussions.ToList();
+
 
             var likes = new List<Likes>();
 
@@ -487,7 +514,7 @@ public static class DBSeeder
             for (int i = 0; i < 200; i++)
             {
                 var student = faker.PickRandom(students);
-                var targetType = faker.PickRandom(new[] { "Post", "ForumQuestion", "Course" });
+                var targetType = faker.PickRandom(new[] { "Post", "ForumQuestion", "Course", "Dicussion" });
                 string targetId;
 
                 switch (targetType)
@@ -539,46 +566,47 @@ public static class DBSeeder
             context.SaveChanges();
 
 
-        // Seed CourseReviews
-        if (!context.CourseReviews.Any())
-        {
-            var courses = context.Courses.ToList();
-            var students = context.Students.ToList();
-
-            var uniquePairs = new List<(string CourseId, string StudentId)>();
-
-            var random = new Random();
-            foreach (var course in courses)
+            // Seed CourseReviews
+            if (!context.CourseReviews.Any())
             {
-                var selectedStudents = students.OrderBy(x => random.Next()).Take(random.Next(5, 15)).ToList();
+                var courses = context.Courses.ToList();
+                var students = context.Students.ToList();
 
-                foreach (var student in selectedStudents)
+                var uniquePairs = new List<(string CourseId, string StudentId)>();
+
+                var random = new Random();
+                foreach (var course in courses)
                 {
-                    uniquePairs.Add((course.Id, student.StudentId));
+                    var selectedStudents = students.OrderBy(x => random.Next()).Take(random.Next(5, 15)).ToList();
+
+                    foreach (var student in selectedStudents)
+                    {
+                        uniquePairs.Add((course.Id, student.StudentId));
+                    }
                 }
+
+                var courseReviewFaker = new Faker<CourseReview>()
+                    .RuleFor(r => r.Id, f => Guid.NewGuid().ToString())
+                    .RuleFor(r => r.CourseId, f => f.PickRandom(uniquePairs).CourseId)
+                    .RuleFor(r => r.StudentId, (f, r) =>
+                    {
+                        var pair = uniquePairs.First(p => p.CourseId == r.CourseId);
+                        uniquePairs.Remove(pair);
+                        return pair.StudentId;
+                    })
+                    .RuleFor(r => r.Rating, f => f.Random.Double(1, 5))
+                    .RuleFor(r => r.Comment, f => f.Random.Bool(0.7f) ? f.Lorem.Sentence() : null)
+                    .RuleFor(r => r.CreatedAt, f => f.Date.Past(1))
+                    .RuleFor(r => r.IsNewest, true)
+                    .RuleFor(r => r.ParentId, f => null as string);
+
+                var courseReviews = courseReviewFaker.Generate(100);
+                context.CourseReviews.AddRange(courseReviews);
+
+                context.SaveChanges();
             }
 
-            var courseReviewFaker = new Faker<CourseReview>()
-                .RuleFor(r => r.Id, f => Guid.NewGuid().ToString())
-                .RuleFor(r => r.CourseId, f => f.PickRandom(uniquePairs).CourseId)
-                .RuleFor(r => r.StudentId, (f, r) =>
-                {
-                    var pair = uniquePairs.First(p => p.CourseId == r.CourseId);
-                    uniquePairs.Remove(pair);
-                    return pair.StudentId;
-                })
-                .RuleFor(r => r.Rating, f => f.Random.Double(1, 5))
-                .RuleFor(r => r.Comment, f => f.Random.Bool(0.7f) ? f.Lorem.Sentence() : null)
-                .RuleFor(r => r.CreatedAt, f => f.Date.Past(1))
-                .RuleFor(r => r.IsNewest, true)
-                .RuleFor(r => r.ParentId, f => null as string);
-
-            var courseReviews = courseReviewFaker.Generate(100);
-            context.CourseReviews.AddRange(courseReviews);
-
-            context.SaveChanges();
+            return;
         }
-
-        return;
     }
 }
