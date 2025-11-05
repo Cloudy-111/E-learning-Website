@@ -610,6 +610,7 @@ public static class DBSeeder
                 fq.LikeCount = context.Likes.Count(l => l.TargetType == "ForumQuestion" && l.TargetId == fq.Id);
             }
             context.SaveChanges();
+        }
 
 
 
@@ -618,4 +619,5 @@ public static class DBSeeder
         return;
     }
     
+}
 }

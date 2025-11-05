@@ -35,6 +35,21 @@ public class ExamRepository : IExamRepository
         return await _dbContext.Exams.ToListAsync();
     }
 
+    public async Task<IEnumerable<Exam>> GetExamsInCourseAsync(string courseId)
+    {
+        return await _dbContext.Exams
+            .Include(e => e.CourseContent)
+            .Where(e => e.CourseContent != null && e.CourseContent.CourseId == courseId)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Exam>> GetExamsInLessonAsync(string lessonId)
+    {
+        return await _dbContext.Exams
+            .Where(e => e.LessonId == lessonId)
+            .ToListAsync();
+    }
+
     public async Task<Exam?> GetExamByIdAsync(string id)
     {
         return await _dbContext.Exams.FirstOrDefaultAsync(e => e.Id == id);

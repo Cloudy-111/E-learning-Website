@@ -93,4 +93,27 @@ public class EnrollmentController : ControllerBase
             APIResponse("error", "An error occurred while updating progress the enrollment", ex.Message));
         }
     }
+
+    [HttpPost("{enrollmentId}/request-cancel")]
+    public async Task<IActionResult> RequestCancelEnrollmentAsync(string courseId, string enrollmentId, [FromBody] RequestCancelEnrollmentDTO dto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new APIResponse("error", "Invalid input data", ModelState));
+        }
+        try
+        {
+            await _enrollmentCourseService.RequestCancelEnrollmentAsync(courseId, enrollmentId, dto);
+            return Ok(new APIResponse("Success", "Request Refund Course create Successfully"));
+        }
+        catch (KeyNotFoundException knfE)
+        {
+            return NotFound(new APIResponse("Error", knfE.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while create Request Refund Course", ex.Message));
+        }
+    }
 }

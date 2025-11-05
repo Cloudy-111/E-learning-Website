@@ -11,6 +11,7 @@ public class EnrollmentCourseService : IEnrollmentCourseService
     private readonly ILessonProgressRepository _lessonProgressRepository;
     private readonly IExamRepository _examRepository;
     private readonly ISubmissionExamRepository _submissionExamRepository;
+    private readonly IRequestRefundCourseRepository _requestRefundCourseRepository;
     public EnrollmentCourseService(
         IEnrollmentCourseRepository enrollmentRepository,
         ICourseRepository courseRepository,
@@ -19,7 +20,8 @@ public class EnrollmentCourseService : IEnrollmentCourseService
         ILessonRepository lessonRepository,
         IExamRepository examRepository,
         ILessonProgressRepository lessonProgressRepository,
-        ISubmissionExamRepository submissionExamRepository)
+        ISubmissionExamRepository submissionExamRepository,
+        IRequestRefundCourseRepository requestRefundCourseRepository)
     {
         _enrollmentRepository = enrollmentRepository;
         _courseRepository = courseRepository;
@@ -29,6 +31,7 @@ public class EnrollmentCourseService : IEnrollmentCourseService
         _examRepository = examRepository;
         _lessonProgressRepository = lessonProgressRepository;
         _submissionExamRepository = submissionExamRepository;
+        _requestRefundCourseRepository = requestRefundCourseRepository;
     }
 
     public async Task<IEnumerable<EnrollmentInforDTO>> GetEnrollmentInCourseAsync(string courseId)
@@ -70,6 +73,8 @@ public class EnrollmentCourseService : IEnrollmentCourseService
         {
             throw new KeyNotFoundException($"Student with id: {enrollmentCreate.StudentId} not found");
         }
+
+        // Check Enrollment with Student Exist
 
         var newEnrollment = new Enrollment_course
         {
@@ -145,6 +150,12 @@ public class EnrollmentCourseService : IEnrollmentCourseService
             throw new KeyNotFoundException($"Student with id: {dto.StudentId} not found");
         }
 
+        // Check status enrollment
+        if (enrollment.Status != "active")
+        {
+            throw new Exception("Only active enrollment can be updated!");
+        }
+
         // Logic calculate progress enrollment here
 
         if (dto.LessonId != null && dto.ExamId == null)
@@ -165,6 +176,10 @@ public class EnrollmentCourseService : IEnrollmentCourseService
                     StudentId = dto.StudentId,
                     CompletedAt = DateTime.UtcNow
                 });
+            }
+            else
+            {
+                return;
             }
         }
         else if (dto.ExamId != null && dto.LessonId == null)
@@ -197,5 +212,81 @@ public class EnrollmentCourseService : IEnrollmentCourseService
         var examProgress = totalExams == 0 ? 0.0 : (double)passedExams / totalExams;
 
         return (lessonProgress * 0.7f + examProgress * 0.3f) * 100;
+    }
+
+    public async Task RequestCancelEnrollmentAsync(string courseId, string enrollmentId, RequestCancelEnrollmentDTO dto)
+    {
+        var courseIdGuid = GuidHelper.ParseOrThrow(courseId, nameof(courseId));
+        var enrollmentGuid = GuidHelper.ParseOrThrow(enrollmentId, nameof(enrollmentId));
+
+        var courseExist = await _courseRepository.CourseExistsAsync(courseId);
+        if (!courseExist)
+        {
+            throw new KeyNotFoundException($"Course with id: {courseId} not found");
+        }
+
+        var enrollment = await _enrollmentRepository.GetEnrrollmentByIdAsync(enrollmentId)
+            ?? throw new KeyNotFoundException($"Enrollment with id: {enrollmentId} not found");
+
+        if (enrollment.StudentId != dto.StudentId)
+        {
+            throw new KeyNotFoundException($"Student Id is not match with enrollment.");
+        }
+
+        if (enrollment.CourseId != courseId)
+        {
+            throw new KeyNotFoundException($"Course Id is not match with enrollment.");
+        }
+
+        if (enrollment.Status != "active")
+        {
+            throw new Exception("Can't cancel enrollment without active status");
+        }
+        // Logic check condition before create refundRequest
+        var course = await _courseRepository.GetCourseByIdAsync(courseId) ?? throw new KeyNotFoundException($"Course with id: {courseId} not found");
+        if (course.Price <= 0)
+        {
+            throw new Exception("Free courses are not eligible for refunds.");
+        }
+
+        var enrollAt = enrollment.EnrolledAt;
+        var requestAt = DateTime.UtcNow;
+        var difference = requestAt - enrollAt;
+
+        if (difference.TotalDays > 2)
+        {
+            throw new Exception("Refund requests are only accepted within 2 days of enrollment.");
+        }
+
+        if (enrollment.Progress >= 50)
+        {
+            throw new Exception("Refund not available for courses with progress ≥ 50%.");
+        }
+
+        decimal refundAmount;
+        if (enrollment.Progress == 0)
+        {
+            refundAmount = course.Price;
+        }
+        else
+        {
+            refundAmount = course.Price * ((100 - enrollment.Progress) / 100.0m);
+        }
+
+        var refundRequest = new RefundRequestCourse
+        {
+            Id = Guid.NewGuid().ToString(),
+            EnrollmentId = enrollment.Id,
+            StudentId = dto.StudentId,
+            RefundAmount = refundAmount,
+            ProgressSnapshot = enrollment.Progress,
+            Reason = dto.ReasonRequest,
+            Status = "pending",
+            CreatedAt = DateTime.Now
+        };
+        enrollment.Status = "Peding Refund";
+
+        await _enrollmentRepository.UpdateProgressEnrollmentAsync(enrollment);
+        await _requestRefundCourseRepository.CreateRequestRefundCourseAsync(refundRequest);
     }
 }

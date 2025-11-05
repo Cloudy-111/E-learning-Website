@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace project.Migrations
 {
     [DbContext(typeof(DBContext))]
-    partial class DBContextModelSnapshot : ModelSnapshot
+    [Migration("20251101180153_New")]
+    partial class New
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -302,54 +305,6 @@ namespace project.Migrations
                     b.ToTable("QuestionExams");
                 });
 
-            modelBuilder.Entity("RefundRequestCourse", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("EnrollmentId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime?>("ProcessedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("ProcessedBy")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<decimal>("ProgressSnapshot")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Reason")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<decimal>("RefundAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StudentId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EnrollmentId");
-
-                    b.HasIndex("ProcessedBy");
-
-                    b.HasIndex("StudentId");
-
-                    b.ToTable("RefundRequestCourses");
-                });
-
             modelBuilder.Entity("SubmissionAnswer", b =>
                 {
                     b.Property<string>("Id")
@@ -485,9 +440,6 @@ namespace project.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<double>("AverageRating")
-                        .HasColumnType("float");
-
                     b.Property<string>("CategoryId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -504,9 +456,6 @@ namespace project.Migrations
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(10,2)");
-
-                    b.Property<int>("ReviewCount")
-                        .HasColumnType("int");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -1334,32 +1283,6 @@ namespace project.Migrations
                     b.Navigation("Exam");
                 });
 
-            modelBuilder.Entity("RefundRequestCourse", b =>
-                {
-                    b.HasOne("project.Models.Enrollment_course", "Enrollment")
-                        .WithMany("RefundRequestCourses")
-                        .HasForeignKey("EnrollmentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("project.Models.Admin", "Admin")
-                        .WithMany("RefundRequestCourses")
-                        .HasForeignKey("ProcessedBy")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("project.Models.Student", "Student")
-                        .WithMany("RefundRequestCourses")
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Admin");
-
-                    b.Navigation("Enrollment");
-
-                    b.Navigation("Student");
-                });
-
             modelBuilder.Entity("SubmissionAnswer", b =>
                 {
                     b.HasOne("QuestionExam", "QuestionExam")
@@ -1711,8 +1634,6 @@ namespace project.Migrations
 
             modelBuilder.Entity("project.Models.Admin", b =>
                 {
-                    b.Navigation("RefundRequestCourses");
-
                     b.Navigation("ReviewedRequests");
                 });
 
@@ -1734,11 +1655,6 @@ namespace project.Migrations
                     b.Navigation("Exams");
 
                     b.Navigation("Lessons");
-                });
-
-            modelBuilder.Entity("project.Models.Enrollment_course", b =>
-                {
-                    b.Navigation("RefundRequestCourses");
                 });
 
             modelBuilder.Entity("project.Models.Lesson", b =>
@@ -1777,8 +1693,6 @@ namespace project.Migrations
                     b.Navigation("Orders");
 
                     b.Navigation("Posts");
-
-                    b.Navigation("RefundRequestCourses");
 
                     b.Navigation("Reports");
 
