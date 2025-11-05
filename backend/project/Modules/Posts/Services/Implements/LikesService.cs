@@ -1,4 +1,5 @@
 using System;
+using project.Models.Posts;
 using project.Modules.Posts.DTOs;
 using project.Modules.Posts.Repositories.Interfaces;
 using project.Modules.Posts.Services.Interfaces;
@@ -12,6 +13,26 @@ public class LikesService : ILikesService
     public LikesService(ILikesRepository repository)
     {
         _repository = repository;
+    }
+
+      private static LikeDto MapToDto(Likes l)
+    {
+        return new LikeDto
+        {
+            Id = l.Id,
+            StudentId = l.StudentId,
+            StudentName = l.Student.User.FullName,
+            AvatarUrl = l.Student.User.AvatarUrl,     
+            TargetType = l.TargetType!,
+            TargetId = l.TargetId!,
+            CreatedAt = l.CreatedAt
+        };
+    }
+
+    public async Task<IEnumerable<LikeDto>> GetLikesByTargetAsync(string targetType, string targetId)
+    {
+        var likes = await _repository.GetLikesByTargetAsync(targetType, targetId);
+        return likes.Select(MapToDto);
     }
 
     public async Task<IEnumerable<LikeDto>> GetAllLikesAsync()
@@ -29,35 +50,6 @@ public class LikesService : ILikesService
         });
     }
 
-    public async Task<IEnumerable<LikeDto>> GetLikesByPostIdAsync(string postId)
-    {
-        var likes = await _repository.GetLikesByPostIdAsync(postId);
-        return likes.Select(l => new LikeDto
-        {
-            Id = l.Id,
-            StudentId = l.StudentId,
-            StudentName = l.Student.User.FullName,
-            AvatarUrl = l.Student.User.AvatarUrl,
-            TargetType = l.TargetType!,
-            TargetId = l.TargetId!,
-            CreatedAt = l.CreatedAt
-        });
-    }
-
-    public async Task<IEnumerable<LikeDto>> GetLikesByForumQuestionIdAsync(string forumQuestionId)
-    {
-        var likes = await _repository.GetLikesByForumQuestionIdAsync(forumQuestionId);
-        return likes.Select(l => new LikeDto
-        {
-            Id = l.Id,
-            StudentId = l.StudentId,
-            StudentName = l.Student.User.FullName,
-            AvatarUrl = l.Student.User.AvatarUrl,
-            TargetType = l.TargetType!,
-            TargetId = l.TargetId!,
-            CreatedAt = l.CreatedAt
-        });
-    }
 
     public async Task<IEnumerable<LikeDto>> GetLikesByStudentAsync(string studentId)
     {

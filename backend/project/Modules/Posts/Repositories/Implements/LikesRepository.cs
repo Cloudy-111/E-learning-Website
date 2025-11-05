@@ -22,21 +22,13 @@ public class LikesRepository : ILikesRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Likes>> GetLikesByPostIdAsync(string postId)
-    {
-        return await _context.Likes
-            .Include(l => l.Student)
-            .ThenInclude(s => s.User)
-            .Where(l => l.TargetType == "Post" && l.TargetId == postId)
-            .ToListAsync();
-    }
 
-    public async Task<IEnumerable<Likes>> GetLikesByForumQuestionIdAsync(string forumQuestionId)
+    public async Task<IEnumerable<Likes>> GetLikesByTargetAsync(string targetType, string targetId)
     {
         return await _context.Likes
             .Include(l => l.Student)
             .ThenInclude(s => s.User)
-            .Where(l => l.TargetType == "ForumQuestion" && l.TargetId == forumQuestionId)
+            .Where(l => l.TargetType == targetType && l.TargetId == targetId)
             .ToListAsync();
     }
 
