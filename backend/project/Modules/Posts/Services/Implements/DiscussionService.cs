@@ -15,84 +15,36 @@ public class DiscussionService : IDiscussionService
         _discussionRepository = discussionRepository;
     }
 
-     // ✅ Lấy tất cả comment trong hệ thống
+    // Hàm map chung
+    private static DiscussionDto MapToDto(Discussion d)
+    {
+        return new DiscussionDto
+        {
+            Id = d.Id,
+            StudentId = d.StudentId,
+            StudentName = d.Student?.User?.FullName ?? "(Ẩn danh)",
+            AvatarUrl = d.Student?.User?.AvatarUrl,
+            TargetType = d.TargetType,
+            TargetTypeId = d.TargetTypeId,
+            ParentDiscussionId = d.ParentDiscussionId,
+            Content = d.Content,
+            CreatedAt = d.CreatedAt,
+            UpdatedAt = d.UpdatedAt
+        };
+    }
+
+    // Lấy tất cả comment
     public async Task<IEnumerable<DiscussionDto>> GetAllCommentsAsync()
     {
         var discussions = await _discussionRepository.GetAllCommentsAsync();
-
-        return discussions.Select(d => new DiscussionDto
-        {
-            Id = d.Id,
-            StudentId = d.StudentId,
-            StudentName = d.Student?.User?.FullName ?? "(Ẩn danh)",
-            AvatarUrl = d.Student?.User?.AvatarUrl,
-            TargetType = d.TargetType,
-            TargetTypeId = d.TargetTypeId,
-            ParentDiscussionId = d.ParentDiscussionId,
-            Content = d.Content,
-            CreatedAt = d.CreatedAt,
-            UpdatedAt = d.UpdatedAt
-        });
+        return discussions.Select(MapToDto);
     }
 
-    public async Task<IEnumerable<DiscussionDto>> GetCommentsByPostIdAsync(string postId)
+    // Hàm dùng chung cho mọi TargetType
+    public async Task<IEnumerable<DiscussionDto>> GetCommentsByTargetAsync(string targetType, string targetId)
     {
-        var discussions = await _discussionRepository.GetCommentsByPostIdAsync(postId);
-
-        return discussions.Select(d => new DiscussionDto
-        {
-            Id = d.Id,
-            StudentId = d.StudentId,
-            StudentName = d.Student?.User?.FullName ?? "(Ẩn danh)",
-            AvatarUrl = d.Student?.User?.AvatarUrl,
-            TargetType = d.TargetType,
-            TargetTypeId = d.TargetTypeId,
-            ParentDiscussionId = d.ParentDiscussionId,
-            Content = d.Content,
-            CreatedAt = d.CreatedAt,
-            UpdatedAt = d.UpdatedAt
-        });
+        var discussions = await _discussionRepository.GetCommentsByTargetAsync(targetType, targetId);
+        return discussions.Select(MapToDto);
     }
 
-    public async Task<IEnumerable<DiscussionDto>> GetCommentsByForumQuestionIdAsync(string forumQuestionId)
-    {
-        var discussions = await _discussionRepository.GetCommentsByForumQuestionIdAsync(forumQuestionId);
-
-        return discussions.Select(d => new DiscussionDto
-        {
-            Id = d.Id,
-            StudentId = d.StudentId,
-            StudentName = d.Student?.User?.FullName ?? "(Ẩn danh)",
-            AvatarUrl = d.Student?.User?.AvatarUrl,
-            TargetType = d.TargetType,
-            TargetTypeId = d.TargetTypeId,
-            ParentDiscussionId = d.ParentDiscussionId,
-            Content = d.Content,
-            CreatedAt = d.CreatedAt,
-            UpdatedAt = d.UpdatedAt
-
-        });
-    }
-
-    public async Task<IEnumerable<DiscussionDto>> GetCommentsByCourseIdAsync(string forumQuestionId)
-    {
-        var discussions = await _discussionRepository.GetCommentsByCourseIdAsync(forumQuestionId);
-
-        return discussions.Select(d => new DiscussionDto
-        {
-            Id = d.Id,
-            StudentId = d.StudentId,
-            StudentName = d.Student?.User?.FullName ?? "(Ẩn danh)",
-            AvatarUrl = d.Student?.User?.AvatarUrl,
-            TargetType = d.TargetType,
-            TargetTypeId = d.TargetTypeId,
-            ParentDiscussionId = d.ParentDiscussionId,
-            Content = d.Content,
-            CreatedAt = d.CreatedAt,
-            UpdatedAt = d.UpdatedAt
-
-        });
-    }
-
-    
 }

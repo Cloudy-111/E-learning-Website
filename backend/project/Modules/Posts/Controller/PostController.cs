@@ -65,17 +65,7 @@ namespace project.Modules.Posts.Controller
             return Ok(posts);
         }
 
-        //  GET /api/posts/{postId}/comments
-        [HttpGet("{postId}/comments")]
-        public async Task<ActionResult<IEnumerable<DiscussionDto>>> GetCommentsByPost(string postId)
-        {
-            var comments = await _discussionService.GetCommentsByPostIdAsync(postId);
-            if (!comments.Any())
-                return NotFound(new { message = "Không có bình luận nào cho bài viết này." });
-
-            return Ok(comments);
-        }
-
+      
         
 
     }
