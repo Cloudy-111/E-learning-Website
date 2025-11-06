@@ -52,4 +52,24 @@ public class AdminService : IAdminService
         await _unitOfWork.SaveChangesAsync();
     }
 
+    public async Task<IEnumerable<RefundRequestCourseDTO>> GetPendingRefundRequestsAsync()
+    {
+        var refundRequests = await _adminRepository.GetRefundRequestsByStatusAsync("pending");
+        return refundRequests.Select(rrc => new RefundRequestCourseDTO
+        {
+            Id = rrc.Id,
+            StudentId = rrc.StudentId,
+            StudentName = rrc.Student.User.FullName,
+            ProcessedBy = rrc.Admin.AdminId,
+            EnrollmentId = rrc.EnrollmentId,
+            CourseId = rrc.Enrollment.Course.Id,
+            CourseTitle = rrc.Enrollment.Course.Title,
+            Reason = rrc.Reason,
+            Status = rrc.Status,
+            CreatedAt = rrc.CreatedAt,
+            ProcessedAt = rrc.ProcessedAt,
+            RefundAmount = rrc.RefundAmount,
+            ProgressSnapshot = rrc.ProgressSnapshot
+        });
+    }
 }

@@ -11,7 +11,7 @@ public class AdminController : ControllerBase
     }
 
     [HttpGet("courses/status/{status}")]
-    public async Task<IActionResult> GetCoursesByStatusAsync(string status)
+    public async Task<IActionResult> GetCourseByStatusAsync(string status)
     {
         try
         {

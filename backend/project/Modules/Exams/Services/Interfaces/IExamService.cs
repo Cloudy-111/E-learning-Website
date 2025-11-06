@@ -8,4 +8,5 @@ public interface IExamService
     Task UpdateExamAsync(string examId, UpdateExamDTO examUpdate);
     // Task DeleteExamAsync(int id);
     Task UpdateOrderQuestionInExamAsync(string examId, List<QuestionExamOrderDTO> questionOrders);
+    Task UploadExamExcelAsync(UploadExamExcelRequest request);
 }

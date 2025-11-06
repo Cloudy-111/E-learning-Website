@@ -144,4 +144,24 @@ public class ExamController : ControllerBase
             APIResponse("error", "An error occurred while Retrieve Exams", ex.Message));
         }
     }
+
+    [HttpPost("{examId}/upload")]
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> UploadExamExcel([FromForm] UploadExamExcelRequest request)
+    {
+        try
+        {
+            await _examService.UploadExamExcelAsync(request);
+            return Ok(new APIResponse("success", "Upload exam excel successfully"));
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new APIResponse("error", ex.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while uploading exam excel", ex.Message));
+        }
+    }
 }
