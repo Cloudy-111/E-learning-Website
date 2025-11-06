@@ -10,6 +10,7 @@ public class CategoryController : ControllerBase
         _categoryService = categoryService;
     }
 
+    // Admin only
     [HttpPost]
     public async Task<IActionResult> CreateCategory([FromBody] CategoryCreateDTO categoryCreateDTO)
     {

@@ -107,6 +107,9 @@ public class CourseService : ICourseService
             Price = courseDto.Price,
             DiscountPrice = courseDto.DiscountPrice,
             ThumbnailUrl = courseDto.ThumbnailUrl,
+            Status = "draft",
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
 
         await _courseRepository.AddCourseAsync(course);
@@ -132,7 +135,7 @@ public class CourseService : ICourseService
 
     public async Task RequestPublishCourseAsync(string courseId)
     {
-        var courseExist = await _courseRepository.GetCourseByIdAsync(courseId) ??
+        var courseExist = await _courseRepository.GetCourseByStatusAsync(courseId, "draft") ??
             throw new KeyNotFoundException("Course not found");
         if (!courseExist.Status.Equals("draft", StringComparison.InvariantCultureIgnoreCase))
         {
