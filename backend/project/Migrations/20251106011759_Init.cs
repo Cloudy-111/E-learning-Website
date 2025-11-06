@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace project.Migrations
 {
     /// <inheritdoc />
-    public partial class TenMigrationMoi : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -430,7 +430,9 @@ namespace project.Migrations
                     Status = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ThumbnailUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true)
+                    ThumbnailUrl = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    AverageRating = table.Column<double>(type: "float", nullable: false),
+                    ReviewCount = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -673,6 +675,44 @@ namespace project.Migrations
                         principalTable: "CourseContents",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RefundRequestCourses",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    EnrollmentId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    StudentId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    RefundAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ProgressSnapshot = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Reason = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ProcessedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ProcessedBy = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RefundRequestCourses", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RefundRequestCourses_Admins_ProcessedBy",
+                        column: x => x.ProcessedBy,
+                        principalTable: "Admins",
+                        principalColumn: "AdminId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_RefundRequestCourses_Enrollments_EnrollmentId",
+                        column: x => x.EnrollmentId,
+                        principalTable: "Enrollments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_RefundRequestCourses_Students_StudentId",
+                        column: x => x.StudentId,
+                        principalTable: "Students",
+                        principalColumn: "StudentId",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -1044,6 +1084,21 @@ namespace project.Migrations
                 column: "ExamId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_RefundRequestCourses_EnrollmentId",
+                table: "RefundRequestCourses",
+                column: "EnrollmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefundRequestCourses_ProcessedBy",
+                table: "RefundRequestCourses",
+                column: "ProcessedBy");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RefundRequestCourses_StudentId",
+                table: "RefundRequestCourses",
+                column: "StudentId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Reports_ReporterId",
                 table: "Reports",
                 column: "ReporterId");
@@ -1135,9 +1190,6 @@ namespace project.Migrations
                 name: "Discussions");
 
             migrationBuilder.DropTable(
-                name: "Enrollments");
-
-            migrationBuilder.DropTable(
                 name: "ForumQuestions");
 
             migrationBuilder.DropTable(
@@ -1159,6 +1211,9 @@ namespace project.Migrations
                 name: "Posts");
 
             migrationBuilder.DropTable(
+                name: "RefundRequestCourses");
+
+            migrationBuilder.DropTable(
                 name: "Reports");
 
             migrationBuilder.DropTable(
@@ -1178,6 +1233,9 @@ namespace project.Migrations
 
             migrationBuilder.DropTable(
                 name: "Orders");
+
+            migrationBuilder.DropTable(
+                name: "Enrollments");
 
             migrationBuilder.DropTable(
                 name: "Choices");

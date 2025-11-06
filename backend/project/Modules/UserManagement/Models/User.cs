@@ -30,6 +30,9 @@ namespace project.Models
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? DeleteAt { get; set; }
 
+        public string? RefreshTokenHash { get; set; }
+        public DateTime? RefreshTokenTimeExpire { get; set; } // thêm property này
+
         // Navigation 1-1
         public Teacher? Teacher { get; set; }
         public Student? Student { get; set; }

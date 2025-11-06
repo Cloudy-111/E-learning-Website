@@ -13,10 +13,14 @@ public interface IPostRepository
 
     // Lấy chi tiết bài viết 
     Task<Post?> GetPostByIdAsync(string id);
-     
-     // Tìm kiếm bài viết theo tag
+
+    // Tìm kiếm bài viết theo tag
 
     Task<IEnumerable<Post>> SearchPostsByTagAsync(string tag);
+    
+
+    // Thêm bài post
+    Task<Post> AddPostAsync(Post post);
 
 
 

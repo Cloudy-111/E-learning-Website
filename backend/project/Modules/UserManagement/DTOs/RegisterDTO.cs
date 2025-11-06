@@ -1,6 +1,15 @@
+using System.ComponentModel.DataAnnotations;
+
 public class RegisterDto
 {
-    public string Email { get; set; } = string.Empty;
-    public string Username { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty;
+    [Required]
+    [EmailAddress]
+    public string Email { get; set; } = null!;
+
+    [Required]
+    [MinLength(6)]
+    public string Password { get; set; } = null!;
+
+    [Required]
+    public string FullName { get; set; } = null!;
 }
