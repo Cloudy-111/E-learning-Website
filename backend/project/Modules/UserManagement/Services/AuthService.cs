@@ -108,4 +108,25 @@ public class AuthService
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+
+    // Đăng ký làm teacher
+    public async Task<Teacher> RegisterTeacherAsync(string userId, TeacherRegisterDto dto)
+    {
+        // Kiểm tra user đã là teacher chưa
+        var existingTeacher = await _context.Teachers.FirstOrDefaultAsync(t => t.UserId == userId);
+        if (existingTeacher != null)
+            throw new Exception("User is already a teacher");
+
+        var teacher = new Teacher
+        {
+            UserId = userId,
+            EmployeeCode = dto.EmployeeCode ?? Guid.NewGuid().ToString().Substring(0, 6).ToUpper(),
+            instruction = dto.Instruction ?? ""
+        };
+
+        _context.Teachers.Add(teacher);
+        await _context.SaveChangesAsync();
+
+        return teacher;
+    }
 }

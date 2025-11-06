@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -42,12 +43,38 @@ public class AuthController : ControllerBase
     public IActionResult GetClaims()
     {
         // Lấy tất cả claims của user hiện tại
-        var claims = User.Claims.Select(c => new 
-        { 
-            c.Type, 
-            c.Value 
+        var claims = User.Claims.Select(c => new
+        {
+            c.Type,
+            c.Value
         }).ToList();
 
         return Ok(claims);
+    }
+    
+
+    [HttpPost("register-teacher")]
+    [Authorize] // chỉ cho user đã login
+    public async Task<ActionResult> RegisterTeacher([FromBody] TeacherRegisterDto dto)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized("User not found in token");
+
+        try
+        {
+            var teacher = await _authService.RegisterTeacherAsync(userId, dto);
+            return Ok(new 
+            {
+                teacher.TeacherId,
+                teacher.UserId,
+                teacher.EmployeeCode,
+                teacher.instruction
+            });
+        }
+        catch(Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
     }
 }
