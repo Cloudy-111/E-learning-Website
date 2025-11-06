@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using project.Models;
 using project.Modules.UserManagement.DTOs;
@@ -11,13 +12,16 @@ namespace project.Modules.UserManagement.Services;
 
 public class AuthService
 {
-     private readonly UserManager<User> _userManager;
+    private readonly UserManager<User> _userManager;
     private readonly IConfiguration _configuration;
-     
-      public AuthService(UserManager<User> userManager, IConfiguration configuration)
+
+    private readonly DBContext _context;
+
+    public AuthService(UserManager<User> userManager, IConfiguration configuration, DBContext context)
     {
         _userManager = userManager;
         _configuration = configuration;
+        _context = context;
     }
 
     // Register
@@ -34,12 +38,19 @@ public class AuthService
         if (!result.Succeeded)
             throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
 
-        // Nếu cần tạo Student tự động
-        // var student = new Student { UserId = user.Id };
-        // await _context.Students.AddAsync(student);
-        // await _context.SaveChangesAsync();
+        var student = new Student
+        {
+            UserId = user.Id,
+            Bio = "", // có thể để trống hoặc default
+            StudentId = Guid.NewGuid().ToString()
 
-        var token = GenerateJwtToken(user);
+
+        };
+
+        _context.Students.Add(student);
+        await _context.SaveChangesAsync();
+
+        var token = GenerateJwtToken(user, student.StudentId);
         return new AuthResponseDto
         {
             Token = token,
@@ -59,22 +70,29 @@ public class AuthService
         if (!valid)
             throw new Exception("Email hoặc mật khẩu không đúng");
 
-        var token = GenerateJwtToken(user);
+        // Lấy StudentId tương ứng với UserId
+        var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == user.Id);
+        if (student == null)
+            throw new Exception("Student not found");
+
+        var token = GenerateJwtToken(user, student.StudentId);
         return new AuthResponseDto
         {
             Token = token,
             UserId = user.Id,
-            FullName = user.FullName
+            FullName = user.FullName,
         };
     }
 
     // Tạo JWT token
-    private string GenerateJwtToken(User user)
+    private string GenerateJwtToken(User user, string studentId)
     {
         var claims = new[]
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id),
-            new Claim(ClaimTypes.Name, user.FullName)
+            new Claim(ClaimTypes.Name, user.FullName),
+            new Claim("StudentId", studentId)
+
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));

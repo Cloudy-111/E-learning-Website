@@ -75,7 +75,7 @@ public class PostService : IPostService
         };
     }
 
-    public async Task<PostDto> CreatePostAsync(PostCreateDto dto, string authorName)
+    public async Task<PostDto> CreatePostAsync(PostCreateDto dto, string authorId ,string authorName)
     {
         var post = new Post
         {
@@ -84,7 +84,7 @@ public class PostService : IPostService
             ThumbnailUrl = dto.ThumbnailUrl,
             Tags = dto.Tags,
             IsPublished = dto.IsPublished,
-            AuthorId = authorName,
+            AuthorId = authorId,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };

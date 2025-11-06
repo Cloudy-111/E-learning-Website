@@ -10,5 +10,5 @@ public interface IPostService
     Task<IEnumerable<PostDto>> GetPostsByMemberIdAsync(string memberId);
     Task<PostDetailDto?> GetPostByIdAsync(string id);
     Task<IEnumerable<PostDto>> SearchPostsByTagAsync(string tag);
-    Task<PostDto> CreatePostAsync(PostCreateDto dto,  string authorName);
+    Task<PostDto> CreatePostAsync(PostCreateDto dto, string authorId, string authorName);
 }

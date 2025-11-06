@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using project.Models.Posts.DTOs;
@@ -21,14 +22,14 @@ namespace project.Modules.Posts.Controller
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PostDto>>> GetAllPosts()
-    {
-        var posts = await _postService.GetAllPostsAsync();
-        return Ok(posts);
-    }
+        {
+            var posts = await _postService.GetAllPostsAsync();
+            return Ok(posts);
+        }
 
         // GET: /api/posts/member/{memberId}
         [HttpGet("member/{memberId}")]
-         public async Task<ActionResult<IEnumerable<PostDto>>> GetPostsByMemberId(string memberId)
+        public async Task<ActionResult<IEnumerable<PostDto>>> GetPostsByMemberId(string memberId)
         {
             var posts = await _postService.GetPostsByMemberIdAsync(memberId);
 
@@ -41,7 +42,7 @@ namespace project.Modules.Posts.Controller
 
         // GET: /api/posts/{id}
         [HttpGet("{id}")]
-         public async Task<ActionResult<PostDetailDto>> GetPostById(string id)
+        public async Task<ActionResult<PostDetailDto>> GetPostById(string id)
         {
             var post = await _postService.GetPostByIdAsync(id);
             if (post == null)
@@ -64,22 +65,26 @@ namespace project.Modules.Posts.Controller
 
             return Ok(posts);
         }
-        
-         [HttpPost]
-    public async Task<ActionResult<PostDto>> CreatePost([FromBody] PostCreateDto dto)
-    {
-        // var studentId = User.FindFirst("StudentId")?.Value;
-        var authorName = User.FindFirst("FullName")?.Value;
 
-        if ( authorName == null)
-            return Unauthorized("User info not found in token");
+        [HttpPost]
+        public async Task<ActionResult<PostDto>> CreatePost([FromBody] PostCreateDto dto)
+        {
+            // Lấy StudentId từ claim
+            var studentId = User.FindFirst("StudentId")?.Value;
 
-        var postDto = await _postService.CreatePostAsync(dto, authorName);
-        return Ok(postDto);
-    }
+            // Lấy tên user
+            var authorName = User.FindFirst(ClaimTypes.Name)?.Value;
 
-      
-        
+            if (studentId == null || authorName == null)
+                return Unauthorized("User info not found in token");
+
+            var postDto = await _postService.CreatePostAsync(dto, studentId, authorName);
+            return Ok(postDto);
+        }
+
+
+
+
 
     }
 }

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using project.Models;
@@ -27,5 +28,26 @@ public class AuthController : ControllerBase
     {
         var result = await _authService.LoginAsync(dto);
         return Ok(result);
+    }
+
+    [Authorize]
+    [HttpGet("test")]
+    public ActionResult<string> Test()
+    {
+        return "AuthController is working!";
+    }
+
+    [Authorize]
+    [HttpGet("claims")]
+    public IActionResult GetClaims()
+    {
+        // Lấy tất cả claims của user hiện tại
+        var claims = User.Claims.Select(c => new 
+        { 
+            c.Type, 
+            c.Value 
+        }).ToList();
+
+        return Ok(claims);
     }
 }
