@@ -69,6 +69,16 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Upload file support in swagger
+builder.Services.AddSwaggerGen(c =>
+{
+    c.MapType<IFormFile>(() => new Microsoft.OpenApi.Models.OpenApiSchema
+    {
+        Type = "string",
+        Format = "binary"
+    });
+});
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp",
