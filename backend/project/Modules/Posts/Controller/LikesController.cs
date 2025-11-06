@@ -24,21 +24,17 @@ namespace project.Modules.Posts.Controller
             return Ok(likes);
         }
 
-        // GET /api/likes/post/{postId}
-        [HttpGet("post/{postId}")]
-        public async Task<ActionResult<IEnumerable<LikeDto>>> GetLikesByPost(string postId)
+
+        // GET /api/likes/{targetType}/{targetId}
+        [HttpGet("{targetType}/{targetId}")]
+        public async Task<ActionResult<IEnumerable<LikeDto>>> GetLikesByTarget(string targetType, string targetId)
         {
-            var likes = await _likesService.GetLikesByPostIdAsync(postId);
+            // targetType ví dụ: Post, ForumQuestion, Discussion, Course
+            var likes = await _likesService.GetLikesByTargetAsync(targetType, targetId);
             return Ok(likes);
         }
 
-        // GET /api/likes/forum/{forumQuestionId}
-        [HttpGet("forum/{forumQuestionId}")]
-        public async Task<ActionResult<IEnumerable<LikeDto>>> GetLikesByForumQuestion(string forumQuestionId)
-        {
-            var likes = await _likesService.GetLikesByForumQuestionIdAsync(forumQuestionId);
-            return Ok(likes);
-        }
+
 
         // GET /api/likes/member/{memberId}
         [HttpGet("member/{memberId}")]

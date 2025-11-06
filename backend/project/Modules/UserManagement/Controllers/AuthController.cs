@@ -1,44 +1,99 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using project.Models;
+using project.Modules.UserManagement.DTOs;
+using project.Modules.UserManagement.Services;
+using project.Modules.UserManagement.Services.Interfaces;
 
 [Route("api/[controller]")]
 [ApiController]
 public class AuthController : ControllerBase
 {
-    private readonly UserManager<User> _userManager;
-    private readonly SignInManager<User> _signInManager;
+    private readonly IAuthService _authService;
 
-    public AuthController(UserManager<User> userManager, SignInManager<User> signInManager)
+    public AuthController(IAuthService authService)
     {
-        _userManager = userManager;
-        _signInManager = signInManager;
+        _authService = authService;
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterDto model)
+    public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterDto dto)
     {
-        var user = new User
-        {
-            UserName = model.Username,
-            Email = model.Email,
-        };
-
-        var result = await _userManager.CreateAsync(user, model.Password);
-
-        if (result.Succeeded)
-        {
-            return Ok(new { message = "User registered successfully!" });
-        }
-
-        return BadRequest(result.Errors);
+        var result = await _authService.RegisterAsync(dto);
+        return Ok(result);
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginDto model)
+    public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginDto dto)
     {
-        var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
-        if (result.Succeeded) return Ok(new { message = "Login success!" });
-        return BadRequest();
+        var result = await _authService.LoginAsync(dto);
+        return Ok(result);
     }
+
+    [Authorize]
+    [HttpGet("test")]
+    public ActionResult<string> Test()
+    {
+        return "AuthController is working!";
+    }
+
+    [Authorize]
+    [HttpGet("claims")]
+    public IActionResult GetClaims()
+    {
+        // Lấy tất cả claims của user hiện tại
+        var claims = User.Claims.Select(c => new
+        {
+            c.Type,
+            c.Value
+        }).ToList();
+
+        return Ok(claims);
+    }
+
+
+    [HttpPost("register-teacher")]
+    [Authorize] // chỉ cho user đã login
+    public async Task<ActionResult> RegisterTeacher([FromBody] TeacherRegisterDto dto)
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized("User not found in token");
+
+        try
+        {
+            var teacher = await _authService.RegisterTeacherAsync(userId, dto);
+            return Ok(new
+            {
+                teacher.TeacherId,
+                teacher.UserId,
+                teacher.EmployeeCode,
+                teacher.instruction
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+
+    [HttpPost("refresh-token")]
+    public async Task<ActionResult<AuthResponseDto>> RefreshToken([FromBody] RefreshTokenDto dto)
+    {
+        try
+        {
+            // Chú ý: service sẽ kiểm tra hash token, hết hạn, và sinh token mới
+            var result = await _authService.RefreshTokenAsync(dto.RefreshToken);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+    }
+    
+    
 }

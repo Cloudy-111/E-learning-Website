@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using project.Models.Posts.DTOs;
@@ -21,14 +22,14 @@ namespace project.Modules.Posts.Controller
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PostDto>>> GetAllPosts()
-    {
-        var posts = await _postService.GetAllPostsAsync();
-        return Ok(posts);
-    }
+        {
+            var posts = await _postService.GetAllPostsAsync();
+            return Ok(posts);
+        }
 
         // GET: /api/posts/member/{memberId}
         [HttpGet("member/{memberId}")]
-         public async Task<ActionResult<IEnumerable<PostDto>>> GetPostsByMemberId(string memberId)
+        public async Task<ActionResult<IEnumerable<PostDto>>> GetPostsByMemberId(string memberId)
         {
             var posts = await _postService.GetPostsByMemberIdAsync(memberId);
 
@@ -41,7 +42,7 @@ namespace project.Modules.Posts.Controller
 
         // GET: /api/posts/{id}
         [HttpGet("{id}")]
-         public async Task<ActionResult<PostDetailDto>> GetPostById(string id)
+        public async Task<ActionResult<PostDetailDto>> GetPostById(string id)
         {
             var post = await _postService.GetPostByIdAsync(id);
             if (post == null)
@@ -52,7 +53,7 @@ namespace project.Modules.Posts.Controller
 
         // GET /api/posts/search?tag=LINQ
         [HttpGet("search")]
-       public async Task<ActionResult<IEnumerable<PostDto>>> SearchPostsByTag([FromQuery] string tag)
+        public async Task<ActionResult<IEnumerable<PostDto>>> SearchPostsByTag([FromQuery] string tag)
         {
             if (string.IsNullOrWhiteSpace(tag))
                 return BadRequest(new { message = "Thiếu tham số tag để tìm kiếm." });
@@ -65,18 +66,25 @@ namespace project.Modules.Posts.Controller
             return Ok(posts);
         }
 
-        //  GET /api/posts/{postId}/comments
-        [HttpGet("{postId}/comments")]
-        public async Task<ActionResult<IEnumerable<DiscussionDto>>> GetCommentsByPost(string postId)
+        [HttpPost]
+        public async Task<ActionResult<PostDto>> CreatePost([FromBody] PostCreateDto dto)
         {
-            var comments = await _discussionService.GetCommentsByPostIdAsync(postId);
-            if (!comments.Any())
-                return NotFound(new { message = "Không có bình luận nào cho bài viết này." });
+            // Lấy StudentId từ claim
+            var studentId = User.FindFirst("StudentId")?.Value;
 
-            return Ok(comments);
+            // Lấy tên user
+            var authorName = User.FindFirst(ClaimTypes.Name)?.Value;
+
+            if (studentId == null || authorName == null)
+                return Unauthorized("User info not found in token");
+
+            var postDto = await _postService.CreatePostAsync(dto, studentId, authorName);
+            return Ok(postDto);
         }
 
-        
+
+
+
 
     }
 }

@@ -17,18 +17,29 @@ namespace project.Modules.Posts.Controller
         }
 
 
-    // ✅ GET /api/comments
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<DiscussionDto>>> GetAllComments()
-    {
-        var comments = await _discussionService.GetAllCommentsAsync();
+        // ✅ GET /api/comments
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<DiscussionDto>>> GetAllComments()
+        {
+            var comments = await _discussionService.GetAllCommentsAsync();
 
-        if (!comments.Any())
-            return NotFound(new { message = "Không có bình luận nào trong hệ thống." });
+            if (!comments.Any())
+                return NotFound(new { message = "Không có bình luận nào trong hệ thống." });
 
-        return Ok(comments);
-    }
-        
+            return Ok(comments);
+        }
+
+        // GET /api/discussions/{targetType}/{targetId}
+        [HttpGet("{targetType}/{targetId}")]
+        public async Task<ActionResult<IEnumerable<DiscussionDto>>> GetCommentsByTarget(string targetType, string targetId)
+        {
+            // targetType : Post, ForumQuestion, Course, Discussion
+            var comments = await _discussionService.GetCommentsByTargetAsync(targetType, targetId);
+            return Ok(comments);
+        }
+
+
+
 
 
     }

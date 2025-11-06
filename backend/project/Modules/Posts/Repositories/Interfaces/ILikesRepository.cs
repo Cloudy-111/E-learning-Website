@@ -6,7 +6,6 @@ namespace project.Modules.Posts.Repositories.Interfaces;
 public interface ILikesRepository
 {
     Task<IEnumerable<Likes>> GetAllLikesAsync();
-    Task<IEnumerable<Likes>> GetLikesByPostIdAsync(string postId);
-    Task<IEnumerable<Likes>> GetLikesByForumQuestionIdAsync(string forumQuestionId);
+    Task<IEnumerable<Likes>> GetLikesByTargetAsync(string targetType, string targetId);
     Task<IEnumerable<Likes>> GetLikesByStudentAsync(string studentId);
 }
