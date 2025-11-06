@@ -1,6 +1,7 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -50,6 +51,11 @@ public class AuthService
         _context.Students.Add(student);
         await _context.SaveChangesAsync();
 
+        var refreshToken = GenerateRefreshToken();
+        user.RefreshTokenHash = HashToken(refreshToken);
+        user.RefreshTokenTimeExpire = DateTime.UtcNow.AddDays(7);
+        await _userManager.UpdateAsync(user);
+
         var token = GenerateJwtToken(user, student.StudentId);
         return new AuthResponseDto
         {
@@ -75,38 +81,19 @@ public class AuthService
         if (student == null)
             throw new Exception("Student not found");
 
+         var refreshToken = GenerateRefreshToken();
+        user.RefreshTokenHash = HashToken(refreshToken);
+        user.RefreshTokenTimeExpire = DateTime.UtcNow.AddDays(7);
+        await _userManager.UpdateAsync(user);
+
         var token = GenerateJwtToken(user, student.StudentId);
         return new AuthResponseDto
         {
             Token = token,
             UserId = user.Id,
             FullName = user.FullName,
+            RefreshToken = refreshToken
         };
-    }
-
-    // Tạo JWT token
-    private string GenerateJwtToken(User user, string studentId)
-    {
-        var claims = new[]
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id),
-            new Claim(ClaimTypes.Name, user.FullName),
-            new Claim("StudentId", studentId)
-
-        };
-
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        var token = new JwtSecurityToken(
-            _configuration["Jwt:Issuer"],
-            _configuration["Jwt:Audience"],
-            claims,
-            expires: DateTime.UtcNow.AddHours(6),
-            signingCredentials: creds
-        );
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
     // Đăng ký làm teacher
@@ -128,5 +115,71 @@ public class AuthService
         await _context.SaveChangesAsync();
 
         return teacher;
+    }
+
+     // ========================= Refresh Token =========================
+    public async Task<AuthResponseDto> RefreshTokenAsync(string token)
+    {
+        var user = await _userManager.Users.FirstOrDefaultAsync(u =>
+            u.RefreshTokenTimeExpire != null && u.RefreshTokenTimeExpire > DateTime.UtcNow);
+
+        if (user == null || HashToken(token) != user.RefreshTokenHash)
+            throw new Exception("Invalid refresh token");
+
+        var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == user.Id);
+
+        // Tạo access token mới
+        var newToken = GenerateJwtToken(user, student?.StudentId ?? "");
+
+        // Tạo refresh token mới
+        var newRefreshToken = GenerateRefreshToken();
+        user.RefreshTokenHash = HashToken(newRefreshToken);
+        user.RefreshTokenTimeExpire = DateTime.UtcNow.AddDays(7);
+        await _userManager.UpdateAsync(user);
+
+        return new AuthResponseDto
+        {
+            Token = newToken,
+            UserId = user.Id,
+            FullName = user.FullName,
+            RefreshToken = newRefreshToken
+        };
+    }
+
+    // ========================= Helper =========================
+    private string GenerateJwtToken(User user, string studentId)
+    {
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id),
+            new Claim(ClaimTypes.Name, user.FullName),
+            new Claim("StudentId", studentId)
+        };
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken(
+            _configuration["Jwt:Issuer"],
+            _configuration["Jwt:Audience"],
+            claims,
+            expires: DateTime.UtcNow.AddHours(6),
+            signingCredentials: creds
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    private string GenerateRefreshToken()
+    {
+        var randomBytes = new byte[32];
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(randomBytes);
+        return Convert.ToBase64String(randomBytes);
+    }
+
+    private string HashToken(string token)
+    {
+        return Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
     }
 }

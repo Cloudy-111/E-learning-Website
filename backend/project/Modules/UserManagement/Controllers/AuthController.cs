@@ -51,7 +51,7 @@ public class AuthController : ControllerBase
 
         return Ok(claims);
     }
-    
+
 
     [HttpPost("register-teacher")]
     [Authorize] // chỉ cho user đã login
@@ -64,7 +64,7 @@ public class AuthController : ControllerBase
         try
         {
             var teacher = await _authService.RegisterTeacherAsync(userId, dto);
-            return Ok(new 
+            return Ok(new
             {
                 teacher.TeacherId,
                 teacher.UserId,
@@ -72,9 +72,27 @@ public class AuthController : ControllerBase
                 teacher.instruction
             });
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             return BadRequest(new { message = ex.Message });
         }
     }
+
+
+    [HttpPost("refresh-token")]
+    public async Task<ActionResult<AuthResponseDto>> RefreshToken([FromBody] RefreshTokenDto dto)
+    {
+        try
+        {
+            // Chú ý: service sẽ kiểm tra hash token, hết hạn, và sinh token mới
+            var result = await _authService.RefreshTokenAsync(dto.RefreshToken);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+    }
+    
+    
 }
