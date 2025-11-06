@@ -32,7 +32,7 @@ public class AuthService
         {
             UserName = dto.Email,
             Email = dto.Email,
-            FullName = dto.FullName
+            FullName = dto.FullName,
         };
 
         var result = await _userManager.CreateAsync(user, dto.Password);
@@ -55,13 +55,17 @@ public class AuthService
         user.RefreshTokenHash = HashToken(refreshToken);
         user.RefreshTokenTimeExpire = DateTime.UtcNow.AddDays(7);
         await _userManager.UpdateAsync(user);
-
-        var token = GenerateJwtToken(user, student.StudentId);
+        // Kiểm tra xem user có là teacher chưa (thường mới đăng ký thì chưa)
+        var teacher = await _context.Teachers.FirstOrDefaultAsync(t => t.UserId == user.Id);
+       
+        var token = GenerateJwtToken(user, student.StudentId, teacher?.TeacherId);
         return new AuthResponseDto
         {
             Token = token,
             UserId = user.Id,
-            FullName = user.FullName
+            FullName = user.FullName,
+            StudentId = student?.StudentId,
+            TeacherId = teacher?.TeacherId,
         };
     }
 
@@ -81,18 +85,23 @@ public class AuthService
         if (student == null)
             throw new Exception("Student not found");
 
-         var refreshToken = GenerateRefreshToken();
+        // Lấy TeacherId nếu có
+        var teacher = await _context.Teachers.FirstOrDefaultAsync(t => t.UserId == user.Id);
+
+        var refreshToken = GenerateRefreshToken();
         user.RefreshTokenHash = HashToken(refreshToken);
         user.RefreshTokenTimeExpire = DateTime.UtcNow.AddDays(7);
         await _userManager.UpdateAsync(user);
 
-        var token = GenerateJwtToken(user, student.StudentId);
+        var token = GenerateJwtToken(user, student.StudentId, teacher?.TeacherId);
         return new AuthResponseDto
         {
             Token = token,
             UserId = user.Id,
             FullName = user.FullName,
-            RefreshToken = refreshToken
+            RefreshToken = refreshToken,
+            StudentId = student?.StudentId,
+            TeacherId = teacher?.TeacherId
         };
     }
 
@@ -117,44 +126,54 @@ public class AuthService
         return teacher;
     }
 
-     // ========================= Refresh Token =========================
-    public async Task<AuthResponseDto> RefreshTokenAsync(string token)
-    {
-        var user = await _userManager.Users.FirstOrDefaultAsync(u =>
-            u.RefreshTokenTimeExpire != null && u.RefreshTokenTimeExpire > DateTime.UtcNow);
-
-        if (user == null || HashToken(token) != user.RefreshTokenHash)
-            throw new Exception("Invalid refresh token");
-
-        var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == user.Id);
-
-        // Tạo access token mới
-        var newToken = GenerateJwtToken(user, student?.StudentId ?? "");
-
-        // Tạo refresh token mới
-        var newRefreshToken = GenerateRefreshToken();
-        user.RefreshTokenHash = HashToken(newRefreshToken);
-        user.RefreshTokenTimeExpire = DateTime.UtcNow.AddDays(7);
-        await _userManager.UpdateAsync(user);
-
-        return new AuthResponseDto
+    // ========================= Refresh Token =========================
+    public async Task<AuthResponseDto> RefreshTokenAsync(string refreshToken)
         {
-            Token = newToken,
-            UserId = user.Id,
-            FullName = user.FullName,
-            RefreshToken = newRefreshToken
-        };
-    }
+            var hashedToken = HashToken(refreshToken);
+            var user = await _userManager.Users.FirstOrDefaultAsync(u =>
+                u.RefreshTokenHash == hashedToken &&
+                u.RefreshTokenTimeExpire != null &&
+                u.RefreshTokenTimeExpire > DateTime.UtcNow);
+
+            if (user == null)
+                throw new Exception("Invalid or expired refresh token");
+
+            var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == user.Id);
+            var teacher = await _context.Teachers.FirstOrDefaultAsync(t => t.UserId == user.Id);
+
+            // Tạo access token mới
+            var newToken = GenerateJwtToken(user, student?.StudentId ?? "", teacher?.TeacherId);
+
+            // Tạo refresh token mới
+            var newRefreshToken = GenerateRefreshToken();
+            user.RefreshTokenHash = HashToken(newRefreshToken);
+            user.RefreshTokenTimeExpire = DateTime.UtcNow.AddDays(7);
+            await _userManager.UpdateAsync(user);
+
+            return new AuthResponseDto
+            {
+                Token = newToken,
+                UserId = user.Id,
+                FullName = user.FullName,
+                RefreshToken = newRefreshToken,
+                StudentId = student?.StudentId,
+                TeacherId = teacher?.TeacherId
+            };
+        }
+
 
     // ========================= Helper =========================
-    private string GenerateJwtToken(User user, string studentId)
+    private string GenerateJwtToken(User user, string studentId, string? teacherId)
     {
-        var claims = new[]
+        var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id),
             new Claim(ClaimTypes.Name, user.FullName),
             new Claim("StudentId", studentId)
         };
+
+        if (!string.IsNullOrEmpty(teacherId))
+        claims.Add(new Claim("TeacherId", teacherId));
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -182,4 +201,6 @@ public class AuthService
     {
         return Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
     }
+
+
 }
