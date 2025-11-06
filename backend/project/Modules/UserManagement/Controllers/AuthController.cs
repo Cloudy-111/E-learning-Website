@@ -5,14 +5,15 @@ using Microsoft.AspNetCore.Mvc;
 using project.Models;
 using project.Modules.UserManagement.DTOs;
 using project.Modules.UserManagement.Services;
+using project.Modules.UserManagement.Services.Interfaces;
 
 [Route("api/[controller]")]
 [ApiController]
 public class AuthController : ControllerBase
 {
-    private readonly AuthService _authService;
+    private readonly IAuthService _authService;
 
-    public AuthController(AuthService authService)
+    public AuthController(IAuthService authService)
     {
         _authService = authService;
     }
