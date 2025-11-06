@@ -8,10 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using project.Models;
 using project.Modules.UserManagement.DTOs;
+using project.Modules.UserManagement.Services.Interfaces;
 
 namespace project.Modules.UserManagement.Services;
 
-public class AuthService
+public class AuthService : IAuthService
 {
     private readonly UserManager<User> _userManager;
     private readonly IConfiguration _configuration;

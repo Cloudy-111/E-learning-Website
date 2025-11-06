@@ -12,6 +12,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using project.Modules.UserManagement.Services;
 using Microsoft.OpenApi.Models;
+using project.Modules.UserManagement.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -57,7 +58,7 @@ builder.Services.AddScoped<IDiscussionService, DiscussionService>();
 builder.Services.AddScoped<IForumQuestionService, ForumQuestionService>();
 builder.Services.AddScoped<ILikesService, LikesService>();
 builder.Services.AddScoped<IReportService, ReportService>();
-builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped< IAuthService,AuthService>();
 
 
 builder.Services.AddScoped<ICourseReviewService, CourseReviewService>();
