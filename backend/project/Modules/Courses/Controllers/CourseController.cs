@@ -16,6 +16,7 @@ public class CourseController : ControllerBase
         _requestUpdateService = requestUpdateService;
     }
 
+    // All users
     [HttpGet]
     public async Task<IActionResult> GetAllCourses()
     {
@@ -23,6 +24,7 @@ public class CourseController : ControllerBase
         return Ok(courses);
     }
 
+    // All users
     [HttpGet("{id}")]
     public async Task<IActionResult> GetCourseById(string id)
     {
@@ -42,6 +44,7 @@ public class CourseController : ControllerBase
         }
     }
 
+    // All users
     [HttpGet("search")]
     public async Task<IActionResult> GetCourse(
         [FromQuery] string? keyword,
@@ -62,6 +65,7 @@ public class CourseController : ControllerBase
         }
     }
 
+    // Teacher only
     [HttpPost]
     public async Task<IActionResult> CreateCourse([FromBody] CourseCreateDTO courseDto)
     {
@@ -85,6 +89,7 @@ public class CourseController : ControllerBase
         }
     }
 
+    // Teacher only
     [HttpPatch("{id}")]
     public async Task<IActionResult> UpdateCourse(string id, [FromBody] CourseUpdateDTO courseDto)
     {
@@ -112,6 +117,7 @@ public class CourseController : ControllerBase
         }
     }
 
+    // Teacher only
     [HttpPatch("{id}/request-publish")]
     public async Task<IActionResult> RequestPublishCourse(string id)
     {
@@ -134,6 +140,7 @@ public class CourseController : ControllerBase
         }
     }
 
+    // Teacher only
     [HttpPost("{id}/request-update")]
     public async Task<IActionResult> RequestUpdateCourse([FromBody] RequestUpdateRequestDTO requestDto)
     {

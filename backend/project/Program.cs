@@ -62,6 +62,7 @@ builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddScoped<ICourseReviewService, CourseReviewService>();
 builder.Services.AddScoped<IEnrollmentCourseService, EnrollmentCourseService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
 // builder.Services.AddScoped<IStudentService, StudentService>();
 
 // Add repository to the container.
@@ -86,6 +87,7 @@ builder.Services.AddScoped<ICourseReviewRepository, CourseReviewRepository>();
 builder.Services.AddScoped<IEnrollmentCourseRepository, EnrollmentCourseRepository>();
 builder.Services.AddScoped<ILessonProgressRepository, LessonProgressRepository>();
 builder.Services.AddScoped<IRequestRefundCourseRepository, RequestRefundCourseRepository>();
+builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddControllers();
