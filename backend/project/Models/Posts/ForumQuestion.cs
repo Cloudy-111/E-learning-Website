@@ -34,5 +34,6 @@ public class ForumQuestion
      // Soft delete fields
     public bool IsDeleted { get; set; } = false;
     public DateTime? DeletedAt { get; set; }
+    
 
 }

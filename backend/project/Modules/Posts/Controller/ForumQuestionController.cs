@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using project.Modules.Posts.DTOs;
@@ -10,14 +12,14 @@ namespace project.Modules.Posts.Controller
     public class ForumQuestionController : ControllerBase
     {
         private readonly IForumQuestionService _forumService;
-        private readonly IDiscussionService _discussionService;
 
-        public ForumQuestionController(IForumQuestionService forumService, IDiscussionService discussionService)
+
+        public ForumQuestionController(IForumQuestionService forumService)
         {
             _forumService = forumService;
-            _discussionService = discussionService;
+
         }
-         /// GET /api/forum/questions
+        /// GET /api/forum/questions
         /// Lấy danh sách câu hỏi
         /// </summary>
         [HttpGet]
@@ -41,6 +43,104 @@ namespace project.Modules.Posts.Controller
             return Ok(question);
         }
 
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> Create(ForumQuestionCreateDto dto)
+        {
+
+            var studentId = User.FindFirst("StudentId")?.Value;
+            if (studentId == null) return Unauthorized();
+
+            var id = await _forumService.CreateAsync(studentId, dto);
+            return Ok(new { id });
+        }
+
+        [Authorize]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(string id, ForumQuestionUpdateDto dto)
+        {
+            var studentId = User.FindFirst("StudentId")?.Value;
+            if (studentId == null) return Unauthorized();
+
+            try
+            {
+                var ok = await _forumService.UpdateAsync(id, studentId, dto);
+                return ok ? Ok() : NotFound();
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+        }
+
+        // DELETE (soft): /api/forum/questions/{id}
+        [Authorize]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> SoftDelete(string id)
+        {
+            var studentId = User.FindFirst("StudentId")?.Value;
+            if (studentId == null) return Unauthorized();
+
+            try
+            {
+                var ok = await _forumService.SoftDeleteAsync(id, studentId);
+                return ok ? Ok() : NotFound();
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+        }
+
+        // POST: /api/forum/questions/{id}/restore
+        [Authorize]
+        [HttpPost("{id}/restore")]
+        public async Task<IActionResult> Restore(string id)
+        {
+            var studentId = User.FindFirst("StudentId")?.Value;
+            if (studentId == null) return Unauthorized();
+
+            try
+            {
+                var ok = await _forumService.RestoreAsync(id, studentId);
+                return ok ? Ok() : NotFound();
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+        }
+
+        // DELETE (hard): /api/forum/questions/{id}/hard
+        [Authorize]
+        [HttpDelete("{id}/hard")]
+        public async Task<IActionResult> HardDelete(string id)
+        {
+            var studentId = User.FindFirst("StudentId")?.Value;
+            if (studentId == null) return Unauthorized();
+
+            try
+            {
+                var ok = await _forumService.HardDeleteAsync(id, studentId);
+                return ok ? Ok() : NotFound();
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Forbid(ex.Message);
+            }
+        }
+
+
+        [Authorize]
+        [HttpGet("listForumdeleted")]
+        public async Task<IActionResult> GetDeletedMyQuestions()
+        {
+            var studentId = User.FindFirst("StudentId")?.Value;
+            if (studentId == null) return Unauthorized();
+
+            var result = await _forumService.GetDeletedQuestionsAsync(studentId);
+            return Ok(result);
+        }
 
 
     }
