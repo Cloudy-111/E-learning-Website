@@ -28,6 +28,8 @@ namespace project.Modules.Posts.Controller
             return Ok(posts);
         }
 
+
+
         // GET: /api/posts/member/{memberId}
         [HttpGet("member/{memberId}")]
         public async Task<ActionResult<IEnumerable<PostDto>>> GetPostsByMemberId(string memberId)
@@ -41,6 +43,7 @@ namespace project.Modules.Posts.Controller
         }
 
 
+
         // GET: /api/posts/{id}
         [HttpGet("{id}")]
         public async Task<ActionResult<PostDetailDto>> GetPostById(string id)
@@ -51,6 +54,9 @@ namespace project.Modules.Posts.Controller
 
             return Ok(post);
         }
+        
+
+
 
         // GET /api/posts/search?tag=LINQ
         [HttpGet("search")]
@@ -66,7 +72,7 @@ namespace project.Modules.Posts.Controller
 
             return Ok(posts);
         }
-         
+
         [Authorize]
         [HttpPost]
         public async Task<ActionResult<PostDto>> CreatePost([FromBody] PostCreateDto dto)
@@ -85,8 +91,88 @@ namespace project.Modules.Posts.Controller
         }
 
 
+        // ======================= Update Post =======================
+        [Authorize]
+        [HttpPut("{id}")]
+        public async Task<ActionResult<PostDto>> UpdatePost(string id, [FromBody] PostUpdateDto dto)
+        {
+            var authorId = User.FindFirst("StudentId")?.Value;
+            if (string.IsNullOrEmpty(authorId))
+                return Unauthorized("User not found in token");
 
+            try
+            {
+                var updatedPost = await _postService.UpdatePostAsync(id, dto, authorId);
+                return Ok(updatedPost);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
 
+        // ======================= Soft Delete Post =======================
+        [Authorize]
+        [HttpDelete("deletesoft/{id}")]
+        public async Task<ActionResult> SoftDeletePost(string id)
+        {
+            var authorId = User.FindFirst("StudentId")?.Value;
+            if (string.IsNullOrEmpty(authorId))
+                return Unauthorized("User not found in token");
 
+            try
+            {
+                await _postService.SoftDeletePostAsync(id, authorId);
+                return Ok(new { message = "Post soft-deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        // ======================= Hard Delete Post =======================
+        [Authorize]
+        [HttpDelete("deletehard/{id}")]
+        public async Task<ActionResult> HardDeletePost(string id)
+        {
+            var authorId = User.FindFirst("StudentId")?.Value;
+            if (string.IsNullOrEmpty(authorId))
+                return Unauthorized("User not found in token");
+
+            try
+            {
+                await _postService.HardDeletePostAsync(id, authorId);
+                return Ok(new { message = "Post permanently deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpPatch("restore/{id}")]
+        public async Task<ActionResult> RestorePost(string id)
+        {
+            var authorId = User.FindFirst("StudentId")?.Value; // hoặc ClaimTypes.NameIdentifier nếu lưu UserId
+            if (string.IsNullOrEmpty(authorId))
+                return Unauthorized("User info not found in token");
+
+            try
+            {
+                var postDto = await _postService.RestorePostAsync(id, authorId);
+                return Ok(new { message = "Post restored successfully", post = postDto });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
+
+
+
+
+
 }
