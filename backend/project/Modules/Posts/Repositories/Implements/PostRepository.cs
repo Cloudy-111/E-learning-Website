@@ -23,7 +23,7 @@ public class PostRepository : IPostRepository
             .OrderByDescending(p => p.CreatedAt)
             .ToListAsync();
     }
-    
+
 
     // Lấy bài viết của 1 thành viên ( bài công khai )
 
@@ -31,18 +31,6 @@ public class PostRepository : IPostRepository
     {
         return await _context.Posts
             .Where(p => p.AuthorId == memberId && !p.IsDeleted && p.IsPublished)
-            .Include(p => p.Student)
-            .ThenInclude(s => s.User)
-            .OrderByDescending(p => p.CreatedAt)
-            .ToListAsync();
-    }
-
-    // Tác giả xem tất cả bài viết của mình, bao gồm bài đã bị xóa hay chưa công khai
-
-    public async Task<IEnumerable<Post>> GetPostsByMemberPrivateIdAsync(string memberId)
-    {
-        return await _context.Posts
-            .Where(p => p.AuthorId == memberId)
             .Include(p => p.Student)
             .ThenInclude(s => s.User)
             .OrderByDescending(p => p.CreatedAt)
@@ -60,8 +48,8 @@ public class PostRepository : IPostRepository
             .ThenInclude(s => s.User)
             .FirstOrDefaultAsync(p => p.Id == id);
     }
-    
-    
+
+
     // Lấy chi tiết bài viết bao gồm cả đã xóa và chưa công khai
 
     public async Task<Post?> GetAllPostByIdAsync(string id)
@@ -73,15 +61,23 @@ public class PostRepository : IPostRepository
     }
 
 
+    public async Task<IEnumerable<Post>> GetPostsByAuthorDeletedAsync(string authorId)
+    {
+        return await _context.Posts
+            .Where(p => p.AuthorId == authorId && p.IsDeleted) // chỉ lấy post đã xóa mềm
+            .ToListAsync();
+    }
 
-    
+
+
+
 
     public async Task<IEnumerable<Post>> SearchPostsByTagAsync(string tag)
     {
         return await _context.Posts
             .Include(p => p.Student)
                 .ThenInclude(s => s.User)
-            .Where( p => !p.IsDeleted && p.Tags != null && p.Tags.Contains(tag))
+            .Where(p => !p.IsDeleted && p.Tags != null && p.Tags.Contains(tag))
             .ToListAsync();
     }
 
@@ -92,7 +88,7 @@ public class PostRepository : IPostRepository
         return post;
     }
 
-     public async Task UpdateAsync(Post post)
+    public async Task UpdateAsync(Post post)
     {
         _context.Posts.Update(post);
         await _context.SaveChangesAsync();

@@ -54,7 +54,7 @@ namespace project.Modules.Posts.Controller
 
             return Ok(post);
         }
-        
+
 
 
 
@@ -169,10 +169,31 @@ namespace project.Modules.Posts.Controller
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+
+
+
+        [Authorize]
+        [HttpGet("PostIsdeletedSoft")]
+        public async Task<ActionResult<IEnumerable<PostDto>>> GetDeletedPosts()
+        {
+            var authorId = User.FindFirst("StudentId")?.Value;
+            if (string.IsNullOrEmpty(authorId))
+                return Unauthorized("User not found in token");
+
+            try
+            {
+                var deletedPosts = await _postService.GetDeletedPostsByAuthorAsync(authorId);
+                return Ok(deletedPosts);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+
     }
-
-
-
 
 
 }

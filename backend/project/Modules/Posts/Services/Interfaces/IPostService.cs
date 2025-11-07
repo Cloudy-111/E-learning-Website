@@ -7,8 +7,6 @@ namespace project.Modules.Posts.Services.Interfaces;
 public interface IPostService
 {
     Task<IEnumerable<PostDto>> GetAllPostsAsync();
-    Task<IEnumerable<PostDto>> GetPostsByMemberIdAsync(string memberId);
-    Task<IEnumerable<PostDto>> GetPostsByMemberPrivateIdAsync(string memberId);
     Task<PostDetailDto?> GetPostByIdAsync(string id);
     Task<PostDetailDto?> GetAllPostByIdAsync(string id);
     Task<IEnumerable<PostDto>> SearchPostsByTagAsync(string tag);
@@ -18,6 +16,9 @@ public interface IPostService
     Task<bool> HardDeletePostAsync(string id, string authorId);
 
     Task<PostDto> RestorePostAsync(string id, string authorId);
+    Task<IEnumerable<PostDto>> GetPostsByMemberIdAsync(string memberId);
+
+    Task<IEnumerable<PostDto>> GetDeletedPostsByAuthorAsync(string authorId);
 
 
 
