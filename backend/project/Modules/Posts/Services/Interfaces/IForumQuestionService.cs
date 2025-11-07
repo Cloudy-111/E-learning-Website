@@ -7,6 +7,7 @@ public interface IForumQuestionService
 {
     Task<IEnumerable<ForumQuestionDto>> GetAllQuestionsAsync();
     Task<ForumQuestionDetailDto?> GetQuestionByIdAsync(string id);
+    Task<IEnumerable<ForumQuestionDto>> GetQuestionsByStudentAsync(string studentId);
     Task<string> CreateAsync(string studentId, ForumQuestionCreateDto dto);
     Task<bool> UpdateAsync(string id, string studentId, ForumQuestionUpdateDto dto);
     Task<bool> SoftDeleteAsync(string id, string studentId);

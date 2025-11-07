@@ -43,6 +43,13 @@ namespace project.Modules.Posts.Controller
             return Ok(question);
         }
 
+        [HttpGet("member/{memberId}")]
+        public async Task<IActionResult> GetByMember(string memberId)
+        {
+            var result = await _forumService.GetQuestionsByStudentAsync(memberId);
+            return Ok(result);
+        }
+
         [Authorize]
         [HttpPost]
         public async Task<IActionResult> Create(ForumQuestionCreateDto dto)

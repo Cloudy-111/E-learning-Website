@@ -32,6 +32,15 @@ public class ForumQuestionRepository : IForumQuestionRepository
             .FirstOrDefaultAsync(q => q.Id == id && !q.IsDeleted);
     }
 
+    public async Task<IEnumerable<ForumQuestion>> GetByStudentPublicAsync(string studentId)
+    {
+        return await _context.ForumQuestions
+            .Where(q => q.StudentId == studentId && !q.IsDeleted) // chỉ lấy bài không bị xóa
+            .Include(q => q.Student)
+            .ThenInclude(s => s.User)
+            .OrderByDescending(q => q.CreatedAt)
+            .ToListAsync();
+    }
     // Nếu muốn lấy cả câu hỏi đã bị xóa (để xử lý Delete/Restore)
     public async Task<ForumQuestion?> GetByIdAllowDeletedAsync(string id)
     {
@@ -40,16 +49,16 @@ public class ForumQuestionRepository : IForumQuestionRepository
             .ThenInclude(s => s.User)
             .FirstOrDefaultAsync(q => q.Id == id);
     }
-    
+
     public async Task<IEnumerable<ForumQuestion>> GetDeletedByStudentAsync(string studentId)
-{
-    return await _context.ForumQuestions
-        .Where(q => q.IsDeleted && q.StudentId == studentId) 
-        .Include(q => q.Student)
-        .ThenInclude(s => s.User)
-        .OrderByDescending(q => q.DeletedAt)
-        .ToListAsync();
-}
+    {
+        return await _context.ForumQuestions
+            .Where(q => q.IsDeleted && q.StudentId == studentId)
+            .Include(q => q.Student)
+            .ThenInclude(s => s.User)
+            .OrderByDescending(q => q.DeletedAt)
+            .ToListAsync();
+    }
 
     public async Task AddAsync(ForumQuestion question) =>
        await _context.ForumQuestions.AddAsync(question);
@@ -60,8 +69,8 @@ public class ForumQuestionRepository : IForumQuestionRepository
     public async Task SaveChangesAsync() =>
         await _context.SaveChangesAsync();
 
-     public void Delete(ForumQuestion question) =>
-            _context.ForumQuestions.Remove(question);
+    public void Delete(ForumQuestion question) =>
+           _context.ForumQuestions.Remove(question);
 
 
 }
