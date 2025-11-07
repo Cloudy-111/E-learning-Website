@@ -17,6 +17,7 @@ public class PostRepository : IPostRepository
     public async Task<IEnumerable<Post>> GetAllPostsAsync()
     {
         return await _context.Posts
+            .Where(p => !p.IsDeleted) // Lọc bài chưa bị xóa
             .Include(p => p.Student)
             .ThenInclude(s => s.User)
             .OrderByDescending(p => p.CreatedAt)
@@ -26,7 +27,7 @@ public class PostRepository : IPostRepository
     public async Task<IEnumerable<Post>> GetPostsByMemberIdAsync(string memberId)
     {
         return await _context.Posts
-            .Where(p => p.AuthorId == memberId)
+            .Where(p => p.AuthorId == memberId && !p.IsDeleted)
             .Include(p => p.Student)
             .ThenInclude(s => s.User)
             .OrderByDescending(p => p.CreatedAt)
@@ -35,6 +36,7 @@ public class PostRepository : IPostRepository
     public async Task<Post?> GetPostByIdAsync(string id)
     {
         return await _context.Posts
+            .Where(p => !p.IsDeleted)
             .Include(p => p.Student)
             .ThenInclude(s => s.User)
             .FirstOrDefaultAsync(p => p.Id == id);
@@ -45,7 +47,7 @@ public class PostRepository : IPostRepository
         return await _context.Posts
             .Include(p => p.Student)
                 .ThenInclude(s => s.User)
-            .Where(p => p.Tags != null && p.Tags.Contains(tag))
+            .Where( p => !p.IsDeleted && p.Tags != null && p.Tags.Contains(tag))
             .ToListAsync();
     }
 
@@ -55,4 +57,18 @@ public class PostRepository : IPostRepository
         await _context.SaveChangesAsync();
         return post;
     }
+
+
+    public async Task<bool> SoftDeletePostAsync(string postId)
+    {
+        var post = await _context.Posts.FindAsync(postId);
+        if (post == null || post.IsDeleted)
+            return false;
+
+        post.IsDeleted = true;
+        post.DeletedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+        return true;
+    }
+    
 }

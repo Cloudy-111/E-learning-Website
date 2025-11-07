@@ -72,15 +72,15 @@ namespace project.Modules.Posts.Controller
         public async Task<ActionResult<PostDto>> CreatePost([FromBody] PostCreateDto dto)
         {
             // Lấy StudentId từ claim
-            var studentId = User.FindFirst("StudentId")?.Value;
+            var authorId = User.FindFirst("StudentId")?.Value;
 
             // Lấy tên user
             var authorName = User.FindFirst(ClaimTypes.Name)?.Value;
 
-            if (studentId == null || authorName == null)
+            if (authorId == null || authorName == null)
                 return Unauthorized("User info not found in token");
 
-            var postDto = await _postService.CreatePostAsync(dto, studentId, authorName);
+            var postDto = await _postService.CreatePostAsync(dto, authorId, authorName);
             return Ok(postDto);
         }
 

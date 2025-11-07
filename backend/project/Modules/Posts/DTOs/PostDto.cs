@@ -14,5 +14,9 @@ namespace project.Models.Posts.DTOs
 
         public string AuthorId { get; set; } = null!;
         public string AuthorName { get; set; } = null!;
+
+         public bool IsDeleted { get; set; } = false;
+        public DateTime? DeletedAt { get; set; }
+
     }
 }

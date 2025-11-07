@@ -5,6 +5,8 @@ using project.Models.Posts;
 public interface IPostRepository
 {
 
+
+
     // Lấy danh sách tất cả bài đăng 
     Task<IEnumerable<Post>> GetAllPostsAsync();
 
@@ -17,15 +19,19 @@ public interface IPostRepository
     // Tìm kiếm bài viết theo tag
 
     Task<IEnumerable<Post>> SearchPostsByTagAsync(string tag);
-    
+
 
     // Thêm bài post
     Task<Post> AddPostAsync(Post post);
 
+    // Xóa mềm post
+
+    Task<bool> SoftDeletePostAsync(string postId);
 
 
 
-     
+
+
      
     
     
