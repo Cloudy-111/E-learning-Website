@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using project.Models.Posts.DTOs;
@@ -65,7 +66,8 @@ namespace project.Modules.Posts.Controller
 
             return Ok(posts);
         }
-
+         
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<PostDto>> CreatePost([FromBody] PostCreateDto dto)
         {

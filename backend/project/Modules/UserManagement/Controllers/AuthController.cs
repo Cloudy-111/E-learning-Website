@@ -32,7 +32,7 @@ public class AuthController : ControllerBase
         return Ok(result);
     }
 
-    [Authorize]
+    [Authorize(Roles ="Teacher")]
     [HttpGet("test")]
     public ActionResult<string> Test()
     {
