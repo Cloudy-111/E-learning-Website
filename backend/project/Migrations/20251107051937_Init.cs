@@ -5,7 +5,7 @@
 namespace project.Migrations
 {
     /// <inheritdoc />
-    public partial class AddRole : Migration
+    public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
