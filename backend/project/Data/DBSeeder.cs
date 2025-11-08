@@ -567,47 +567,46 @@ public static class DBSeeder
         }
 
 
-            // Seed CourseReviews
-            if (!context.CourseReviews.Any())
+        // Seed CourseReviews
+        if (!context.CourseReviews.Any())
+        {
+            var courses = context.Courses.ToList();
+            var students = context.Students.ToList();
+
+            var uniquePairs = new List<(string CourseId, string StudentId)>();
+
+            var random = new Random();
+            foreach (var course in courses)
             {
-                var courses = context.Courses.ToList();
-                var students = context.Students.ToList();
+                var selectedStudents = students.OrderBy(x => random.Next()).Take(random.Next(5, 15)).ToList();
 
-                var uniquePairs = new List<(string CourseId, string StudentId)>();
-
-                var random = new Random();
-                foreach (var course in courses)
+                foreach (var student in selectedStudents)
                 {
-                    var selectedStudents = students.OrderBy(x => random.Next()).Take(random.Next(5, 15)).ToList();
-
-                    foreach (var student in selectedStudents)
-                    {
-                        uniquePairs.Add((course.Id, student.StudentId));
-                    }
+                    uniquePairs.Add((course.Id, student.StudentId));
                 }
-
-                var courseReviewFaker = new Faker<CourseReview>()
-                    .RuleFor(r => r.Id, f => Guid.NewGuid().ToString())
-                    .RuleFor(r => r.CourseId, f => f.PickRandom(uniquePairs).CourseId)
-                    .RuleFor(r => r.StudentId, (f, r) =>
-                    {
-                        var pair = uniquePairs.First(p => p.CourseId == r.CourseId);
-                        uniquePairs.Remove(pair);
-                        return pair.StudentId;
-                    })
-                    .RuleFor(r => r.Rating, f => f.Random.Double(1, 5))
-                    .RuleFor(r => r.Comment, f => f.Random.Bool(0.7f) ? f.Lorem.Sentence() : null)
-                    .RuleFor(r => r.CreatedAt, f => f.Date.Past(1))
-                    .RuleFor(r => r.IsNewest, true)
-                    .RuleFor(r => r.ParentId, f => null as string);
-
-                var courseReviews = courseReviewFaker.Generate(100);
-                context.CourseReviews.AddRange(courseReviews);
-
-                context.SaveChanges();
             }
 
-            return;
+            var courseReviewFaker = new Faker<CourseReview>()
+                .RuleFor(r => r.Id, f => Guid.NewGuid().ToString())
+                .RuleFor(r => r.CourseId, f => f.PickRandom(uniquePairs).CourseId)
+                .RuleFor(r => r.StudentId, (f, r) =>
+                {
+                    var pair = uniquePairs.First(p => p.CourseId == r.CourseId);
+                    uniquePairs.Remove(pair);
+                    return pair.StudentId;
+                })
+                .RuleFor(r => r.Rating, f => f.Random.Double(1, 5))
+                .RuleFor(r => r.Comment, f => f.Random.Bool(0.7f) ? f.Lorem.Sentence() : null)
+                .RuleFor(r => r.CreatedAt, f => f.Date.Past(1))
+                .RuleFor(r => r.IsNewest, true)
+                .RuleFor(r => r.ParentId, f => null as string);
+
+            var courseReviews = courseReviewFaker.Generate(100);
+            context.CourseReviews.AddRange(courseReviews);
+
+            context.SaveChanges();
         }
+
+        return;
     }
 }

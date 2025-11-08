@@ -29,4 +29,18 @@ public class CategoryController : ControllerBase
         }
 
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAllCategories()
+    {
+        try
+        {
+            var categories = await _categoryService.GetAllCategoriesAsync();
+            return Ok(new APIResponse("success", "Categories retrieved successfully", categories));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new APIResponse("error", "An error occurred while retrieving categories", ex.Message));
+        }
+    }
 }

@@ -1,11 +1,12 @@
+/* eslint-disable no-unused-vars */
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import Home from "./pages/Home.jsx";
-import Courses from "./pages/Courses.jsx";
-import CourseDetail from "./pages/CourseDetail.jsx";   // <-- thêm
+import Courses from "./pages/Courses/Courses.jsx";
+import CourseDetail from "./pages/CourseDetail/CourseDetail.jsx";   // <-- thêm
 import ClassRoom from "./pages/ClassRoom.jsx";         // <-- thêm
 import Discussion from "./pages/Discussion.jsx";       // <-- thêm
-import Login from "./pages/Login.jsx";                 // <-- thêm
-import Register from "./pages/Register.jsx";           // <-- thêm
+import Login from "./pages/Login/Login.jsx";                 // <-- thêm
+import Register from "./pages/Register/Register.jsx";           // <-- thêm
 import Blog from "./pages/Blog.jsx";
 import Study4Homepage from "./pages/test.jsx";
 // import Study4About from "./pages/test.jsx";
@@ -14,7 +15,7 @@ import Study4Homepage from "./pages/test.jsx";
 // import Study4Learning from "./pages/test.jsx";
 // import IELTSListeningTest from "./pages/test.jsx";
 import IELTSResultsPage from "./pages/test.jsx";
-import About from "./pages/About.jsx";
+import About from "./pages/About/About.jsx";
 import Membership from "./pages/MemberShip.jsx";
 import Study4TestLibrary from "./pages/Exam.jsx";
 import Payment from "./pages/Payment.jsx";
