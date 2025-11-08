@@ -12,4 +12,7 @@ public class LikeDto
     public string? TargetId { get; set; }
     public DateTime CreatedAt { get; set; }
 
+    public bool Liked { get; set; }
+    public int LikeCount { get; set; }
+
 }

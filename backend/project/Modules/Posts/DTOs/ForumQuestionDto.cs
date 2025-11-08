@@ -16,4 +16,7 @@ public class ForumQuestionDto
         public string? StudentId { get; set; }
         public string? StudentName { get; set; }
 
+         public bool IsDeleted { get; set; }
+        public DateTime? DeletedAt { get; set; }
+
 }

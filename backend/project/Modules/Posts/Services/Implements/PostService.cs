@@ -8,27 +8,39 @@ namespace project.Modules.Posts.Services.Implements;
 
 public class PostService : IPostService
 {
-     private readonly IPostRepository _postRepository;
+    private readonly IPostRepository _postRepository;
 
     public PostService(IPostRepository postRepository)
     {
         _postRepository = postRepository;
     }
-    
-     private static PostDto MapToListDto(Post p) => new()
+
+    private static void MapSoftDelete(Post source, PostDto target)
     {
-        Id = p.Id,
-        Title = p.Title ?? string.Empty,
-        ThumbnailUrl = p.ThumbnailUrl,
-        Tags = p.Tags,
-        ViewCount = p.ViewCount,
-        LikeCount = p.LikeCount,
-        DiscussionCount = p.DiscussionCount,
-        IsPublished = p.IsPublished,
-        CreatedAt = p.CreatedAt,
-        AuthorId = p.AuthorId,
-        AuthorName = p.Student?.User?.FullName ?? "(Không rõ)"
-    };
+        target.IsDeleted = source.IsDeleted;
+        target.DeletedAt = source.DeletedAt;
+    }
+
+    private static PostDto MapToListDto(Post p)
+    {
+        var dto = new PostDto
+        {
+            Id = p.Id,
+            Title = p.Title ?? string.Empty,
+            ThumbnailUrl = p.ThumbnailUrl,
+            Tags = p.Tags,
+            ViewCount = p.ViewCount,
+            LikeCount = p.LikeCount,
+            DiscussionCount = p.DiscussionCount,
+            IsPublished = p.IsPublished,
+            CreatedAt = p.CreatedAt,
+            AuthorId = p.AuthorId,
+            AuthorName = p.Student?.User?.FullName ?? "(Không rõ)"
+        };
+        MapSoftDelete(p, dto);
+        return dto;
+    }
+
 
     // ✅ GET /api/posts
     public async Task<IEnumerable<PostDto>> GetAllPostsAsync()
@@ -36,6 +48,9 @@ public class PostService : IPostService
         var posts = await _postRepository.GetAllPostsAsync();
         return posts.Select(MapToListDto);
     }
+
+
+
 
     // ✅ GET /api/posts/member/{memberId}
     public async Task<IEnumerable<PostDto>> GetPostsByMemberIdAsync(string memberId)
@@ -57,7 +72,7 @@ public class PostService : IPostService
         var post = await _postRepository.GetPostByIdAsync(id);
         if (post == null) return null;
 
-        return new PostDetailDto
+        var dto = new PostDetailDto
         {
             Id = post.Id,
             Title = post.Title ?? string.Empty,
@@ -73,9 +88,38 @@ public class PostService : IPostService
             AuthorName = post.Student?.User?.FullName ?? "(Không rõ)",
             ContentJson = post.ContentJson
         };
+        MapSoftDelete(post, dto);
+        return dto;
     }
 
-    public async Task<PostDto> CreatePostAsync(PostCreateDto dto, string authorId ,string authorName)
+    // ✅ GET /api/posts/{id}
+    public async Task<PostDetailDto?> GetAllPostByIdAsync(string id)
+    {
+        var post = await _postRepository.GetAllPostByIdAsync(id);
+        if (post == null) return null;
+
+        var dto = new PostDetailDto
+        {
+            Id = post.Id,
+            Title = post.Title ?? string.Empty,
+            ThumbnailUrl = post.ThumbnailUrl,
+            Tags = post.Tags,
+            ViewCount = post.ViewCount,
+            LikeCount = post.LikeCount,
+            DiscussionCount = post.DiscussionCount,
+            IsPublished = post.IsPublished,
+            CreatedAt = post.CreatedAt,
+            UpdatedAt = post.UpdatedAt,
+            AuthorId = post.AuthorId,
+            AuthorName = post.Student?.User?.FullName ?? "(Không rõ)",
+            ContentJson = post.ContentJson
+        };
+        MapSoftDelete(post, dto);
+        return dto;
+    }
+
+
+    public async Task<PostDto> CreatePostAsync(PostCreateDto dto, string authorId, string authorName)
     {
         var post = new Post
         {
@@ -86,25 +130,103 @@ public class PostService : IPostService
             IsPublished = dto.IsPublished,
             AuthorId = authorId,
             CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
+            UpdatedAt = DateTime.UtcNow,
+            IsDeleted = false,
+            DeletedAt = null
         };
 
         var created = await _postRepository.AddPostAsync(post);
 
-        return new PostDto
-        {
-            Id = created.Id,
-            Title = created.Title,
-            ThumbnailUrl = created.ThumbnailUrl,
-            Tags = created.Tags,
-            ViewCount = created.ViewCount,
-            LikeCount = created.LikeCount,
-            DiscussionCount = created.DiscussionCount,
-            IsPublished = created.IsPublished,
-            CreatedAt = created.CreatedAt,
-            AuthorId = created.AuthorId,
-            AuthorName = authorName
-        };
+        var result = MapToListDto(created);
+        result.AuthorName = authorName; // override tên author từ param
+        return result;
+    }
+
+
+    // Cập nhật post
+    public async Task<PostDto> UpdatePostAsync(string id, PostUpdateDto dto, string authorId)
+    {
+        var post = await _postRepository.GetPostByIdAsync(id);
+        if (post == null || post.IsDeleted)
+            throw new Exception("Post not found or has been deleted");
+
+        if (post.AuthorId != authorId)
+            throw new Exception("You are not the author of this post: " + authorId);
+
+        if (!string.IsNullOrEmpty(dto.Title))
+            post.Title = dto.Title;
+        if (!string.IsNullOrEmpty(dto.ContentJson))
+            post.ContentJson = dto.ContentJson;
+        if (!string.IsNullOrEmpty(dto.ThumbnailUrl))
+            post.ThumbnailUrl = dto.ThumbnailUrl;
+        if (!string.IsNullOrEmpty(dto.Tags))
+            post.Tags = dto.Tags;
+        if (dto.IsPublished.HasValue)
+            post.IsPublished = dto.IsPublished.Value;
+
+        post.UpdatedAt = DateTime.UtcNow;
+
+        await _postRepository.UpdateAsync(post);
+        return MapToListDto(post);
+    }
+
+    // Xóa mềm
+    public async Task<bool> SoftDeletePostAsync(string id, string authorId)
+    {
+        var post = await _postRepository.GetPostByIdAsync(id);
+        if (post == null || post.IsDeleted)
+            throw new Exception("Post not found or already deleted");
+
+        if (post.AuthorId != authorId)
+            throw new Exception("You are not the author of this post");
+
+        post.IsDeleted = true;
+        post.DeletedAt = DateTime.UtcNow;
+        await _postRepository.UpdateAsync(post);
+        return true;
+    }
+
+    // Xóa cứng
+    public async Task<bool> HardDeletePostAsync(string id, string authorId)
+    {
+        var post = await _postRepository.GetAllPostByIdAsync(id);
+        if (post == null)
+            throw new Exception("Post not found");
+
+        if (post.AuthorId != authorId)
+            throw new Exception("You are not the author of this post");
+
+        await _postRepository.RemoveAsync(post);
+        return true;
+    }
+
+    // Khôi phục post đã xóa mềm
+    public async Task<PostDto> RestorePostAsync(string id, string authorId)
+    {
+        var post = await _postRepository.GetAllPostByIdAsync(id);
+        if (post == null)
+            throw new Exception("Post not found");
+
+        if (post.AuthorId != authorId)
+            throw new Exception("You are not the author of this post: " + authorId + "--" + post.AuthorId);
+
+        if (!post.IsDeleted)
+            throw new Exception("Post is not deleted");
+
+        post.IsDeleted = false;
+        post.DeletedAt = null;
+        post.UpdatedAt = DateTime.UtcNow;
+
+        await _postRepository.UpdateAsync(post);
+
+        return MapToListDto(post);
+    }
+
+    // Lấy danh sách post đã xóa mềm của author
+    public async Task<IEnumerable<PostDto>> GetDeletedPostsByAuthorAsync(string authorId)
+    {
+        var posts = await _postRepository.GetPostsByAuthorDeletedAsync(authorId);
+        return posts.Select(MapToListDto);
     }
 
 

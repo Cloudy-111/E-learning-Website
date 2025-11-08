@@ -43,5 +43,22 @@ namespace project.Modules.Posts.Controller
             var likes = await _likesService.GetLikesByStudentAsync(memberId);
             return Ok(likes);
         }
+
+        [HttpPost("{targetType}/{targetId}/toggle")]
+        public async Task<ActionResult<LikeDto>> ToggleLike(string targetType, string targetId)
+        {
+            var studentId = User.Claims.FirstOrDefault(c => c.Type == "StudentId")?.Value;
+            if (string.IsNullOrEmpty(studentId)) return Unauthorized();
+
+            try
+            {
+                var like = await _likesService.ToggleLikeAsync(studentId, targetType, targetId);
+                return Ok(like);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }
