@@ -17,17 +17,42 @@ public class ChoiceController : ControllerBase
     {
         if (!ModelState.IsValid)
         {
-            return Ok(new APIResponse("Error", "Invalid data."));
+            return BadRequest(new APIResponse("Error", "Invalid input data", ModelState));
         }
-        await _choiceService.AddChoiceAsync(questionExamId, addChoiceDTO);
-        return Ok(new APIResponse("Success", "Add choice successfully."));
+        try
+        {
+            await _choiceService.AddChoiceAsync(questionExamId, addChoiceDTO);
+            return Ok(new APIResponse("Success", "Add choice successfully."));
+        }
+        catch (ArgumentException argEx)
+        {
+            return BadRequest(new APIResponse("Error", argEx.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while adding the choice", ex.Message));
+        }
+
     }
 
     [HttpDelete("{choiceId}")]
     public async Task<IActionResult> DeleteChoice(string choiceId)
     {
-        await _choiceService.DeleteChoiceByIdAsync(choiceId);
-        return Ok(new APIResponse("Success", "Delete choice successfully."));
+        try
+        {
+            await _choiceService.DeleteChoiceByIdAsync(choiceId);
+            return Ok(new APIResponse("Success", "Delete choice successfully."));
+        }
+        catch (KeyNotFoundException knfEx)
+        {
+            return NotFound(new APIResponse("Error", knfEx.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while deleting the choice", ex.Message));
+        }
     }
 
     [HttpPatch("{choiceId}")]

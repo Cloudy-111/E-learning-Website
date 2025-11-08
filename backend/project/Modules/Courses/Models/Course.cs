@@ -30,10 +30,10 @@ public class Course
     public decimal? DiscountPrice { get; set; }
 
     [MaxLength(50)]
-    public string Status { get; set; } = "draft";
+    public string Status { get; set; } = null!; // ""draft", "pending", "published", "rejected"
 
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 
     [MaxLength(500)]
     public string? ThumbnailUrl { get; set; }

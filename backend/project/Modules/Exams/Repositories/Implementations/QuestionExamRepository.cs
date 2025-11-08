@@ -47,4 +47,10 @@ public class QuestionExamRepository : IQuestionExamRepository
     {
         throw new NotImplementedException();
     }
+
+    public async Task UploadBulkQuestionsAsync(IEnumerable<QuestionExam> questionExams)
+    {
+        await _dbContext.QuestionExams.AddRangeAsync(questionExams);
+        await _dbContext.SaveChangesAsync();
+    }
 }

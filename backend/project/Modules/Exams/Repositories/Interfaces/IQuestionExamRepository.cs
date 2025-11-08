@@ -7,4 +7,5 @@ public interface IQuestionExamRepository
     void DeleteQuestionExam(QuestionExam questionExam);
     Task<IEnumerable<QuestionExam>> GetQuestionsByExamIdAsync(string examId);
     Task<QuestionExam?> GetQuestionInExamAsync(string questionId);
+    Task UploadBulkQuestionsAsync(IEnumerable<QuestionExam> questionExams);
 }

@@ -12,6 +12,7 @@ public class CourseRepository : ICourseRepository
     public async Task<bool> CourseExistsAsync(string id)
     {
         return await _dbContext.Courses
+            .Where(c => c.Status == "published")
             .AnyAsync(c => c.Id == id);
     }
 
@@ -21,6 +22,7 @@ public class CourseRepository : ICourseRepository
             .Include(c => c.Category)
             .Include(c => c.Teacher)
             .ThenInclude(t => t.User)
+            .Where(c => c.Status == "published")
             .ToListAsync();
     }
 
@@ -30,6 +32,7 @@ public class CourseRepository : ICourseRepository
             .Include(c => c.Category)
             .Include(c => c.Teacher)
             .ThenInclude(t => t.User)
+            .Where(c => c.Status == "published")
             .AsQueryable();
 
         if (!string.IsNullOrEmpty(keyword))
@@ -46,6 +49,17 @@ public class CourseRepository : ICourseRepository
     public async Task<Course?> GetCourseByIdAsync(string id)
     {
         return await _dbContext.Courses
+            .Where(c => c.Status == "published")
+            .Include(c => c.Category)
+            .Include(c => c.Teacher)
+            .ThenInclude(t => t.User)
+            .FirstOrDefaultAsync(c => c.Id == id);
+    }
+
+    public async Task<Course?> GetCourseByStatusAsync(string id, string status)
+    {
+        return await _dbContext.Courses
+            .Where(c => c.Status == status)
             .Include(c => c.Category)
             .Include(c => c.Teacher)
             .ThenInclude(t => t.User)
@@ -61,14 +75,14 @@ public class CourseRepository : ICourseRepository
     //         .ToListAsync();
     // }
 
-    // public async Task<IEnumerable<Course>> GetCoursesByTeacherAsync(string teacherId)
-    // {
-    //     return await _dbContext.Courses
-    //         .Where(c => c.TeacherId == teacherId)
-    //         .Include(c => c.Category)
-    //         .Include(c => c.Teacher)
-    //         .ToListAsync();
-    // }
+    public async Task<IEnumerable<Course>> GetCoursesByTeacherAsync(string teacherId)
+    {
+        return await _dbContext.Courses
+            .Where(c => c.TeacherId == teacherId)
+            .Include(c => c.Category)
+            .Include(c => c.Teacher)
+            .ToListAsync();
+    }
 
     public async Task AddCourseAsync(Course course)
     {

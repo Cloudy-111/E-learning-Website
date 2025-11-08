@@ -75,5 +75,37 @@ public class PostService : IPostService
         };
     }
 
+    public async Task<PostDto> CreatePostAsync(PostCreateDto dto, string authorId ,string authorName)
+    {
+        var post = new Post
+        {
+            Title = dto.Title,
+            ContentJson = dto.ContentJson,
+            ThumbnailUrl = dto.ThumbnailUrl,
+            Tags = dto.Tags,
+            IsPublished = dto.IsPublished,
+            AuthorId = authorId,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        var created = await _postRepository.AddPostAsync(post);
+
+        return new PostDto
+        {
+            Id = created.Id,
+            Title = created.Title,
+            ThumbnailUrl = created.ThumbnailUrl,
+            Tags = created.Tags,
+            ViewCount = created.ViewCount,
+            LikeCount = created.LikeCount,
+            DiscussionCount = created.DiscussionCount,
+            IsPublished = created.IsPublished,
+            CreatedAt = created.CreatedAt,
+            AuthorId = created.AuthorId,
+            AuthorName = authorName
+        };
+    }
+
 
 }
