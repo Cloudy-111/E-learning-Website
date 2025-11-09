@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [Route("api/{questionExamId}/choices")]
@@ -12,6 +13,7 @@ public class ChoiceController : ControllerBase
     }
 
     // Controller actions go here
+    [Authorize(Roles = "Teacher")]
     [HttpPost]
     public async Task<IActionResult> AddChoice(string questionExamId, [FromBody] AddChoiceDTO addChoiceDTO)
     {
@@ -21,7 +23,8 @@ public class ChoiceController : ControllerBase
         }
         try
         {
-            await _choiceService.AddChoiceAsync(questionExamId, addChoiceDTO);
+            var userId = User.FindFirst("userId")?.Value;
+            await _choiceService.AddChoiceAsync(userId, questionExamId, addChoiceDTO);
             return Ok(new APIResponse("Success", "Add choice successfully."));
         }
         catch (ArgumentException argEx)
@@ -36,12 +39,14 @@ public class ChoiceController : ControllerBase
 
     }
 
+    [Authorize(Roles = "Teacher")]
     [HttpDelete("{choiceId}")]
     public async Task<IActionResult> DeleteChoice(string choiceId)
     {
         try
         {
-            await _choiceService.DeleteChoiceByIdAsync(choiceId);
+            var userId = User.FindFirst("userId")?.Value;
+            await _choiceService.DeleteChoiceByIdAsync(userId, choiceId);
             return Ok(new APIResponse("Success", "Delete choice successfully."));
         }
         catch (KeyNotFoundException knfEx)
@@ -55,12 +60,14 @@ public class ChoiceController : ControllerBase
         }
     }
 
+    [Authorize(Roles = "Teacher")]
     [HttpPatch("{choiceId}")]
     public async Task<IActionResult> UpdateChoiceContent(string choiceId, [FromBody] ChoiceUpdateDTO dto)
     {
         try
         {
-            await _choiceService.UpdateChoiceAsync(choiceId, dto);
+            var userId = User.FindFirst("userId")?.Value;
+            await _choiceService.UpdateChoiceAsync(userId, choiceId, dto);
             return Ok(new APIResponse("success", "Update choice Successfully!"));
         }
         catch (Exception ex)

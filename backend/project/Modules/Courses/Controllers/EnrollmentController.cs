@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [Route("api/courses/{courseId}/enrollments")]
@@ -11,12 +12,14 @@ public class EnrollmentController : ControllerBase
     }
 
     // Teacher/Admin only
+    [Authorize(Roles = "Teacher,Admin")]
     [HttpGet]
     public async Task<IActionResult> GetEnrollmentInCourse(string courseId)
     {
         try
         {
-            var enrollments = await _enrollmentCourseService.GetEnrollmentInCourseAsync(courseId);
+            var userId = User.FindFirst("userId")?.Value;
+            var enrollments = await _enrollmentCourseService.GetEnrollmentInCourseAsync(userId, courseId);
             return Ok(new APIResponse("Success", "Enrollments retrieve successfully", enrollments));
         }
         catch (KeyNotFoundException knfE)
@@ -55,12 +58,14 @@ public class EnrollmentController : ControllerBase
     }
 
     // Student/Admin/Teacher only
+    [Authorize(Roles = "Student,Teacher,Admin")]
     [HttpGet("{enrollmentId}")]
     public async Task<IActionResult> GetEnrollmentByIdAsync(string courseId, string enrollmentId)
     {
         try
         {
-            var enrollment = await _enrollmentCourseService.GetEnrollmentByIdAsync(courseId, enrollmentId);
+            var userId = User.FindFirst("userId")?.Value;
+            var enrollment = await _enrollmentCourseService.GetEnrollmentByIdAsync(userId, courseId, enrollmentId);
             return Ok(new APIResponse("Success", "Retrieve Enrollment Successfully", enrollment));
         }
         catch (KeyNotFoundException knfE)
@@ -75,6 +80,7 @@ public class EnrollmentController : ControllerBase
     }
 
     // Student only
+    [Authorize(Roles = "Student")]
     [HttpPatch("{enrollmentId}/progress")]
     public async Task<IActionResult> UpdateProgressEnrollmentAsync(string courseId, string enrollmentId, [FromBody] EnrollmentProgressUpdateDTO enrollmentUpdateDTO)
     {
@@ -84,7 +90,8 @@ public class EnrollmentController : ControllerBase
         }
         try
         {
-            await _enrollmentCourseService.UpdateProgressEnrollmentAsync(courseId, enrollmentId, enrollmentUpdateDTO);
+            var userId = User.FindFirst("userId")?.Value;
+            await _enrollmentCourseService.UpdateProgressEnrollmentAsync(userId, courseId, enrollmentId, enrollmentUpdateDTO);
             return Ok(new APIResponse("Success", "Update Progress Enrollment Successfully"));
         }
         catch (KeyNotFoundException knfE)
@@ -99,6 +106,7 @@ public class EnrollmentController : ControllerBase
     }
 
     // Student only
+    [Authorize(Roles = "Student")]
     [HttpPost("{enrollmentId}/request-cancel")]
     public async Task<IActionResult> RequestCancelEnrollmentAsync(string courseId, string enrollmentId, [FromBody] RequestCancelEnrollmentDTO dto)
     {
@@ -108,7 +116,8 @@ public class EnrollmentController : ControllerBase
         }
         try
         {
-            await _enrollmentCourseService.RequestCancelEnrollmentAsync(courseId, enrollmentId, dto);
+            var userId = User.FindFirst("userId")?.Value;
+            await _enrollmentCourseService.RequestCancelEnrollmentAsync(userId, courseId, enrollmentId, dto);
             return Ok(new APIResponse("Success", "Request Refund Course create Successfully"));
         }
         catch (KeyNotFoundException knfE)

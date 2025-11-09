@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [Route("api/exams")]
@@ -36,6 +37,7 @@ public class ExamController : ControllerBase
         }
     }
 
+    [Authorize(Roles = "Teacher")]
     [HttpPost]
     public async Task<IActionResult> CreateNewExam([FromBody] CreateExamDTO exam)
     {
@@ -46,7 +48,8 @@ public class ExamController : ControllerBase
 
         try
         {
-            await _examService.AddExamAsync(exam);
+            var userId = User.FindFirst("userId")?.Value;
+            await _examService.AddExamAsync(userId, exam);
             return Ok(new APIResponse("Success", "Create new Exam successfully"));
         }
         catch (Exception ex)
@@ -56,6 +59,7 @@ public class ExamController : ControllerBase
         }
     }
 
+    [Authorize(Roles = "Teacher")]
     [HttpPatch("{id}")]
     public async Task<IActionResult> UpdateExam(string id, [FromBody] UpdateExamDTO exam)
     {
@@ -66,7 +70,8 @@ public class ExamController : ControllerBase
 
         try
         {
-            await _examService.UpdateExamAsync(id, exam);
+            var userId = User.FindFirst("userId")?.Value;
+            await _examService.UpdateExamAsync(userId, id, exam);
             return Ok(new APIResponse("Success", "Update exam successfully"));
         }
         catch (KeyNotFoundException ex)
@@ -80,6 +85,7 @@ public class ExamController : ControllerBase
         }
     }
 
+    [Authorize(Roles = "Teacher")]
     [HttpPost("{id}/order")]
     public async Task<IActionResult> UpdateOrderQuestionInExam(string id, [FromBody] List<QuestionExamOrderDTO> questionOrders)
     {
@@ -89,7 +95,8 @@ public class ExamController : ControllerBase
         }
         try
         {
-            await _examService.UpdateOrderQuestionInExamAsync(id, questionOrders);
+            var userId = User.FindFirst("userId")?.Value;
+            await _examService.UpdateOrderQuestionInExamAsync(userId, id, questionOrders);
             return Ok(new APIResponse("success", "Update question order successfully"));
         }
         catch (KeyNotFoundException ex)
@@ -145,13 +152,15 @@ public class ExamController : ControllerBase
         }
     }
 
+    [Authorize(Roles = "Teacher")]
     [HttpPost("{examId}/upload")]
     [Consumes("multipart/form-data")]
     public async Task<IActionResult> UploadExamExcel([FromForm] UploadExamExcelRequest request)
     {
         try
         {
-            await _examService.UploadExamExcelAsync(request);
+            var userId = User.FindFirst("userId")?.Value;
+            await _examService.UploadExamExcelAsync(userId, request);
             return Ok(new APIResponse("success", "Upload exam excel successfully"));
         }
         catch (ArgumentException ex)

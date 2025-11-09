@@ -105,7 +105,7 @@ public class ExamService : IExamService
         };
     }
 
-    public async Task AddExamAsync(CreateExamDTO exam)
+    public async Task AddExamAsync(string userId, CreateExamDTO exam)
     {
         if (exam.DurationMinutes <= 0)
         {
@@ -136,7 +136,7 @@ public class ExamService : IExamService
         await _examRepository.AddExamAsync(newExam);
     }
 
-    public async Task UpdateExamAsync(string examId, UpdateExamDTO examUpdate)
+    public async Task UpdateExamAsync(string userId, string examId, UpdateExamDTO examUpdate)
     {
         var exam = await _examRepository.GetExamByIdAsync(examId) ?? throw new KeyNotFoundException($"Exam with id {examId} not found.");
         if (exam.IsOpened == true && examUpdate.IsOpened == false)
@@ -155,7 +155,7 @@ public class ExamService : IExamService
 
     // }
 
-    public async Task UpdateOrderQuestionInExamAsync(string examId, List<QuestionExamOrderDTO> questionOrders)
+    public async Task UpdateOrderQuestionInExamAsync(string userId, string examId, List<QuestionExamOrderDTO> questionOrders)
     {
         var exam = await _examRepository.GetExamByIdAsync(examId) ?? throw new KeyNotFoundException($"Exam with id {examId} not found.");
 
@@ -182,7 +182,7 @@ public class ExamService : IExamService
 
 
     // Upload questions from Excel file
-    public async Task UploadExamExcelAsync(UploadExamExcelRequest request)
+    public async Task UploadExamExcelAsync(string userId, UploadExamExcelRequest request)
     {
         var examId = request.ExamId;
         var excelFile = request.File;

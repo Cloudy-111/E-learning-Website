@@ -12,6 +12,8 @@ public class EnrollmentCourseService : IEnrollmentCourseService
     private readonly IExamRepository _examRepository;
     private readonly ISubmissionExamRepository _submissionExamRepository;
     private readonly IRequestRefundCourseRepository _requestRefundCourseRepository;
+    private readonly IAdminRepository _adminRepository;
+    private readonly IUserRepository _userRepository;
     public EnrollmentCourseService(
         IEnrollmentCourseRepository enrollmentRepository,
         ICourseRepository courseRepository,
@@ -21,7 +23,9 @@ public class EnrollmentCourseService : IEnrollmentCourseService
         IExamRepository examRepository,
         ILessonProgressRepository lessonProgressRepository,
         ISubmissionExamRepository submissionExamRepository,
-        IRequestRefundCourseRepository requestRefundCourseRepository)
+        IRequestRefundCourseRepository requestRefundCourseRepository,
+        IAdminRepository adminRepository,
+        IUserRepository userRepository)
     {
         _enrollmentRepository = enrollmentRepository;
         _courseRepository = courseRepository;
@@ -32,14 +36,25 @@ public class EnrollmentCourseService : IEnrollmentCourseService
         _lessonProgressRepository = lessonProgressRepository;
         _submissionExamRepository = submissionExamRepository;
         _requestRefundCourseRepository = requestRefundCourseRepository;
+        _adminRepository = adminRepository;
+        _userRepository = userRepository;
     }
 
-    public async Task<IEnumerable<EnrollmentInforDTO>> GetEnrollmentInCourseAsync(string courseId)
+    public async Task<IEnumerable<EnrollmentInforDTO>> GetEnrollmentInCourseAsync(string userId, string courseId)
     {
         var courseIdGuid = GuidHelper.ParseOrThrow(courseId, nameof(courseId));
+        var userIdGuid = GuidHelper.ParseOrThrow(userId, nameof(userId));
 
         var course = await _courseRepository.GetCourseByIdAsync(courseId)
             ?? throw new KeyNotFoundException($"Course with id: {courseId} not found");
+        if (course.Teacher.User.Id != userId)
+        {
+            throw new UnauthorizedAccessException("You are not the teacher of this course");
+        }
+        else if (await _adminRepository.IsAdminExistAsync(userId) == false)
+        {
+            throw new UnauthorizedAccessException("You are not admin");
+        }
 
         var enrollments = await _enrollmentRepository.GetEnrollmentInCourseAsync(courseId);
 
@@ -90,19 +105,32 @@ public class EnrollmentCourseService : IEnrollmentCourseService
         await _enrollmentRepository.CreateEnrollmentAsync(newEnrollment);
     }
 
-    public async Task<EnrollmentInforDTO> GetEnrollmentByIdAsync(string courseId, string enrollmentId)
+    public async Task<EnrollmentInforDTO> GetEnrollmentByIdAsync(string userId, string courseId, string enrollmentId)
     {
         var courseIdGuid = GuidHelper.ParseOrThrow(courseId, nameof(courseId));
         var enrollmentGuid = GuidHelper.ParseOrThrow(enrollmentId, nameof(enrollmentId));
+        var userIdGuid = GuidHelper.ParseOrThrow(userId, nameof(userId));
 
         var courseExist = await _courseRepository.CourseExistsAsync(courseId);
         if (!courseExist)
         {
             throw new KeyNotFoundException($"Course with id: {courseId} not found");
         }
+        if (await _userRepository.IsUserExistAsync(userId) == false)
+        {
+            throw new UnauthorizedAccessException("User not found");
+        }
 
         var enrollment = await _enrollmentRepository.GetEnrrollmentByIdAsync(enrollmentId)
             ?? throw new KeyNotFoundException($"Enrollment with id: {enrollmentId} not found");
+        if (enrollment.CourseId != courseId)
+        {
+            throw new KeyNotFoundException($"Enrollment with id: {enrollmentId} not found in course with id: {courseId}");
+        }
+        if (enrollment.Student?.User.Id != userId)
+        {
+            throw new UnauthorizedAccessException("You are not authorized to view this enrollment");
+        }
 
         return new EnrollmentInforDTO
         {
@@ -117,11 +145,11 @@ public class EnrollmentCourseService : IEnrollmentCourseService
         };
     }
 
-    public async Task UpdateProgressEnrollmentAsync(string courseId, string enrollmentId, EnrollmentProgressUpdateDTO dto)
+    public async Task UpdateProgressEnrollmentAsync(string userId, string courseId, string enrollmentId, EnrollmentProgressUpdateDTO dto)
     {
         var courseIdGuid = GuidHelper.ParseOrThrow(courseId, nameof(courseId));
         var enrollmentGuid = GuidHelper.ParseOrThrow(enrollmentId, nameof(enrollmentId));
-        var studentGuild = GuidHelper.ParseOrThrow(dto.StudentId, nameof(dto.StudentId));
+        var userIdGuild = GuidHelper.ParseOrThrow(userId, nameof(userId));
         if (dto.LessonId != null && dto.ExamId == null)
         {
             var lessonGuild = GuidHelper.ParseOrThrow(dto.LessonId, nameof(dto.LessonId));
@@ -144,10 +172,14 @@ public class EnrollmentCourseService : IEnrollmentCourseService
         var enrollment = await _enrollmentRepository.GetEnrrollmentByIdAsync(enrollmentId)
             ?? throw new KeyNotFoundException($"Enrollment with id: {enrollmentId} not found");
 
-        var studentExist = await _studentRepository.IsStudentExistAsync(dto.StudentId);
-        if (!studentExist)
+        var userExist = await _userRepository.IsUserExistAsync(userId);
+        if (!userExist)
         {
-            throw new KeyNotFoundException($"Student with id: {dto.StudentId} not found");
+            throw new KeyNotFoundException($"User with id: {userId} not found");
+        }
+        if (enrollment.Student?.User.Id != userId)
+        {
+            throw new UnauthorizedAccessException("You are not authorized to update this enrollment");
         }
 
         // Check status enrollment
@@ -166,14 +198,14 @@ public class EnrollmentCourseService : IEnrollmentCourseService
                 throw new KeyNotFoundException($"Lesson with id: {dto.LessonId} not found");
             }
 
-            var alreadyCompleted = await _lessonProgressRepository.ExistsAsync(dto.LessonId, dto.StudentId);
+            var alreadyCompleted = await _lessonProgressRepository.ExistsAsync(dto.LessonId, enrollment.StudentId);
             if (!alreadyCompleted)
             {
                 await _lessonProgressRepository.AddNewLessonProgressAsync(new LessonProgress
                 {
                     Id = Guid.NewGuid().ToString(),
                     LessonId = dto.LessonId,
-                    StudentId = dto.StudentId,
+                    StudentId = enrollment.StudentId,
                     CompletedAt = DateTime.UtcNow
                 });
             }
@@ -191,7 +223,7 @@ public class EnrollmentCourseService : IEnrollmentCourseService
             }
         }
 
-        var progress = await CalculateProgressAsync(courseId, dto.StudentId);
+        var progress = await CalculateProgressAsync(courseId, enrollment.StudentId);
         enrollment.Progress = (decimal)progress;
         if (enrollment.Progress >= 95m && enrollment.Status != "Cancelled")
         {
@@ -214,7 +246,7 @@ public class EnrollmentCourseService : IEnrollmentCourseService
         return (lessonProgress * 0.7f + examProgress * 0.3f) * 100;
     }
 
-    public async Task RequestCancelEnrollmentAsync(string courseId, string enrollmentId, RequestCancelEnrollmentDTO dto)
+    public async Task RequestCancelEnrollmentAsync(string userId, string courseId, string enrollmentId, RequestCancelEnrollmentDTO dto)
     {
         var courseIdGuid = GuidHelper.ParseOrThrow(courseId, nameof(courseId));
         var enrollmentGuid = GuidHelper.ParseOrThrow(enrollmentId, nameof(enrollmentId));
@@ -228,9 +260,14 @@ public class EnrollmentCourseService : IEnrollmentCourseService
         var enrollment = await _enrollmentRepository.GetEnrrollmentByIdAsync(enrollmentId)
             ?? throw new KeyNotFoundException($"Enrollment with id: {enrollmentId} not found");
 
-        if (enrollment.StudentId != dto.StudentId)
+        var userExist = await _userRepository.IsUserExistAsync(userId);
+        if (!userExist)
         {
-            throw new KeyNotFoundException($"Student Id is not match with enrollment.");
+            throw new KeyNotFoundException($"User with id: {userId} not found");
+        }
+        if (enrollment.Student?.User.Id != userId)
+        {
+            throw new UnauthorizedAccessException("You are not authorized to update this enrollment");
         }
 
         if (enrollment.CourseId != courseId)
@@ -277,7 +314,7 @@ public class EnrollmentCourseService : IEnrollmentCourseService
         {
             Id = Guid.NewGuid().ToString(),
             EnrollmentId = enrollment.Id,
-            StudentId = dto.StudentId,
+            StudentId = enrollment.StudentId,
             RefundAmount = refundAmount,
             ProgressSnapshot = enrollment.Progress,
             Reason = dto.ReasonRequest,

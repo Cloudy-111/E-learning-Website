@@ -96,14 +96,15 @@ public class CourseService : ICourseService
         };
     }
 
-    public async Task AddCourseAsync(CourseCreateDTO courseDto)
+    public async Task AddCourseAsync(string userId, CourseCreateDTO courseDto)
     {
+        var userIdGuid = GuidHelper.ParseOrThrow(userId, nameof(userId));
         var course = new Course
         {
             Title = courseDto.Title,
             Description = courseDto.Description,
             CategoryId = courseDto.CategoryId,
-            TeacherId = courseDto.TeacherId,
+            TeacherId = userId,
             Price = courseDto.Price,
             DiscountPrice = courseDto.DiscountPrice,
             ThumbnailUrl = courseDto.ThumbnailUrl,
@@ -115,13 +116,18 @@ public class CourseService : ICourseService
         await _courseRepository.AddCourseAsync(course);
     }
 
-    public async Task UpdateCourseAsync(string courseId, CourseUpdateDTO courseDto)
+    public async Task UpdateCourseAsync(string userId, string courseId, CourseUpdateDTO courseDto)
     {
         var courseExist = await _courseRepository.GetCourseByIdAsync(courseId) ??
             throw new KeyNotFoundException("Course not found");
         if (!courseExist.Status.Equals("draft", StringComparison.InvariantCultureIgnoreCase))
         {
             throw new InvalidOperationException("Only draft courses can be updated");
+        }
+        var userIdGuid = GuidHelper.ParseOrThrow(userId, nameof(userId));
+        if (courseExist.Teacher.User.Id != userId)
+        {
+            throw new UnauthorizedAccessException("You are not the teacher of this course");
         }
         courseExist.Title = courseDto.Title;
         courseExist.Description = courseDto.Description;
@@ -133,13 +139,18 @@ public class CourseService : ICourseService
         await _courseRepository.UpdateCourseAsync(courseExist);
     }
 
-    public async Task RequestPublishCourseAsync(string courseId)
+    public async Task RequestPublishCourseAsync(string userId, string courseId)
     {
         var courseExist = await _courseRepository.GetCourseByStatusAsync(courseId, "draft") ??
             throw new KeyNotFoundException("Course not found");
         if (!courseExist.Status.Equals("draft", StringComparison.InvariantCultureIgnoreCase))
         {
             throw new InvalidOperationException("Only draft courses can request publish");
+        }
+        var userIdGuid = GuidHelper.ParseOrThrow(userId, nameof(userId));
+        if (courseExist.Teacher.User.Id != userId)
+        {
+            throw new UnauthorizedAccessException("You are not the teacher of this course");
         }
         courseExist.Status = "pending";
 

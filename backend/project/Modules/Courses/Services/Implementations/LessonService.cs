@@ -52,8 +52,9 @@ public class LessonService : ILessonService
         });
     }
 
-    public async Task AddLessonAsync(string courseContentId, LessonCreateDTO lessonDto)
+    public async Task AddLessonAsync(string userId, string courseContentId, LessonCreateDTO lessonDto)
     {
+        var userGuid = GuidHelper.ParseOrThrow(userId, nameof(userId));
         // Check if the course is in Draft status
         var courseContent = await _courseContentRepository.GetCourseContentByIdAsync(courseContentId) ?? throw new Exception($"Course content with id: {courseContentId} not found");
 
@@ -62,6 +63,10 @@ public class LessonService : ILessonService
         if (course == null || !course.Status.ToLower().Equals("draft", StringComparison.InvariantCultureIgnoreCase))
         {
             throw new Exception("Can only update lessons for courses in Draft status");
+        }
+        if (course.Teacher.User.Id != userId)
+        {
+            throw new UnauthorizedAccessException("You are not the teacher of this course");
         }
 
         var lesson = new Lesson
@@ -78,8 +83,9 @@ public class LessonService : ILessonService
         await _lessonRepository.AddLessonAsync(lesson);
     }
 
-    public async Task UpdateLessonAsync(string courseContentId, string id, LessonUpdateDTO lessonDto)
+    public async Task UpdateLessonAsync(string userId, string courseContentId, string id, LessonUpdateDTO lessonDto)
     {
+        var userGuid = GuidHelper.ParseOrThrow(userId, nameof(userId));
         var courseContent = await _courseContentRepository.GetCourseContentByIdAsync(courseContentId) ?? throw new Exception($"Course content with id: {courseContentId} not found");
 
         var course = await _courseRepository.GetCourseByIdAsync(courseContent.CourseId);
@@ -87,6 +93,10 @@ public class LessonService : ILessonService
         if (course == null || !course.Status.ToLower().Equals("draft", StringComparison.InvariantCultureIgnoreCase))
         {
             throw new Exception("Can only update lessons for courses in Draft status");
+        }
+        if (course.Teacher.User.Id != userId)
+        {
+            throw new UnauthorizedAccessException("You are not the teacher of this course");
         }
 
         var existingLesson = await _lessonRepository.GetLessonByIdAsync(id) ?? throw new Exception($"Lesson with id: {id} not found");
@@ -99,8 +109,9 @@ public class LessonService : ILessonService
         await _lessonRepository.UpdateLessonAsync(existingLesson);
     }
 
-    public async Task UpdateOrderLessonsAsync(string courseContentId, List<LessonOrderDTO> lessonOrders)
+    public async Task UpdateOrderLessonsAsync(string userId, string courseContentId, List<LessonOrderDTO> lessonOrders)
     {
+        var userGuid = GuidHelper.ParseOrThrow(userId, nameof(userId));
         // Check if the course is in Draft status
         var courseContent = await _courseContentRepository.GetCourseContentByIdAsync(courseContentId) ?? throw new Exception($"Course content with id: {courseContentId} not found");
 
@@ -109,6 +120,10 @@ public class LessonService : ILessonService
         if (course == null || !course.Status.ToLower().Equals("draft", StringComparison.InvariantCultureIgnoreCase))
         {
             throw new Exception("Can only update lessons for courses in Draft status");
+        }
+        if (course.Teacher.User.Id != userId)
+        {
+            throw new UnauthorizedAccessException("You are not the teacher of this course");
         }
 
         var lessons = await _lessonRepository.GetLessonsByCourseContentIdAsync(courseContentId);
