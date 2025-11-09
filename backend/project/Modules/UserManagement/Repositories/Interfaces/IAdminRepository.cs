@@ -7,4 +7,5 @@ public interface IAdminRepository
     Task<IEnumerable<UpdateRequestCourse>> GetUpdateRequestsByStatusAsync(string status);
     Task<IEnumerable<UpdateRequestCourse>> GetAllUpdateRequestsAsync();
     Task<IEnumerable<RefundRequestCourse>> GetRefundRequestsByStatusAsync(string status);
+    Task<bool> IsAdminExistAsync(string userId);
 }

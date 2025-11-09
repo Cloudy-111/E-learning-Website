@@ -1,4 +1,4 @@
 public interface IRequestUpdateService
 {
-    Task CreateRequestUpdateAsync(RequestUpdateRequestDTO requestDto);
+    Task CreateRequestUpdateAsync(string userId, RequestUpdateRequestDTO requestDto);
 }

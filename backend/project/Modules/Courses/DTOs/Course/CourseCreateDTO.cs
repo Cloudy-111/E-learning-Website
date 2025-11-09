@@ -7,8 +7,6 @@ public class CourseCreateDTO
     public string? Description { get; set; }
     [Required]
     public string CategoryId { get; set; } = null!;
-    [Required]
-    public string TeacherId { get; set; } = null!;
     [Required, Range(0, 10000000.0)]
     public decimal Price { get; set; }
     [Range(0, 100.0)]

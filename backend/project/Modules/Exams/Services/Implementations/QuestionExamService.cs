@@ -26,7 +26,7 @@ public class QuestionExamService : IQuestionExamService
         return await _questionExamRepository.ExistQuestionAsync(questionId);
     }
 
-    public async Task AddQuestionToExamAsync(string examId, CreateQuestionExamDTO questionExam)
+    public async Task AddQuestionToExamAsync(string userId, string examId, CreateQuestionExamDTO questionExam)
     {
         var (exists, isOpened) = await _examRepository.GetExamStatusAsync(examId);
         if (!exists)
@@ -187,7 +187,7 @@ public class QuestionExamService : IQuestionExamService
         };
     }
 
-    public async Task DeleteQuestionExamAsync(string examId, string questionExamId)
+    public async Task DeleteQuestionExamAsync(string userId, string examId, string questionExamId)
     {
         var (exists, isOpened) = await _examRepository.GetExamStatusAsync(examId);
         if (!exists)

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [Route("api/courses/{courseId}/content")]
@@ -16,6 +17,7 @@ public class CourseContentController : ControllerBase
     }
 
     // Teacher only
+    [Authorize(Roles = "Teacher")]
     [HttpPost]
     public async Task<IActionResult> AddCourseContent(string courseId, [FromBody] CourseContentCreateDTO contentDto)
     {
@@ -26,7 +28,8 @@ public class CourseContentController : ControllerBase
 
         try
         {
-            await _courseContentService.AddCourseContentAsync(courseId, contentDto);
+            var userId = User.FindFirst("userId")?.Value;
+            await _courseContentService.AddCourseContentAsync(userId, courseId, contentDto);
             return Ok(new APIResponse("success", "Course content added successfully"));
         }
         catch (KeyNotFoundException knfEx)
@@ -61,6 +64,7 @@ public class CourseContentController : ControllerBase
     }
 
     // Teacher only
+    [Authorize(Roles = "Teacher")]
     [HttpPatch]
     public async Task<IActionResult> UpdateCourseContent(string contentId, [FromBody] CourseContentUpdateDTO contentDto)
     {
@@ -71,7 +75,8 @@ public class CourseContentController : ControllerBase
 
         try
         {
-            await _courseContentService.UpdateCourseContentAsync(contentId, contentDto);
+            var userId = User.FindFirst("userId")?.Value;
+            await _courseContentService.UpdateCourseContentAsync(userId, contentId, contentDto);
             return Ok(new APIResponse("success", "Course content updated successfully"));
         }
         catch (KeyNotFoundException knfEx)
@@ -86,6 +91,7 @@ public class CourseContentController : ControllerBase
     }
 
     // Teacher only
+    [Authorize(Roles = "Teacher")]
     [HttpPost("request-update")]
     public async Task<IActionResult> RequestUpdateCourseContent([FromBody] RequestUpdateRequestDTO requestDto)
     {
@@ -96,7 +102,8 @@ public class CourseContentController : ControllerBase
 
         try
         {
-            await _requestUpdateService.CreateRequestUpdateAsync(requestDto);
+            var userId = User.FindFirst("userId")?.Value;
+            await _requestUpdateService.CreateRequestUpdateAsync(userId, requestDto);
             return Ok(new APIResponse("success", "Update request created successfully"));
         }
         catch (ArgumentException argEx)

@@ -1,12 +1,11 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace project.Migrations
 {
     /// <inheritdoc />
-    public partial class Second : Migration
+    public partial class AddRefreshTokenToUser : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -27,13 +26,7 @@ namespace project.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "RefreshTokenHash",
-                table: "AspNetUsers");
 
-            migrationBuilder.DropColumn(
-                name: "RefreshTokenTimeExpire",
-                table: "AspNetUsers");
         }
     }
 }

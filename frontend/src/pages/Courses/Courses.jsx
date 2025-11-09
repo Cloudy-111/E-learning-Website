@@ -10,6 +10,7 @@ import CoachingAndCategories from "./Components/CoachingAndCategories";
 
 /* ============== fetch data ============== */
 import { getCategories } from "../../api/categories";
+import SearchSection from "./Components/SearchSection";
 
 
 const MAKE_CARD = (id) => ({
@@ -68,7 +69,7 @@ function Courses(){
     <>
       <Header />
       <Hero />
-      <Section
+      {/* <Section
         id="recommended"
         title="Khóa học gợi ý cho bạn"
         subtitle="Những khóa học được học viên yêu thích và đánh giá cao nhất"
@@ -90,7 +91,9 @@ function Courses(){
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {GRID.map((c) => <CourseCard key={`v-${c.id}`} c={c} />)}
         </div>
-      </Section>
+      </Section> */}
+
+      <SearchSection />
 
       {catLoading ? (
         <div className="w-screen px-6 lg:px-12 py-4 text-sm text-slate-600">Đang tải danh mục...</div>

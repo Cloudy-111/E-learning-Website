@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
@@ -66,6 +67,7 @@ public class CourseController : ControllerBase
     }
 
     // Teacher only
+    [Authorize(Roles = "Teacher")]
     [HttpPost]
     public async Task<IActionResult> CreateCourse([FromBody] CourseCreateDTO courseDto)
     {
@@ -76,7 +78,8 @@ public class CourseController : ControllerBase
 
         try
         {
-            await _courseService.AddCourseAsync(courseDto);
+            var userId = User.FindFirst("userId")?.Value;
+            await _courseService.AddCourseAsync(userId, courseDto);
             return Ok(new APIResponse("Success", "Create new Course successfully"));
         }
         catch (Exception ex)
@@ -90,6 +93,7 @@ public class CourseController : ControllerBase
     }
 
     // Teacher only
+    [Authorize(Roles = "Teacher")]
     [HttpPatch("{id}")]
     public async Task<IActionResult> UpdateCourse(string id, [FromBody] CourseUpdateDTO courseDto)
     {
@@ -100,7 +104,8 @@ public class CourseController : ControllerBase
 
         try
         {
-            await _courseService.UpdateCourseAsync(id, courseDto);
+            var userId = User.FindFirst("userId")?.Value;
+            await _courseService.UpdateCourseAsync(userId, id, courseDto);
             return Ok(new APIResponse("success", "Update course successfully"));
         }
         catch (KeyNotFoundException ex)
@@ -118,12 +123,14 @@ public class CourseController : ControllerBase
     }
 
     // Teacher only
+    [Authorize(Roles = "Teacher")]
     [HttpPatch("{id}/request-publish")]
     public async Task<IActionResult> RequestPublishCourse(string id)
     {
         try
         {
-            await _courseService.RequestPublishCourseAsync(id);
+            var userId = User.FindFirst("userId")?.Value;
+            await _courseService.RequestPublishCourseAsync(userId, id);
             return Ok(new APIResponse("success", "Course requested publish successfully"));
         }
         catch (KeyNotFoundException ex)
@@ -141,6 +148,7 @@ public class CourseController : ControllerBase
     }
 
     // Teacher only
+    [Authorize(Roles = "Teacher")]
     [HttpPost("{id}/request-update")]
     public async Task<IActionResult> RequestUpdateCourse([FromBody] RequestUpdateRequestDTO requestDto)
     {
@@ -151,7 +159,8 @@ public class CourseController : ControllerBase
 
         try
         {
-            await _requestUpdateService.CreateRequestUpdateAsync(requestDto);
+            var userId = User.FindFirst("userId")?.Value;
+            await _requestUpdateService.CreateRequestUpdateAsync(userId, requestDto);
             return Ok(new APIResponse("success", "Course update request created successfully"));
         }
         catch (ArgumentException ex)

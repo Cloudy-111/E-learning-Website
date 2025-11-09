@@ -1,8 +1,8 @@
 public interface IQuestionExamService
 {
     Task<bool> ExistQuestionAsync(string questionId);
-    Task AddQuestionToExamAsync(string examId, CreateQuestionExamDTO questionExam);
-    Task DeleteQuestionExamAsync(string examId, string questionExamId);
+    Task AddQuestionToExamAsync(string userId, string examId, CreateQuestionExamDTO questionExam);
+    Task DeleteQuestionExamAsync(string userId, string examId, string questionExamId);
     // Task RemoveQuestionFromExamAsync(int questionId, string examId);
     // Task UpdateQuestionInExamAsync(QuestionExam questionExam);
     // Task<IEnumerable<QuestionExam>> GetQuestionsByExamIdAsync(string examId);

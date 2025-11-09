@@ -20,11 +20,11 @@ public class RequestUpdateService : IRequestUpdateService
         _teacherRepository = teacherRepository;
     }
 
-    public async Task CreateRequestUpdateAsync(RequestUpdateRequestDTO requestDto)
+    public async Task CreateRequestUpdateAsync(string userId, RequestUpdateRequestDTO requestDto)
     {
         var targetType = requestDto.TargetType;
 
-        if (!Guid.TryParse(requestDto.TargetId, out _) || !Guid.TryParse(requestDto.RequestById, out _))
+        if (!Guid.TryParse(requestDto.TargetId, out _) || !Guid.TryParse(userId, out _))
         {
             throw new ArgumentException("Invalid TargetId or RequestById. It must be a valid GUID.");
         }
@@ -32,25 +32,31 @@ public class RequestUpdateService : IRequestUpdateService
         switch (targetType.ToLowerInvariant())
         {
             case "course":
-                if (!await _courseRepository.CourseExistsAsync(requestDto.TargetId))
-                    throw new ArgumentException("Course with the given TargetId does not exist.");
+                var course = await _courseRepository.GetCourseByIdAsync(requestDto.TargetId)
+                    ?? throw new ArgumentException("Course with the given TargetId does not exist.");
+                if (course.Teacher.User.Id != userId)
+                    throw new ArgumentException("You are not the teacher of this course.");
                 break;
 
             case "coursecontent":
-                if (!await _courseContentRepository.CourseContentExistsByContentIdAsync(requestDto.TargetId))
-                    throw new ArgumentException("CourseContent with the given TargetId does not exist.");
+                var courseContent = await _courseContentRepository.GetCourseContentByIdAsync(requestDto.TargetId)
+                    ?? throw new ArgumentException("CourseContent with the given TargetId does not exist.");
+                if (courseContent.Course.Teacher.User.Id != userId)
+                    throw new ArgumentException("You are not the teacher of this course content.");
                 break;
 
             case "lesson":
-                if (await _lessonRepository.GetLessonByIdAsync(requestDto.TargetId) == null)
-                    throw new ArgumentException("Lesson with the given TargetId does not exist.");
+                var lesson = await _lessonRepository.GetLessonByIdAsync(requestDto.TargetId)
+                    ?? throw new ArgumentException("Lesson with the given TargetId does not exist.");
+                if (lesson.CourseContent.Course.Teacher.User.Id != userId)
+                    throw new ArgumentException("You are not the teacher of this lesson.");
                 break;
 
             default:
                 throw new ArgumentException("Invalid TargetType. Only 'course', 'coursecontent', 'lesson' is allowed.");
         }
 
-        if (await _teacherRepository.IsTeacherExistsAsync(requestDto.RequestById) == false)
+        if (await _teacherRepository.IsTeacherExistsAsync(userId) == false)
         {
             throw new ArgumentException("Teacher with the given RequestById does not exist.");
         }
@@ -59,7 +65,7 @@ public class RequestUpdateService : IRequestUpdateService
         {
             TargetType = requestDto.TargetType,
             TargetId = requestDto.TargetId,
-            RequestById = requestDto.RequestById,
+            RequestById = userId,
             UpdatedDataJSON = requestDto.UpdatedDataJSON,
             RequestedAt = DateTime.UtcNow
         };

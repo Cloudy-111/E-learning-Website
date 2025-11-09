@@ -45,4 +45,11 @@ public class AdminRepository : IAdminRepository
             .ThenInclude(e => e.Course)
             .ToListAsync();
     }
+
+    public async Task<bool> IsAdminExistAsync(string userId)
+    {
+        return await _dbContext.Admins
+            .Include(a => a.User)
+            .AnyAsync(a => a.User.Id == userId);
+    }
 }
