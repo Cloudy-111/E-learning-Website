@@ -16,8 +16,9 @@ public class ChoiceService : IChoiceService
     }
 
     // Implement methods defined in IChoiceService here
-    public async Task AddChoiceAsync(string questionExamId, AddChoiceDTO addChoiceDTO)
+    public async Task AddChoiceAsync(string userId, string questionExamId, AddChoiceDTO addChoiceDTO)
     {
+        var userGuid = GuidHelper.ParseOrThrow(userId, nameof(userId));
         bool exists = await _questionExamRepository.ExistQuestionAsync(questionExamId);
         if (!exists)
         {
@@ -41,7 +42,7 @@ public class ChoiceService : IChoiceService
         }
     }
 
-    public async Task DeleteChoiceByIdAsync(string choiceId)
+    public async Task DeleteChoiceByIdAsync(string userId, string choiceId)
     {
         try
         {
@@ -90,7 +91,7 @@ public class ChoiceService : IChoiceService
         }
     }
 
-    public async Task UpdateChoiceAsync(string choiceId, ChoiceUpdateDTO dto)
+    public async Task UpdateChoiceAsync(string userId, string choiceId, ChoiceUpdateDTO dto)
     {
         var choice = await _choiceRepository.GetChoiceByIdAsync(choiceId) ?? throw new KeyNotFoundException("Choice not found");
 

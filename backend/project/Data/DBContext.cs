@@ -44,6 +44,11 @@ public class DBContext : IdentityDbContext<User>
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.ToTable("AspNetUsers");
+        });
+
         // User ↔ Teacher (1-1)
         modelBuilder.Entity<User>()
             .HasOne(u => u.Teacher)

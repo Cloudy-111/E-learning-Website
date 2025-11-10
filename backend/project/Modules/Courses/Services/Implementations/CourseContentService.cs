@@ -13,17 +13,26 @@ public class CourseContentService : ICourseContentService
         _courseRepository = courseRepository;
     }
 
-    public async Task AddCourseContentAsync(string courseId, CourseContentCreateDTO contentDto)
+    public async Task AddCourseContentAsync(string userId, string courseId, CourseContentCreateDTO contentDto)
     {
-        var courseExist = await _courseRepository.CourseExistsAsync(courseId);
-        if (!courseExist)
+        var courseExist = await _courseRepository.GetCourseByIdAsync(courseId) ?? throw new KeyNotFoundException("Course not found");
+        if (courseExist.Status != "draft")
         {
-            throw new KeyNotFoundException("Course not found");
+            throw new InvalidOperationException("Cannot add course content unless the course is in draft status");
         }
         var courseContentExist = await _courseContentRepository.CourseContentExistsAsync(courseId);
         if (courseContentExist)
         {
             throw new Exception("Course content already exists for this course");
+        }
+        if (string.IsNullOrEmpty(userId))
+        {
+            throw new UnauthorizedAccessException("User not found in token");
+        }
+
+        if (courseExist.Teacher.User.Id != userId)
+        {
+            throw new UnauthorizedAccessException("You are not the teacher of this course");
         }
 
         var content = new CourseContent
@@ -36,7 +45,7 @@ public class CourseContentService : ICourseContentService
         await _courseContentRepository.AddCourseContentAsync(content);
     }
 
-    public async Task UpdateCourseContentAsync(string contentId, CourseContentUpdateDTO contentDto)
+    public async Task UpdateCourseContentAsync(string userId, string contentId, CourseContentUpdateDTO contentDto)
     {
         var contentExist = await _courseContentRepository.CourseContentExistsByContentIdAsync(contentId);
         if (!contentExist)
@@ -50,6 +59,14 @@ public class CourseContentService : ICourseContentService
         if (courseExist.Status != "draft")
         {
             throw new InvalidOperationException("Cannot update course content unless the course is in draft status");
+        }
+        if (string.IsNullOrEmpty(userId))
+        {
+            throw new UnauthorizedAccessException("User not found in token");
+        }
+        if (courseExist.Teacher.User.Id != userId)
+        {
+            throw new UnauthorizedAccessException("You are not the teacher of this course");
         }
 
         existingContent.Title = contentDto.Title;

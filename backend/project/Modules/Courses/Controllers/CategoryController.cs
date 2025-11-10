@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [Route("api/categories")]
@@ -11,6 +12,7 @@ public class CategoryController : ControllerBase
     }
 
     // Admin only
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public async Task<IActionResult> CreateCategory([FromBody] CategoryCreateDTO categoryCreateDTO)
     {
@@ -21,6 +23,7 @@ public class CategoryController : ControllerBase
 
         try
         {
+            var userId = User.FindFirst("userId")?.Value;
             await _categoryService.CreateCategoryAsync(categoryCreateDTO);
             return Ok(new APIResponse("success", "Category created successfully"));
         }
@@ -29,5 +32,19 @@ public class CategoryController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, new APIResponse("error", "An error occurred while creating the category", ex.Message));
         }
 
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAllCategories()
+    {
+        try
+        {
+            var categories = await _categoryService.GetAllCategoriesAsync();
+            return Ok(new APIResponse("success", "Categories retrieved successfully", categories));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new APIResponse("error", "An error occurred while retrieving categories", ex.Message));
+        }
     }
 }

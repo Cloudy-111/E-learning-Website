@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [Route("api/course-contents/{courseContentId}/lessons")]
@@ -51,6 +52,7 @@ public class LessonController : ControllerBase
     }
 
     // Teacher only
+    [Authorize(Roles = "Teacher")]
     [HttpPost]
     public async Task<IActionResult> AddLesson(string courseContentId, [FromBody] LessonCreateDTO lessonDto)
     {
@@ -61,7 +63,8 @@ public class LessonController : ControllerBase
 
         try
         {
-            await _lessonService.AddLessonAsync(courseContentId, lessonDto);
+            var userId = User.FindFirst("userId")?.Value;
+            await _lessonService.AddLessonAsync(userId, courseContentId, lessonDto);
             return Ok(new APIResponse("success", "Create lesson successfully"));
         }
         catch (Exception ex)
@@ -72,6 +75,7 @@ public class LessonController : ControllerBase
     }
 
     // Teacher only
+    [Authorize(Roles = "Teacher")]
     [HttpPatch("{lessonId}")]
     public async Task<IActionResult> UpdateLesson(string courseContentId, string lessonId, [FromBody] LessonUpdateDTO lessonDto)
     {
@@ -82,7 +86,8 @@ public class LessonController : ControllerBase
 
         try
         {
-            await _lessonService.UpdateLessonAsync(courseContentId, lessonId, lessonDto);
+            var userId = User.FindFirst("userId")?.Value;
+            await _lessonService.UpdateLessonAsync(userId, courseContentId, lessonId, lessonDto);
             return Ok(new APIResponse("success", "Update lesson successfully"));
         }
         catch (Exception ex)
@@ -93,6 +98,7 @@ public class LessonController : ControllerBase
     }
 
     // Teacher only
+    [Authorize(Roles = "Teacher")]
     [HttpPost("order")]
     public async Task<IActionResult> UpdateLessonOrder(string courseContentId, [FromBody] List<LessonOrderDTO> lessonOrders)
     {
@@ -103,7 +109,8 @@ public class LessonController : ControllerBase
 
         try
         {
-            await _lessonService.UpdateOrderLessonsAsync(courseContentId, lessonOrders);
+            var userId = User.FindFirst("userId")?.Value;
+            await _lessonService.UpdateOrderLessonsAsync(userId, courseContentId, lessonOrders);
             return Ok(new APIResponse("success", "Update lesson orders successfully"));
         }
         catch (Exception ex)
@@ -114,6 +121,7 @@ public class LessonController : ControllerBase
     }
 
     // Teacher only
+    [Authorize(Roles = "Teacher")]
     [HttpPost("{lessonId}/request-update")]
     public async Task<IActionResult> RequestUpdateLesson([FromBody] RequestUpdateRequestDTO requestDto)
     {
@@ -124,7 +132,8 @@ public class LessonController : ControllerBase
 
         try
         {
-            await _requestUpdateService.CreateRequestUpdateAsync(requestDto);
+            var userId = User.FindFirst("userId")?.Value;
+            await _requestUpdateService.CreateRequestUpdateAsync(userId, requestDto);
             return Ok(new APIResponse("success", "Lesson update request created successfully"));
         }
         catch (Exception ex)

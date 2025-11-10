@@ -7,7 +7,5 @@ public class RequestUpdateRequestDTO
     [Required]
     public string TargetId { get; set; } = null!;
     [Required]
-    public string RequestById { get; set; } = null!;
-    [Required]
     public string UpdatedDataJSON { get; set; } = null!; // serialize DTO
 }

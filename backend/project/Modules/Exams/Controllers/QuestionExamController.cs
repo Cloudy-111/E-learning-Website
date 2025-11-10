@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [Route("api/{examId}/question-exams")]
@@ -12,6 +13,7 @@ public class QuestionExamController : ControllerBase
         _questionExamService = questionExamService;
     }
 
+    [Authorize(Roles = "Teacher")]
     [HttpPost]
     public async Task<IActionResult> CreateQuestionExam(string examId, [FromBody] CreateQuestionExamDTO questionExam)
     {
@@ -21,7 +23,8 @@ public class QuestionExamController : ControllerBase
         }
         try
         {
-            await _questionExamService.AddQuestionToExamAsync(examId, questionExam);
+            var userId = User.FindFirst("userId")?.Value;
+            await _questionExamService.AddQuestionToExamAsync(userId, examId, questionExam);
             return Ok(new APIResponse("Success", "Create new QuestionExam successfully"));
         }
         catch (KeyNotFoundException ex)
@@ -108,12 +111,14 @@ public class QuestionExamController : ControllerBase
         }
     }
 
+    [Authorize(Roles = "Teacher")]
     [HttpDelete("{questionExamId}")]
     public async Task<IActionResult> DeleteQuestionExamAsync(string examId, string questionExamId)
     {
         try
         {
-            await _questionExamService.DeleteQuestionExamAsync(examId, questionExamId);
+            var userId = User.FindFirst("userId")?.Value;
+            await _questionExamService.DeleteQuestionExamAsync(userId, examId, questionExamId);
             return Ok(new APIResponse("success", "Delete question successfully"));
         }
         catch (Exception ex)

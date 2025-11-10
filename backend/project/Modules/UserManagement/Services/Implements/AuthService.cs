@@ -28,63 +28,63 @@ public class AuthService : IAuthService
 
     // Register
     public async Task<AuthResponseDto> RegisterAsync(RegisterDto dto)
-{
-    var user = new User
     {
-        UserName = dto.Email,       // Identity cần UserName
-        Email = dto.Email,
-        FullName = dto.FullName,
+        var user = new User
+        {
+            UserName = dto.Email,       // Identity cần UserName
+            Email = dto.Email,
+            FullName = dto.FullName,
 
-        DateOfBirth = dto.DateOfBirth,
-        Gender = dto.Gender,
-        Address = dto.Address,
-        AvatarUrl = dto.AvatarUrl,
-        SocialLinks = dto.SocialLinks,
+            DateOfBirth = dto.DateOfBirth,
+            Gender = dto.Gender,
+            Address = dto.Address,
+            AvatarUrl = dto.AvatarUrl,
+            SocialLinks = dto.SocialLinks,
 
-        CreatedAt = DateTime.UtcNow,
-        UpdatedAt = DateTime.UtcNow,
-    };
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+        };
 
-    // Tạo user với password
-    var result = await _userManager.CreateAsync(user, dto.Password);
-    if (!result.Succeeded)
-        throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+        // Tạo user với password
+        var result = await _userManager.CreateAsync(user, dto.Password);
+        if (!result.Succeeded)
+            throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
 
-    // Gán role mặc định là Student (nếu dùng roles)
-    await _userManager.AddToRoleAsync(user, "Student");
+        // Gán role mặc định là Student (nếu dùng roles)
+        await _userManager.AddToRoleAsync(user, "Student");
 
-    // Tạo record Student tương ứng trong bảng Student
-    var student = new Student
-    {
-        UserId = user.Id,
-        StudentId = Guid.NewGuid().ToString(),
-        Bio = ""
-    };
+        // Tạo record Student tương ứng trong bảng Student
+        var student = new Student
+        {
+            UserId = user.Id,
+            StudentId = Guid.NewGuid().ToString(),
+            Bio = ""
+        };
 
-    _context.Students.Add(student);
-    await _context.SaveChangesAsync();
+        _context.Students.Add(student);
+        await _context.SaveChangesAsync();
 
-    // Refresh token
-    var refreshToken = GenerateRefreshToken();
-    user.RefreshTokenHash = HashToken(refreshToken);
-    user.RefreshTokenTimeExpire = DateTime.UtcNow.AddDays(7);
-    await _userManager.UpdateAsync(user);
+        // Refresh token
+        var refreshToken = GenerateRefreshToken();
+        user.RefreshTokenHash = HashToken(refreshToken);
+        user.RefreshTokenTimeExpire = DateTime.UtcNow.AddDays(7);
+        await _userManager.UpdateAsync(user);
 
-    // Kiểm tra xem user có phải teacher không (mới đăng ký thì thường chưa)
-    var teacher = await _context.Teachers.FirstOrDefaultAsync(t => t.UserId == user.Id);
+        // Kiểm tra xem user có phải teacher không (mới đăng ký thì thường chưa)
+        var teacher = await _context.Teachers.FirstOrDefaultAsync(t => t.UserId == user.Id);
 
-    // Tạo JWT
-    var token = GenerateJwtToken(user, student.StudentId, teacher?.TeacherId);
+        // Tạo JWT
+        var token = GenerateJwtToken(user, student.StudentId, teacher?.TeacherId);
 
-    return new AuthResponseDto
-    {
-        Token = token,
-        UserId = user.Id,
-        FullName = user.FullName,
-        StudentId = student.StudentId,
-        TeacherId = teacher?.TeacherId
-    };
-}
+        return new AuthResponseDto
+        {
+            Token = token,
+            UserId = user.Id,
+            FullName = user.FullName,
+            StudentId = student.StudentId,
+            TeacherId = teacher?.TeacherId
+        };
+    }
 
 
     // Login
@@ -99,9 +99,7 @@ public class AuthService : IAuthService
             throw new Exception("Email hoặc mật khẩu không đúng");
 
         // Lấy StudentId tương ứng với UserId
-        var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == user.Id);
-        if (student == null)
-            throw new Exception("Student not found");
+        var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == user.Id) ?? throw new Exception("Student not found");
 
         // Lấy TeacherId nếu có
         var teacher = await _context.Teachers.FirstOrDefaultAsync(t => t.UserId == user.Id);
@@ -126,80 +124,80 @@ public class AuthService : IAuthService
     // Đăng ký làm teacher
     public async Task<Teacher> RegisterTeacherAsync(string userId, TeacherRegisterDto dto)
     {
-         // Lấy user
-    var user = await _userManager.FindByIdAsync(userId);
-    if (user == null)
-        throw new Exception("User not found");
+        // Lấy user
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+            throw new Exception("User not found");
 
-    // Kiểm tra user đã là teacher chưa
-    var existingTeacher = await _context.Teachers.FirstOrDefaultAsync(t => t.UserId == userId);
-    if (existingTeacher != null)
-        throw new Exception("User is already a teacher");
+        // Kiểm tra user đã là teacher chưa
+        var existingTeacher = await _context.Teachers.FirstOrDefaultAsync(t => t.UserId == userId);
+        if (existingTeacher != null)
+            throw new Exception("User is already a teacher");
 
-    // Tạo hồ sơ Teacher
-    var teacher = new Teacher
-    {
-        UserId = userId,
-        EmployeeCode = dto.EmployeeCode?.ToUpper()
-                        ?? Guid.NewGuid().ToString().Substring(0, 6).ToUpper(),
-        instruction = dto.Instruction ?? ""
-    };
+        // Tạo hồ sơ Teacher
+        var teacher = new Teacher
+        {
+            UserId = userId,
+            EmployeeCode = dto.EmployeeCode?.ToUpper()
+                            ?? Guid.NewGuid().ToString().Substring(0, 6).ToUpper(),
+            instruction = dto.Instruction ?? ""
+        };
 
-    _context.Teachers.Add(teacher);
-    await _context.SaveChangesAsync();
+        _context.Teachers.Add(teacher);
+        await _context.SaveChangesAsync();
 
-    // ✅ Thêm role Teacher vào (KHÔNG xoá role Student)
-    if (!await _userManager.IsInRoleAsync(user, "Teacher"))
-        await _userManager.AddToRoleAsync(user, "Teacher");
+        // ✅ Thêm role Teacher vào (KHÔNG xoá role Student)
+        if (!await _userManager.IsInRoleAsync(user, "Teacher"))
+            await _userManager.AddToRoleAsync(user, "Teacher");
 
-    // Cập nhật thời gian
-    user.UpdatedAt = DateTime.UtcNow;
-    await _userManager.UpdateAsync(user);
+        // Cập nhật thời gian
+        user.UpdatedAt = DateTime.UtcNow;
+        await _userManager.UpdateAsync(user);
 
-    return teacher;
+        return teacher;
     }
 
     // ========================= Refresh Token =========================
     public async Task<AuthResponseDto> RefreshTokenAsync(string refreshToken)
+    {
+        var hashedToken = HashToken(refreshToken);
+        var user = await _userManager.Users.FirstOrDefaultAsync(u =>
+            u.RefreshTokenHash == hashedToken &&
+            u.RefreshTokenTimeExpire != null &&
+            u.RefreshTokenTimeExpire > DateTime.UtcNow);
+
+        if (user == null)
+            throw new Exception("Invalid or expired refresh token");
+
+        var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == user.Id);
+        var teacher = await _context.Teachers.FirstOrDefaultAsync(t => t.UserId == user.Id);
+
+        // Tạo access token mới
+        var newToken = GenerateJwtToken(user, student?.StudentId ?? "", teacher?.TeacherId);
+
+        // Tạo refresh token mới
+        var newRefreshToken = GenerateRefreshToken();
+        user.RefreshTokenHash = HashToken(newRefreshToken);
+        user.RefreshTokenTimeExpire = DateTime.UtcNow.AddDays(7);
+        await _userManager.UpdateAsync(user);
+
+        return new AuthResponseDto
         {
-            var hashedToken = HashToken(refreshToken);
-            var user = await _userManager.Users.FirstOrDefaultAsync(u =>
-                u.RefreshTokenHash == hashedToken &&
-                u.RefreshTokenTimeExpire != null &&
-                u.RefreshTokenTimeExpire > DateTime.UtcNow);
-
-            if (user == null)
-                throw new Exception("Invalid or expired refresh token");
-
-            var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == user.Id);
-            var teacher = await _context.Teachers.FirstOrDefaultAsync(t => t.UserId == user.Id);
-
-            // Tạo access token mới
-            var newToken = GenerateJwtToken(user, student?.StudentId ?? "", teacher?.TeacherId);
-
-            // Tạo refresh token mới
-            var newRefreshToken = GenerateRefreshToken();
-            user.RefreshTokenHash = HashToken(newRefreshToken);
-            user.RefreshTokenTimeExpire = DateTime.UtcNow.AddDays(7);
-            await _userManager.UpdateAsync(user);
-
-            return new AuthResponseDto
-            {
-                Token = newToken,
-                UserId = user.Id,
-                FullName = user.FullName,
-                RefreshToken = newRefreshToken,
-                StudentId = student?.StudentId,
-                TeacherId = teacher?.TeacherId
-            };
-        }
+            Token = newToken,
+            UserId = user.Id,
+            FullName = user.FullName,
+            RefreshToken = newRefreshToken,
+            StudentId = student?.StudentId,
+            TeacherId = teacher?.TeacherId
+        };
+    }
 
 
     // ========================= Helper =========================
     private string GenerateJwtToken(User user, string studentId, string? teacherId)
     {
         // Lấy roles của user
-         var roles = _userManager.GetRolesAsync(user).Result;
+        var roles = _userManager.GetRolesAsync(user).Result;
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id),
@@ -212,10 +210,10 @@ public class AuthService : IAuthService
         if (!string.IsNullOrEmpty(teacherId))
             claims.Add(new Claim("TeacherId", teacherId));
 
-         //Thêm claim role
+        //Thêm claim role
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
-        
-        
+
+
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

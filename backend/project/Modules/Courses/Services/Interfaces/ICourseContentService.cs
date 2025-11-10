@@ -1,6 +1,6 @@
 public interface ICourseContentService
 {
-    Task AddCourseContentAsync(string courseId, CourseContentCreateDTO contentDto);
-    Task UpdateCourseContentAsync(string contentId, CourseContentUpdateDTO contentDto);
+    Task AddCourseContentAsync(string userId, string courseId, CourseContentCreateDTO contentDto);
+    Task UpdateCourseContentAsync(string userId, string contentId, CourseContentUpdateDTO contentDto);
     Task<CourseContentInformationDTO> GetCourseContentInformationDTOAsync(string courseId);
 }
