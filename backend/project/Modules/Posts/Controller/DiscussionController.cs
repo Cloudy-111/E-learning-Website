@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using project.Models;
 using project.Modules.Posts.DTOs;
 using project.Modules.Posts.Services.Interfaces;
 
@@ -15,6 +17,12 @@ namespace project.Modules.Posts.Controller
         {
             _discussionService = discussionService;
         }
+
+        private string GetStudentId()
+        {
+            return User.FindFirst("StudentId")?.Value ?? throw new Exception("Không tìm thấy StudentId");
+        }
+
 
 
         // ✅ GET /api/comments
@@ -37,6 +45,66 @@ namespace project.Modules.Posts.Controller
             var comments = await _discussionService.GetCommentsByTargetAsync(targetType, targetId);
             return Ok(comments);
         }
+        
+
+        [Authorize]
+        [HttpPost("{targetType}/{targetTypeId}")]
+        public async Task<IActionResult> CreateDiscussion(
+      string targetType,
+      string targetTypeId,
+      [FromQuery] string? parentDiscussionId,
+      [FromBody] CreateDiscussionRequest dto)
+        {
+            try
+            {
+                // targetType và targetTypeId lấy từ route
+                var discussion = await _discussionService.CreateAsync(
+                    GetStudentId(),
+                    dto.Content,
+                    targetType,
+                    targetTypeId,
+                    parentDiscussionId
+                );
+
+                return Ok(discussion); // DiscussionDto
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+        [Authorize]
+        [HttpPut("{discussionId}")]
+        public async Task<IActionResult> UpdateDiscussion(string discussionId, [FromBody] UpdateDiscussionRequest dto)
+        {
+            try
+            {
+                var discussion = await _discussionService.UpdateAsync(GetStudentId(), discussionId, dto);
+                return Ok(discussion);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+        
+        
+        [Authorize]
+        [HttpDelete("{discussionId}")]
+        public async Task<IActionResult> DeleteDiscussion(string discussionId)
+        {
+            try
+            {
+                await _discussionService.DeleteAsync(GetStudentId(), discussionId);
+                return Ok(new { message = "Xóa Discussion thành công." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
 
 
 
