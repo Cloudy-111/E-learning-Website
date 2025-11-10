@@ -108,7 +108,10 @@ public static class DBSeeder
                 .RuleFor(c => c.TeacherId, f => f.PickRandom(teachers).TeacherId)
                 .RuleFor(c => c.CreatedAt, f => f.Date.Past(1))
                 .RuleFor(c => c.UpdatedAt, f => DateTime.UtcNow)
-                .RuleFor(c => c.ThumbnailUrl, f => f.Image.PicsumUrl());
+                .RuleFor(c => c.ThumbnailUrl, f => f.Image.PicsumUrl())
+                .RuleFor(c => c.Status, f => f.PickRandom(new[] { "draft", "published", "archived" }))
+                .RuleFor(c => c.AverageRating, 0.0)
+                .RuleFor(c => c.ReviewCount, 0);
 
             var courses = courseFaker.Generate(30);
             context.Courses.AddRange(courses);
@@ -654,5 +657,5 @@ public static class DBSeeder
 
         return;
     }
-    
+
 }
