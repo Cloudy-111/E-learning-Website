@@ -90,6 +90,7 @@ builder.Services.AddScoped<ILessonProgressRepository, LessonProgressRepository>(
 builder.Services.AddScoped<IRequestRefundCourseRepository, RequestRefundCourseRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IUserRepository, userRepository>();
 
 builder.Services.AddControllers();
 

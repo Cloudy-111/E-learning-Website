@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace project.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20251107103200_delete")]
-    partial class delete
+    [Migration("20251110034929_InitDatabase")]
+    partial class InitDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
