@@ -77,9 +77,13 @@ public class QuestionExamService : IQuestionExamService
             throw new KeyNotFoundException($"Exam with ID '{examId}' does not exist.");
         }
         var questionExams = await _questionExamRepository.GetQuestionsByExamIdAsync(examId);
+        var choicesArrays = new List<IEnumerable<ChoiceForExamDTO>>();
 
-        var choiceTasks = questionExams.Select(q => _choiceService.GetChoicesForExamByQuestionExamIdAsync(q.Id)).ToArray();
-        var choicesArrays = await Task.WhenAll(choiceTasks);
+        foreach (var q in questionExams)
+        {
+            var choices = await _choiceService.GetChoicesForExamByQuestionExamIdAsync(q.Id);
+            choicesArrays.Add(choices);
+        }
 
         var result = questionExams
             .Select((qe, idx) => new QuestionExamForDoingExamDTO
@@ -108,9 +112,13 @@ public class QuestionExamService : IQuestionExamService
             throw new KeyNotFoundException($"Exam with ID '{examId}' does not exist.");
         }
         var questionExams = await _questionExamRepository.GetQuestionsByExamIdAsync(examId);
+        var choicesArrays = new List<IEnumerable<ChoiceForReviewDTO>>();
 
-        var choiceTasks = questionExams.Select(q => _choiceService.GetChoicesForReviewByQuestionExamIdAsync(q.Id)).ToArray();
-        var choicesArrays = await Task.WhenAll(choiceTasks);
+        foreach (var q in questionExams)
+        {
+            var choices = await _choiceService.GetChoicesForReviewByQuestionExamIdAsync(q.Id);
+            choicesArrays.Add(choices);
+        }
 
         var result = questionExams
             .Select((qe, idx) => new QuestionExamForReviewSubmissionDTO
