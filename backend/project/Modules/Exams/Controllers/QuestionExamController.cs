@@ -63,9 +63,9 @@ public class QuestionExamController : ControllerBase
             var questionExams = await _questionExamService.GetQuestionsByExamIdForDoingExamAsync(examId);
             return Ok(new APIResponse("success", "Get questions successfully", questionExams));
         }
-        catch
+        catch (Exception ex)
         {
-            return NotFound(new APIResponse("error", $"Not found questions with {examId}"));
+            return NotFound(new APIResponse("error", ex.Message));
         }
     }
 
