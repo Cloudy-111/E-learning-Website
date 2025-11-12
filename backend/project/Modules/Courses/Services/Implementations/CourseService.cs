@@ -4,13 +4,19 @@ public class CourseService : ICourseService
 {
     private readonly ICourseRepository _courseRepository;
     private readonly ICourseContentRepository _courseContentRepository;
+    private readonly IUserRepository _userRepository;
+    private readonly ITeacherRepository _teacherRepository;
 
     public CourseService(
         ICourseRepository courseRepository,
-        ICourseContentRepository courseContentRepository)
+        ICourseContentRepository courseContentRepository,
+        IUserRepository userRepository,
+        ITeacherRepository teacherRepository)
     {
         _courseRepository = courseRepository;
         _courseContentRepository = courseContentRepository;
+        _userRepository = userRepository;
+        _teacherRepository = teacherRepository;
     }
 
     public async Task<IEnumerable<CourseInformationDTO>> GetAllCoursesAsync()
@@ -96,15 +102,19 @@ public class CourseService : ICourseService
         };
     }
 
-    public async Task AddCourseAsync(string userId, CourseCreateDTO courseDto)
+    public async Task AddCourseAsync(string teacherId, CourseCreateDTO courseDto)
     {
-        var userIdGuid = GuidHelper.ParseOrThrow(userId, nameof(userId));
+        var teacherGuid = GuidHelper.ParseOrThrow(teacherId, nameof(teacherId));
+        if (!await _teacherRepository.IsTeacherExistsAsync(teacherId))
+        {
+            throw new KeyNotFoundException("Teacher not found");
+        }
         var course = new Course
         {
             Title = courseDto.Title,
             Description = courseDto.Description,
             CategoryId = courseDto.CategoryId,
-            TeacherId = userId,
+            TeacherId = teacherId,
             Price = courseDto.Price,
             DiscountPrice = courseDto.DiscountPrice,
             ThumbnailUrl = courseDto.ThumbnailUrl,
@@ -116,7 +126,7 @@ public class CourseService : ICourseService
         await _courseRepository.AddCourseAsync(course);
     }
 
-    public async Task UpdateCourseAsync(string userId, string courseId, CourseUpdateDTO courseDto)
+    public async Task UpdateCourseAsync(string teacherId, string courseId, CourseUpdateDTO courseDto)
     {
         var courseExist = await _courseRepository.GetCourseByIdAsync(courseId) ??
             throw new KeyNotFoundException("Course not found");
@@ -124,8 +134,8 @@ public class CourseService : ICourseService
         {
             throw new InvalidOperationException("Only draft courses can be updated");
         }
-        var userIdGuid = GuidHelper.ParseOrThrow(userId, nameof(userId));
-        if (courseExist.Teacher.User.Id != userId)
+        var teacherGuid = GuidHelper.ParseOrThrow(teacherId, nameof(teacherId));
+        if (courseExist.TeacherId != teacherId)
         {
             throw new UnauthorizedAccessException("You are not the teacher of this course");
         }
@@ -139,7 +149,7 @@ public class CourseService : ICourseService
         await _courseRepository.UpdateCourseAsync(courseExist);
     }
 
-    public async Task RequestPublishCourseAsync(string userId, string courseId)
+    public async Task RequestPublishCourseAsync(string teacherId, string courseId)
     {
         var courseExist = await _courseRepository.GetCourseByStatusAsync(courseId, "draft") ??
             throw new KeyNotFoundException("Course not found");
@@ -147,8 +157,8 @@ public class CourseService : ICourseService
         {
             throw new InvalidOperationException("Only draft courses can request publish");
         }
-        var userIdGuid = GuidHelper.ParseOrThrow(userId, nameof(userId));
-        if (courseExist.Teacher.User.Id != userId)
+        var teacherGuid = GuidHelper.ParseOrThrow(teacherId, nameof(teacherId));
+        if (courseExist.TeacherId != teacherId)
         {
             throw new UnauthorizedAccessException("You are not the teacher of this course");
         }

@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 
-public class userRepository : IUserRepository
+public class UserRepository : IUserRepository
 {
     private readonly DBContext _dbContext;
 
-    public userRepository(DBContext dbContext)
+    public UserRepository(DBContext dbContext)
     {
         _dbContext = dbContext;
     }

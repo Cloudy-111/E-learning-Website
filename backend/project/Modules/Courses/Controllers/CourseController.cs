@@ -78,8 +78,8 @@ public class CourseController : ControllerBase
 
         try
         {
-            var userId = User.FindFirst("userId")?.Value;
-            await _courseService.AddCourseAsync(userId, courseDto);
+            var teacherId = User.FindFirst("teacherId")?.Value;
+            await _courseService.AddCourseAsync(teacherId, courseDto);
             return Ok(new APIResponse("Success", "Create new Course successfully"));
         }
         catch (Exception ex)
@@ -104,8 +104,8 @@ public class CourseController : ControllerBase
 
         try
         {
-            var userId = User.FindFirst("userId")?.Value;
-            await _courseService.UpdateCourseAsync(userId, id, courseDto);
+            var teacherId = User.FindFirst("teacherId")?.Value;
+            await _courseService.UpdateCourseAsync(teacherId, id, courseDto);
             return Ok(new APIResponse("success", "Update course successfully"));
         }
         catch (KeyNotFoundException ex)
@@ -129,8 +129,8 @@ public class CourseController : ControllerBase
     {
         try
         {
-            var userId = User.FindFirst("userId")?.Value;
-            await _courseService.RequestPublishCourseAsync(userId, id);
+            var teacherId = User.FindFirst("teacherId")?.Value;
+            await _courseService.RequestPublishCourseAsync(teacherId, id);
             return Ok(new APIResponse("success", "Course requested publish successfully"));
         }
         catch (KeyNotFoundException ex)
@@ -159,8 +159,8 @@ public class CourseController : ControllerBase
 
         try
         {
-            var userId = User.FindFirst("userId")?.Value;
-            await _requestUpdateService.CreateRequestUpdateAsync(userId, requestDto);
+            var teacherId = User.FindFirst("teacherId")?.Value;
+            await _requestUpdateService.CreateRequestUpdateAsync(teacherId, requestDto);
             return Ok(new APIResponse("success", "Course update request created successfully"));
         }
         catch (ArgumentException ex)
