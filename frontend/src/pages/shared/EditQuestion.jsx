@@ -1,0 +1,163 @@
+// src/pages/forum/EditQuestion.jsx
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
+import { http } from "../../utils/http";
+import { isLoggedIn, requireAuth } from "../../utils/auth";
+
+const API_BASE = import.meta.env?.VITE_API_BASE || "http://localhost:5102";
+const BORDER = "#e5e7eb";
+const PRIMARY = "#2563eb";
+const PRIMARY_HOVER = "#1d4ed8";
+
+function getToken() {
+  try {
+    const t = JSON.parse(localStorage.getItem("auth_token") || "null");
+    if (t?.accessToken) return t.accessToken;
+  } catch {}
+  try {
+    const t = localStorage.getItem("access_token");
+    if (t) return t;
+  } catch {}
+  return null;
+}
+function authHeaders(extra={}) {
+  const tk = getToken();
+  return tk ? { ...extra, Authorization: `Bearer ${tk}` } : { ...extra };
+}
+
+function parseBlocks(contentJson, fallback) {
+  try {
+    const j = typeof contentJson === "string" ? JSON.parse(contentJson) : contentJson;
+    const blocks = Array.isArray(j?.blocks) ? j.blocks : [];
+    return blocks.map(b => b.text).join("\n\n").trim() || fallback || "";
+  } catch { return fallback || ""; }
+}
+
+export default function EditQuestion() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const [loading, setLoading] = useState(true);
+  const [err, setErr] = useState(null);
+  const [ok, setOk] = useState("");
+
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+
+  useEffect(() => {
+    if (!isLoggedIn()) {
+      requireAuth(navigate, location.pathname + location.search);
+      return;
+    }
+  }, [navigate, location]);
+
+  useEffect(() => {
+    let ac = new AbortController();
+    (async () => {
+      try {
+        setLoading(true); setErr(null);
+        const res = await http(`${API_BASE}/api/ForumQuestion/${id}`, { headers: { accept: "*/*" }, signal: ac.signal });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        const q = data?.data || data;
+        setTitle(q?.title || "");
+        setContent(parseBlocks(q?.contentJson, q?.content || ""));
+      } catch (e) {
+        setErr(e?.message || "Fetch error");
+      } finally {
+        setLoading(false);
+      }
+    })();
+    return () => ac.abort();
+  }, [id]);
+
+  const canSubmit = title.trim().length >= 6 && content.trim().length >= 10;
+
+  const onSubmit = async (e) => {
+    e?.preventDefault?.();
+    if (!canSubmit) return;
+    try {
+      setErr(null); setOk("");
+      const body = {
+        title: title.trim(),
+        contentJson: JSON.stringify({ blocks: [{ text: content.trim() }] }),
+      };
+      const res = await http(`${API_BASE}/api/ForumQuestion/${id}`, {
+        method: "PATCH",
+        headers: authHeaders({ "Content-Type": "application/json", accept: "*/*" }),
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        let msg = `HTTP ${res.status}`;
+        try { const j = await res.json(); if (j?.message) msg = j.message; } catch {}
+        throw new Error(msg);
+      }
+      setOk("✅ Cập nhật thành công! Chuyển về chi tiết…");
+      navigate(`/forum/${id}`, { replace: true });
+    } catch (e) {
+      setErr(e?.message || "Cập nhật thất bại");
+    }
+  };
+
+  return (
+    <>
+      <Header />
+      <main className="w-screen overflow-x-hidden">
+        <section className="w-screen px-6 lg:px-12 pt-8">
+          <div className="text-sm text-slate-500">
+            <Link to="/forum" className="hover:text-blue-600">Hỏi – Đáp</Link> /{" "}
+            <Link to={`/forum/${id}`} className="hover:text-blue-600">Chi tiết</Link> / <span>Sửa</span>
+          </div>
+
+          {loading ? (
+            <div className="mt-6 rounded-xl border bg-white p-6 animate-pulse" style={{ borderColor: BORDER }}>Đang tải…</div>
+          ) : (
+            <form onSubmit={onSubmit} className="mt-6 rounded-2xl border bg-white p-5 grid gap-4" style={{ borderColor: BORDER }}>
+              {ok && <div className="rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 px-4 py-3">{ok}</div>}
+              {err && <div className="rounded-lg border border-red-200 bg-red-50 text-red-700 px-4 py-3">{err}</div>}
+
+              <div>
+                <label className="text-sm font-medium">Tiêu đề</label>
+                <input
+                  value={title}
+                  onChange={(e)=>setTitle(e.target.value)}
+                  className="mt-1 w-full rounded-xl border px-4 py-2 outline-none focus:ring-2"
+                  style={{ borderColor: BORDER }}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Nội dung</label>
+                <textarea
+                  value={content}
+                  onChange={(e)=>setContent(e.target.value)}
+                  rows={10}
+                  className="mt-1 w-full rounded-xl border px-4 py-2 outline-none focus:ring-2"
+                  style={{ borderColor: BORDER }}
+                />
+              </div>
+
+              <div className="text-right">
+                <button
+                  type="submit"
+                  disabled={!canSubmit}
+                  className="rounded-full text-white px-5 py-3 disabled:opacity-60"
+                  style={{ background: PRIMARY }}
+                  onMouseEnter={(e)=>e.currentTarget.style.background=PRIMARY_HOVER}
+                  onMouseLeave={(e)=>e.currentTarget.style.background=PRIMARY}
+                >
+                  Lưu thay đổi
+                </button>
+              </div>
+            </form>
+          )}
+        </section>
+      </main>
+      <Footer />
+    </>
+  );
+}
