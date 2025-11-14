@@ -166,4 +166,36 @@ public class CourseService : ICourseService
 
         await _courseRepository.UpdateCourseAsync(courseExist);
     }
+
+    public async Task<IEnumerable<CourseInformationDTO>> GetCoursesByTeacherIdAsync(string teacherId)
+    {
+        var teacherGuid = GuidHelper.ParseOrThrow(teacherId, nameof(teacherId));
+        if (!await _teacherRepository.IsTeacherExistsAsync(teacherId))
+        {
+            throw new KeyNotFoundException("Teacher not found");
+        }
+        var courses = await _courseRepository.GetCoursesByTeacherIdAsync(teacherId);
+        if (courses == null || !courses.Any())
+        {
+            return [];
+        }
+        return courses.Select(c => new CourseInformationDTO
+        {
+            Id = c.Id,
+            Title = c.Title,
+            Description = c.Description,
+            Price = c.Price,
+            DiscountPrice = c.DiscountPrice,
+            Status = c.Status,
+            ThumbnailUrl = c.ThumbnailUrl,
+            CreatedAt = c.CreatedAt,
+            UpdatedAt = c.UpdatedAt,
+            AverageRating = c.AverageRating,
+            ReviewCount = c.ReviewCount,
+            CategoryId = c.CategoryId,
+            CategoryName = c.Category.Name,
+            TeacherId = c.TeacherId,
+            TeacherName = c.Teacher.User.FullName
+        });
+    }
 }

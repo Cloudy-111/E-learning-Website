@@ -6,4 +6,5 @@ public interface ICourseService
     Task AddCourseAsync(string userId, CourseCreateDTO courseDto);
     Task UpdateCourseAsync(string userId, string courseId, CourseUpdateDTO courseDto);
     Task RequestPublishCourseAsync(string userId, string courseId);
+    Task<IEnumerable<CourseInformationDTO>> GetCoursesByTeacherIdAsync(string teacherId);
 }
