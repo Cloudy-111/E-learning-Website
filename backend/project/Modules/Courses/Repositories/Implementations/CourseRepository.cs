@@ -75,12 +75,26 @@ public class CourseRepository : ICourseRepository
     //         .ToListAsync();
     // }
 
-    public async Task<IEnumerable<Course>> GetCoursesByTeacherAsync(string teacherId)
+    public async Task<IEnumerable<Course>> GetCoursesByTeacherIdAsync(string teacherId)
     {
         return await _dbContext.Courses
             .Where(c => c.TeacherId == teacherId)
             .Include(c => c.Category)
             .Include(c => c.Teacher)
+                .ThenInclude(t => t.User)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Course>> GetEnrolledCoursesByStudentIdAsync(string studentId)
+    {
+        return await _dbContext.Enrollments
+            .Where(e => e.StudentId == studentId)
+            .Include(e => e.Course)
+                .ThenInclude(c => c.Category)
+            .Include(e => e.Course)
+                .ThenInclude(c => c.Teacher)
+                    .ThenInclude(t => t.User)
+            .Select(e => e.Course)
             .ToListAsync();
     }
 

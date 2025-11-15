@@ -4,8 +4,8 @@
 
 - GET api/exam - Lấy danh sách tất cả bài thi
 - GET api/exam/{id} - Lấy thông tin chi tiết của một bài thi cụ thể
-- GET api/exam/{id}/course/{courseId}
-- GET api/exam/{id}/lesson/{lessonId}
+- GET api/exam/course/{courseId}
+- GET api/exam/lesson/{lessonId}
 - POST api/exam - Tạo mới một bài thi
 - POST api/exam/{id}/order - Sắp xếp thứ tự câu hỏi trong bài thi
 - PATCH api/exam/{id} - Cập nhật thông tin bài thi

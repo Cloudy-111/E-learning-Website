@@ -2,8 +2,6 @@ public static class GuidHelper
 {
     public static Guid ParseOrThrow(string input, string? paramName = null)
     {
-        Console.WriteLine($"[DEBUG] Parsing '{input}'");
-
         if (string.IsNullOrWhiteSpace(input))
             throw new ArgumentException($"{paramName ?? "Parameter"} cannot be null or empty.");
 

@@ -35,7 +35,7 @@ public class EnrollmentController : ControllerBase
 
     // Student only
     [HttpPost]
-    public async Task<IActionResult> CreateEnrollmentAsync(string courseId, [FromBody] EnrollmentCreateDTO enrollment)
+    public async Task<IActionResult> CreateEnrollmentAsync(string courseId)
     {
         if (!ModelState.IsValid)
         {
@@ -43,7 +43,8 @@ public class EnrollmentController : ControllerBase
         }
         try
         {
-            await _enrollmentCourseService.CreateEnrollmentAsync(courseId, enrollment);
+            var studentId = User.FindFirst("studentId")?.Value;
+            await _enrollmentCourseService.CreateEnrollmentAsync(courseId, studentId);
             return Ok(new APIResponse("Success", "Enrollment create successfully"));
         }
         catch (KeyNotFoundException knfE)
