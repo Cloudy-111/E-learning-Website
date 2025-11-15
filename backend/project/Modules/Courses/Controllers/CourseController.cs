@@ -204,4 +204,21 @@ public class CourseController : ControllerBase
             APIResponse("error", "An error occurred while retrieving the courses", ex.Message));
         }
     }
+
+    [Authorize(Roles = "Student")]
+    [HttpGet("student/enrolled-courses")]
+    public async Task<IActionResult> GetEnrolledCourses()
+    {
+        try
+        {
+            var studentId = User.FindFirst("studentId")?.Value;
+            var courses = await _courseService.GetEnrolledCoursesByStudentIdAsync(studentId);
+            return Ok(new APIResponse("Success", "Retrieve Enrolled Courses Successfully", courses));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while retrieving the courses", ex.Message));
+        }
+    }
 }

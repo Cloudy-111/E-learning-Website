@@ -9,6 +9,7 @@ public interface ICourseRepository
     Task<IEnumerable<Course>> GetCoursesAsync(string? keyword, string? category, int page, int pageSize);
     // Task<IEnumerable<Course>> GetCoursesByCategoryAsync(string categoryId);
     Task<IEnumerable<Course>> GetCoursesByTeacherIdAsync(string teacherId);
+    Task<IEnumerable<Course>> GetEnrolledCoursesByStudentIdAsync(string studentId);
     Task AddCourseAsync(Course course);
     Task UpdateCourseAsync(Course course);
     // Task DeleteCourseAsync(string id);

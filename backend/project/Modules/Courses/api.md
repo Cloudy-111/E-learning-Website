@@ -7,6 +7,7 @@
 - GET api/courses/search - Tìm kiếm khóa học theo từ khóa hoặc tiêu chí
 - GET api/courses/teacher/my-courses - Lấy các khóa học của giảng viên đăng nhập
 - GET api/courses/teacher/{teacherId}/courses - Lấy các khóa học theo Id giảng viên
+- GET api/courses/student/enrolled-courses - Lấy ra những khóa học mà học viên đăng ký
 - POST api/courses - Tạo mới một khóa học
 - POST api/courses/{id}/request-update - Gửi yêu cầu cập nhật khóa học khi đã được public
 - PATCH api/courses/{id} ------- Only When Draft - Cập nhật nội dung khóa học (chỉ khi ở trạng thái bản nháp)

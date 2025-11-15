@@ -85,6 +85,19 @@ public class CourseRepository : ICourseRepository
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<Course>> GetEnrolledCoursesByStudentIdAsync(string studentId)
+    {
+        return await _dbContext.Enrollments
+            .Where(e => e.StudentId == studentId)
+            .Include(e => e.Course)
+                .ThenInclude(c => c.Category)
+            .Include(e => e.Course)
+                .ThenInclude(c => c.Teacher)
+                    .ThenInclude(t => t.User)
+            .Select(e => e.Course)
+            .ToListAsync();
+    }
+
     public async Task AddCourseAsync(Course course)
     {
         await _dbContext.Courses.AddAsync(course);

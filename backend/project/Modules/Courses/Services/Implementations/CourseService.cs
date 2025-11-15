@@ -6,17 +6,20 @@ public class CourseService : ICourseService
     private readonly ICourseContentRepository _courseContentRepository;
     private readonly IUserRepository _userRepository;
     private readonly ITeacherRepository _teacherRepository;
+    private readonly IStudentRepository _studentRepository;
 
     public CourseService(
         ICourseRepository courseRepository,
         ICourseContentRepository courseContentRepository,
         IUserRepository userRepository,
-        ITeacherRepository teacherRepository)
+        ITeacherRepository teacherRepository,
+        IStudentRepository studentRepository)
     {
         _courseRepository = courseRepository;
         _courseContentRepository = courseContentRepository;
         _userRepository = userRepository;
         _teacherRepository = teacherRepository;
+        _studentRepository = studentRepository;
     }
 
     public async Task<IEnumerable<CourseInformationDTO>> GetAllCoursesAsync()
@@ -175,6 +178,38 @@ public class CourseService : ICourseService
             throw new KeyNotFoundException("Teacher not found");
         }
         var courses = await _courseRepository.GetCoursesByTeacherIdAsync(teacherId);
+        if (courses == null || !courses.Any())
+        {
+            return [];
+        }
+        return courses.Select(c => new CourseInformationDTO
+        {
+            Id = c.Id,
+            Title = c.Title,
+            Description = c.Description,
+            Price = c.Price,
+            DiscountPrice = c.DiscountPrice,
+            Status = c.Status,
+            ThumbnailUrl = c.ThumbnailUrl,
+            CreatedAt = c.CreatedAt,
+            UpdatedAt = c.UpdatedAt,
+            AverageRating = c.AverageRating,
+            ReviewCount = c.ReviewCount,
+            CategoryId = c.CategoryId,
+            CategoryName = c.Category.Name,
+            TeacherId = c.TeacherId,
+            TeacherName = c.Teacher.User.FullName
+        });
+    }
+
+    public async Task<IEnumerable<CourseInformationDTO>> GetEnrolledCoursesByStudentIdAsync(string studentId)
+    {
+        var studentGuid = GuidHelper.ParseOrThrow(studentId, nameof(studentId));
+        if (!await _studentRepository.IsStudentExistAsync(studentId))
+        {
+            throw new KeyNotFoundException("Student not found");
+        }
+        var courses = await _courseRepository.GetEnrolledCoursesByStudentIdAsync(studentId);
         if (courses == null || !courses.Any())
         {
             return [];
