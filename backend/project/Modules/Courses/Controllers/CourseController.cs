@@ -22,7 +22,7 @@ public class CourseController : ControllerBase
     public async Task<IActionResult> GetAllCourses()
     {
         var courses = await _courseService.GetAllCoursesAsync();
-        return Ok(courses);
+        return Ok(new APIResponse("Success", "Retrieve Courses Successfully", courses));
     }
 
     // All users
@@ -32,7 +32,7 @@ public class CourseController : ControllerBase
         try
         {
             var course = await _courseService.GetCourseByIdAsync(id);
-            return Ok(course);
+            return Ok(new APIResponse("Success", "Retrieve Course Successfully", course));
         }
         catch (KeyNotFoundException ex)
         {

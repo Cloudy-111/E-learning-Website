@@ -39,6 +39,10 @@ public class CourseRepository : ICourseRepository
         {
             query = query.Where(c => c.Title.Contains(keyword));
         }
+        if (!string.IsNullOrEmpty(category))
+        {
+            query = query.Where(c => c.Category.Id == category);
+        }
 
         var totalItems = await query.CountAsync();
         var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
