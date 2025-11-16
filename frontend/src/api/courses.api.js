@@ -5,9 +5,11 @@ export async function fetchCourses(params = {}) {
   if (params.keyword) searchParams.append("keyword", params.keyword);
   if (params.category) searchParams.append("category", params.category);
 
-  if (searchParams.toString()) {
-    return baseFetch(`/api/courses/search?${searchParams.toString()}`);
-  }
+  if (params.page) searchParams.append("page", params.page);
+  if (params.pageSize) searchParams.append("pageSize", params.pageSize);
 
-  return baseFetch("/api/courses");
+  const queryString = searchParams.toString();
+  return baseFetch(
+    `/api/courses/search${queryString ? `?${queryString}` : ""}`
+  );
 }

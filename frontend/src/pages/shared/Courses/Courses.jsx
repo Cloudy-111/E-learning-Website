@@ -7,9 +7,11 @@ import Hero from "./Components/Hero";
 import SearchBar from "./Components/SearchBar";
 import ListResult from "./Components/ListResult";
 import Error from "./Components/Error";
+import Pagination from "../../../components/Pagination";
 
 import { fetchCourses } from "../../../api/courses.api";
 import { getCategories } from "../../../api/categories.api";
+import { isLoggedIn } from "../../../utils/auth";
 
 function Courses(){
   const [courses, setCourses] = useState([]);
@@ -20,6 +22,8 @@ function Courses(){
   const [categories, setCategories] = useState([]);
   const [cateLoading, setCateLoading] = useState(false);
   const [cateError, setCateError] = useState("");
+  const [totalPages, setTotalPages] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const visibleCourses = useMemo(() => courses, [courses]);
 
@@ -29,8 +33,10 @@ function Courses(){
       setError("");
       const result = await fetchCourses(params);
 
-      const list = Array.isArray(result.data) ? result.data : [];
+      const list = Array.isArray(result.data.courses) ? result.data.courses : [];
       setCourses(list);
+      setTotalPages(result.data.totalPages || 1);
+      setCurrentPage(result.data.currentPage || 1);
     } catch (err) {
       console.error(err);
       setError("Không thể tải danh sách khóa học. Vui lòng thử lại sau.");
@@ -74,7 +80,7 @@ function Courses(){
 
   return (
     <Layout>
-      <Hero />
+      {isLoggedIn() && <Hero />}
 
       <SearchBar 
         query={query} 
@@ -88,7 +94,13 @@ function Courses(){
       <Error error={error} />
 
       <ListResult visibleCourses={visibleCourses} loading={loading} />
+      <Pagination 
+        currentPage={currentPage} 
+        totalPages={totalPages} 
+        onPageChange={(page) => loadCourses({ keyword: query, category: selectedCategory, page })} 
+      />
     </Layout>
   );
 }
+
 export default Courses;

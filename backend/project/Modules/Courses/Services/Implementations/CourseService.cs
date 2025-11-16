@@ -46,12 +46,12 @@ public class CourseService : ICourseService
         });
     }
 
-    public async Task<IEnumerable<CourseInformationDTO>> GetCoursesAsync(string? keyword, string? category, int page, int pageSize)
+    public async Task<PageResultCoursesDTO> SearchItemsAsync(string? keyword, string? category, int page, int pageSize)
     {
         try
         {
-            var courses = await _courseRepository.GetCoursesAsync(keyword, category, page, pageSize);
-            return courses.Select(c => new CourseInformationDTO
+            var (courses, totalCount) = await _courseRepository.SearchItemsAsync(keyword, category, page, pageSize);
+            var courseResult = courses.Select(c => new CourseInformationDTO
             {
                 Id = c.Id,
                 Title = c.Title,
@@ -69,6 +69,15 @@ public class CourseService : ICourseService
                 TeacherId = c.TeacherId,
                 TeacherName = c.Teacher?.User?.FullName ?? "Unknown"
             });
+
+            return new PageResultCoursesDTO
+            {
+                Courses = courseResult,
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                TotalPages = (int)Math.Ceiling((double)totalCount / pageSize)
+            };
         }
         catch (Exception ex)
         {

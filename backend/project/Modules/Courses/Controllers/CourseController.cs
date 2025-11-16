@@ -47,7 +47,7 @@ public class CourseController : ControllerBase
 
     // All users
     [HttpGet("search")]
-    public async Task<IActionResult> GetCourse(
+    public async Task<IActionResult> SearchItems(
         [FromQuery] string? keyword,
         [FromQuery] string? category,
         [FromQuery] int page = 1,
@@ -56,7 +56,7 @@ public class CourseController : ControllerBase
     {
         try
         {
-            var courses = await _courseService.GetCoursesAsync(keyword, category, page, pageSize);
+            var courses = await _courseService.SearchItemsAsync(keyword, category, page, pageSize);
             return Ok(new APIResponse("Success", "Retrieve Course Successfully", courses));
         }
         catch (Exception ex)

@@ -6,7 +6,7 @@ public interface ICourseRepository
     Task<Course?> GetCourseByIdAsync(string id);
     Task<Course?> GetCourseByStatusAsync(string id, string status);
     Task<IEnumerable<Course>> GetAllCoursesAsync();
-    Task<IEnumerable<Course>> GetCoursesAsync(string? keyword, string? category, int page, int pageSize);
+    Task<(IEnumerable<Course>, int)> SearchItemsAsync(string? keyword, string? category, int page, int pageSize);
     // Task<IEnumerable<Course>> GetCoursesByCategoryAsync(string categoryId);
     Task<IEnumerable<Course>> GetCoursesByTeacherIdAsync(string teacherId);
     Task<IEnumerable<Course>> GetEnrolledCoursesByStudentIdAsync(string studentId);
