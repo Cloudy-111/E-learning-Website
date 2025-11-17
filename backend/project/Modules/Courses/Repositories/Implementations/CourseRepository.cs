@@ -26,7 +26,7 @@ public class CourseRepository : ICourseRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Course>> GetCoursesAsync(string? keyword, string? category, int page, int pageSize)
+    public async Task<(IEnumerable<Course>, int)> SearchItemsAsync(string? keyword, string? category, int page, int pageSize)
     {
         var query = _dbContext.Courses
             .Include(c => c.Category)
@@ -39,11 +39,15 @@ public class CourseRepository : ICourseRepository
         {
             query = query.Where(c => c.Title.Contains(keyword));
         }
+        if (!string.IsNullOrEmpty(category))
+        {
+            query = query.Where(c => c.Category.Id == category);
+        }
 
         var totalItems = await query.CountAsync();
         var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
 
-        return items;
+        return (items, totalItems);
     }
 
     public async Task<Course?> GetCourseByIdAsync(string id)

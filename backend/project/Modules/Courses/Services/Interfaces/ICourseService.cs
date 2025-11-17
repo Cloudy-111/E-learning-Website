@@ -1,7 +1,7 @@
 public interface ICourseService
 {
     Task<IEnumerable<CourseInformationDTO>> GetAllCoursesAsync();
-    Task<IEnumerable<CourseInformationDTO>> GetCoursesAsync(string? keyword, string? category, int page, int pageSize);
+    Task<PageResultCoursesDTO> SearchItemsAsync(string? keyword, string? category, int page, int pageSize);
     Task<CourseInformationDTO> GetCourseByIdAsync(string id);
     Task AddCourseAsync(string userId, CourseCreateDTO courseDto);
     Task UpdateCourseAsync(string userId, string courseId, CourseUpdateDTO courseDto);
