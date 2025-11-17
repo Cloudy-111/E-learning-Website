@@ -1,4 +1,4 @@
-import Eye from "../../../../assets/Icons/Eyes";
+import { Eye } from "../../../../assets/Icons";
 import { Link } from "react-router-dom";
 
 function HistoryCard({ item }) {

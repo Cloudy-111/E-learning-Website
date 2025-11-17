@@ -34,6 +34,7 @@ public class EnrollmentController : ControllerBase
     }
 
     // Student only
+    [Authorize(Roles = "Student")]
     [HttpPost]
     public async Task<IActionResult> CreateEnrollmentAsync(string courseId)
     {
@@ -129,6 +130,23 @@ public class EnrollmentController : ControllerBase
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new
             APIResponse("error", "An error occurred while create Request Refund Course", ex.Message));
+        }
+    }
+
+    [Authorize(Roles = "Student,Teacher")]
+    [HttpGet("is-enrolled")]
+    public async Task<IActionResult> IsEnrolledInCourseAsync(string courseId)
+    {
+        try
+        {
+            var studentId = User.FindFirst("studentId")?.Value;
+            var isEnrolled = await _enrollmentCourseService.IsEnrolledInCourseAsync(studentId, courseId);
+            return Ok(new APIResponse("Success", "Check enrollment successfully", new { IsEnrolled = isEnrolled }));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while checking enrollment", ex.Message));
         }
     }
 }

@@ -8,4 +8,3 @@ export async function baseFetch(path, options = {}) {
   }
   return res.json();
 }
-export default { baseFetch };

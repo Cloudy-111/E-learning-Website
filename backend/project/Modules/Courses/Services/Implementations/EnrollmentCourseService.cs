@@ -40,6 +40,11 @@ public class EnrollmentCourseService : IEnrollmentCourseService
         _userRepository = userRepository;
     }
 
+    public async Task<bool> IsEnrolledInCourseAsync(string studentId, string courseId)
+    {
+        return await _enrollmentRepository.IsEnrollmentExistAsync(studentId, courseId);
+    }
+
     public async Task<IEnumerable<EnrollmentInforDTO>> GetEnrollmentInCourseAsync(string userId, string courseId)
     {
         var courseIdGuid = GuidHelper.ParseOrThrow(courseId, nameof(courseId));
@@ -90,7 +95,7 @@ public class EnrollmentCourseService : IEnrollmentCourseService
         }
 
         // Check Enrollment with Student Exist
-        var enrollmentExist = await _enrollmentRepository.IsEnrollmentExistAsync(courseId, studentId);
+        var enrollmentExist = await _enrollmentRepository.IsEnrollmentExistAsync(studentId, courseId);
         if (enrollmentExist)
         {
             throw new Exception("Student has already enrolled in this course");

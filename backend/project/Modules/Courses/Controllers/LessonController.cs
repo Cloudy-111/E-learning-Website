@@ -23,7 +23,7 @@ public class LessonController : ControllerBase
         try
         {
             var lessons = await _lessonService.GetLessonsByCourseContentIdAsync(courseContentId);
-            return Ok(lessons);
+            return Ok(new APIResponse("success", "Lessons retrieved successfully", lessons));
         }
         catch (Exception ex)
         {

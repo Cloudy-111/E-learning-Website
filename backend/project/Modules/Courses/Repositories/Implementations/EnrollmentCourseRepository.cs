@@ -35,7 +35,7 @@ public class EnrollmentCourseRepository : IEnrollmentCourseRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<bool> IsEnrollmentExistAsync(string courseId, string studentId)
+    public async Task<bool> IsEnrollmentExistAsync(string studentId, string courseId)
     {
         return await _dbContext.Enrollments
             .AnyAsync(en => en.CourseId == courseId && en.StudentId == studentId);

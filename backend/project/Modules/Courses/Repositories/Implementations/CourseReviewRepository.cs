@@ -40,6 +40,8 @@ public class CourseReviewRepository : ICourseReviewRepository
     {
         return await _dbContext.CourseReviews
             .Where(r => r.CourseId == courseId && r.IsNewest)
+            .Include(r => r.Student)
+                .ThenInclude(s => s.User)
             .ToListAsync();
     }
 

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 
 public interface IEnrollmentCourseService
 {
+    Task<bool> IsEnrolledInCourseAsync(string studentId, string courseId);
     Task<IEnumerable<EnrollmentInforDTO>> GetEnrollmentInCourseAsync(string userId, string courseId);
     Task<EnrollmentInforDTO> GetEnrollmentByIdAsync(string userId, string courseId, string enrollmentId);
     Task CreateEnrollmentAsync(string courseId, string studentId);

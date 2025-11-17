@@ -591,7 +591,7 @@ import Menu from "./pages/shared/MenuS.jsx";
 const Home = lazy(() => import("./pages/shared/Home.jsx"));
 const Discover = lazy(() => import("./pages/shared/Discover.jsx"));
 const Courses = lazy(() => import("./pages/shared/Courses/Courses.jsx"));
-const CourseDetail = lazy(() => import("./pages/shared/CourseDetail.jsx"));
+const CourseDetail = lazy(() => import("./pages/shared/CourseDetail/CourseDetail.jsx"));
 
 const Study4TestLibrary = lazy(() => import("./pages/shared/Exam.jsx"));
 const ExamDetail = lazy(() => import("./pages/shared/ExamDetail.jsx"));

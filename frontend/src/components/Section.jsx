@@ -1,6 +1,6 @@
 const Section = ({ id, title, subtitle, action, children, className = "" }) => (
   <section id={id} className={`w-screen overflow-x-hidden py-10 lg:py-14 ${className}`}>
-    <div className="w-screen px-6 lg:px-12">
+    <div className="w-screen px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
       {(title || subtitle || action) && (
         <div className="mb-6 flex items-end justify-between gap-4 flex-wrap">
           <div>
@@ -10,6 +10,8 @@ const Section = ({ id, title, subtitle, action, children, className = "" }) => (
           {action}
         </div>
       )}
+    </div>
+    <div className="w-screen px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
       {children}
     </div>
   </section>

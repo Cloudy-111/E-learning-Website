@@ -93,6 +93,8 @@ public class CourseReviewService : ICourseReviewService
             Id = r.Id,
             CourseId = r.CourseId,
             StudentId = r.StudentId,
+            StudentName = r.Student.User.FullName,
+            StudentAvatarUrl = r.Student.User.AvatarUrl,
             Rating = r.Rating,
             Comment = r.Comment,
             CreatedAt = r.CreatedAt,
