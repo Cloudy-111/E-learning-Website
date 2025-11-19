@@ -1,26 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { postEnrollCourse, isEnrolled } from "../../../../api/enrollments.api";
+import { postEnrollCourse } from "../../../../api/enrollments.api";
 import { isLoggedIn } from "../../../../utils/auth";
 import { Primary } from "../../../../components/Buttons";
 
-const EnrollButton = ({courseId}) => {
-    const [isEnrolledState, setIsEnrolledState] = useState(null);
+const EnrollButton = ({courseId, isEnrolledState}) => {
+    
     const navigate = useNavigate();
-
-    useEffect(() => {
-        const checkEnrollment = async () => {
-            try {
-                const result = await isEnrolled(courseId);
-                setIsEnrolledState(result.data.isEnrolled);
-            } catch (err) {
-                console.error(err);
-                setIsEnrolledState(false);
-            }
-        };
-
-        checkEnrollment();
-    }, [courseId]);
 
     const handleEnroll = async () => {
         if(!isLoggedIn()){

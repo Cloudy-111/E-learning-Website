@@ -66,7 +66,7 @@ public class ExamService : IExamService
         });
     }
 
-    public async Task<IEnumerable<InformationExamDTO>> GetExamsInLessonAsync(string lessonId)
+    public async Task<IEnumerable<InformationExamDTO>> GetExamsInLessonAsync(string studentId, string lessonId)
     {
         var lessonGuid = GuidHelper.ParseOrThrow(lessonId, nameof(lessonId));
         var lessonExist = await _lessonRepository.LessonExistsAsync(lessonId);

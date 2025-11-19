@@ -2,7 +2,7 @@ import { Check, Clock, Eye } from "../../../../assets/Icons";
 import { Ghost } from "../../../../components/Buttons";
 import EnrollButton from "./EnrollButton";
 
-function Hero({ course }) {
+function Hero({ course, isEnrolledState }) {
   const {
     title,
     description,
@@ -98,7 +98,7 @@ function Hero({ course }) {
               )}
             </div>
 
-            <EnrollButton courseId={course.id} />
+            <EnrollButton courseId={course.id} isEnrolledState={isEnrolledState} />
 
             <Ghost className="w-full mt-2">Thêm vào yêu thích</Ghost>
             <div className="mt-5 grid gap-2 text-sm text-slate-700">

@@ -626,7 +626,7 @@ const IELTSResultsPage = lazy(() => import("./pages/student/ResultTest.jsx"));
 const QuizTest = lazy(() => import("./pages/student/QuizTest.jsx"));
 const Learning = lazy(() => import("./pages/student/Learning.jsx"));
 const Enrollments = lazy(() => import("./pages/student/Enrollments.jsx"));
-const LessonDetail = lazy(() => import("./pages/student/LessonDetail.jsx"));
+const LessonDetail = lazy(() => import("./pages/student/LessonDetail/LessonDetail.jsx"));
 const ResultAttempt = lazy(() => import("./pages/student/ResultAttempt.jsx"));
 const ProfilePage = lazy(() => import("./pages/student/Profile.jsx"));
 const SchedulePage = lazy(() => import("./pages/student/SchedulePage.jsx"));

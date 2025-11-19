@@ -2,7 +2,7 @@ public interface IExamService
 {
     Task<IEnumerable<InformationExamDTO>> GetAllExamsAsync();
     Task<IEnumerable<InformationExamDTO>> GetExamsInCourseAsync(string courseId);
-    Task<IEnumerable<InformationExamDTO>> GetExamsInLessonAsync(string lessonId);
+    Task<IEnumerable<InformationExamDTO>> GetExamsInLessonAsync(string studentId, string lessonId);
     Task<InformationExamDTO?> GetExamByIdAsync(string id);
     Task AddExamAsync(string userId, CreateExamDTO exam);
     Task UpdateExamAsync(string userId, string examId, UpdateExamDTO examUpdate);

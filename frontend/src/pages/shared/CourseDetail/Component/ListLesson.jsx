@@ -1,6 +1,6 @@
 import LessonItem from "./LessonItem";
 
-function ListLesson({ listLesson }) {
+function ListLesson({ listLesson, courseContentId, isEnrolledState }) {
     if (!Array.isArray(listLesson) || listLesson.length === 0) {
         return (
             <div className="lg:col-span-2 rounded-2xl border p-4 bg-white">
@@ -14,9 +14,11 @@ function ListLesson({ listLesson }) {
             <ul className="divide-y">
                 {listLesson.map((lesson, idx) => 
                     <LessonItem 
+                        courseContentId={courseContentId}
                         key={lesson.id ?? `${lesson.order ?? lesson.index ?? idx + 1}-${idx}`} 
                         lesson={lesson} 
                         idx={idx} 
+                        isEnrolledState={isEnrolledState}
                     />
                 )}
             </ul>

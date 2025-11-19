@@ -14,6 +14,7 @@ import { fetchCourseDetail } from "../../../api/courses.api";
 import { fetchCourseContent } from "../../../api/courseContent.api";
 import { fetchListLessons } from "../../../api/lessons.api";
 import { fetchCourseReviews } from "../../../api/courseReview.api";
+import { isEnrolled } from "../../../api/enrollments.api";
 
 function CourseDetail() {
   const { id } = useParams(); 
@@ -27,6 +28,22 @@ function CourseDetail() {
 
   const [listLesson, setListLesson] = useState([]);
   const [listReview, setListReview] = useState([]);
+
+  const [isEnrolledState, setIsEnrolledState] = useState(null);
+
+  useEffect(() => {
+    const checkEnrollment = async () => {
+      try {
+        const result = await isEnrolled(id);
+        setIsEnrolledState(result.data.isEnrolled);
+      } catch (err) {
+        console.error(err);
+        setIsEnrolledState(false);
+      }
+    };
+
+    checkEnrollment();
+  }, [id]);
 
   // fetch detail
   useEffect(() => {
@@ -154,7 +171,7 @@ function CourseDetail() {
 
     return (
       <>
-        <Hero course={course}/>
+        <Hero course={course} isEnrolledState={isEnrolledState}/>
         {intro && (
           <Section id="intro" title="Giới thiệu khóa học">
             <div className="lg:col-span-2 rounded-2xl border p-6 bg-white">
@@ -163,17 +180,19 @@ function CourseDetail() {
           </Section>
         )}
         <Section id="lessons" title="Danh sách bài học">
-          <ListLesson listLesson={listLesson} />
+          <ListLesson 
+            isEnrolledState={isEnrolledState}
+            listLesson={listLesson} 
+            courseContentId={courseContentId} 
+            courseId={id} 
+          />
         </Section>
         <Section id="reviews" title="Đánh giá khóa học">
           <ListReview listReview={listReview} />
         </Section>
       </>
     );
-  }, [loading, error, course, intro, listLesson, listReview, navigate]);
-
-  
-  console.log("List Lesson: ", listLesson);
+  }, [loading, error, course, intro, isEnrolledState, listLesson, courseContentId, id, listReview, navigate]);
 
   return (
     <>

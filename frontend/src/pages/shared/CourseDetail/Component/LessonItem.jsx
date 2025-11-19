@@ -1,9 +1,11 @@
-function LessonItem({lesson, idx}){
+import { Link } from "react-router-dom";
+
+function LessonItem({lesson, idx, courseContentId, courseId, isEnrolledState}) {
     const order = lesson.order ?? lesson.index ?? idx + 1
     const title = lesson.title ?? lesson.name ?? 'Untitled'
     const duration = lesson.duration ?? lesson.length ?? ''
 
-    return (
+    const lessonItemContent = (
         <li key={lesson.id ?? `${order}-${idx}`} className="p-4 flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
                 <div className="flex items-center justify-center bg-slate-100 font-medium text-slate-700 text-lg px-3 py-1 rounded-full">
@@ -19,6 +21,28 @@ function LessonItem({lesson, idx}){
 
             <div className="text-sm text-slate-500">Duration: {duration} min</div>
         </li>
+    )
+
+    if (!isEnrolledState) {
+        return (
+            <div>
+                {lessonItemContent}
+            </div>
+        )
+    }
+
+    return (
+        <Link 
+            to={`/s/lesson/${lesson.id ?? ''}` } 
+            state={{courseContentId: courseContentId}}
+            onClick={() => {
+                if (courseContentId) sessionStorage.setItem('courseContentId', String(courseContentId));
+                if (courseId) sessionStorage.setItem('courseId', String(courseId));
+            }}
+            className="block hover:bg-slate-50 rounded-lg transition"
+        >
+            {lessonItemContent}
+        </Link>
     )
 }
 

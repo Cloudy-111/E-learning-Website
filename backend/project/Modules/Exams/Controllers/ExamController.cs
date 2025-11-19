@@ -138,7 +138,8 @@ public class ExamController : ControllerBase
     {
         try
         {
-            var exams = await _examService.GetExamsInLessonAsync(lessonId);
+            var studentId = User.FindFirst("studentId")?.Value;
+            var exams = await _examService.GetExamsInLessonAsync(studentId, lessonId);
             return Ok(new APIResponse("success", "Retrieve Exams in lesson Successfully", exams));
         }
         catch (KeyNotFoundException ex)
