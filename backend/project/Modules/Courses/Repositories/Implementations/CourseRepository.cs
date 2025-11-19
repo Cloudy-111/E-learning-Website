@@ -89,17 +89,27 @@ public class CourseRepository : ICourseRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Course>> GetEnrolledCoursesByStudentIdAsync(string studentId)
+    public async Task<(IEnumerable<Enrollment_course>, int)> GetEnrolledCoursesByStudentIdAsync(string studentId, string? keyword, string? status, int page, int pageSize)
     {
-        return await _dbContext.Enrollments
-            .Where(e => e.StudentId == studentId)
+        var query = _dbContext.Enrollments
+            .Where(e => e.StudentId == studentId && (string.IsNullOrEmpty(status) || e.Status == status))
             .Include(e => e.Course)
                 .ThenInclude(c => c.Category)
             .Include(e => e.Course)
                 .ThenInclude(c => c.Teacher)
                     .ThenInclude(t => t.User)
-            .Select(e => e.Course)
-            .ToListAsync();
+            .Include(e => e.Course)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(keyword))
+        {
+            query = query.Where(e => e.Course.Title.Contains(keyword));
+        }
+
+        var totalItems = await query.CountAsync();
+        var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+        return (items, totalItems);
     }
 
     public async Task AddCourseAsync(Course course)
