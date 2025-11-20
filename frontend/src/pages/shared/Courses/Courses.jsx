@@ -79,7 +79,7 @@ function Courses(){
   if (cateError) return <div className="text-red-600">{cateError}</div>;
 
   return (
-    <Layout>
+    <>
       {isLoggedIn() && <Hero />}
 
       <SearchBar 
@@ -99,7 +99,7 @@ function Courses(){
         totalPages={totalPages} 
         onPageChange={(page) => loadCourses({ keyword: query, category: selectedCategory, page })} 
       />
-    </Layout>
+    </>
   );
 }
 

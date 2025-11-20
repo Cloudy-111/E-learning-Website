@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import Clock from "../../../../assets/Icons/Clock";
+import { Clock } from "../../../../assets/Icons";
 
 function CourseCard({ c }) {
   const {

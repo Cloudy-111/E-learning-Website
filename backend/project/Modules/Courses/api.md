@@ -43,6 +43,7 @@
 
 - GET api/courses/{courseId}/enrollments - Lấy danh sách bản ghi người học đã ghi danh trong khóa học
 - GET api/courses/{courseId}/enrollments/{enrollmentId} - Xem thông tin về quá trình học của một người học trong khóa học
+- GET api/courses/{courseId}/enrollments/is-enrolled
 - POST api/courses/{courseId}/enrollments - Người dùng ghi danh tham gia khóa học
 - PATCH api/courses/{courseId}/enrollments/{enrollmentId}/progress - Cập nhật tiến độ học tập của người học trong khóa học
 - POST api/courses/{courseId}/enrollments/{enrollmentId}/request-cancel

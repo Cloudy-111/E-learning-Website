@@ -207,12 +207,18 @@ public class CourseController : ControllerBase
 
     [Authorize(Roles = "Student")]
     [HttpGet("student/enrolled-courses")]
-    public async Task<IActionResult> GetEnrolledCourses()
+    public async Task<IActionResult> GetEnrolledCourses(
+        [FromQuery] string? keyword,
+        [FromQuery] string? status,
+        [FromQuery] string? sort,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10
+    )
     {
         try
         {
             var studentId = User.FindFirst("studentId")?.Value;
-            var courses = await _courseService.GetEnrolledCoursesByStudentIdAsync(studentId);
+            var courses = await _courseService.GetEnrolledCoursesByStudentIdAsync(studentId, keyword, status, sort, page, pageSize);
             return Ok(new APIResponse("Success", "Retrieve Enrolled Courses Successfully", courses));
         }
         catch (Exception ex)

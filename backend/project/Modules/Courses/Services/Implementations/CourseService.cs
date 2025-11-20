@@ -211,35 +211,49 @@ public class CourseService : ICourseService
         });
     }
 
-    public async Task<IEnumerable<CourseInformationDTO>> GetEnrolledCoursesByStudentIdAsync(string studentId)
+    public async Task<PageResultCourseEnrollmentDTO> GetEnrolledCoursesByStudentIdAsync(string studentId, string? keyword, string? status, string? sort, int page, int pageSize)
     {
-        var studentGuid = GuidHelper.ParseOrThrow(studentId, nameof(studentId));
-        if (!await _studentRepository.IsStudentExistAsync(studentId))
+        try
         {
-            throw new KeyNotFoundException("Student not found");
+            var studentGuid = GuidHelper.ParseOrThrow(studentId, nameof(studentId));
+            if (!await _studentRepository.IsStudentExistAsync(studentId))
+            {
+                throw new KeyNotFoundException("Student not found");
+            }
+            var (courses, totalCourses) = await _courseRepository.GetEnrolledCoursesByStudentIdAsync(studentId, keyword, status, sort, page, pageSize);
+            var courseResult = courses.Select(c => new CourseEnrollmentInforDTO
+            {
+                Id = c.Course.Id,
+                Title = c.Course.Title,
+                Description = c.Course.Description,
+                Price = c.Course.Price,
+                DiscountPrice = c.Course.DiscountPrice,
+                Status = c.Course.Status,
+                ThumbnailUrl = c.Course.ThumbnailUrl,
+                CreatedAt = c.Course.CreatedAt,
+                UpdatedAt = c.Course.UpdatedAt,
+                AverageRating = c.Course.AverageRating,
+                ReviewCount = c.Course.ReviewCount,
+                CategoryId = c.Course.CategoryId,
+                CategoryName = c.Course.Category.Name,
+                TeacherId = c.Course.TeacherId,
+                TeacherName = c.Course.Teacher.User.FullName,
+                Progress = (double)c.Progress
+            });
+
+            return new PageResultCourseEnrollmentDTO
+            {
+                Courses = courseResult,
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalCount = totalCourses,
+                TotalPages = (int)Math.Ceiling((double)totalCourses / pageSize)
+            };
         }
-        var courses = await _courseRepository.GetEnrolledCoursesByStudentIdAsync(studentId);
-        if (courses == null || !courses.Any())
+        catch (Exception ex)
         {
-            return [];
+            throw new Exception("Error when retriev enrolled courses: ", ex);
+
         }
-        return courses.Select(c => new CourseInformationDTO
-        {
-            Id = c.Id,
-            Title = c.Title,
-            Description = c.Description,
-            Price = c.Price,
-            DiscountPrice = c.DiscountPrice,
-            Status = c.Status,
-            ThumbnailUrl = c.ThumbnailUrl,
-            CreatedAt = c.CreatedAt,
-            UpdatedAt = c.UpdatedAt,
-            AverageRating = c.AverageRating,
-            ReviewCount = c.ReviewCount,
-            CategoryId = c.CategoryId,
-            CategoryName = c.Category.Name,
-            TeacherId = c.TeacherId,
-            TeacherName = c.Teacher.User.FullName
-        });
     }
 }

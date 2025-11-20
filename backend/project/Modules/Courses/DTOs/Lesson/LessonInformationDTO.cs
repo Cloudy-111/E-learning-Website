@@ -6,6 +6,8 @@ public class LessonInformationDTO
     public string Id { get; set; } = null!;
     [Required]
     public string CourseContentId { get; set; } = null!;
+    public string CourseId { get; set; } = null!;
+    public string CourseTitle { get; set; } = null!;
     [Required]
     public string Title { get; set; } = null!;
     public string? VideoUrl { get; set; }

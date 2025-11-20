@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [Route("api/{courseId}/reviews")]
@@ -21,12 +22,13 @@ public class CourseReviewController : ControllerBase
 
         try
         {
-            await _courseReviewService.AddCourseReviewAsync(courseId, courseReviewCreateDTO);
+            var studentId = User.FindFirst("studentId")?.Value;
+            await _courseReviewService.AddCourseReviewAsync(courseId, studentId, courseReviewCreateDTO);
             return Ok(new APIResponse("success", "Review added successfully"));
         }
         catch (Exception ex)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError, new APIResponse("error", "An error occurred while posting the review.", ex));
+            return StatusCode(StatusCodes.Status500InternalServerError, new APIResponse("error", "An error occurred while posting the review.", ex.Message));
         }
     }
 
@@ -62,6 +64,22 @@ public class CourseReviewController : ControllerBase
         catch (Exception ex)
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new APIResponse("error", "An error occurred while updating the review.", ex));
+        }
+    }
+
+    [Authorize(Roles = "Student")]
+    [HttpGet("has-reviewed")]
+    public async Task<IActionResult> CheckReviewedByStudentAsync(string courseId)
+    {
+        try
+        {
+            var studentId = User.FindFirst("studentId")?.Value;
+            var hasReviewed = await _courseReviewService.CheckReviewedCourseAsync(courseId, studentId);
+            return Ok(new APIResponse("success", "Check review status successfully", new { hasReviewed }));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new APIResponse("error", "An error occurred while checking the review status.", ex.Message));
         }
     }
 }
