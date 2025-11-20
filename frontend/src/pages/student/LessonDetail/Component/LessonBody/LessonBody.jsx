@@ -2,7 +2,7 @@ import NavigationLesson from "./NavigationLesson";
 import LessonContent from "./LessonContent";
 import OutlineCourse from "./OutlineCourse/OutlineCourse";
 
-function LessonBody({ lesson, siblings, exams, idx, prev, next, navigate }) {
+function LessonBody({ courseContentId, lesson, siblings, exams, idx, prev, next, navigate }) {
     return (
         <main className="w-full px-6 lg:px-12 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8">
@@ -19,6 +19,7 @@ function LessonBody({ lesson, siblings, exams, idx, prev, next, navigate }) {
               lesson={lesson} 
               idx={idx} 
               exams={exams}
+              courseContentId={courseContentId}
             />
         </div>
       </main>

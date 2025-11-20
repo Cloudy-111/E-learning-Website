@@ -9,6 +9,12 @@ public class CourseReviewRepository : ICourseReviewRepository
         _dbContext = dbContext;
     }
 
+    public async Task<bool> CheckReviewedCourseAsync(string courseId, string studentId)
+    {
+        return await _dbContext.CourseReviews
+            .AnyAsync(r => r.CourseId == courseId && r.StudentId == studentId && r.IsNewest);
+    }
+
     public async Task<bool> CourseReviewExistsAsync(string reviewId)
     {
         return await _dbContext.CourseReviews.AnyAsync(r => r.Id == reviewId);

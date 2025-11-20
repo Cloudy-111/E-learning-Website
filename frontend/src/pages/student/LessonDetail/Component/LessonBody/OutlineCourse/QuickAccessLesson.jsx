@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { BookOpenText } from "lucide-react";
 
-function QuickAccessLesson({ siblings, lesson }) {
+function QuickAccessLesson({ siblings, lesson, courseContentId }) {
     return (
         <div className="bg-white border rounded-2xl p-5">
             <div className="flex items-center gap-2 mb-3">
@@ -14,7 +14,7 @@ function QuickAccessLesson({ siblings, lesson }) {
                 return (
                     <li key={l.id}>
                         <Link
-                            to={`/s/lesson/${l.id}`}
+                            to={`/s/${courseContentId}/lesson/${l.id ?? ''}` }
                             className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg border ${
                             active ? "bg-blue-50 border-blue-200" : "hover:bg-gray-50…"}`
                             }

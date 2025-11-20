@@ -133,6 +133,7 @@ function LessonDetail() {
     <div className="min-h-screen bg-white">
       <Hero lesson={lesson} />
       <LessonBody 
+        courseContentId={courseContentId}
         lesson={lesson} 
         siblings={siblings} 
         exams={exams}

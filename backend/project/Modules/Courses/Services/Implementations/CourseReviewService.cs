@@ -5,29 +5,54 @@ public class CourseReviewService : ICourseReviewService
     private readonly ICourseReviewRepository _courseReviewRepository;
     private readonly ICourseRepository _courseRepository;
     private readonly IStudentRepository _studentRepository;
+    private readonly IEnrollmentCourseRepository _enrollmentCourseRepository;
     public CourseReviewService(
         ICourseReviewRepository courseReviewRepository,
         ICourseRepository courseRepository,
-        IStudentRepository studentRepository
+        IStudentRepository studentRepository,
+        IEnrollmentCourseRepository enrollmentCourseRepository
     )
     {
         _courseReviewRepository = courseReviewRepository;
         _courseRepository = courseRepository;
         _studentRepository = studentRepository;
+        _enrollmentCourseRepository = enrollmentCourseRepository;
     }
 
-    public async Task AddCourseReviewAsync(string courseId, CourseReviewCreateDTO courseReviewCreateDTO)
+    public async Task<bool> CheckReviewedCourseAsync(string courseId, string studentId)
+    {
+        var isReviewed = await _courseReviewRepository.CheckReviewedCourseAsync(courseId, studentId);
+        return isReviewed;
+    }
+
+    public async Task AddCourseReviewAsync(string courseId, string studentId, CourseReviewCreateDTO courseReviewCreateDTO)
     {
         var courseIdGuid = GuidHelper.ParseOrThrow(courseId, nameof(courseId));
 
         var course = await _courseRepository.GetCourseByIdAsync(courseId) ?? throw new KeyNotFoundException($"Course with id {courseId} not found");
+
+        var studentExists = await _studentRepository.IsStudentExistAsync(studentId);
+        if (!studentExists)
+        {
+            throw new Exception($"Student with id {studentId} not found");
+        }
+        var enrollment = await _enrollmentCourseRepository.IsEnrollmentExistAsync(studentId, courseId);
+        if (!enrollment)
+        {
+            throw new Exception($"Student with id {studentId} is not enrolled in course with id {courseId}");
+        }
+        var reviewExist = await _courseReviewRepository.CheckReviewedCourseAsync(courseId, studentId);
+        if (reviewExist)
+        {
+            throw new Exception($"Student with id {studentId} has already reviewed course with id {courseId}");
+        }
 
         var review = new CourseReview
         {
             CourseId = courseId,
             Rating = courseReviewCreateDTO.Rating,
             Comment = courseReviewCreateDTO.Comment,
-            StudentId = courseReviewCreateDTO.StudentId,
+            StudentId = studentId,
             CreatedAt = DateTime.UtcNow,
             IsNewest = true,
             ParentId = null

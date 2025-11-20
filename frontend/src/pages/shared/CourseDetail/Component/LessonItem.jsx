@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 
+// eslint-disable-next-line no-unused-vars
 function LessonItem({lesson, idx, courseContentId, courseId, isEnrolledState}) {
     const order = lesson.order ?? lesson.index ?? idx + 1
     const title = lesson.title ?? lesson.name ?? 'Untitled'
@@ -34,11 +35,6 @@ function LessonItem({lesson, idx, courseContentId, courseId, isEnrolledState}) {
     return (
         <Link 
             to={`/s/${courseContentId}/lesson/${lesson.id ?? ''}` } 
-            state={{courseContentId: courseContentId}}
-            onClick={() => {
-                if (courseContentId) sessionStorage.setItem('courseContentId', String(courseContentId));
-                if (courseId) sessionStorage.setItem('courseId', String(courseId));
-            }}
             className="block hover:bg-slate-50 rounded-lg transition"
         >
             {lessonItemContent}

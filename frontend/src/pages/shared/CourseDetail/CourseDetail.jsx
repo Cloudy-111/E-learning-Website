@@ -5,7 +5,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Section from "../../../components/Section";
-import Layout from "../../../components/Layout";
 import Hero from "./Component/Hero";
 import ListLesson from "./Component/ListLesson";
 import ListReview from "./Component/ListReview";
@@ -13,7 +12,7 @@ import ListReview from "./Component/ListReview";
 import { fetchCourseDetail } from "../../../api/courses.api";
 import { fetchCourseContent } from "../../../api/courseContent.api";
 import { fetchListLessons } from "../../../api/lessons.api";
-import { fetchCourseReviews } from "../../../api/courseReview.api";
+import { fetchCourseReviews, hasReviewedCourse } from "../../../api/courseReview.api";
 import { isEnrolled } from "../../../api/enrollments.api";
 
 function CourseDetail() {
@@ -30,7 +29,9 @@ function CourseDetail() {
   const [listReview, setListReview] = useState([]);
 
   const [isEnrolledState, setIsEnrolledState] = useState(null);
+  const [hasReviewed, setHasReviewed] = useState(false);
 
+  // check enrollment
   useEffect(() => {
     const checkEnrollment = async () => {
       try {
@@ -43,6 +44,21 @@ function CourseDetail() {
     };
 
     checkEnrollment();
+  }, [id]);
+
+  // check reviewed
+  useEffect(() => {
+    const checkReviewed = async () => {
+      try{
+        const result = await hasReviewedCourse(id);
+        setHasReviewed(result.data.hasReviewed);
+      } catch (err){
+        console.error(err);
+        setHasReviewed(false);
+      }
+    };
+
+    checkReviewed();
   }, [id]);
 
   // fetch detail
@@ -188,11 +204,16 @@ function CourseDetail() {
           />
         </Section>
         <Section id="reviews" title="Đánh giá khóa học">
-          <ListReview listReview={listReview} />
+          <ListReview 
+            hasReviewed={hasReviewed}
+            isEnrolledState={isEnrolledState} 
+            listReview={listReview} 
+            courseId={id} 
+          />
         </Section>
       </>
     );
-  }, [loading, error, course, intro, isEnrolledState, listLesson, courseContentId, id, listReview, navigate]);
+  }, [loading, error, course, intro, isEnrolledState, listLesson, courseContentId, id, listReview, hasReviewed, navigate]);
 
   return (
     <>
