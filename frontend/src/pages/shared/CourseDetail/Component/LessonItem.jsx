@@ -33,7 +33,7 @@ function LessonItem({lesson, idx, courseContentId, courseId, isEnrolledState}) {
 
     return (
         <Link 
-            to={`/s/lesson/${lesson.id ?? ''}` } 
+            to={`/s/${courseContentId}/lesson/${lesson.id ?? ''}` } 
             state={{courseContentId: courseContentId}}
             onClick={() => {
                 if (courseContentId) sessionStorage.setItem('courseContentId', String(courseContentId));

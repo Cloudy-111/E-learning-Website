@@ -5,7 +5,6 @@ import { ChevronLeft } from "lucide-react";
 function ErrorLoadingLesson({ error, lessonId }) {
     return (
       <div className="min-h-screen bg-white">
-        <Layout>
           <main className="w-full px-6 lg:px-12 py-16">
             <div className="max-w-3xl">
               <Link to="/s/enrollments" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6">
@@ -17,7 +16,6 @@ function ErrorLoadingLesson({ error, lessonId }) {
               <p className="text-gray-600">ID: {lessonId}</p>
             </div>
           </main>
-        </Layout>
       </div>
     );
 }

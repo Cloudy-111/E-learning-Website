@@ -23,7 +23,8 @@ async function isEnrolled(courseId) {
 async function fetchEnrollmentsByStudentId(params = {}) {
   const searchParams = new URLSearchParams();
   if (params.keyword) searchParams.append("keyword", params.keyword);
-  if (params.category) searchParams.append("category", params.category);
+  if (params.status) searchParams.append("status", params.status);
+  if (params.sort) searchParams.append("sort", params.sort);
 
   if (params.page) searchParams.append("page", params.page);
   if (params.pageSize) searchParams.append("pageSize", params.pageSize);

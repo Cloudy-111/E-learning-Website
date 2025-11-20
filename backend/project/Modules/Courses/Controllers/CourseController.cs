@@ -210,6 +210,7 @@ public class CourseController : ControllerBase
     public async Task<IActionResult> GetEnrolledCourses(
         [FromQuery] string? keyword,
         [FromQuery] string? status,
+        [FromQuery] string? sort,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10
     )
@@ -217,7 +218,7 @@ public class CourseController : ControllerBase
         try
         {
             var studentId = User.FindFirst("studentId")?.Value;
-            var courses = await _courseService.GetEnrolledCoursesByStudentIdAsync(studentId, keyword, status, page, pageSize);
+            var courses = await _courseService.GetEnrolledCoursesByStudentIdAsync(studentId, keyword, status, sort, page, pageSize);
             return Ok(new APIResponse("Success", "Retrieve Enrolled Courses Successfully", courses));
         }
         catch (Exception ex)

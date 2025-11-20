@@ -211,7 +211,7 @@ public class CourseService : ICourseService
         });
     }
 
-    public async Task<PageResultCourseEnrollmentDTO> GetEnrolledCoursesByStudentIdAsync(string studentId, string? keyword, string? status, int page, int pageSize)
+    public async Task<PageResultCourseEnrollmentDTO> GetEnrolledCoursesByStudentIdAsync(string studentId, string? keyword, string? status, string? sort, int page, int pageSize)
     {
         try
         {
@@ -220,7 +220,7 @@ public class CourseService : ICourseService
             {
                 throw new KeyNotFoundException("Student not found");
             }
-            var (courses, totalCourses) = await _courseRepository.GetEnrolledCoursesByStudentIdAsync(studentId, keyword, status, page, pageSize);
+            var (courses, totalCourses) = await _courseRepository.GetEnrolledCoursesByStudentIdAsync(studentId, keyword, status, sort, page, pageSize);
             var courseResult = courses.Select(c => new CourseEnrollmentInforDTO
             {
                 Id = c.Course.Id,

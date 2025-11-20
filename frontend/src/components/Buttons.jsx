@@ -13,6 +13,7 @@ const Primary = ({ children, className = "", ...props }) => (
         "rounded-full bg-[#2563eb] text-white px-5 py-3 hover:bg-[#1d4ed8] transition " + className
         }
         {...props}
+        type="button"
     >
         {children}
     </button>

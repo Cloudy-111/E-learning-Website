@@ -12,8 +12,7 @@ import { fetchLessonDetail, fetchListLessons } from "../../../api/lessons.api";
 import { fetchExamsByLesson } from "../../../api/exams.api";
 
 function LessonDetail() {
-  const { lessonId } = useParams();
-  console.log("Lesson ID: ", lessonId);
+  const { lessonId, courseContentId } = useParams();
   const navigate = useNavigate();
 
   const [lesson, setLesson] = useState(null);
@@ -21,8 +20,6 @@ function LessonDetail() {
   const [siblings, setSiblings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  const courseContentId = sessionStorage.getItem('courseContentId');
 
   // Fetch lesson detail
   useEffect(() => {
@@ -121,13 +118,11 @@ function LessonDetail() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white">
-        <Layout>
           <div className="max-w-4xl mx-auto p-10 grid gap-6">
             <div className="h-[240px] bg-slate-100 rounded-xl animate-pulse" />
             <div className="h-5 bg-slate-100 w-2/3 rounded animate-pulse" />
             <div className="h-4 bg-slate-100 w-full rounded animate-pulse" />
           </div>
-        </Layout>
       </div>
     );
   }
@@ -136,19 +131,16 @@ function LessonDetail() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Layout>
-        <Hero lesson={lesson} />
-        <LessonBody 
-          lesson={lesson} 
-          siblings={siblings} 
-          exams={exams}
-          idx={idx} 
-          prev={prev} 
-          next={next} 
-          navigate={navigate} 
-        />
-      </Layout>
-
+      <Hero lesson={lesson} />
+      <LessonBody 
+        lesson={lesson} 
+        siblings={siblings} 
+        exams={exams}
+        idx={idx} 
+        prev={prev} 
+        next={next} 
+        navigate={navigate} 
+      />
     </div>
   );
 }

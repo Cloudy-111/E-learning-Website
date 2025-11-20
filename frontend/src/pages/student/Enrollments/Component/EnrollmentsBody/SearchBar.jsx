@@ -20,10 +20,9 @@ function SearchBar({ q, setQ, status, setStatus, sort, setSort, handleSearch }) 
                     onChange={(e) => setStatus(e.target.value)}
                     className="rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                    <option value="all">Tất cả</option>
-                    <option value="studying">Đang học</option>
+                    <option value="">Tất cả</option>
+                    <option value="active">Đang học</option>
                     <option value="completed">Hoàn thành</option>
-                    <option value="not">Chưa học</option>
                 </select>
             </div>
 
@@ -34,7 +33,7 @@ function SearchBar({ q, setQ, status, setStatus, sort, setSort, handleSearch }) 
                     onChange={(e) => setSort(e.target.value)}
                     className="rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                    <option value="recent">Gần đây</option>
+                    <option value="">Gần đây</option>
                     <option value="progress-desc">% hoàn thành ↓</option>
                     <option value="progress-asc">% hoàn thành ↑</option>
                 </select>

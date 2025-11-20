@@ -666,6 +666,7 @@ import LessonUpload from "./pages/instructor/LessonUpload.jsx";
 
 import Categories from "./pages/instructor/Categories.jsx";
 import CategoryCreate from "./pages/instructor/CategoryCreate.jsx";
+import Layout from "./components/Layout.jsx";
 
 
 
@@ -723,14 +724,24 @@ export default function App() {
         <main className="flex-1">
           <Suspense fallback={<Loader />}>
             <Routes>
+              <Route element={<Layout />}>
+                <Route path="/courses" element={<Courses />} />
+                <Route path="/courses/:id" element={<CourseDetail />} />
+
+
+                {/* ---------- STUDENT (/s/*) ---------- */}
+                <Route path="/s/:courseContentId/lesson/:lessonId" element={<LessonDetail title="📖 /s/lesson/:lessonId — Chi tiết bài học" />} />
+                <Route path="/s/enrollments" element={<Enrollments title="📚 /s/enrollments — Khóa học của tôi" />} />
+              
+              </Route>
               {/* ---------- PUBLIC ---------- */}
               <Route index element={<Home />} />
               <Route path="/menut" element={<Menut />} />
               <Route path="/menuS" element={<Menu />} />
               <Route path="/discover" element={<Discover />} />
 
-              <Route path="/courses" element={<Courses />} />
-              <Route path="/courses/:id" element={<CourseDetail />} />
+              
+              
 
               <Route path="/exam" element={<Study4TestLibrary />} />
               <Route path="/exam/:id" element={<ExamDetail />} />
@@ -769,7 +780,7 @@ export default function App() {
 
               {/* ---------- STUDENT (/s/*) ---------- */}
               <Route path="/s/dashboard" element={<Dashboard />} />
-              <Route path="/s/enrollments" element={<Enrollments title="📚 /s/enrollments — Khóa học của tôi" />} />
+              
               <Route path="/s/learning/:courseId" element={<Learning />} />
               <Route path="/s/lesson/:lessonId" element={<LessonDetail title="📖 /s/lesson/:lessonId — Chi tiết bài học" />} />
               <Route path="/s/lesson/:courseId/:lessonId" element={<LessonDetail title="📖 /s/lesson/:lessonId — Chi tiết bài học" />} />

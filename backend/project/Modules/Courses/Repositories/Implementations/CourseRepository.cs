@@ -89,7 +89,14 @@ public class CourseRepository : ICourseRepository
             .ToListAsync();
     }
 
-    public async Task<(IEnumerable<Enrollment_course>, int)> GetEnrolledCoursesByStudentIdAsync(string studentId, string? keyword, string? status, int page, int pageSize)
+    public async Task<(IEnumerable<Enrollment_course>, int)> GetEnrolledCoursesByStudentIdAsync(
+        string studentId,
+        string? keyword,
+        string? status,
+        string? sort,
+        int page,
+        int pageSize
+    )
     {
         var query = _dbContext.Enrollments
             .Where(e => e.StudentId == studentId && (string.IsNullOrEmpty(status) || e.Status == status))
@@ -104,6 +111,20 @@ public class CourseRepository : ICourseRepository
         if (!string.IsNullOrEmpty(keyword))
         {
             query = query.Where(e => e.Course.Title.Contains(keyword));
+        }
+
+        if (!string.IsNullOrEmpty(sort))
+        {
+            query = sort switch
+            {
+                "progress-desc" => query.OrderByDescending(e => e.Progress),
+                "progress-asc" => query.OrderBy(e => e.Progress),
+                _ => query.OrderByDescending(e => e.Progress)
+            };
+        }
+        else
+        {
+            query = query.OrderByDescending(e => e.Progress);
         }
 
         var totalItems = await query.CountAsync();

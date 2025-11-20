@@ -196,9 +196,7 @@ function CourseDetail() {
 
   return (
     <>
-      <Layout>
-        {content}
-      </Layout>
+      {content}
     </>
   );
 }
