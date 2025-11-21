@@ -1,3 +1,5 @@
+import fallbackImage from "../../../../../assets/images/course-fallback-image.jpeg";
+
 function EnrollmentItem({ item }) {
     const progressRaw = item?.progress ?? 0;
     const progressValue = typeof progressRaw === 'number'
@@ -16,6 +18,7 @@ function EnrollmentItem({ item }) {
                             src={item.thumbnailUrl}
                             alt={item.title}
                             className="w-full h-full object-cover"
+                            onError={(e) => e.currentTarget.src = fallbackImage}
                         />
                     ) : (
                         <span className="grid place-items-center h-full text-gray-400 text-sm">

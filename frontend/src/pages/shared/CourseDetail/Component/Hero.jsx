@@ -2,6 +2,8 @@ import { Check, Clock, Eye } from "../../../../assets/Icons";
 import { Ghost } from "../../../../components/Buttons";
 import EnrollButton from "./EnrollButton";
 
+import fallbackImage from "../../../../assets/images/course-fallback-image.jpeg";
+
 function Hero({ course, isEnrolledState }) {
   const {
     title,
@@ -28,7 +30,13 @@ function Hero({ course, isEnrolledState }) {
         <div className="lg:col-span-2">
           <div className="rounded-2xl border bg-blue-50 aspect-video overflow-hidden">
             {thumbnailUrl ? (
-              <img src={thumbnailUrl} alt={title} className="w-full h-full object-cover" loading="lazy" />
+              <img 
+                src={thumbnailUrl} 
+                alt={title} 
+                className="w-full h-full object-cover" 
+                loading="lazy" 
+                onError={(e) => e.currentTarget.src = fallbackImage}
+              />
             ) : (
               <div className="grid place-items-center h-full">
                 <span className="text-blue-500 text-sm">Video/Ảnh giới thiệu khóa học</span>

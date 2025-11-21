@@ -594,7 +594,7 @@ const Courses = lazy(() => import("./pages/shared/Courses/Courses.jsx"));
 const CourseDetail = lazy(() => import("./pages/shared/CourseDetail/CourseDetail.jsx"));
 
 const Study4TestLibrary = lazy(() => import("./pages/shared/Exam.jsx"));
-const ExamDetail = lazy(() => import("./pages/shared/ExamDetail.jsx"));
+const ExamDetail = lazy(() => import("./pages/shared/ExamDetail/ExamDetail.jsx"));
 
 /* ====== Blog routes (mới) ====== */
 const Blog = lazy(() => import("./pages/shared/Blog.jsx"));
@@ -732,7 +732,8 @@ export default function App() {
                 {/* ---------- STUDENT (/s/*) ---------- */}
                 <Route path="/s/:courseContentId/lesson/:lessonId" element={<LessonDetail title="📖 /s/lesson/:lessonId — Chi tiết bài học" />} />
                 <Route path="/s/enrollments" element={<Enrollments title="📚 /s/enrollments — Khóa học của tôi" />} />
-              
+                <Route path="/s/exam/:id" element={<ExamDetail title="🧠 /s/exam/:id — Giới thiệu đề thi (CTA Bắt đầu thi)" />} />
+
               </Route>
               {/* ---------- PUBLIC ---------- */}
               <Route index element={<Home />} />
@@ -786,7 +787,7 @@ export default function App() {
               <Route path="/s/lesson/:courseId/:lessonId" element={<LessonDetail title="📖 /s/lesson/:lessonId — Chi tiết bài học" />} />
               <Route path="/s/schedulepage" element={<SchedulePage />} />
               <Route path="/s/historytest" element={<HistoryTest />} />
-              <Route path="/s/exam/:id" element={<ExamDetail title="🧠 /s/exam/:id — Giới thiệu đề thi (CTA Bắt đầu thi)" />} />
+              
               <Route path="/s/exam/:id/take/:attemptId" element={<QuizTest />} />
               <Route path="/s/results/:attemptId" element={<ResultAttempt title="📈 /s/results/:attemptId — Kết quả bài thi" />} />
               <Route path="/s/resultstest" element={<IELTSResultsPage />} />

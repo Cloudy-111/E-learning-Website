@@ -68,6 +68,7 @@
 // src/utils/auth.js
 // Quản lý access/refresh token + localStorage + helper điều hướng
 
+import { jwtDecode } from "jwt-decode";
 /*** ===== Keys trong localStorage ===== ***/
 export const AUTH_KEY = "app_auth_status"; // "1" = đã đăng nhập
 export const AT_KEY = "app_access_token"; // access token (JWT)
@@ -99,6 +100,22 @@ export function getRefreshToken() {
     return localStorage.getItem(RT_KEY) || null;
   } catch {
     return null;
+  }
+}
+
+// Get Role user
+export function getRole() {
+  const token = localStorage.getItem(AT_KEY);
+  if (!token) return "guest";
+
+  try {
+    const decoded = jwtDecode(token); // decode JWT
+    let roles = decoded.role || decoded.roles || [];
+    if (!Array.isArray(roles)) roles = [roles];
+    return roles || "guest";
+  } catch (err) {
+    console.error(err);
+    return "guest";
   }
 }
 

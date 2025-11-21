@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,12 +24,18 @@ public class ExamController : ControllerBase
     {
         try
         {
-            var exam = await _examService.GetExamByIdAsync(id);
-            return Ok(exam);
+
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var exam = await _examService.GetExamByIdAsync(userId, id);
+            return Ok(new APIResponse("success", "Retrieve Exam Successfully", exam));
         }
         catch (KeyNotFoundException ex)
         {
             return NotFound(new APIResponse("error", ex.Message));
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new APIResponse("error", ex.Message));
         }
         catch (Exception ex)
         {
