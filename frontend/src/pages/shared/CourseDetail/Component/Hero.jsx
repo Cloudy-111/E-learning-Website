@@ -2,7 +2,7 @@ import { Check, Clock, Eye } from "../../../../assets/Icons";
 import { Ghost } from "../../../../components/Buttons";
 import EnrollButton from "./EnrollButton";
 
-import fallbackImage from "../../../../assets/images/course-fallback-image.jpeg";
+import fallbackImage from "../../../../assets/images/fallback-image.jpeg";
 
 function Hero({ course, isEnrolledState }) {
   const {

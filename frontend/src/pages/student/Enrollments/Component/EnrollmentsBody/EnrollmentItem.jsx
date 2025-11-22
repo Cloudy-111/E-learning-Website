@@ -1,4 +1,4 @@
-import fallbackImage from "../../../../../assets/images/course-fallback-image.jpeg";
+import fallbackImage from "../../../../../assets/images/fallback-image.jpeg";
 
 function EnrollmentItem({ item }) {
     const progressRaw = item?.progress ?? 0;

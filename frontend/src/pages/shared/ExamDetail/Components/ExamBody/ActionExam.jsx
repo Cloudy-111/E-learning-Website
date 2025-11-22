@@ -1,6 +1,6 @@
 import { PlayCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
+import { postExamAttempt } from "../../../../../api/examAttempt";
 
 function ActionExam({ roles, exam, formatDuration }){
 
@@ -36,12 +36,26 @@ function ActionExam({ roles, exam, formatDuration }){
                 <button
                     type="button"
                     className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50"
-                    onClick={() => {
+                    onClick={async () => {
                         if (isGuest) {
                             navigate("/login");
                             return;
                         } else if (isStudent) {
-                            // navigate(`/exam/${exam.id}/start`);
+                            try{
+                                const res = await postExamAttempt(exam.id);
+                                if(res.status === "error"){
+                                    alert("Không thể bắt đầu bài thi. Vui lòng thử lại.");
+                                    return;
+                                }
+
+                                const data = res.data;
+                                sessionStorage.setItem("attemptId", data.id);
+                                navigate(`/s/exam/${exam.id}/take-exam`);
+                            } catch(err){
+                                console.error(err);
+                                alert("Đã xảy ra lỗi khi bắt đầu bài thi.");
+                            }
+                            
                         }
                     }}
                 >

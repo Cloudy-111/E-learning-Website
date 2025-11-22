@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Clock } from "../../../../assets/Icons";
-import fallbackImage from "../../../../assets/images/course-fallback-image.jpeg";
+import fallbackImage from "../../../../assets/images/fallback-image.jpeg";
 
 
 function CourseCard({ c }) {
