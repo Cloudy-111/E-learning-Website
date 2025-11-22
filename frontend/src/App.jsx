@@ -594,7 +594,7 @@ const Courses = lazy(() => import("./pages/shared/Courses/Courses.jsx"));
 const CourseDetail = lazy(() => import("./pages/shared/CourseDetail/CourseDetail.jsx"));
 
 const Study4TestLibrary = lazy(() => import("./pages/shared/Exam.jsx"));
-const ExamDetail = lazy(() => import("./pages/shared/ExamDetail.jsx"));
+const ExamDetail = lazy(() => import("./pages/shared/ExamDetail/ExamDetail.jsx"));
 
 /* ====== Blog routes (mới) ====== */
 const Blog = lazy(() => import("./pages/shared/Blog.jsx"));
@@ -623,7 +623,7 @@ const ClassRoom = lazy(() => import("./pages/ClassRoom.jsx"));
 const Dashboard = lazy(() => import("./pages/student/DashBoard.jsx"));
 const HistoryTest = lazy(() => import("./pages/student/HistoryTest.jsx"));
 const IELTSResultsPage = lazy(() => import("./pages/student/ResultTest.jsx"));
-const QuizTest = lazy(() => import("./pages/student/QuizTest.jsx"));
+const QuizTest = lazy(() => import("./pages/student/DoingExam/QuizTest.jsx"));
 const Learning = lazy(() => import("./pages/student/Learning.jsx"));
 const Enrollments = lazy(() => import("./pages/student/Enrollments/Enrollments.jsx"));
 const LessonDetail = lazy(() => import("./pages/student/LessonDetail/LessonDetail.jsx"));
@@ -732,7 +732,9 @@ export default function App() {
                 {/* ---------- STUDENT (/s/*) ---------- */}
                 <Route path="/s/:courseContentId/lesson/:lessonId" element={<LessonDetail title="📖 /s/lesson/:lessonId — Chi tiết bài học" />} />
                 <Route path="/s/enrollments" element={<Enrollments title="📚 /s/enrollments — Khóa học của tôi" />} />
-              
+                <Route path="/s/exam/:id" element={<ExamDetail title="🧠 /s/exam/:id — Giới thiệu đề thi (CTA Bắt đầu thi)" />} />
+                <Route path="/s/exam/:id/take-exam" element={<QuizTest />} />
+
               </Route>
               {/* ---------- PUBLIC ---------- */}
               <Route index element={<Home />} />
@@ -781,12 +783,10 @@ export default function App() {
               {/* ---------- STUDENT (/s/*) ---------- */}
               <Route path="/s/dashboard" element={<Dashboard />} />
               
-              <Route path="/s/learning/:courseId" element={<Learning />} />
-              <Route path="/s/lesson/:lessonId" element={<LessonDetail title="📖 /s/lesson/:lessonId — Chi tiết bài học" />} />
-              <Route path="/s/lesson/:courseId/:lessonId" element={<LessonDetail title="📖 /s/lesson/:lessonId — Chi tiết bài học" />} />
+              
               <Route path="/s/schedulepage" element={<SchedulePage />} />
               <Route path="/s/historytest" element={<HistoryTest />} />
-              <Route path="/s/exam/:id" element={<ExamDetail title="🧠 /s/exam/:id — Giới thiệu đề thi (CTA Bắt đầu thi)" />} />
+              
               <Route path="/s/exam/:id/take/:attemptId" element={<QuizTest />} />
               <Route path="/s/results/:attemptId" element={<ResultAttempt title="📈 /s/results/:attemptId — Kết quả bài thi" />} />
               <Route path="/s/resultstest" element={<IELTSResultsPage />} />

@@ -22,6 +22,7 @@ public class Student
     public ICollection<CourseReview> Reviews { get; set; } = new List<CourseReview>();
     public ICollection<Orders> Orders { get; set; } = new List<Orders>();
     public ICollection<SubmissionExam> SubmissionExams { get; set; } = new List<SubmissionExam>();
+    public ICollection<ExamAttemp> ExamAttemps { get; set; } = new List<ExamAttemp>();
 
     public ICollection<Discussion> Discussions { get; set; } = new List<Discussion>();
     public ICollection<Likes> Likes { get; set; } = new List<Likes>();

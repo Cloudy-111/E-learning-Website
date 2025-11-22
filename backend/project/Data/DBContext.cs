@@ -33,6 +33,7 @@ public class DBContext : IdentityDbContext<User>
     public DbSet<Choice> Choices { get; set; } = null!;
     public DbSet<SubmissionExam> SubmissionExams { get; set; } = null!;
     public DbSet<SubmissionAnswer> SubmissionAnswers { get; set; } = null!;
+    public DbSet<ExamAttemp> ExamAttemps { get; set; } = null!;
     public DbSet<Discussion> Discussions { get; set; } = null!;
 
     public DbSet<Post> Posts { get; set; } = null!;
@@ -210,6 +211,19 @@ public class DBContext : IdentityDbContext<User>
            .HasForeignKey(p => p.OrderId)
            .OnDelete(DeleteBehavior.Cascade);
 
+        // Exam - ExamAttemp (1 - n)
+        modelBuilder.Entity<ExamAttemp>()
+            .HasOne(ea => ea.Exam)
+            .WithMany(e => e.ExamAttemps)
+            .HasForeignKey(ea => ea.ExamId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // Student - ExamAttemp (1 - n)
+        modelBuilder.Entity<ExamAttemp>()
+            .HasOne(ea => ea.Student)
+            .WithMany(s => s.ExamAttemps)
+            .HasForeignKey(ea => ea.StudentId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         // Student - SubmissionExam (n - 1)
         modelBuilder.Entity<SubmissionExam>()

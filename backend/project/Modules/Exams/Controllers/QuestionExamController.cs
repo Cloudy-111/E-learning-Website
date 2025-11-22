@@ -55,12 +55,14 @@ public class QuestionExamController : ControllerBase
     //     }
     // }
 
+    [Authorize]
     [HttpGet("for-exam")]
     public async Task<IActionResult> GetQuestionsForDoingExam(string examId)
     {
         try
         {
-            var questionExams = await _questionExamService.GetQuestionsByExamIdForDoingExamAsync(examId);
+            var studentId = User.FindFirst("studentId")?.Value;
+            var questionExams = await _questionExamService.GetQuestionsByExamIdForDoingExamAsync(studentId, examId);
             return Ok(new APIResponse("success", "Get questions successfully", questionExams));
         }
         catch (Exception ex)

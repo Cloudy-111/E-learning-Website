@@ -10,7 +10,7 @@ function LessonContent({lesson}){
             </div>
 
             <div className="p-5">
-                <div className="prose prose-slate max-w-none"
+                <div className="prose prose-slate max-w-none text-gray-800"
                     dangerouslySetInnerHTML={{ __html: lesson.textContent || "<p>Chưa có nội dung.</p>" }}
                 />
             </div>

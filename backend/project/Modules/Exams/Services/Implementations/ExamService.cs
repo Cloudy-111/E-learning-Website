@@ -12,19 +12,28 @@ public class ExamService : IExamService
     private readonly ICourseRepository _courseRepository;
     private readonly ILessonRepository _lessonRepository;
     private readonly IQuestionExamRepository _questionExamRepository;
+    private readonly IStudentRepository _studentRepository;
+    private readonly ICourseContentRepository _courseContentRepository;
+    private readonly IEnrollmentCourseRepository _enrollmentCourseRepository;
 
     public ExamService(
         IExamRepository examRepository,
         IQuestionExamService questionExamService,
         ICourseRepository courseRepository,
         ILessonRepository lessonRepository,
-        IQuestionExamRepository questionExamRepository)
+        IQuestionExamRepository questionExamRepository,
+        IStudentRepository studentRepository,
+        ICourseContentRepository courseContentRepository,
+        IEnrollmentCourseRepository enrollmentCourseRepository)
     {
         _examRepository = examRepository;
         _questionExamService = questionExamService;
         _courseRepository = courseRepository;
         _lessonRepository = lessonRepository;
         _questionExamRepository = questionExamRepository;
+        _studentRepository = studentRepository;
+        _courseContentRepository = courseContentRepository;
+        _enrollmentCourseRepository = enrollmentCourseRepository;
     }
 
     public async Task<IEnumerable<InformationExamDTO>> GetAllExamsAsync()
@@ -89,9 +98,53 @@ public class ExamService : IExamService
         });
     }
 
-    public async Task<InformationExamDTO?> GetExamByIdAsync(string id)
+    public async Task<InformationExamDTO?> GetExamByIdAsync(string userId, string id)
     {
         var exam = await _examRepository.GetExamByIdAsync(id) ?? throw new KeyNotFoundException($"Exam with id {id} not found.");
+        if (exam.CourseContentId != null || exam.LessonId != null)
+        {
+            if (userId == null || string.IsNullOrWhiteSpace(userId))
+            {
+                throw new UnauthorizedAccessException("You need to be logged in to access this exam.");
+            }
+            else
+            {
+                var student = await _studentRepository.GetStudentByUserIdAsync(userId);
+                var courseId = "";
+                if (exam.CourseContentId != null)
+                {
+                    var courseContent = await _courseContentRepository.GetCourseContentByIdAsync(exam.CourseContentId);
+                    courseId = courseContent?.CourseId;
+                }
+                else if (exam.LessonId != null)
+                {
+                    var lesson = await _lessonRepository.GetLessonByIdAsync(exam.LessonId);
+                    var courseContent = lesson != null ? await _courseContentRepository.GetCourseContentByIdAsync(lesson.CourseContentId) : null;
+                    courseId = courseContent?.CourseId;
+                }
+                if (courseId == null || string.IsNullOrWhiteSpace(courseId))
+                {
+                    throw new KeyNotFoundException("Associated course not found for this exam.");
+                }
+                var isEnrolled = await _enrollmentCourseRepository.IsEnrollmentExistAsync(student.StudentId, courseId);
+                if (!isEnrolled)
+                {
+                    throw new UnauthorizedAccessException($"You are not enrolled in the course associated with this exam. {student.StudentId}, {courseId} ");
+                }
+                return new InformationExamDTO
+                {
+                    Id = exam.Id,
+                    Title = exam.Title,
+                    Description = exam.Description,
+                    DurationMinutes = exam.DurationMinutes,
+                    TotalCompleted = exam.TotalCompleted,
+                    IsOpened = exam.IsOpened,
+                    CourseContentId = exam.CourseContentId,
+                    LessonId = exam.LessonId,
+                    CourseId = courseId
+                };
+            }
+        }
         return new InformationExamDTO
         {
             Id = exam.Id,

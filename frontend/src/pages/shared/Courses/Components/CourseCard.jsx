@@ -1,5 +1,7 @@
 import { Link } from "react-router-dom";
 import { Clock } from "../../../../assets/Icons";
+import fallbackImage from "../../../../assets/images/fallback-image.jpeg";
+
 
 function CourseCard({ c }) {
   const {
@@ -28,6 +30,8 @@ function CourseCard({ c }) {
             alt={`Ảnh khóa học ${title}`}
             className="h-full w-full object-cover"
             loading="lazy"
+            onError={(e) => e.currentTarget.src = fallbackImage}
+
           />
         ) : (
           <span className="text-xs text-blue-400">Ảnh khóa học</span>

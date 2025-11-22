@@ -4,6 +4,10 @@ public class QuestionExamService : IQuestionExamService
     private readonly IExamRepository _examRepository;
     private readonly IChoiceRepository _choiceRepository;
     private readonly IChoiceService _choiceService;
+    private readonly IEnrollmentCourseRepository _enrollmentCourseRepository;
+    private readonly ICourseContentRepository _courseContentRepository;
+    private readonly ILessonRepository _lessonRepository;
+    private readonly IExamAttempRepository _examAttempRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public QuestionExamService(
@@ -11,6 +15,10 @@ public class QuestionExamService : IQuestionExamService
         IExamRepository examRepository,
         IChoiceService choiceService,
         IChoiceRepository choiceRepository,
+        IEnrollmentCourseRepository enrollmentCourseRepository,
+        ICourseContentRepository courseContentRepository,
+        ILessonRepository lessonRepository,
+        IExamAttempRepository examAttempRepository,
         IUnitOfWork unitOfWork
     )
     {
@@ -18,6 +26,10 @@ public class QuestionExamService : IQuestionExamService
         _examRepository = examRepository;
         _choiceService = choiceService;
         _choiceRepository = choiceRepository;
+        _enrollmentCourseRepository = enrollmentCourseRepository;
+        _courseContentRepository = courseContentRepository;
+        _lessonRepository = lessonRepository;
+        _examAttempRepository = examAttempRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -69,13 +81,43 @@ public class QuestionExamService : IQuestionExamService
     //     return await _questionExamRepository.GetQuestionsByExamIdAsync(examId);
     // }
 
-    public async Task<IEnumerable<QuestionExamForDoingExamDTO>> GetQuestionsByExamIdForDoingExamAsync(string examId)
+    public async Task<IEnumerable<QuestionExamForDoingExamDTO>> GetQuestionsByExamIdForDoingExamAsync(string studentId, string examId)
     {
-        var (exists, isOpened) = await _examRepository.GetExamStatusAsync(examId);
-        if (!exists)
+        var studentGuid = GuidHelper.ParseOrThrow(studentId, nameof(studentId));
+
+        var exam = await _examRepository.GetExamByIdAsync(examId)
+                                ?? throw new KeyNotFoundException($"Exam with ID '{examId}' does not exist.");
+
+        // check for existing active attempt
+        var attempActive = await _examAttempRepository.GetActiveAttemptAsync(studentId, examId, DateTime.UtcNow) ?? throw new InvalidOperationException("No active attempt found for this exam.");
+
+        // check if student is enrolled in the course associated with the exam  
+        if (exam.CourseContentId != null || exam.LessonId != null)
         {
-            throw new KeyNotFoundException($"Exam with ID '{examId}' does not exist.");
+            var courseId = "";
+            if (exam.CourseContentId != null)
+            {
+                var courseContent = await _courseContentRepository.GetCourseContentByIdAsync(exam.CourseContentId);
+                courseId = courseContent?.CourseId;
+            }
+            else if (exam.LessonId != null)
+            {
+                var lesson = await _lessonRepository.GetLessonByIdAsync(exam.LessonId);
+                var courseContent = lesson != null ? await _courseContentRepository.GetCourseContentByIdAsync(lesson.CourseContentId) : null;
+                courseId = courseContent?.CourseId;
+            }
+            if (courseId == null || string.IsNullOrWhiteSpace(courseId))
+            {
+                throw new KeyNotFoundException("Associated course not found for this exam.");
+            }
+            var isEnrolled = await _enrollmentCourseRepository.IsEnrollmentExistAsync(studentId, courseId);
+            if (!isEnrolled)
+            {
+                throw new UnauthorizedAccessException($"You are not enrolled in the course associated with this exam. {studentId}, {courseId} ");
+            }
         }
+        // Other case: exam not belong to any course content or lesson => public exam
+
         var questionExams = await _questionExamRepository.GetQuestionsByExamIdAsync(examId);
         var choicesArrays = new List<IEnumerable<ChoiceForExamDTO>>();
 

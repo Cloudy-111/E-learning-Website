@@ -20,7 +20,7 @@ function ListExamLesson({ exams }){
                 return (
                     <li key={exam.id}>
                         <Link
-                            // to={`/s/lesson/${exam.id}`}
+                            to={`/s/exam/${exam.id}`}
                             className={`flex items-center justify-between gap-3 px-3 py-2 rounded-lg border}`
                             }
                         >

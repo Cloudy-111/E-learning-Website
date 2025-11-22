@@ -1168,8 +1168,8 @@ export default function Header({
               />
               <button
                 onClick={() => setOpenUser((s) => !s)}
-                className="flex items-center gap-1 text-[15px] font-medium focus:outline-none focus:ring-2 rounded-md px-1"
-                style={{ color: "#111827", outlineColor: BRAND.ring }}
+                className="flex items-center gap-1 bg-transparent text-[15px] font-medium focus:outline-none focus:ring-2 rounded-md px-1"
+                style={{ color: "#000000ff", outlineColor: BRAND.ring }}
                 aria-haspopup="menu"
                 aria-expanded={openUser}
                 type="button"

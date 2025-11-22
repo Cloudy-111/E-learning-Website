@@ -6,8 +6,8 @@ function NavigationLesson({ prev, next, lesson, navigate }){
         <div className="flex items-center justify-between gap-3">
             <button
                 disabled={!prev}
-                onClick={() => prev && navigate(`/s/lesson/${prev.id}`)}
-                className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm ${
+                onClick={() => prev && navigate(`/s/${lesson.courseContentId}/lesson/${prev.id}`)}
+                className={`inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm bg-gray-100 ${
                     prev ? "hover:bg-gray-50" : "opacity-50 cursor-not-allowed"
                 }`}
             >
@@ -15,7 +15,7 @@ function NavigationLesson({ prev, next, lesson, navigate }){
             </button>
 
             <Link
-                to={`/s/learning/${lesson.courseId}`}
+                to={`/courses/${lesson.courseId}`}
                 className="rounded-xl border px-4 py-2 text-sm hover:bg-gray-50"
                 >
                 Về outline
@@ -23,7 +23,7 @@ function NavigationLesson({ prev, next, lesson, navigate }){
 
             <button
                 disabled={!next}
-                onClick={() => next && navigate(`/s/lesson/${next.id}`)}
+                onClick={() => next && navigate(`/s/${lesson.courseContentId}/lesson/${next.id}`)}
                 className={`inline-flex items-center gap-2 rounded-xl bg-blue-600 text-white px-4 py-2 text-sm font-medium ${
                     next ? "hover:bg-blue-700" : "opacity-60 cursor-not-allowed"
                 }`}

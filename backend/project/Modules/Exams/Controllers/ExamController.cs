@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,9 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 public class ExamController : ControllerBase
 {
     private readonly IExamService _examService;
-    public ExamController(IExamService examService)
+    private readonly IExamAttempService _examAttempService;
+    public ExamController(
+        IExamService examService,
+        IExamAttempService examAttempService)
     {
         _examService = examService;
+        _examAttempService = examAttempService;
     }
 
     [HttpGet]
@@ -23,12 +28,17 @@ public class ExamController : ControllerBase
     {
         try
         {
-            var exam = await _examService.GetExamByIdAsync(id);
-            return Ok(exam);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var exam = await _examService.GetExamByIdAsync(userId, id);
+            return Ok(new APIResponse("success", "Retrieve Exam Successfully", exam));
         }
         catch (KeyNotFoundException ex)
         {
             return NotFound(new APIResponse("error", ex.Message));
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new APIResponse("error", ex.Message));
         }
         catch (Exception ex)
         {
@@ -172,6 +182,28 @@ public class ExamController : ControllerBase
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new
             APIResponse("error", "An error occurred while uploading exam excel", ex.Message));
+        }
+    }
+
+    [Authorize(Roles = "Student")]
+    [HttpPost("{examId}/attempt/start")]
+    public async Task<IActionResult> StartExamAttempt(string examId)
+    {
+        try
+        {
+            var studentId = User.FindFirst("studentId")?.Value;
+            // Call the service to start the exam attempt
+            var attempExam = await _examAttempService.AddExamAttempAsync(studentId, examId);
+            return Ok(new APIResponse("success", "Exam attempt started successfully", attempExam));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new APIResponse("error", ex.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while starting the exam attempt", ex.Message));
         }
     }
 }
