@@ -11,15 +11,25 @@ async function postExamAttempt(examId) {
   });
 }
 
-// async function checkValidExamAttemptById(attemptId) {
-//   return baseFetch(`/api/exam-attempts/${attemptId}`, {
-//     method: "GET",
-//     headers: {
-//       "Content-Type": "application/json",
-//       ...authHeader(),
-//     },
-//   });
-// }
+async function getEndTime(attemptId) {
+  try {
+    const response = await baseFetch(`/api/exam-attempt/${attemptId}/attempt`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        ...authHeader(),
+      },
+    });
+    if (response.status === "error") {
+      throw new Error(response.message || "Lỗi không xác định");
+    }
+
+    return response.data.endTime;
+  } catch (e) {
+    console.error("Fetch end time error:", e);
+    throw new Error(e);
+  }
+}
 
 async function saveCurrentAnswersAPI(attemptId, currentAnswers) {
   return baseFetch(`/api/exam-attempt/${attemptId}/save-answers`, {
@@ -56,4 +66,9 @@ async function fetchSavedAnswersAPI(attemptId) {
   }
 }
 
-export { postExamAttempt, saveCurrentAnswersAPI, fetchSavedAnswersAPI };
+export {
+  postExamAttempt,
+  saveCurrentAnswersAPI,
+  fetchSavedAnswersAPI,
+  getEndTime,
+};

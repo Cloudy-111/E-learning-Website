@@ -60,4 +60,28 @@ public class ExamAttemptController : ControllerBase
             APIResponse("error", "An error occurred while fetching saved answers", ex.Message));
         }
     }
+
+    [HttpGet("{attemptId}/attempt")]
+    public async Task<IActionResult> GetExamAttemptById(string attemptId)
+    {
+        try
+        {
+            var studentId = User.FindFirst("studentId")?.Value;
+            var examAttemp = await _examAttempService.GetExamAttempByIdAsync(studentId, attemptId);
+            return Ok(new APIResponse("success", "Fetch exam attempt successfully", examAttemp));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new APIResponse("error", ex.Message));
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Unauthorized(new APIResponse("error", ex.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while fetching exam attempt", ex.Message));
+        }
+    }
 }

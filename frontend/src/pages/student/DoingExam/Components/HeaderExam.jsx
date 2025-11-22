@@ -1,4 +1,6 @@
 import { Clock } from "lucide-react";
+import { useState, useEffect } from "react";
+import { getEndTime } from "../../../../api/examAttempt";
 
 const PRIMARY = "#2c65e6";
 const PRIMARY_HOVER = "#2153c3";
@@ -10,7 +12,36 @@ const fmtTime = (s) => {
     return `${m.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
 };
 
-function HeaderExam({ exam, timeLeft, doSubmit }){
+function HeaderExam({ attemptId, exam, doSubmit }){
+    const [timeLeft, setTimeLeft] = useState(0);
+    useEffect(() => {
+        if (!attemptId) return;
+        let isMounted = true;
+        (async () => {
+            try {
+                const endTime = await getEndTime(attemptId);
+                if (!endTime || !isMounted) return;
+                const initial = calcTimeLeft(endTime);
+                setTimeLeft(initial);
+            } catch (e) {
+                console.error("Failed to get end time:", e);
+            }
+        })();
+        return () => {
+            isMounted = false;
+        };
+    }, [attemptId]);
+
+    useEffect(() => {
+        if (timeLeft <= 0) return;
+
+        const interval = setInterval(() => {
+            setTimeLeft((prev) => Math.max(prev - 1, 0));
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [attemptId, timeLeft]);
+    
     return (
         <div className="w-full bg-white border-b border-gray-200 sticky top-0 z-30">
             <div className="w-full px-6 lg:px-12 py-3 flex items-center justify-between">
@@ -39,6 +70,13 @@ function HeaderExam({ exam, timeLeft, doSubmit }){
             </div>
         </div>
     )
+}
+
+function calcTimeLeft(endTime) {
+  const end = new Date(endTime + "Z").getTime();
+  const now = Date.now();
+  const diff = Math.max(0, Math.floor((end - now) / 1000));
+  return diff;
 }
 
 export default HeaderExam;

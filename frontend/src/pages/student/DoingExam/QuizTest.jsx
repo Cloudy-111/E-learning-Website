@@ -16,10 +16,6 @@ function QuizTest() {
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState(null);
 
-  const [timeLeft, setTimeLeft] = useState(0);
-  const [submitted, setSubmitted] = useState(false);
-  const [totalTime, setTotalTime] = useState(0);
-
   const attemptId = sessionStorage.getItem("attemptId");
 
   useEffect(() => {
@@ -45,14 +41,7 @@ function QuizTest() {
       }
     })();
     return () => ac.abort();
-  }, [id])
-
-  useEffect(() => {
-    if (!examData) return;
-    const time = parseInt(examData.durationMinutes, 10) * 60;
-    setTotalTime(time);
-    setTimeLeft(time);
-  }, [examData]);
+  }, [id]);
 
   useEffect(() => {
     console.log("examId =", id);
@@ -69,7 +58,10 @@ function QuizTest() {
   return (
     <div className="min-h-screen w-screen max-w-none bg-white text-gray-900">
       {/* Sticky bar */}
-      <HeaderExam exam={examData} timeLeft={timeLeft} doSubmit={() => {console.log("Submit")}} />
+      <HeaderExam 
+        attemptId={attemptId}
+        exam={examData} 
+        doSubmit={() => {console.log("Submit")}} />
 
       {/* MAIN */}
       <ExamBody 
@@ -77,7 +69,6 @@ function QuizTest() {
         loading={loading}
         err={err}
         examId={id}
-        submitted={submitted}
       />
 
     </div>
