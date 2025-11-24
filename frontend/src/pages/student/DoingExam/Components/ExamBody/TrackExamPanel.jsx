@@ -1,25 +1,7 @@
 import { useState, useEffect } from 'react';
-import { saveCurrentAnswersAPI } from "../../../../../api/examAttempt";
 
-function formatAnswers(answers) {
-    return Object.entries(answers).map(([questionId, choiceIds]) => ({
-        questionId,
-        choices: choiceIds.map(id => ({ id })),
-    }));
-}
-
-async function saveCurrentAnswers(attemptId, formattedAnswers) {
-    try {
-        await saveCurrentAnswersAPI(attemptId, formattedAnswers);
-        return true;
-    } catch (e) {
-        if (e.name !== "AbortError") console.error("Failed to save answers:", e);
-        return false;
-    }
-}
-
-function TrackExamPanel({ attemptId, listQuestions, answers, loadStatus = null, loadMessage = null }) {
-    const formattedAnswers = formatAnswers(answers);
+function TrackExamPanel({ attemptId, listQuestions, answers, loadStatus = null, loadMessage = null, saveAnswers }) {
+    
     const [saving, setSaving] = useState(false);
     const [toast, setToast] = useState(null); // { type: 'success'|'error', text }
 
@@ -35,7 +17,7 @@ function TrackExamPanel({ attemptId, listQuestions, answers, loadStatus = null, 
             return;
         }
         setSaving(true);
-        const ok = await saveCurrentAnswers(attemptId, JSON.stringify(formattedAnswers, null, 2));
+        const ok = await saveAnswers();
         setSaving(false);
         if (ok) setToast({ type: 'success', text: 'Saved current answers successfully.' });
         else setToast({ type: 'error', text: 'Failed to save current answers.' });
@@ -72,12 +54,12 @@ function TrackExamPanel({ attemptId, listQuestions, answers, loadStatus = null, 
                     })}
                 </div>
 
-                <div className="mt-4">
+                {/* <div className="mt-4">
                     <div className="text-xs text-gray-500 mb-2">Đã lưu (local)</div>
                     <pre className="text-xs p-2 bg-gray-50 rounded max-h-48 overflow-auto">
                         {JSON.stringify(formattedAnswers, null, 2)}
                     </pre>
-                </div>
+                </div> */}
                 
                 <button 
                     className="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded mt-4 w-full" 
