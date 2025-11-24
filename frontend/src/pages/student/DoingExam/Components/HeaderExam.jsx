@@ -57,7 +57,7 @@ function HeaderExam({ attemptId, exam, doSubmit }){
                     </div>
 
                     <button
-                        onClick={() => doSubmit(false)}
+                        onClick={doSubmit}
                         className="rounded-lg text-white px-4 py-2 text-sm font-semibold transition"
                         style={{ backgroundColor: PRIMARY }}
                         onMouseOver={(e) => (e.currentTarget.style.backgroundColor = PRIMARY_HOVER)}
@@ -73,10 +73,10 @@ function HeaderExam({ attemptId, exam, doSubmit }){
 }
 
 function calcTimeLeft(endTime) {
-  const end = new Date(endTime + "Z").getTime();
-  const now = Date.now();
-  const diff = Math.max(0, Math.floor((end - now) / 1000));
-  return diff;
+    const end = new Date(endTime + "Z").getTime();
+    const now = Date.now();
+    const diff = Math.max(0, Math.floor((end - now) / 1000));
+    return diff;
 }
 
 export default HeaderExam;
