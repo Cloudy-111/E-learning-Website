@@ -29,9 +29,10 @@ public class ExamAttempRepository : IExamAttempRepository
             ea.EndTime >= currentTime);
     }
 
-    public async Task SaveExamAttempAsync(ExamAttemp examAttemp)
+    public async Task<bool> SaveExamAttempAsync(ExamAttemp examAttemp)
     {
         _context.ExamAttemps.Update(examAttemp);
         await _context.SaveChangesAsync();
+        return true;
     }
 }

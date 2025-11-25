@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
-import { fetchExamById } from "../../../api/exams.api";
+import { fetchExamById, submitExamAPI } from "../../../api/exams.api";
 import { saveCurrentAnswersAPI } from "../../../api/examAttempt";
 
 import HeaderExam from "./Components/HeaderExam";
@@ -60,14 +60,19 @@ function QuizTest() {
     }
   };
 
+  // submit exam
   const submitExam = async () => {
-    const ok = await saveAnswers();
-    if (!ok) {
-      alert("Failed to save answers. Please try again.");
+    const formattedAnswers = formatAnswers(answers);
+
+    try{
+      await submitExamAPI(attemptId, JSON.stringify(formattedAnswers));
+      alert("Exam submitted successfully!");
+
+      // navigate to another page or show results
+    } catch(e){
+      alert("Failed to submit exam: " + e.message);
       return;
     }
-
-    // Proceed to submit the exam
   };
 
   /* ===== UI ===== */
