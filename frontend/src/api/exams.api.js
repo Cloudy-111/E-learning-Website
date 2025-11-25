@@ -51,4 +51,22 @@ async function fetchExamById(examId) {
   }
 }
 
-export { fetchExamsByLesson, fetchExamById };
+async function submitExamAPI(attemptId, currentAnswers) {
+  try {
+    const response = await baseFetch(`/api/submit/${attemptId}/submit-exam`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...authHeader(),
+      },
+      body: JSON.stringify(currentAnswers),
+    });
+
+    return response;
+  } catch (e) {
+    console.error("Submit exam error:", e);
+    throw new Error(e);
+  }
+}
+
+export { fetchExamsByLesson, fetchExamById, submitExamAPI };

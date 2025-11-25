@@ -33,14 +33,18 @@ function HeaderExam({ attemptId, exam, doSubmit }){
     }, [attemptId]);
 
     useEffect(() => {
-        if (timeLeft <= 0) return;
+        if (timeLeft <= 0) {
+            // navigate to results page or auto-submit
+            doSubmit();
+            return;
+        }
 
         const interval = setInterval(() => {
             setTimeLeft((prev) => Math.max(prev - 1, 0));
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [attemptId, timeLeft]);
+    }, [attemptId, doSubmit, timeLeft]);
     
     return (
         <div className="w-full bg-white border-b border-gray-200 sticky top-0 z-30">

@@ -734,6 +734,7 @@ export default function App() {
                 <Route path="/s/enrollments" element={<Enrollments title="📚 /s/enrollments — Khóa học của tôi" />} />
                 <Route path="/s/exam/:id" element={<ExamDetail title="🧠 /s/exam/:id — Giới thiệu đề thi (CTA Bắt đầu thi)" />} />
                 <Route path="/s/exam/:id/take-exam" element={<QuizTest />} />
+                <Route path="/s/results/:attemptId" element={<ResultAttempt title="📈 /s/results/:attemptId — Kết quả bài thi" />} />
 
               </Route>
               {/* ---------- PUBLIC ---------- */}
@@ -788,7 +789,7 @@ export default function App() {
               <Route path="/s/historytest" element={<HistoryTest />} />
               
               <Route path="/s/exam/:id/take/:attemptId" element={<QuizTest />} />
-              <Route path="/s/results/:attemptId" element={<ResultAttempt title="📈 /s/results/:attemptId — Kết quả bài thi" />} />
+              
               <Route path="/s/resultstest" element={<IELTSResultsPage />} />
               <Route path="/s/profile" element={<ProfilePage title="👤 /s/profile — Hồ sơ & cài đặt" />} />
 

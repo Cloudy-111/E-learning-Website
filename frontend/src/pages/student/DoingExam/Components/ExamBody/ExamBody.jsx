@@ -6,7 +6,6 @@ import TrackExamPanel from "./TrackExamPanel";
 
 function ExamBody({ attemptId, loading, err, examId, answers, setAnswers, saveAnswers }) {
     const [listQuestions, setListQuestions] = useState([]);
-    // const [answers, setAnswers] = useState({});
     const [initialized, setInitialized] = useState(false);
     const [loadStatus, setLoadStatus] = useState(null); // null | 'loading' | 'success' | 'error'
     const [loadMessage, setLoadMessage] = useState(null);

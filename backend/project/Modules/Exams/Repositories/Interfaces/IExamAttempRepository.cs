@@ -4,5 +4,5 @@ public interface IExamAttempRepository
     Task AddExamAttempAsync(ExamAttemp examAttemp);
     // Task UpdateExamAttempAsync(ExamAttemp examAttemp);
     Task<ExamAttemp?> GetActiveAttemptAsync(string studentId, string examId, DateTime currentTime);
-    Task SaveExamAttempAsync(ExamAttemp examAttemp);
+    Task<bool> SaveExamAttempAsync(ExamAttemp examAttemp);
 }
