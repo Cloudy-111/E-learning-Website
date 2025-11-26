@@ -19,21 +19,10 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { ToastProvider } from "./components/ui/Toast";
 
 /* ====== Lazy-loaded Pages ====== */
-const Home = lazy(() => import("./pages/shared/Home.jsx"));
+const Home = lazy(() => import("./pages/shared/Home/Home.jsx"));
 const Discover = lazy(() => import("./pages/shared/Discover.jsx"));
 const Courses = lazy(() => import("./pages/shared/Courses/Courses.jsx"));
 const CourseDetail = lazy(() => import("./pages/shared/CourseDetail/CourseDetail.jsx"));
-
-const Study4TestLibrary = lazy(() => import("./pages/shared/Exam.jsx"));
-const ExamDetail = lazy(() => import("./pages/shared/ExamDetail/ExamDetail.jsx"));
-
-const Blog = lazy(() => import("./pages/shared/Blog.jsx"));
-const BlogDetail = lazy(() => import("./pages/shared/BlogDetail.jsx"));
-const BlogSearch = lazy(() => import("./pages/shared/BlogSearch.jsx"));
-const BlogAuthor = lazy(() => import("./pages/shared/BlogAuthor.jsx"));
-const BlogMy = lazy(() => import("./pages/shared/BlogMy.jsx"));
-const BlogEditor = lazy(() => import("./pages/shared/BlogEditor.jsx"));
-
 const About = lazy(() => import("./pages/shared/About.jsx"));
 const Membership = lazy(() => import("./pages/shared/MemberShip.jsx"));
 const Payment = lazy(() => import("./pages/shared/Payment.jsx"));
@@ -45,6 +34,18 @@ const Register = lazy(() => import("./pages/shared/Register.jsx"));
 const Discussion = lazy(() => import("./pages/Discussion.jsx"));
 const DiscussionDetail = lazy(() => import("./pages/DiscussionDetail.jsx"));
 const ClassRoom = lazy(() => import("./pages/ClassRoom.jsx"));
+
+// Blog-related pages
+const Blog = lazy(() => import("./pages/shared/Blog/index.js"));
+const BlogDetail = lazy(() => import("./pages/shared/BlogDetail"));
+const BlogSearch = lazy(() => import("./pages/shared/BlogSearch.jsx"));
+const BlogAuthor = lazy(() => import("./pages/shared/BlogAuthor.jsx"));
+const BlogMy = lazy(() => import("./pages/shared/BlogMy.jsx"));
+const BlogEditor = lazy(() => import("./pages/shared/BlogEditor.jsx"));
+
+// Exam pages
+const Study4TestLibrary = lazy(() => import("./pages/shared/Exam.jsx"));
+const ExamDetail = lazy(() => import("./pages/shared/ExamDetail/ExamDetail.jsx"));
 
 const Dashboard = lazy(() => import("./pages/student/DashBoard.jsx"));
 const HistoryTest = lazy(() => import("./pages/student/HistoryTest.jsx"));
@@ -78,7 +79,7 @@ const AskQuestion = lazy(() => import("./pages/shared/AskQuestion.jsx"));
 const EditQuestion = lazy(() => import("./pages/shared/EditQuestion.jsx"));
 const MyQuestions = lazy(() => import("./pages/shared/MyQuestions.jsx"));
 
-const BecomeInstructor = lazy(() => import("./pages/shared/BecomInstructor.jsx"));
+const BecomeInstructor = lazy(() => import("./pages/shared/BecomInstructor/index.js"));
 
 import LessonEdit from "./pages/instructor/LessonEditor.jsx";
 import LessonPreview from "./pages/instructor/LessonPreview.jsx";

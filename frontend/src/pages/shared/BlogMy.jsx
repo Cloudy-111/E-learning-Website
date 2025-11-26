@@ -1,239 +1,3 @@
-// // src/pages/shared/BlogMy.jsx
-// "use client";
-
-// import { useEffect, useMemo, useState } from "react";
-// import { Link, useNavigate, useLocation } from "react-router-dom";
-// import Header from "../../components/Header";
-// import Footer from "../../components/Footer";
-// import { useAuth } from "../../store/auth";
-// import { isLoggedIn, requireAuth } from "../../utils/auth";
-// import { http } from "../../utils/http";
-
-// const BRAND = { primary: "#2563eb", primaryHover: "#1d4ed8" };
-
-// const Section = ({ id, title, action, children }) => (
-//   <section id={id} className="w-screen overflow-x-hidden py-8 lg:py-10">
-//     <div className="w-screen px-6 lg:px-12">
-//       {(title || action) && (
-//         <div className="mb-5 flex items-center justify-between gap-4">
-//           {title && <h2 className="text-2xl lg:text-3xl font-bold text-slate-900">{title}</h2>}
-//           {action}
-//         </div>
-//       )}
-//       {children}
-//     </div>
-//   </section>
-// );
-
-// export default function BlogMy() {
-//   const navigate = useNavigate();
-//   const location = useLocation();
-//   const { user, hydrate } = useAuth();
-
-//   const [loading, setLoading] = useState(true);
-//   const [err, setErr] = useState(null);
-//   const [items, setItems] = useState([]);
-//   const [showDeleted, setShowDeleted] = useState(false); // bật/tắt xem bài đã xoá mềm
-
-//   const API_BASE = import.meta.env?.VITE_API_BASE || "http://localhost:5102";
-
-//   // Lấy memberId từ store hoặc fallback vài key phổ biến
-//   const memberId = useMemo(() => {
-//     if (user?.id) return user.id;
-//     if (user?.memberId) return user.memberId;
-//     try {
-//       const u = JSON.parse(localStorage.getItem("auth_user") || "null");
-//       return u?.id || u?.memberId || null;
-//     } catch {
-//       return null;
-//     }
-//   }, [user]);
-
-//   // Guard: bắt buộc đăng nhập
-//   useEffect(() => {
-//     hydrate?.();
-//     if (!isLoggedIn()) {
-//       requireAuth(navigate, location.pathname + location.search);
-//       return;
-//     }
-//   }, [navigate, location, hydrate]);
-
-//   const fetchMine = async () => {
-//     if (!memberId) return;
-//     setLoading(true);
-//     setErr(null);
-//     try {
-//       const res = await http(`${API_BASE}/api/Posts/member/${memberId}`, {
-//         headers: { accept: "*/*" },
-//       });
-//       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-//       const data = await res.json();
-//       setItems(Array.isArray(data) ? data : []);
-//     } catch (e) {
-//       setErr(e.message || "Fetch error");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   useEffect(() => { fetchMine(); /* eslint-disable-next-line */ }, [memberId]);
-
-//   const filtered = useMemo(() => {
-//     return items.filter((p) =>
-//       showDeleted ? p.isDeleted === true : p.isDeleted !== true
-//     );
-//   }, [items, showDeleted]);
-
-//   // Actions
-//   const onSoftDelete = async (id) => {
-//     if (!confirm("Xoá mềm bài viết này?")) return;
-//     try {
-//       const res = await http(`${API_BASE}/api/Posts/deletesoft/${id}`, { method: "DELETE" });
-//       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-//       await fetchMine();
-//     } catch (e) {
-//       alert("Không xoá mềm được: " + (e.message || "error"));
-//     }
-//   };
-
-//   const onHardDelete = async (id) => {
-//     if (!confirm("⚠️ Xoá cứng KHÔNG THỂ khôi phục. Tiếp tục?")) return;
-//     try {
-//       const res = await http(`${API_BASE}/api/Posts/deletehard/${id}`, { method: "DELETE" });
-//       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-//       await fetchMine();
-//     } catch (e) {
-//       alert("Không xoá cứng được: " + (e.message || "error"));
-//     }
-//   };
-
-//   const onRestore = async (id) => {
-//     try {
-//       const res = await http(`${API_BASE}/api/Posts/restore/${id}`, { method: "PATCH" });
-//       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-//       await fetchMine();
-//     } catch (e) {
-//       alert("Khôi phục thất bại: " + (e.message || "error"));
-//     }
-//   };
-
-//   return (
-//     <>
-//       <Header />
-//       <main className="w-screen overflow-x-hidden">
-//         <Section
-//           id="toolbar"
-//           title="Bài viết của tôi"
-//           action={
-//             <div className="flex items-center gap-2">
-//               <label className="inline-flex items-center gap-2 text-sm text-slate-700">
-//                 <input
-//                   type="checkbox"
-//                   className="accent-blue-600"
-//                   checked={showDeleted}
-//                   onChange={(e) => setShowDeleted(e.target.checked)}
-//                 />
-//                 Hiện bài đã xoá mềm
-//               </label>
-//               <button
-//                 onClick={() => navigate("/blog/new")}
-//                 className="rounded-full text-white px-4 py-2 text-sm font-semibold transition"
-//                 style={{ backgroundColor: BRAND.primary }}
-//                 onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = BRAND.primaryHover)}
-//                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = BRAND.primary)}
-//               >
-//                 + Viết bài mới
-//               </button>
-//             </div>
-//           }
-//         >
-//           {loading && (
-//             <div className="rounded-xl border bg-white p-6 text-slate-600">Đang tải…</div>
-//           )}
-//           {err && !loading && (
-//             <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-red-700">
-//               Không thể tải dữ liệu (chi tiết: {err})
-//             </div>
-//           )}
-//           {!loading && !err && (
-//             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-//               {filtered.map((p) => (
-//                 <article key={p.id} className="rounded-2xl border bg-white overflow-hidden">
-//                   <div className="aspect-[16/9] bg-slate-100 overflow-hidden">
-//                     {p.thumbnailUrl ? (
-//                       <img src={p.thumbnailUrl} alt={p.title} className="w-full h-full object-cover" />
-//                     ) : (
-//                       <div className="w-full h-full grid place-items-center text-slate-400 text-sm">
-//                         Thumbnail
-//                       </div>
-//                     )}
-//                   </div>
-//                   <div className="p-5">
-//                     <div className="text-xs text-slate-500">
-//                       {new Date(p.createdAt).toLocaleString("vi-VN", { hour12: false })}
-//                       {" • "}
-//                       {p.isPublished ? "Đã xuất bản" : "Bản nháp"}
-//                       {p.isDeleted ? " • ĐÃ XOÁ MỀM" : ""}
-//                     </div>
-//                     <h3 className="mt-2 font-semibold text-slate-900 line-clamp-2">{p.title}</h3>
-//                     <div className="mt-3 flex flex-wrap gap-2 text-sm">
-//                       <Link to={`/blog/${p.id}`} className="rounded-full border px-3 py-1 hover:bg-slate-50">
-//                         Xem
-//                       </Link>
-//                       {!p.isDeleted && (
-//                         <button
-//                           onClick={() => navigate(`/blog/${p.id}/edit`)}
-//                           className="rounded-full border px-3 py-1 hover:bg-slate-50"
-//                         >
-//                           Sửa
-//                         </button>
-//                       )}
-//                       {!p.isDeleted ? (
-//                         <button
-//                           onClick={() => onSoftDelete(p.id)}
-//                           className="rounded-full border px-3 py-1 hover:bg-slate-50 text-rose-600"
-//                         >
-//                           Xoá mềm
-//                         </button>
-//                       ) : (
-//                         <>
-//                           <button
-//                             onClick={() => onRestore(p.id)}
-//                             className="rounded-full border px-3 py-1 hover:bg-slate-50 text-green-600"
-//                           >
-//                             Khôi phục
-//                           </button>
-//                           <button
-//                             onClick={() => onHardDelete(p.id)}
-//                             className="rounded-full border px-3 py-1 hover:bg-slate-50 text-rose-700"
-//                           >
-//                             Xoá cứng
-//                           </button>
-//                         </>
-//                       )}
-//                     </div>
-//                   </div>
-//                 </article>
-//               ))}
-//               {filtered.length === 0 && (
-//                 <div className="rounded-xl border bg-white p-6 text-slate-600">
-//                   Chưa có bài viết nào.
-//                 </div>
-//               )}
-//             </div>
-//           )}
-//         </Section>
-//       </main>
-//       <Footer />
-//     </>
-//   );
-// }
-
-
-
-
-
-
 
 
 
@@ -291,19 +55,19 @@ function getAccessToken() {
     // utils/auth.setTokens({accessToken, refreshToken})
     const at = JSON.parse(localStorage.getItem("auth_token") || "null");
     if (at?.accessToken) return at.accessToken;
-  } catch {}
+  } catch { }
   try {
     // fallback vài key phổ biến
     const t = localStorage.getItem("access_token");
     if (t) return t;
-  } catch {}
+  } catch { }
   try {
     const raw = localStorage.getItem("token");
     if (raw) {
       const j = JSON.parse(raw);
       if (j?.accessToken) return j.accessToken;
     }
-  } catch {}
+  } catch { }
   return null;
 }
 
@@ -360,7 +124,7 @@ export default function BlogMy() {
       if (u?.memberId) return u.memberId;
       if (u?.studentId) return u.studentId;
       if (u?.id) return u.id;
-    } catch {}
+    } catch { }
 
     // 3) decode JWT claims: StudentId / nameidentifier
     const token = getAccessToken();
@@ -405,7 +169,7 @@ export default function BlogMy() {
         try {
           const j = await res.json();
           if (j?.message) msg = j.message;
-        } catch {}
+        } catch { }
         throw new Error(msg);
       }
       const data = await res.json();
