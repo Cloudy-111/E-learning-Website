@@ -9,7 +9,7 @@ import Menu from "./pages/shared/MenuS.jsx";
 import PrivateRoute from "./components/auth/PrivateRoute";
 import RequireRole from "./components/auth/RequireRole";
 
-// Error Pages
+// Error PagesBlog
 import Unauthorized from "./pages/errors/Unauthorized";
 import Forbidden from "./pages/errors/Forbidden";
 import NotFoundPage from "./pages/errors/NotFound";
@@ -37,7 +37,7 @@ const ClassRoom = lazy(() => import("./pages/ClassRoom.jsx"));
 
 // Blog-related pages
 const Blog = lazy(() => import("./pages/shared/Blog/index.js"));
-const BlogDetail = lazy(() => import("./pages/shared/BlogDetail"));
+const BlogDetail = lazy(() => import("./pages/shared/BlogDetail/BlogDetail.jsx"));
 const BlogSearch = lazy(() => import("./pages/shared/BlogSearch.jsx"));
 const BlogAuthor = lazy(() => import("./pages/shared/BlogAuthor.jsx"));
 const BlogMy = lazy(() => import("./pages/shared/BlogMy.jsx"));
