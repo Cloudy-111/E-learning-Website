@@ -73,11 +73,13 @@ const ExamEdit = lazy(() => import("./pages/instructor/ExamEdit.jsx"));
 const ExamStats = lazy(() => import("./pages/instructor/ExamStats.jsx"));
 const ExamAttempts = lazy(() => import("./pages/instructor/ExamAttempts.jsx"));
 
-const ForumHome = lazy(() => import("./pages/shared/ForumHome.jsx"));
-const QuestionDetail = lazy(() => import("./pages/shared/QuestionDetail.jsx"));
-const AskQuestion = lazy(() => import("./pages/shared/AskQuestion.jsx"));
-const EditQuestion = lazy(() => import("./pages/shared/EditQuestion.jsx"));
-const MyQuestions = lazy(() => import("./pages/shared/MyQuestions.jsx"));
+// Forum pages
+const ForumHome = lazy(() => import("./pages/shared/Forum").then(m => ({ default: m.ForumHome })));
+const QuestionDetail = lazy(() => import("./pages/shared/Forum").then(m => ({ default: m.QuestionDetail })));
+const AskQuestion = lazy(() => import("./pages/shared/Forum").then(m => ({ default: m.AskQuestion })));
+const EditQuestion = lazy(() => import("./pages/shared/Forum").then(m => ({ default: m.EditQuestion })));
+const MyQuestions = lazy(() => import("./pages/shared/Forum").then(m => ({ default: m.MyQuestions })));
+
 
 const BecomeInstructor = lazy(() => import("./pages/shared/BecomInstructor/index.js"));
 
