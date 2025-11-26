@@ -878,6 +878,12 @@ import {
   authHeader,
 } from "../utils/auth";
 
+import {
+  getUserRole,
+  getNavigationForRole,
+  getUserDropdownItems,
+} from "../utils/userRole";
+
 const API_BASE = import.meta.env?.VITE_API_BASE || "http://localhost:5102";
 
 // ===== Theme =====
@@ -895,10 +901,9 @@ function ActiveLink({ to, end, children, className = "" }) {
       to={to}
       end={end}
       className={({ isActive }) =>
-        `${baseLinkCls} ${className} ${
-          isActive
-            ? "underline underline-offset-4 decoration-2"
-            : "hover:opacity-90"
+        `${baseLinkCls} ${className} ${isActive
+          ? "underline underline-offset-4 decoration-2"
+          : "hover:opacity-90"
         }`
       }
       style={({ isActive }) => ({
@@ -913,17 +918,7 @@ function ActiveLink({ to, end, children, className = "" }) {
 export default function Header({
   className = "",
   brand = { name: "Elearning", abbr: "P", href: "/" },
-  routes = [
-    { to: "/", label: "Trang chủ", end: true },
-    { to: "/courses", label: "Khóa học" },
-    { to: "/forum", label: "Hỏi đáp" },
-    { to: "/s/dashboard", label: "Dashboard" },
-    { to: "/blog", label: "Blog" },
-    { to: "/about", label: "Giới thiệu" },
-    { to: "/membership", label: "Gói thành viên" },
-    { to: "/exam", label: "Exam" },
-    { to: "/payment", label: "Thanh toán" },
-  ],
+  routes, // Remove default routes - we'll build them dynamically
 }) {
   const { hydrate } = useAuth();
 
@@ -944,11 +939,39 @@ export default function Header({
   const navigate = useNavigate();
   const location = useLocation();
 
-  const navItems = useMemo(() => routes ?? [], [routes]);
+  // Get current user role
+  const userRole = useMemo(() => {
+    if (!auth || !displayUser) return null;
+    return getUserRole();
+  }, [auth, displayUser]);
+
+  // Build navigation items based on role
+  const navItems = useMemo(() => {
+    // Base public routes shown to everyone
+    const baseRoutes = [
+      { to: "/", label: "Trang chủ", end: true },
+      { to: "/courses", label: "Khóa học" },
+      { to: "/forum", label: "Hỏi đáp" },
+      { to: "/blog", label: "Blog" },
+      { to: "/exam", label: "Exam" },
+    ];
+
+    // If custom routes provided, use them
+    if (routes) return routes;
+
+    // Add role-specific routes
+    const roleRoutes = getNavigationForRole(userRole);
+    return [...baseRoutes, ...roleRoutes];
+  }, [routes, userRole]);
 
   // ---- helper: đã là giảng viên chưa?
   const hasTeacherRole =
     !!displayUser?.teacherId || displayUser?.isTeacher === true;
+
+  // Get dropdown menu items based on role
+  const dropdownItems = useMemo(() => {
+    return getUserDropdownItems(userRole, hasTeacherRole);
+  }, [userRole, hasTeacherRole]);
 
   // ===== Đồng bộ state + kéo claims =====
   useEffect(() => {
@@ -963,7 +986,7 @@ export default function Header({
 
     // Nếu đã có app_user trong localStorage (ví dụ lúc login đã set)
     // thì set trước cho nhanh, rồi vẫn gọi claims để cập nhật teacherId/isTeacher mới.
-    let fromStorage =  null;
+    let fromStorage = null;
     try {
       fromStorage = JSON.parse(localStorage.getItem("app_user") || "null");
     } catch {
@@ -1064,7 +1087,7 @@ export default function Header({
         setDisplayUser(userObj);
         try {
           localStorage.setItem("app_user", JSON.stringify(userObj));
-        } catch {}
+        } catch { }
       } catch {
         // ignore
       }
@@ -1114,7 +1137,7 @@ export default function Header({
     clearAllAuth();
     try {
       localStorage.removeItem("app_user");
-    } catch {}
+    } catch { }
     setAuth(false);
     setDisplayUser(null);
     setOpenUser(false);
@@ -1195,34 +1218,17 @@ export default function Header({
                   className="absolute right-0 top-12 w-64 rounded-xl border bg-white shadow-md overflow-hidden z-[200] pointer-events-auto"
                   role="menu"
                 >
-                  <Link
-                    to="/profile"
-                    className="block px-4 py-2 hover:bg-slate-50"
-                    role="menuitem"
-                    onClick={() => setOpenUser(false)}
-                  >
-                    Hồ sơ cá nhân
-                  </Link>
-                  <Link
-                    to="/my-courses"
-                    className="block px-4 py-2 hover:bg-slate-50"
-                    role="menuitem"
-                    onClick={() => setOpenUser(false)}
-                  >
-                    Khóa học của tôi
-                  </Link>
-
-                  {/* Chỉ hiện nếu CHƯA là giảng viên */}
-                  {!hasTeacherRole && (
+                  {dropdownItems.map((item) => (
                     <Link
-                      to="/i/become-instructor"
-                      className="block px-4 py-2 hover:bg-slate-50 text-blue-600 font-medium"
+                      key={item.to}
+                      to={item.to}
+                      className={`block px-4 py-2 hover:bg-slate-50 ${item.className || ""}`}
                       role="menuitem"
                       onClick={() => setOpenUser(false)}
                     >
-                      Đăng ký làm giảng viên
+                      {item.label}
                     </Link>
-                  )}
+                  ))}
 
                   <Link
                     to="/settings"
@@ -1258,8 +1264,8 @@ export default function Header({
                 className="rounded-full text-white px-4 py-2 text-[15px] transition focus:outline-none focus:ring-2"
                 style={{ backgroundColor: BRAND.primary }}
                 onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor =
-                    BRAND.primaryHover)
+                (e.currentTarget.style.backgroundColor =
+                  BRAND.primaryHover)
                 }
                 onMouseLeave={(e) =>
                   (e.currentTarget.style.backgroundColor = BRAND.primary)
@@ -1314,34 +1320,17 @@ export default function Header({
 
             {auth ? (
               <>
-                <Link
-                  to="/profile"
-                  className="px-4 py-2 text-[15px] rounded-md hover:bg-slate-50"
-                  style={{ color: "#111827" }}
-                  onClick={() => setOpenMobile(false)}
-                >
-                  Hồ sơ cá nhân
-                </Link>
-                <Link
-                  to="/my-courses"
-                  className="px-4 py-2 text-[15px] rounded-md hover:bg-slate-50"
-                  style={{ color: "#111827" }}
-                  onClick={() => setOpenMobile(false)}
-                >
-                  Khóa học của tôi
-                </Link>
-
-                {/* Mobile: chỉ hiện khi chưa là giảng viên */}
-                {!hasTeacherRole && (
+                {dropdownItems.map((item) => (
                   <Link
-                    to="/i/become-instructor"
-                    className="px-4 py-2 text-[15px] rounded-md hover:bg-slate-50"
-                    style={{ color: BRAND.primary }}
+                    key={item.to}
+                    to={item.to}
+                    className={`px-4 py-2 text-[15px] rounded-md hover:bg-slate-50 ${item.className || ""}`}
+                    style={{ color: item.className ? undefined : "#111827" }}
                     onClick={() => setOpenMobile(false)}
                   >
-                    Đăng ký làm giảng viên
+                    {item.label}
                   </Link>
-                )}
+                ))}
 
                 <button
                   onClick={handleLogout}

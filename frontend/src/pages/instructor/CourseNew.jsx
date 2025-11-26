@@ -2011,6 +2011,8 @@ import {
   Info,
 } from "lucide-react";
 import { authHeader, requireAuth } from "../../utils/auth";
+import { createCourseContent } from "../../api/courseContent.api";
+import { createLessonsBatch } from "../../api/lessons.api";
 
 const API_BASE = import.meta.env?.VITE_API_BASE || "http://localhost:5102/api";
 
@@ -2084,6 +2086,12 @@ export default function CourseNew() {
     discount: 0, // % 0–100
   });
 
+  // CourseContent state (giới thiệu khóa học)
+  const [courseContent, setCourseContent] = useState({
+    title: "",
+    description: "",
+  });
+
   const [seo, setSeo] = useState({
     keywords: ["react", "frontend"],
     shortDesc: "",
@@ -2092,6 +2100,7 @@ export default function CourseNew() {
   });
 
   const [submitting, setSubmitting] = useState(false);
+  const [creationProgress, setCreationProgress] = useState(""); // Loading message
 
   /* ===== Load categories từ API ===== */
   useEffect(() => {
@@ -2159,6 +2168,9 @@ export default function CourseNew() {
       e.curriculum = "Thêm ít nhất 1 section";
     if (!basic.categoryId)
       e.categoryId = "Vui lòng chọn danh mục";
+    // CourseContent validation
+    if (!courseContent.title.trim())
+      e.courseContentTitle = "Vui lòng nhập tiêu đề giới thiệu";
     return e;
   }, [
     basic.title,
@@ -2166,6 +2178,7 @@ export default function CourseNew() {
     basic.categoryId,
     outcomes.length,
     curriculum.length,
+    courseContent.title,
   ]);
 
   const canPublish =
@@ -2201,6 +2214,7 @@ export default function CourseNew() {
     introduce: seo.shortDesc || basic.subtitle || basic.title || "",
   });
 
+  /* ===== Multi-step course creation ===== */
   const publishDraft = async () => {
     if (!canPublish) {
       alert("Vui lòng hoàn thiện các mục bắt buộc trước khi publish.");
@@ -2209,46 +2223,102 @@ export default function CourseNew() {
 
     try {
       setSubmitting(true);
-      const payload = buildPayload();
+      setCreationProgress("Đang tạo khóa học...");
 
-      const res = await fetch(`${API_BASE}/courses`, {
+      // STEP 1: Create Course
+      const coursePayload = {
+        title: basic.title.trim(),
+        description: basic.subtitle.trim(),
+        categoryId: basic.categoryId,
+        price: Math.max(0, Number(pricing.price) || 0),
+        discountPrice: Math.min(100, Math.max(0, Number(pricing.discount) || 0)),
+        thumbnailUrl: basic.thumbnail || "",
+        introduce: seo.shortDesc || basic.subtitle || basic.title || "",
+      };
+
+      const courseRes = await fetch(`${API_BASE}/courses`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           ...authHeader(),
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(coursePayload),
       });
 
-      if (!res.ok) {
-        let msg = `Publish thất bại (HTTP ${res.status})`;
+      if (!courseRes.ok) {
+        const errorText = await courseRes.text();
+        let errorMsg = `Tạo khóa học thất bại (HTTP ${courseRes.status})`;
         try {
-          const txt = await res.text();
-          if (txt) {
-            try {
-              const j = JSON.parse(txt);
-              msg = j.message || j.error || txt || msg;
-            } catch {
-              msg = txt || msg;
-            }
-          }
-        } catch {}
-        alert(msg);
-        return;
+          const errorJson = JSON.parse(errorText);
+          errorMsg = errorJson.message || errorJson.error || errorMsg;
+        } catch { }
+        throw new Error(errorMsg);
       }
 
-      const data = await res.json().catch(() => null);
-      console.log("Created course:", data);
-      alert("Tạo khoá học thành công!");
+      const courseData = await courseRes.json();
+      const courseId = courseData.data?.id || courseData.id;
+      console.log("✓ Course created:", courseId);
+
+      // STEP 2: Create CourseContent
+      setCreationProgress("Đang tạo nội dung giới thiệu...");
+
+      const contentPayload = {
+        title: courseContent.title.trim() || "Giới thiệu khóa học",
+        description: courseContent.description.trim() || basic.subtitle,
+        totalDuration: curriculum.reduce(
+          (total, section) =>
+            total +
+            section.lessons.reduce((sum, lesson) => {
+              const [min, sec] = (lesson.duration || "0:0").split(":");
+              return sum + parseInt(min || 0) * 60 + parseInt(sec || 0);
+            }, 0),
+          0
+        ),
+      };
+
+      const contentDataRes = await createCourseContent(courseId, contentPayload);
+      const courseContentId =
+        contentDataRes.data?.id || contentDataRes.id;
+      console.log("✓ CourseContent created:", courseContentId);
+
+      // STEP 3: Create Lessons
+      const allLessons = [];
+      let lessonOrder = 1;
+
+      for (const section of curriculum) {
+        for (const lesson of section.lessons) {
+          allLessons.push({
+            title: lesson.title.trim() || "Bài học mới",
+            description: "",
+            videoUrl: "",
+            duration: lesson.duration || "00:00",
+            order: lessonOrder++,
+          });
+        }
+      }
+
+      if (allLessons.length > 0) {
+        setCreationProgress(
+          `Đang tạo ${allLessons.length} bài học...`
+        );
+        await createLessonsBatch(courseContentId, allLessons);
+        console.log(`✓ Created ${allLessons.length} lessons`);
+      }
+
+      // SUCCESS!
+      setCreationProgress("Hoàn tất!");
+      alert(
+        `Tạo khóa học thành công!\n- Course ID: ${courseId}\n- Content ID: ${courseContentId}\n- Lessons: ${allLessons.length}`
+      );
       navigate("/i/courses");
     } catch (err) {
-      console.error(err);
+      console.error("❌ Course creation failed:", err);
       alert(
-        err?.message ||
-          "Không thể tạo khoá học. Kiểm tra lại API /api/courses."
+        `Lỗi khi tạo khóa học:\n${err?.message || "Vui lòng thử lại sau."}`
       );
     } finally {
       setSubmitting(false);
+      setCreationProgress("");
     }
   };
 
@@ -2272,17 +2342,17 @@ export default function CourseNew() {
       c.map((s) =>
         s.id === sid
           ? {
-              ...s,
-              lessons: [
-                ...s.lessons,
-                {
-                  id: Date.now(),
-                  title: "Bài học mới",
-                  type: "video",
-                  duration: "00:00",
-                },
-              ],
-            }
+            ...s,
+            lessons: [
+              ...s.lessons,
+              {
+                id: Date.now(),
+                title: "Bài học mới",
+                type: "video",
+                duration: "00:00",
+              },
+            ],
+          }
           : s
       )
     );
@@ -2292,9 +2362,9 @@ export default function CourseNew() {
       c.map((s) =>
         s.id === sid
           ? {
-              ...s,
-              lessons: s.lessons.filter((l) => l.id !== lid),
-            }
+            ...s,
+            lessons: s.lessons.filter((l) => l.id !== lid),
+          }
           : s
       )
     );
@@ -2353,11 +2423,10 @@ export default function CourseNew() {
             <button
               key={s.id}
               onClick={() => setStep(s.id)}
-              className={`px-3 py-1.5 rounded-full border ${
-                step === s.id
-                  ? "bg-blue-600 text-white border-blue-600"
-                  : "bg-white text-gray-700 hover:bg-gray-50"
-              }`}
+              className={`px-3 py-1.5 rounded-full border ${step === s.id
+                ? "bg-blue-600 text-white border-blue-600"
+                : "bg-white text-gray-700 hover:bg-gray-50"
+                }`}
             >
               {s.id}. {s.label}
             </button>
@@ -2399,11 +2468,10 @@ export default function CourseNew() {
                         setBasic((b) => ({ ...b, title: e.target.value }))
                       }
                       placeholder="VD: React 18 Pro — Hooks, Router, Performance"
-                      className={`rounded-xl border px-4 py-2 outline-none focus:ring-2 ${
-                        errors.title
-                          ? "border-rose-300 focus:ring-rose-200"
-                          : "border-gray-300 focus:ring-blue-200"
-                      }`}
+                      className={`rounded-xl border px-4 py-2 outline-none focus:ring-2 ${errors.title
+                        ? "border-rose-300 focus:ring-rose-200"
+                        : "border-gray-300 focus:ring-blue-200"
+                        }`}
                     />
                     {errors.title && (
                       <span className="text-xs text-rose-600">
@@ -2426,11 +2494,10 @@ export default function CourseNew() {
                       }
                       rows={3}
                       placeholder="Tóm tắt giá trị, kiến thức học viên đạt được..."
-                      className={`rounded-xl border px-4 py-2 outline-none focus:ring-2 ${
-                        errors.subtitle
-                          ? "border-rose-300 focus:ring-rose-200"
-                          : "border-gray-300 focus:ring-blue-200"
-                      }`}
+                      className={`rounded-xl border px-4 py-2 outline-none focus:ring-2 ${errors.subtitle
+                        ? "border-rose-300 focus:ring-rose-200"
+                        : "border-gray-300 focus:ring-blue-200"
+                        }`}
                     />
                     {errors.subtitle && (
                       <span className="text-xs text-rose-600">
@@ -2650,6 +2717,78 @@ export default function CourseNew() {
                   <h2 className="text-lg font-bold text-gray-900">
                     2) Nội dung & Giá
                   </h2>
+                  <p className="text-sm text-gray-600">
+                    Thêm phần giới thiệu khóa học, danh sách bài học và thiết lập giá bán.
+                  </p>
+                </div>
+
+                {/* CourseContent (Giới thiệu khóa học) */}
+                <div className="rounded-xl border p-4 bg-blue-50/50">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-gray-900 mb-3">
+                    <BookOpen className="w-4 h-4 text-blue-600" /> Giới thiệu khóa học *
+                  </div>
+                  <div className="grid gap-3">
+                    <label className="grid gap-1">
+                      <span className="text-sm font-medium text-gray-800">
+                        Tiêu đề phần giới thiệu *
+                      </span>
+                      <input
+                        value={courseContent.title}
+                        onChange={(e) =>
+                          setCourseContent((c) => ({ ...c, title: e.target.value }))
+                        }
+                        placeholder="VD: Chào mừng đến với khóa học React"
+                        className={`rounded-xl border px-4 py-2 outline-none focus:ring-2 ${errors.courseContentTitle
+                          ? "border-rose-300 focus:ring-rose-200 bg-white"
+                          : "border-gray-300 focus:ring-blue-200 bg-white"
+                          }`}
+                      />
+                      {errors.courseContentTitle && (
+                        <span className="text-xs text-rose-600">
+                          {errors.courseContentTitle}
+                        </span>
+                      )}
+                    </label>
+                    <label className="grid gap-1">
+                      <span className="text-sm font-medium text-gray-800">
+                        Mô tả chi tiết
+                      </span>
+                      <textarea
+                        value={courseContent.description}
+                        onChange={(e) =>
+                          setCourseContent((c) => ({
+                            ...c,
+                            description: e.target.value,
+                          }))
+                        }
+                        rows={4}
+                        placeholder="Giới thiệu tổng quan về nội dung, mục tiêu và cấu trúc khóa học..."
+                        className="rounded-xl border border-gray-300 px-4 py-2 outline-none focus:ring-2 focus:ring-blue-200 bg-white"
+                      />
+                    </label>
+                    <div className="text-xs text-gray-600 bg-white rounded-lg p-2 border">
+                      <Info className="w-3.5 h-3.5 inline mr-1" />
+                      Thời lượng tổng ({Math.floor(
+                        curriculum.reduce(
+                          (total, section) =>
+                            total +
+                            section.lessons.reduce((sum, lesson) => {
+                              const [min, sec] = (lesson.duration || "0:0").split(":");
+                              return sum + parseInt(min || 0) * 60 + parseInt(sec || 0);
+                            }, 0),
+                          0
+                        ) / 60
+                      )}ph {curriculum.reduce(
+                        (total, section) =>
+                          total +
+                          section.lessons.reduce((sum, lesson) => {
+                            const [min, sec] = (lesson.duration || "0:0").split(":");
+                            return sum + parseInt(min || 0) * 60 + parseInt(sec || 0);
+                          }, 0),
+                        0
+                      ) % 60}p) được tính tự động từ bài học bên dưới
+                    </div>
+                  </div>
                 </div>
 
                 {/* Curriculum */}
@@ -2719,17 +2858,17 @@ export default function CourseNew() {
                                     arr.map((sec) =>
                                       sec.id === s.id
                                         ? {
-                                            ...sec,
-                                            lessons: sec.lessons.map(
-                                              (it) =>
-                                                it.id === l.id
-                                                  ? {
-                                                      ...it,
-                                                      title: e.target.value,
-                                                    }
-                                                  : it
-                                            ),
-                                          }
+                                          ...sec,
+                                          lessons: sec.lessons.map(
+                                            (it) =>
+                                              it.id === l.id
+                                                ? {
+                                                  ...it,
+                                                  title: e.target.value,
+                                                }
+                                                : it
+                                          ),
+                                        }
                                         : sec
                                     )
                                   )
@@ -2743,17 +2882,17 @@ export default function CourseNew() {
                                     arr.map((sec) =>
                                       sec.id === s.id
                                         ? {
-                                            ...sec,
-                                            lessons: sec.lessons.map(
-                                              (it) =>
-                                                it.id === l.id
-                                                  ? {
-                                                      ...it,
-                                                      type: e.target.value,
-                                                    }
-                                                  : it
-                                            ),
-                                          }
+                                          ...sec,
+                                          lessons: sec.lessons.map(
+                                            (it) =>
+                                              it.id === l.id
+                                                ? {
+                                                  ...it,
+                                                  type: e.target.value,
+                                                }
+                                                : it
+                                          ),
+                                        }
                                         : sec
                                     )
                                   )
@@ -2771,17 +2910,17 @@ export default function CourseNew() {
                                     arr.map((sec) =>
                                       sec.id === s.id
                                         ? {
-                                            ...sec,
-                                            lessons: sec.lessons.map(
-                                              (it) =>
-                                                it.id === l.id
-                                                  ? {
-                                                      ...it,
-                                                      duration: e.target.value,
-                                                    }
-                                                  : it
-                                            ),
-                                          }
+                                          ...sec,
+                                          lessons: sec.lessons.map(
+                                            (it) =>
+                                              it.id === l.id
+                                                ? {
+                                                  ...it,
+                                                  duration: e.target.value,
+                                                }
+                                                : it
+                                          ),
+                                        }
                                         : sec
                                     )
                                   )
@@ -2959,6 +3098,9 @@ export default function CourseNew() {
                           {errors.outcomes && (
                             <li>Mục tiêu đạt được</li>
                           )}
+                          {errors.courseContentTitle && (
+                            <li>Tiêu đề phần giới thiệu</li>
+                          )}
                           {errors.curriculum && (
                             <li>Curriculum (ít nhất 1 section)</li>
                           )}
@@ -2975,11 +3117,10 @@ export default function CourseNew() {
               <button
                 onClick={prev}
                 disabled={step === 1}
-                className={`rounded-lg border px-4 py-2 text-sm inline-flex items-center gap-2 ${
-                  step === 1
-                    ? "text-gray-400 border-gray-200"
-                    : "hover:bg-gray-50"
-                }`}
+                className={`rounded-lg border px-4 py-2 text-sm inline-flex items-center gap-2 ${step === 1
+                  ? "text-gray-400 border-gray-200"
+                  : "hover:bg-gray-50"
+                  }`}
               >
                 <ArrowLeft className="w-4 h-4" /> Trước
               </button>
@@ -2994,23 +3135,21 @@ export default function CourseNew() {
                 <button
                   onClick={publishDraft}
                   disabled={!canPublish}
-                  className={`rounded-xl px-4 py-2 text-sm font-semibold inline-flex items-center gap-2 ${
-                    canPublish
-                      ? "bg-blue-600 hover:bg-blue-700 text-white"
-                      : "bg-gray-200 text-gray-500 cursor-not-allowed"
-                  }`}
+                  className={`rounded-xl px-4 py-2 text-sm font-semibold inline-flex items-center gap-2 ${canPublish
+                    ? "bg-blue-600 hover:bg-blue-700 text-white"
+                    : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                    }`}
                 >
                   <Rocket className="w-4 h-4" />{" "}
-                  {submitting ? "Đang publish..." : "Publish"}
+                  {submitting ? (creationProgress || "Đang xử lý...") : "Publish"}
                 </button>
                 <button
                   onClick={next}
                   disabled={step === 3}
-                  className={`rounded-lg border px-4 py-2 text-sm inline-flex items-center gap-2 ${
-                    step === 3
-                      ? "text-gray-400 border-gray-200"
-                      : "hover:bg-gray-50"
-                  }`}
+                  className={`rounded-lg border px-4 py-2 text-sm inline-flex items-center gap-2 ${step === 3
+                    ? "text-gray-400 border-gray-200"
+                    : "hover:bg-gray-50"
+                    }`}
                 >
                   Tiếp <ArrowRight className="w-4 h-4" />
                 </button>
@@ -3098,23 +3237,20 @@ export default function CourseNew() {
               </h4>
               <ul className="mt-2 text-sm space-y-1">
                 <li
-                  className={`inline-flex items-center gap-2 ${
-                    basic.title ? "text-emerald-700" : "text-gray-700"
-                  }`}
+                  className={`inline-flex items-center gap-2 ${basic.title ? "text-emerald-700" : "text-gray-700"
+                    }`}
                 >
                   <CheckCircle2 className="w-4 h-4" /> Tiêu đề khoá
                 </li>
                 <li
-                  className={`inline-flex items-center gap-2 ${
-                    outcomes.length ? "text-emerald-700" : "text-gray-700"
-                  }`}
+                  className={`inline-flex items-center gap-2 ${outcomes.length ? "text-emerald-700" : "text-gray-700"
+                    }`}
                 >
                   <CheckCircle2 className="w-4 h-4" /> Ít nhất 1 mục tiêu
                 </li>
                 <li
-                  className={`inline-flex items-center gap-2 ${
-                    curriculum.length ? "text-emerald-700" : "text-gray-700"
-                  }`}
+                  className={`inline-flex items-center gap-2 ${curriculum.length ? "text-emerald-700" : "text-gray-700"
+                    }`}
                 >
                   <CheckCircle2 className="w-4 h-4" /> Có section/lesson
                 </li>

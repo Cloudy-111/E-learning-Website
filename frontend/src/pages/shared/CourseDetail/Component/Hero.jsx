@@ -3,6 +3,7 @@ import { Ghost } from "../../../../components/Buttons";
 import EnrollButton from "./EnrollButton";
 
 import fallbackImage from "../../../../assets/images/fallback-image.jpeg";
+import Image from "../../../../components/ui/Image";
 
 function Hero({ course, isEnrolledState }) {
   const {
@@ -24,29 +25,22 @@ function Hero({ course, isEnrolledState }) {
   const finalPrice = hasDiscount ? discountPrice : price;
 
   return (
-    <section className="w-screen overflow-x-hidden pt-8">
+    <section className="w-screen overflow-x-hidden bg-blue-50/50 py-10 lg:py-14">
       <div className="w-screen px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* LEFT: Info */}
         <div className="lg:col-span-2">
-          <div className="rounded-2xl border bg-blue-50 aspect-video overflow-hidden">
-            {thumbnailUrl ? (
-              <img 
-                src={thumbnailUrl} 
-                alt={title} 
-                className="w-full h-full object-cover" 
-                loading="lazy" 
-                onError={(e) => e.currentTarget.src = fallbackImage}
-              />
-            ) : (
-              <div className="grid place-items-center h-full">
-                <span className="text-blue-500 text-sm">Video/Ảnh giới thiệu khóa học</span>
-              </div>
-            )}
+          <div className="aspect-video rounded-2xl overflow-hidden bg-slate-200 mb-6">
+            <Image
+              src={thumbnailUrl}
+              alt={title}
+              className="h-full w-full object-cover"
+              onError={(e) => (e.currentTarget.src = fallbackImage)}
+            />
           </div>
 
-          <div className="mt-5">
-            <div className="flex flex-wrap items-center gap-2 text-xs">
-              <span className="inline-flex border rounded-full px-3 py-1 text-[#2563eb] border-[#2563eb]">
+          <div>
+            <div className="flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-wider">
+              <span className="inline-flex border rounded-full px-3 py-1 text-[#2563eb] border-blue-200 bg-blue-50">
                 {categoryName || "Khóa học"} • {status || "published"}
               </span>
               <span className="inline-flex border rounded-full px-3 py-1 text-slate-600 border-slate-300">
@@ -76,20 +70,6 @@ function Hero({ course, isEnrolledState }) {
               </span>
             </div>
           </div>
-
-          {/* <div className="mt-6 rounded-2xl border p-6 bg-white">
-            <h3 className="font-semibold text-lg mb-3 text-slate-900">Bạn sẽ học được gì?</h3>
-            <p className="text-slate-700">
-              Nắm chắc kiến thức cốt lõi, luyện bài thực hành và dự án mini để áp dụng ngay.  
-              Truy cập trọn đời, hỗ trợ hỏi đáp và cập nhật nội dung thường xuyên.
-            </p>
-            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4 text-slate-800">
-              <div className="flex items-start gap-2"><Check /><span>Cập nhật & hỗ trợ liên tục</span></div>
-              <div className="flex items-start gap-2"><Check /><span>Chứng nhận hoàn thành</span></div>
-              <div className="flex items-start gap-2"><Check /><span>Học trên mọi thiết bị</span></div>
-              <div className="flex items-start gap-2"><Check /><span>Hoàn tiền nếu không hài lòng</span></div>
-            </div>
-          </div> */}
         </div>
 
         {/* RIGHT: Enroll card */}

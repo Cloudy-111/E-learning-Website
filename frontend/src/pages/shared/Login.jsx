@@ -233,6 +233,7 @@ import {
   consumePendingNext,
 } from "../../utils/auth";
 import { http } from "../../utils/http";
+import { getRoleBasedDashboard } from "../../utils/userRole";
 
 const BRAND = { primary: "#2563eb", primaryHover: "#1d4ed8" };
 const API_BASE = import.meta.env?.VITE_API_BASE || "http://localhost:5102";
@@ -338,7 +339,7 @@ export default function Login() {
             fullName: data?.fullName || null,
           })
         );
-      } catch {}
+      } catch { }
 
 
       // Điều hướng:
@@ -354,7 +355,13 @@ export default function Login() {
         return;
       }
 
-      nav(fallbackAfterLogin, { replace: true });
+      // Determine role from response data and redirect to appropriate dashboard
+      const userRole = data?.studentId && !data?.teacherId ? "Student"
+        : data?.teacherId ? "Teacher"
+          : null;
+      const roleDashboard = getRoleBasedDashboard(userRole);
+
+      nav(roleDashboard, { replace: true });
     } catch (e) {
       setError("root", { message: "Không thể kết nối máy chủ. Vui lòng thử lại." });
     }
@@ -399,9 +406,8 @@ export default function Login() {
                 type="email"
                 autoComplete="email"
                 placeholder="nhap@email.com"
-                className={`w-full rounded-full border px-5 py-3 outline-none focus:ring-2 ${
-                  errors.email ? "border-red-500 focus:ring-red-200" : "border-gray-300 focus:ring-blue-200"
-                }`}
+                className={`w-full rounded-full border px-5 py-3 outline-none focus:ring-2 ${errors.email ? "border-red-500 focus:ring-red-200" : "border-gray-300 focus:ring-blue-200"
+                  }`}
                 style={!errors.email ? { borderColor: BRAND.primary } : {}}
                 {...register("email")}
               />
@@ -416,9 +422,8 @@ export default function Login() {
                   type={showPwd ? "text" : "password"}
                   autoComplete="current-password"
                   placeholder="••••••••"
-                  className={`w-full rounded-full border px-5 py-3 pr-12 outline-none focus:ring-2 ${
-                    errors.password ? "border-red-500 focus:ring-red-200" : "border-gray-300 focus:ring-blue-200"
-                  }`}
+                  className={`w-full rounded-full border px-5 py-3 pr-12 outline-none focus:ring-2 ${errors.password ? "border-red-500 focus:ring-red-200" : "border-gray-300 focus:ring-blue-200"
+                    }`}
                   style={!errors.password ? { borderColor: BRAND.primary } : {}}
                   {...register("password")}
                 />
