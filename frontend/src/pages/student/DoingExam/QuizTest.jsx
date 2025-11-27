@@ -2,7 +2,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 import { fetchExamById, submitExamAPI } from "../../../api/exams.api";
 import { saveCurrentAnswersAPI } from "../../../api/examAttempt";
@@ -12,6 +12,7 @@ import ExamBody from "./Components/ExamBody/ExamBody";
 
 function QuizTest() {
   const { id } = useParams();
+  const navigate = useNavigate();
   
   const [examData, setExamData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -69,6 +70,7 @@ function QuizTest() {
       alert("Exam submitted successfully!");
 
       // navigate to another page or show results
+      navigate(`/s/results/${attemptId}`);
     } catch(e){
       alert("Failed to submit exam: " + e.message);
       return;

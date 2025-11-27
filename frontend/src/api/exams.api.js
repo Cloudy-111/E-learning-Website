@@ -69,4 +69,66 @@ async function submitExamAPI(attemptId, currentAnswers) {
   }
 }
 
-export { fetchExamsByLesson, fetchExamById, submitExamAPI };
+async function fetchExamResults(examId) {
+  try {
+    const response = await baseFetch(`/api/exams/${examId}/history`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        ...authHeader(),
+      },
+    });
+
+    return response;
+  } catch (e) {
+    console.error("Fetch exam results error:", e);
+    throw new Error(e);
+  }
+}
+
+async function fetchSubmissionExamByAttemmptId(attemptId) {
+  try {
+    const response = await baseFetch(
+      `/api/exams/${attemptId}/detail-submission`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          ...authHeader(),
+        },
+      }
+    );
+    return response;
+  } catch (e) {
+    console.error("Fetch submission exam by attempt id error:", e);
+    throw new Error(e);
+  }
+}
+
+async function fetchUserSubmissionBySubmissionexamId(submissionExamId) {
+  try {
+    const response = await baseFetch(
+      `/api/exams/submission-exam/${submissionExamId}/user-submission-result`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          ...authHeader(),
+        },
+      }
+    );
+    return response;
+  } catch (e) {
+    console.error("Fetch user submission by submission exam id error:", e);
+    throw new Error(e);
+  }
+}
+
+export {
+  fetchExamsByLesson,
+  fetchExamById,
+  submitExamAPI,
+  fetchExamResults,
+  fetchSubmissionExamByAttemmptId,
+  fetchUserSubmissionBySubmissionexamId,
+};

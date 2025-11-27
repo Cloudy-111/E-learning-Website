@@ -13,7 +13,9 @@ const fmtTime = (s) => {
 };
 
 function HeaderExam({ attemptId, exam, doSubmit }){
-    const [timeLeft, setTimeLeft] = useState(0);
+    const [timeLeft, setTimeLeft] = useState(null);
+    const [loaded, setLoaded] = useState(false);
+
     useEffect(() => {
         if (!attemptId) return;
         let isMounted = true;
@@ -23,6 +25,7 @@ function HeaderExam({ attemptId, exam, doSubmit }){
                 if (!endTime || !isMounted) return;
                 const initial = calcTimeLeft(endTime);
                 setTimeLeft(initial);
+                setLoaded(true);
             } catch (e) {
                 console.error("Failed to get end time:", e);
             }
@@ -33,6 +36,7 @@ function HeaderExam({ attemptId, exam, doSubmit }){
     }, [attemptId]);
 
     useEffect(() => {
+        if (timeLeft === null || !loaded) return;
         if (timeLeft <= 0) {
             // navigate to results page or auto-submit
             doSubmit();
@@ -44,7 +48,7 @@ function HeaderExam({ attemptId, exam, doSubmit }){
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [attemptId, doSubmit, timeLeft]);
+    }, [attemptId, doSubmit, loaded, timeLeft]);
     
     return (
         <div className="w-full bg-white border-b border-gray-200 sticky top-0 z-30">

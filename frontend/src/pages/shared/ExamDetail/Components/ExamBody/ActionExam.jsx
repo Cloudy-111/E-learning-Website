@@ -2,6 +2,8 @@ import { PlayCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { postExamAttempt } from "../../../../../api/examAttempt";
 
+import HistoryExam from "./HistoryExam";
+
 function ActionExam({ roles, exam, formatDuration }){
 
     const navigate = useNavigate();
@@ -70,11 +72,7 @@ function ActionExam({ roles, exam, formatDuration }){
                 </button>
             </div>
             
-            {roles.includes("Student") && (
-                <div className="bg-white border rounded-2xl p-6">
-                    <p>Lịch sử làm bài</p>
-                </div>
-            )}
+            {roles.includes("Student") && <HistoryExam examId={exam.id} />}
 
             {/* Component with another Roles */}
             

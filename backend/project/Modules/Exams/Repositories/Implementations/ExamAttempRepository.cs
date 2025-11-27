@@ -25,6 +25,7 @@ public class ExamAttempRepository : IExamAttempRepository
         return await _context.ExamAttemps.FirstOrDefaultAsync(ea =>
             ea.StudentId == studentId &&
             ea.ExamId == examId &&
+            ea.IsSubmitted == false &&
             ea.StartTime <= currentTime &&
             ea.EndTime >= currentTime);
     }
