@@ -28,11 +28,11 @@ function QuestionReview( { q, userChoiceIds, idx } ) {
                                 </div>
                                 <div className="flex-1">
                                     <div className="text-sm font-medium">{ch.content}</div>
-                                    <div className="text-xs text-gray-500 mt-1">{isSelected ? 'Bạn đã chọn' : ''}</div>
+                                    <div className="text-xs text-gray-500 mt-1">{isSelected ? 'Đã chọn' : ''}</div>
                                 </div>
 
                                 <div className="text-sm">
-                                    {isCorrect && <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">Đáp án đúng</span>}
+                                    {isCorrect && <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">Đúng</span>}
                                     {!isCorrect && isSelected && <span className="px-2 py-1 text-xs bg-red-100 text-red-800 rounded">Sai</span>}
                                 </div>
                             </div>

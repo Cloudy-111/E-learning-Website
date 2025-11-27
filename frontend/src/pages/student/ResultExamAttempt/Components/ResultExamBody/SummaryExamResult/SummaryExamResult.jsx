@@ -12,7 +12,7 @@ function SummaryExamResult( {
             <SummaryCards submissionExam={submissionExam} />
 
             {/* Actions */}
-            <ActionWithResult onExportCSV={onExportCSV} onRetake={onRetake} />
+            <ActionWithResult examId={submissionExam.examId} onExportCSV={onExportCSV} onRetake={onRetake} />
 
             {/* Review detail */}
             <ReviewDetails submissionExam={submissionExam} />

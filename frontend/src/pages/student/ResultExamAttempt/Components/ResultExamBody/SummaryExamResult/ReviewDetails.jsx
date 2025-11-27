@@ -6,37 +6,46 @@ import QuestionReview from "./QuestionReview";
 function ReviewDetails( {submissionExam} ) {
     const [listQuestions, setListQuestions] = useState([]);
     const [userResult, setUserResult] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    // fetch list questions
     useEffect(() => {
         const ac = new AbortController();
-        (async () => {
-            try {
-                const questions = await fetchQuestionExamsForReviewByExamId(submissionExam.examId);
-                setListQuestions(questions.data || []);
-            } catch (error) {
-                console.error("Failed to fetch questions:", error);
-            }
-        })();
 
-        return () => ac.abort();
-    }, [submissionExam.examId]);
-    
-    // fetch user submission answers
-    useEffect(() => {
-        const ac = new AbortController();
-        (async () => {
+        async function load() {
             try {
-                const result = await fetchUserSubmissionBySubmissionexamId(submissionExam.submissionExamId);
-                // [{ questionId, choices: [{ id }] }, ...]
-                setUserResult(Array.isArray(result.data) ? result.data : (result.data?.savedAnswers ? JSON.parse(result.data.savedAnswers || '[]') : []));
+                setLoading(true);
+
+                const [questionsRes, submissionRes] = await Promise.all([
+                    fetchQuestionExamsForReviewByExamId(submissionExam.examId),
+                    fetchUserSubmissionBySubmissionexamId(submissionExam.submissionExamId)
+                ]);
+
+                // fetch questions
+                setListQuestions(questionsRes.data || []);
+
+                // fetch user answers
+                const parsed = Array.isArray(submissionRes.data)
+                                ? submissionRes.data
+                                : JSON.parse(submissionRes.data || "[]");
+                setUserResult(parsed);
+
             } catch (error) {
-                console.error("Failed to fetch user result:", error);
+                console.error(error);
                 setUserResult([]);
+                setListQuestions([]);
+            } finally {
+                setLoading(false);
             }
-        })();
+        }
+
+        load();
+
         return () => ac.abort();
-    }, [submissionExam.submissionExamId]);
+    }, [submissionExam.examId, submissionExam.submissionExamId]);
+
+    if (loading || !userResult) {
+        return <div>Loading review details...</div>;
+    }
 
     const findSubmissionFor = (questionId) => {
         if (!Array.isArray(userResult)) return [];
