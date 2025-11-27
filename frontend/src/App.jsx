@@ -20,16 +20,17 @@ import { ToastProvider } from "./components/ui/Toast";
 
 /* ====== Lazy-loaded Pages ====== */
 const Home = lazy(() => import("./pages/shared/Home/Home.jsx"));
-const Discover = lazy(() => import("./pages/shared/Discover.jsx"));
+const Discover = lazy(() => import("./pages/shared/Discover/Discover.jsx"));
 const Courses = lazy(() => import("./pages/shared/Courses/Courses.jsx"));
 const CourseDetail = lazy(() => import("./pages/shared/CourseDetail/CourseDetail.jsx"));
-const About = lazy(() => import("./pages/shared/About.jsx"));
+const About = lazy(() => import("./pages/shared/About/About.jsx"));
 const Membership = lazy(() => import("./pages/shared/MemberShip.jsx"));
-const Payment = lazy(() => import("./pages/shared/Payment.jsx"));
+const Payment = lazy(() => import("./pages/shared/Payment/Payment.jsx"));
 const Menut = lazy(() => import("./pages/shared/Menut.jsx"));
 
-const Login = lazy(() => import("./pages/shared/Login.jsx"));
-const Register = lazy(() => import("./pages/shared/Register.jsx"));
+const Login = lazy(() => import("./pages/shared/Login/Login.jsx"));
+const Register = lazy(() => import("./pages/shared/Register/Register.jsx"));
+
 
 const Discussion = lazy(() => import("./pages/Discussion.jsx"));
 const DiscussionDetail = lazy(() => import("./pages/DiscussionDetail.jsx"));
@@ -44,7 +45,7 @@ const BlogMy = lazy(() => import("./pages/shared/BlogMy/BlogMy.jsx"));
 const BlogEditor = lazy(() => import("./pages/shared/BlogEditor/BlogEditor.jsx"));
 
 // Exam pages
-const Study4TestLibrary = lazy(() => import("./pages/shared/Exam.jsx"));
+const Study4TestLibrary = lazy(() => import("./pages/shared/Exam/Exam.jsx"));
 const ExamDetail = lazy(() => import("./pages/shared/ExamDetail/ExamDetail.jsx"));
 
 const Dashboard = lazy(() => import("./pages/student/DashBoard.jsx"));
