@@ -8,12 +8,15 @@ public class ExamController : ControllerBase
 {
     private readonly IExamService _examService;
     private readonly IExamAttempService _examAttempService;
+    private readonly ISubmissionExamService _submissionExamService;
     public ExamController(
         IExamService examService,
-        IExamAttempService examAttempService)
+        IExamAttempService examAttempService,
+        ISubmissionExamService submissionExamService)
     {
         _examService = examService;
         _examAttempService = examAttempService;
+        _submissionExamService = submissionExamService;
     }
 
     [HttpGet]
@@ -204,6 +207,57 @@ public class ExamController : ControllerBase
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new
             APIResponse("error", "An error occurred while starting the exam attempt", ex.Message));
+        }
+    }
+
+    [Authorize]
+    [HttpGet("{examId}/history")]
+    public async Task<IActionResult> GetExamAttemptHistory(string examId)
+    {
+        try
+        {
+            var userId = User.FindFirst("studentId")?.Value ?? User.FindFirst("userId")?.Value;
+            var examAttempts = await _submissionExamService.GetSubmissionHistoryByStudentAndExamAsync(userId, examId);
+            return Ok(new APIResponse("success", "Retrieve Exam Attempt History Successfully", examAttempts));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while retrieving the exam attempt history", ex.Message));
+        }
+    }
+
+    [Authorize]
+    [HttpGet("{attemptId}/detail-submission")]
+    public async Task<IActionResult> GetDetailSubmissionExamAttemptAsync(string attemptId)
+    {
+        try
+        {
+            var userId = User.FindFirst("studentId")?.Value ?? User.FindFirst("userId")?.Value;
+            var detailSubmission = await _submissionExamService.GetSubmissionExamDetailDTOAsync(userId, attemptId);
+            return Ok(new APIResponse("success", "Retrieve Detail Submission Successfully", detailSubmission));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while retrieving the detail submission", ex.Message));
+        }
+    }
+
+    [Authorize]
+    [HttpGet("submission-exam/{submissionExamId}/user-submission-result")]
+    public async Task<IActionResult> GetUserSubmissionResultAsync(string submissionExamId)
+    {
+        try
+        {
+            var userId = User.FindFirst("studentId")?.Value ?? User.FindFirst("userId")?.Value;
+            var result = await _submissionExamService.GetUserSubmissionResultAsync(userId, submissionExamId);
+            return Ok(new APIResponse("success", "Retrieve User Submission Result Successfully", result));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while retrieving the user submission result", ex.Message));
         }
     }
 }
