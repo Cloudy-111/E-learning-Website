@@ -38,10 +38,10 @@ const ClassRoom = lazy(() => import("./pages/ClassRoom.jsx"));
 // Blog-related pages
 const Blog = lazy(() => import("./pages/shared/Blog/index.js"));
 const BlogDetail = lazy(() => import("./pages/shared/BlogDetail/BlogDetail.jsx"));
-const BlogSearch = lazy(() => import("./pages/shared/BlogSearch.jsx"));
-const BlogAuthor = lazy(() => import("./pages/shared/BlogAuthor.jsx"));
-const BlogMy = lazy(() => import("./pages/shared/BlogMy.jsx"));
-const BlogEditor = lazy(() => import("./pages/shared/BlogEditor.jsx"));
+const BlogSearch = lazy(() => import("./pages/shared/BlogSearch/BlogSearch.jsx"));
+const BlogAuthor = lazy(() => import("./pages/shared/BlogAuthor/BlogAuthor.jsx"));
+const BlogMy = lazy(() => import("./pages/shared/BlogMy/BlogMy.jsx"));
+const BlogEditor = lazy(() => import("./pages/shared/BlogEditor/BlogEditor.jsx"));
 
 // Exam pages
 const Study4TestLibrary = lazy(() => import("./pages/shared/Exam.jsx"));
