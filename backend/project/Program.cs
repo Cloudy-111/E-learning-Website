@@ -17,6 +17,8 @@ using project.Modules.Payment.Service.Interfaces;
 using project.Modules.Payments.Repositories.Interfaces;
 using project.Modules.Payment.Repositories.Implements;
 using project.Modules.Payments.Repositories.Interfaces;
+using project.Modules.Payments.Service.Interfaces;
+using project.Modules.Payments.Service.Implements;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -101,6 +103,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 builder.Services.AddControllers();
 
