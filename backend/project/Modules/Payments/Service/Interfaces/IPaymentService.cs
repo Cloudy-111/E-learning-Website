@@ -6,4 +6,5 @@ namespace project.Modules.Payments.Service.Interfaces;
 public interface IPaymentService
 {
   Task<PaymentQrDto> GeneratePaymentQrAsync(string paymentId, string studentId);
-  Task<bool> ConfirmPaymentAsync(string transactionId, string studentId);}
+  Task<bool> HandleWebhookAsync(PaymentWebhookDto dto);
+  }

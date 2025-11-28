@@ -33,16 +33,15 @@ namespace project.Modules.Payments.Controller
             }
         }
 
-        // User quét QR → Thanh toán
-        [HttpPost("confirm")]
-        [Authorize]
-        public async Task<IActionResult> ConfirmPayment([FromBody] PaymentConfirmDto dto)
+        // Webhook callback từ cổng thanh toán
+        [HttpPost("webhook")]
+        [AllowAnonymous]
+        public async Task<IActionResult> PaymentWebhook([FromBody] PaymentWebhookDto dto)
         {
             try
             {
-                var studentId = User.FindFirst("StudentId")?.Value ?? throw new Exception("StudentId not found in token");
-                await _paymentService.ConfirmPaymentAsync(dto.TransactionId, studentId);
-                return Ok(new { message = "Payment successful and order updated." });
+                await _paymentService.HandleWebhookAsync(dto);
+                return Ok(new { message = "Payment confirmed and order updated." });
             }
             catch (Exception ex)
             {

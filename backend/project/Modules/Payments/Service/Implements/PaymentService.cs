@@ -49,30 +49,29 @@ public class PaymentService : IPaymentService
         };
     }
 
-     // User quét QR → Thanh toán
-    public async Task<bool> ConfirmPaymentAsync(string transactionId, string studentId)
+      // 2Xử lý webhook callback từ cổng thanh toán
+    public async Task<bool> HandleWebhookAsync(PaymentWebhookDto dto)
     {
         using var transaction = await _dbContext.Database.BeginTransactionAsync();
-
         try
         {
-            var payment = await _paymentRepo.GetByTransactionIdAsync(transactionId);
+            var payment = await _paymentRepo.GetByTransactionIdAsync(dto.TransactionId);
             if (payment == null)
                 throw new Exception("Payment not found.");
 
-            if (payment.Order.StudentId != studentId)
-                throw new Exception("You are not allowed to pay this order.");
+            if (dto.Status != "success")
+                throw new Exception("Payment not successful.");
 
             var order = payment.Order;
             if (order.Status == "paid")
-                throw new Exception("Order is already paid.");
+                return true; // đã thanh toán rồi
 
-            // Cập nhật trạng thái order
+            // Cập nhật order
             order.Status = "paid";
             order.UpdatedAt = DateTime.UtcNow;
             _dbContext.Orders.Update(order);
 
-            // Cập nhật Payment UpdatedAt (có thể thêm status nếu muốn)
+            // Cập nhật payment UpdatedAt
             payment.UpdatedAt = DateTime.UtcNow;
             _dbContext.Payments.Update(payment);
 
@@ -87,5 +86,6 @@ public class PaymentService : IPaymentService
             throw;
         }
     }
+   
 
 }
