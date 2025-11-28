@@ -32,4 +32,23 @@ async function fetchLessonDetail(lessonId, courseContentId) {
   }
 }
 
-export { fetchListLessons, fetchLessonDetail };
+async function createLesson(courseContentId, payload) {
+  return baseFetch(`/api/course-content/${courseContentId}/lessons`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...authHeader(),
+    },
+    body: JSON.stringify(payload),
+  });
+}
+
+async function createLessonsBatch(courseContentId, lessonsArray) {
+  // Create lessons in parallel using Promise.all
+  const promises = lessonsArray.map((lesson) =>
+    createLesson(courseContentId, lesson)
+  );
+  return Promise.all(promises);
+}
+
+export { fetchListLessons, fetchLessonDetail, createLesson, createLessonsBatch };
