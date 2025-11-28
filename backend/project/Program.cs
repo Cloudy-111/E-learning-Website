@@ -13,6 +13,10 @@ using System.Text;
 using project.Modules.UserManagement.Services;
 using Microsoft.OpenApi.Models;
 using project.Modules.UserManagement.Services.Interfaces;
+using project.Modules.Payment.Service.Interfaces;
+using project.Modules.Payment.Service.Implements;
+using project.Modules.Payment.Repositories.Interfaces;
+using project.Modules.Payment.Repositories.Implements;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -93,7 +97,9 @@ builder.Services.AddScoped<IAdminRepository, AdminRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IExamAttempRepository, ExamAttempRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<IUserRepository, userRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 builder.Services.AddControllers();
 
