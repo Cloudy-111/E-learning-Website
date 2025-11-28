@@ -135,6 +135,12 @@ export default function App() {
                   <Route element={<Layout />}>
                     <Route path="/courses" element={<Courses />} />
                     <Route path="/courses/:id" element={<CourseDetail />} />
+
+                    <Route path="/s/enrollments" element={<Enrollments title="📚 /s/enrollments — Khóa học của tôi" />} />
+                    <Route path="/s/:courseContentId/lesson/:lessonId" element={<LessonDetail title="📖 /s/lesson/:lessonId — Chi tiết bài học" />} />
+                    <Route path="/s/exam/:id" element={<ExamDetail title="🧠 /s/exam/:id — Giới thiệu đề thi (CTA Bắt đầu thi)" />} />
+                    <Route path="/s/exam/:id/take-exam" element={<QuizTest />} />
+                    <Route path="/s/results/:attemptId" element={<ResultAttempt title="📈 /s/results/:attemptId — Kết quả bài thi" />} />
                   </Route>
 
                   <Route index element={<Home />} />
@@ -183,12 +189,7 @@ export default function App() {
                   <Route element={<PrivateRoute />}>
                     <Route element={<RequireRole roles={["Student"]} />}>
                       <Route path="/s/dashboard" element={<Dashboard />} />
-                      <Route path="/s/enrollments" element={<Enrollments title="📚 /s/enrollments — Khóa học của tôi" />} />
-                      <Route path="/s/:courseContentId/lesson/:lessonId" element={<LessonDetail title="📖 /s/lesson/:lessonId — Chi tiết bài học" />} />
-                      <Route path="/s/exam/:id" element={<ExamDetail title="🧠 /s/exam/:id — Giới thiệu đề thi (CTA Bắt đầu thi)" />} />
-                      <Route path="/s/exam/:id/take-exam" element={<QuizTest />} />
-                      <Route path="/s/exam/:id/take/:attemptId" element={<QuizTest />} />
-                      <Route path="/s/results/:attemptId" element={<ResultAttempt title="📈 /s/results/:attemptId — Kết quả bài thi" />} />
+                      
                       <Route path="/s/resultstest" element={<IELTSResultsPage />} />
                       <Route path="/s/historytest" element={<HistoryTest />} />
                       <Route path="/s/profile" element={<ProfilePage title="👤 /s/profile — Hồ sơ & cài đặt" />} />

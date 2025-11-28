@@ -1,9 +1,9 @@
+
 // src/pages/shared/CourseDetail.jsx
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 import Section from "../../../components/Section";
 import Hero from "./Component/Hero";
 import ListLesson from "./Component/ListLesson";
@@ -16,101 +16,139 @@ import { fetchCourseReviews, hasReviewedCourse } from "../../../api/courseReview
 import { isEnrolled } from "../../../api/enrollments.api";
 
 function CourseDetail() {
-  const { id } = useParams();
+  const { id } = useParams(); 
   const navigate = useNavigate();
+  const [course, setCourse] = useState(null);
+  const [intro, setIntro] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // 1. Check Enrollment
-  const { data: enrollmentData } = useQuery({
-    queryKey: ['enrollment', id],
-    queryFn: async () => {
+  const [courseContentId, setCourseContentId] = useState(null);
+
+  const [listLesson, setListLesson] = useState([]);
+  const [listReview, setListReview] = useState([]);
+
+  const [isEnrolledState, setIsEnrolledState] = useState(null);
+  const [hasReviewed, setHasReviewed] = useState(false);
+
+  // check enrollment
+  useEffect(() => {
+    const checkEnrollment = async () => {
       try {
-        const res = await isEnrolled(id);
-        return res.data.isEnrolled;
-      } catch {
-        return false;
+        const result = await isEnrolled(id);
+        setIsEnrolledState(result.data.isEnrolled);
+      } catch (err) {
+        console.error(err);
+        setIsEnrolledState(false);
       }
-    },
-    enabled: !!id,
-  });
-  const isEnrolledState = enrollmentData ?? false;
+    };
 
-  // 2. Check Reviewed
-  const { data: reviewedData } = useQuery({
-    queryKey: ['hasReviewed', id],
-    queryFn: async () => {
+    checkEnrollment();
+  }, [id]);
+
+  // check reviewed
+  useEffect(() => {
+    const checkReviewed = async () => {
+      try{
+        const result = await hasReviewedCourse(id);
+        setHasReviewed(result.data.hasReviewed);
+      } catch (err){
+        console.error(err);
+        setHasReviewed(false);
+      }
+    };
+
+    checkReviewed();
+  }, [id]);
+
+  // fetch detail
+  useEffect(() => {
+    const ac = new AbortController();
+
+    async function loadCourseDetail() {
       try {
-        const res = await hasReviewedCourse(id);
-        return res.data.hasReviewed;
-      } catch {
-        return false;
+        setLoading(true);
+        setError("");
+
+        // Course detail
+        const resultFetchCourse = await fetchCourseDetail(id, { signal: ac.signal });
+        setCourse(resultFetchCourse.data);
+        
+        // Course content
+        const resultFetchCourseContent = await fetchCourseContent(id, { signal: ac.signal });
+        setIntro(resultFetchCourseContent.data);
+        setCourseContentId(resultFetchCourseContent.data.id);
+      } catch (e) {
+        if (e.name !== "AbortError") {
+          console.error("Fetch course detail error:", e);
+          setError("Không tải được thông tin khóa học. Vui lòng thử lại.");
+        }
+      } finally {
+        setLoading(false);
       }
-    },
-    enabled: !!id,
-  });
-  const hasReviewed = reviewedData ?? false;
+    }
 
-  // 3. Fetch Course Detail
-  const {
-    data: course,
-    isLoading: courseLoading,
-    error: courseError
-  } = useQuery({
-    queryKey: ['course', id],
-    queryFn: async () => {
-      const res = await fetchCourseDetail(id);
-      return res.data;
-    },
-    enabled: !!id,
-  });
+    if (id)loadCourseDetail();
+    return () => ac.abort();
+  }, [id]);
 
-  // 4. Fetch Course Content (Intro)
-  const {
-    data: intro,
-    isLoading: introLoading
-  } = useQuery({
-    queryKey: ['courseContent', id],
-    queryFn: async () => {
-      const res = await fetchCourseContent(id);
-      return res.data;
-    },
-    enabled: !!id,
-  });
+  // fetch list lesson
+  useEffect(() => {
+    if (!courseContentId) return; 
 
-  const courseContentId = intro?.id;
+    const ac = new AbortController();
 
-  // 5. Fetch List Lessons (Dependent on courseContentId)
-  const {
-    data: listLessonData,
-    isLoading: lessonLoading
-  } = useQuery({
-    queryKey: ['lessons', courseContentId],
-    queryFn: async () => {
-      const res = await fetchListLessons(courseContentId);
-      return res.data;
-    },
-    enabled: !!courseContentId,
-  });
-  const listLesson = listLessonData || [];
+    async function loadListLesson() {
+      try {
+        setLoading(true);
+        setError("");
 
-  // 6. Fetch Reviews
-  const {
-    data: listReviewData,
-    isLoading: reviewLoading
-  } = useQuery({
-    queryKey: ['reviews', id],
-    queryFn: async () => {
-      const res = await fetchCourseReviews(id);
-      return res.data;
-    },
-    enabled: !!id,
-  });
-  const listReview = listReviewData || [];
+        const resultFetchListLesson = await fetchListLessons(courseContentId, { signal: ac.signal });
+        setListLesson(resultFetchListLesson.data);
 
-  const loading = courseLoading || introLoading || lessonLoading || reviewLoading;
-  const error = courseError ? "Không tải được thông tin khóa học. Vui lòng thử lại." : "";
+      } catch (e) {
+        if (e.name !== "AbortError") {
+          console.error("Fetch lesson detail error:", e);
+          setError("Không tải được thông tin bài học. Vui lòng thử lại.");
+        }
+      } finally {
+        setLoading(false);
+      }
+    }
 
+    loadListLesson();
+    return () => ac.abort();
+
+  }, [courseContentId]);
+
+  // fetch reviews
+  useEffect(() => {
+    const ac = new AbortController();
+
+    async function loadReviews(){
+      try {
+        setLoading(true);
+        setError("");
+
+        // Course detail
+        const resultFetchReview = await fetchCourseReviews(id, { signal: ac.signal });
+        setListReview(resultFetchReview.data);
+      } catch (e) {
+        if (e.name !== "AbortError") {
+          console.error("Fetch reviews error:", e);
+          setError("Không tải được đánh giá. Vui lòng thử lại.");
+        }
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadReviews();
+    return () => ac.abort();
+  }, [id]);
+  
   const content = useMemo(() => {
-    if (loading && !course) {
+    if (loading) {
       return (
         <Section>
           <div className="px-6 lg:px-12">
@@ -149,7 +187,7 @@ function CourseDetail() {
 
     return (
       <>
-        <Hero course={course} isEnrolledState={isEnrolledState} />
+        <Hero course={course} isEnrolledState={isEnrolledState}/>
         {intro && (
           <Section id="intro" title="Giới thiệu khóa học">
             <div className="lg:col-span-2 rounded-2xl border p-6 bg-white">
@@ -158,19 +196,19 @@ function CourseDetail() {
           </Section>
         )}
         <Section id="lessons" title="Danh sách bài học">
-          <ListLesson
+          <ListLesson 
             isEnrolledState={isEnrolledState}
-            listLesson={listLesson}
-            courseContentId={courseContentId}
-            courseId={id}
+            listLesson={listLesson} 
+            courseContentId={courseContentId} 
+            courseId={id} 
           />
         </Section>
         <Section id="reviews" title="Đánh giá khóa học">
-          <ListReview
+          <ListReview 
             hasReviewed={hasReviewed}
-            isEnrolledState={isEnrolledState}
-            listReview={listReview}
-            courseId={id}
+            isEnrolledState={isEnrolledState} 
+            listReview={listReview} 
+            courseId={id} 
           />
         </Section>
       </>
@@ -184,4 +222,5 @@ function CourseDetail() {
   );
 }
 
-export default CourseDetail;
+
+export default CourseDetail
