@@ -7,7 +7,7 @@ public interface IQuestionExamService
     // Task UpdateQuestionInExamAsync(QuestionExam questionExam);
     // Task<IEnumerable<QuestionExam>> GetQuestionsByExamIdAsync(string examId);
     Task<IEnumerable<QuestionExamForDoingExamDTO>> GetQuestionsByExamIdForDoingExamAsync(string studentId, string examId);
-    Task<IEnumerable<QuestionExamForReviewSubmissionDTO>> GetQuestionsByExamIdForReviewSubmissionAsync(string examId);
+    Task<IEnumerable<QuestionExamForReviewSubmissionDTO>> GetQuestionsByExamIdForReviewSubmissionAsync(string studentId, string examId);
     Task<IEnumerable<QuestionExamOrderDTO>> GetQuestionExamOrderAsync(string examId);
     Task<QuestionExamForDoingExamDTO?> GetQuestionInExamForDoingExamAsync(string questionId);
     Task<QuestionExamForReviewSubmissionDTO?> GetQuestionInExamForReviewSubmissionAsync(string questionId);

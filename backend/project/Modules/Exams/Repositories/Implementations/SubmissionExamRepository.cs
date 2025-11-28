@@ -36,4 +36,23 @@ public class SubmissionExamRepository : ISubmissionExamRepository
 
         return passCount;
     }
+
+    public async Task<IEnumerable<SubmissionExam>> GetSubmissionHistoryByStudentAndExamAsync(string studentId, string examId)
+    {
+        return await _dbContext.SubmissionExams
+            .Where(se => se.StudentId == studentId && se.ExamId == examId)
+            .ToListAsync();
+    }
+
+    public async Task<SubmissionExam?> GetSubmissionExamByExamAttemptIdAsync(string examAttemptId)
+    {
+        return await _dbContext.SubmissionExams
+            .FirstOrDefaultAsync(se => se.ExamAttemptId == examAttemptId);
+    }
+
+    public async Task<SubmissionExam?> GetSubmissionExamByIdAsync(string submissionExamId)
+    {
+        return await _dbContext.SubmissionExams
+            .FirstOrDefaultAsync(se => se.Id == submissionExamId);
+    }
 }

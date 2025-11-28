@@ -20,6 +20,12 @@ public class QuestionExamRepository : IQuestionExamRepository
             .AnyAsync(qe => qe.Id == questionId);
     }
 
+    public async Task<int> CountQuestionsInExamAsync(string examId)
+    {
+        return await _dbContext.QuestionExams
+            .CountAsync(qe => qe.ExamId == examId);
+    }
+
     public async Task<IEnumerable<QuestionExam>> GetQuestionsByExamIdAsync(string examId)
     {
         return await _dbContext.QuestionExams

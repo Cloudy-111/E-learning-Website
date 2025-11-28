@@ -6,6 +6,7 @@ public class SubmissionExamService : ISubmissionExamService
     private readonly IStudentRepository _studentRepository;
     private readonly IQuestionExamService _questionExamService;
     private readonly IExamAttempRepository _examAttempRepository;
+    private readonly IQuestionExamRepository _questionExamRepository;
 
     public SubmissionExamService(
         ISubmissionExamRepository submissionExamRepository,
@@ -13,7 +14,8 @@ public class SubmissionExamService : ISubmissionExamService
         IExamRepository examRepository,
         IStudentRepository studentRepository,
         IQuestionExamService questionExamService,
-        IExamAttempRepository examAttempRepository)
+        IExamAttempRepository examAttempRepository,
+        IQuestionExamRepository questionExamRepository)
     {
         _submissionExamRepository = submissionExamRepository;
         _submissionAnswerRepository = submissionAnswerRepository;
@@ -21,6 +23,7 @@ public class SubmissionExamService : ISubmissionExamService
         _studentRepository = studentRepository;
         _questionExamService = questionExamService;
         _examAttempRepository = examAttempRepository;
+        _questionExamRepository = questionExamRepository;
     }
 
     public async Task CreateSubmissionExamAsync(string studentId, string examAttemptId, string lastAnswers)
@@ -70,7 +73,7 @@ public class SubmissionExamService : ISubmissionExamService
         }
 
         // Retrieve questions for the exam
-        var questionExams = await _questionExamService.GetQuestionsByExamIdForReviewSubmissionAsync(examId);
+        var questionExams = await _questionExamService.GetQuestionsByExamIdForReviewSubmissionAsync(studentId, examId);
 
         // Parse lastAnswers JSON
         var answers = ParseLastAnswers(lastAnswers);
@@ -90,7 +93,8 @@ public class SubmissionExamService : ISubmissionExamService
         var submissionExam = new SubmissionExam
         {
             ExamId = examId,
-            StudentId = studentId
+            StudentId = studentId,
+            ExamAttemptId = examAttemptId
         };
 
         await _submissionExamRepository.CreateSubmissionExamAsync(submissionExam);
@@ -199,5 +203,69 @@ public class SubmissionExamService : ISubmissionExamService
         {
             throw new InvalidOperationException("Invalid JSON format for lastAnswers.", ex);
         }
+    }
+
+    public async Task<IEnumerable<SubmittedExamDTO>> GetSubmissionHistoryByStudentAndExamAsync(string studentId, string examId)
+    {
+        var submissionExams = await _submissionExamRepository.GetSubmissionHistoryByStudentAndExamAsync(studentId, examId);
+
+        return submissionExams.Select(submissionExam => new SubmittedExamDTO
+        {
+            SubmissionExamId = submissionExam.Id,
+            StudentId = submissionExam.StudentId,
+            ExamId = submissionExam.ExamId,
+            ExamAttemptId = submissionExam.ExamAttemptId,
+            SubmittedAt = submissionExam.SubmittedAt,
+            TotalCorrect = submissionExam.TotalCorrect,
+            Score = submissionExam.Score,
+        });
+    }
+
+    public async Task<SubmissionExamDetailDTO> GetSubmissionExamDetailDTOAsync(string studentId, string attemptId)
+    {
+        var studentGuid = GuidHelper.ParseOrThrow(studentId, nameof(studentId));
+        var attemptGuid = GuidHelper.ParseOrThrow(attemptId, nameof(attemptId));
+
+        var examAttempt = await _examAttempRepository.GetExamAttempByIdAsync(attemptId)
+            ?? throw new KeyNotFoundException($"Exam attempt with id {attemptId} not found.");
+
+        if (examAttempt.StudentId != studentId)
+        {
+            throw new UnauthorizedAccessException("You are not authorized to access this exam attempt.");
+        }
+
+        var totalQuestions = await _questionExamRepository.CountQuestionsInExamAsync(examAttempt.ExamId);
+        var submissionExam = await _submissionExamRepository.GetSubmissionExamByExamAttemptIdAsync(attemptId)
+            ?? throw new KeyNotFoundException($"Submission exam for attempt id {attemptId} not found.");
+
+        return new SubmissionExamDetailDTO
+        {
+            SubmissionExamId = submissionExam.Id,
+            ExamId = submissionExam.ExamId,
+            AttemptedAt = examAttempt.AttemptedAt,
+            SubmittedAt = examAttempt.SubmittedAt,
+            TotalCorrect = submissionExam.TotalCorrect,
+            TotalCount = totalQuestions,
+            Score = submissionExam.Score,
+        };
+    }
+
+    public async Task<string> GetUserSubmissionResultAsync(string studentId, string submissionExamId)
+    {
+        var studentGuid = GuidHelper.ParseOrThrow(studentId, nameof(studentId));
+        var submissionExamGuid = GuidHelper.ParseOrThrow(submissionExamId, nameof(submissionExamId));
+
+        var submissionExam = await _submissionExamRepository.GetSubmissionExamByIdAsync(submissionExamId)
+            ?? throw new KeyNotFoundException($"Submission exam with id {submissionExamId} not found.");
+
+        if (submissionExam.StudentId != studentId)
+        {
+            throw new UnauthorizedAccessException("You are not authorized to access this submission exam.");
+        }
+
+        var examAttempt = await _examAttempRepository.GetExamAttempByIdAsync(submissionExam.ExamAttemptId!)
+            ?? throw new KeyNotFoundException($"Submission answers for exam attempt id {submissionExam.ExamAttemptId} not found.");
+
+        return examAttempt.SavedAnswers ?? string.Empty;
     }
 }
