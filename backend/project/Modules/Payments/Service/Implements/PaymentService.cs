@@ -7,14 +7,16 @@ namespace project.Modules.Payments.Service.Implements;
 
 public class PaymentService : IPaymentService
 {
-      private readonly IPaymentRepository _paymentRepo;
+    private readonly IPaymentRepository _paymentRepo;
+    private readonly DBContext _dbContext;
 
-    public PaymentService(IPaymentRepository paymentRepo)
+    public PaymentService(IPaymentRepository paymentRepo,  DBContext dbContext)
     {
         _paymentRepo = paymentRepo;
+        _dbContext = dbContext;
     }
 
-     public async Task<PaymentQrDto> GeneratePaymentQrAsync(string paymentId, string studentId)
+    public async Task<PaymentQrDto> GeneratePaymentQrAsync(string paymentId, string studentId)
     {
         var payment = await _paymentRepo.GetByIdAsync(paymentId);
         if (payment == null)
@@ -23,8 +25,10 @@ public class PaymentService : IPaymentService
         if (payment.Order.StudentId != studentId)
             throw new Exception("You are not allowed to access this payment.");
 
-        // Tạo QR
-        string paymentUrl = $"https://your-payment-gateway.com/pay?transactionId={payment.TransactionId}&amount={payment.Amount}";
+        // Tạo QR duy nhất bằng cách thêm timestamp/nonce
+        var nonce = Guid.NewGuid().ToString(); // mỗi lần gọi khác nhau
+        string paymentUrl = $"https://your-payment-gateway.com/pay?transactionId={payment.TransactionId}&amount={payment.Amount}&nonce={nonce}";
+
         using var qrGenerator = new QRCoder.QRCodeGenerator();
         using var qrData = qrGenerator.CreateQrCode(paymentUrl, QRCoder.QRCodeGenerator.ECCLevel.Q);
         using var qrCode = new QRCoder.QRCode(qrData);
@@ -44,4 +48,44 @@ public class PaymentService : IPaymentService
             QrCode = $"data:image/png;base64,{qrBase64}"
         };
     }
+
+     // User quét QR → Thanh toán
+    public async Task<bool> ConfirmPaymentAsync(string transactionId, string studentId)
+    {
+        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+        try
+        {
+            var payment = await _paymentRepo.GetByTransactionIdAsync(transactionId);
+            if (payment == null)
+                throw new Exception("Payment not found.");
+
+            if (payment.Order.StudentId != studentId)
+                throw new Exception("You are not allowed to pay this order.");
+
+            var order = payment.Order;
+            if (order.Status == "paid")
+                throw new Exception("Order is already paid.");
+
+            // Cập nhật trạng thái order
+            order.Status = "paid";
+            order.UpdatedAt = DateTime.UtcNow;
+            _dbContext.Orders.Update(order);
+
+            // Cập nhật Payment UpdatedAt (có thể thêm status nếu muốn)
+            payment.UpdatedAt = DateTime.UtcNow;
+            _dbContext.Payments.Update(payment);
+
+            await _dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return true;
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+
 }

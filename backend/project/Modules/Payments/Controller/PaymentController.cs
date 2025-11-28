@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using project.Modules.Payments.DTOs;
 using project.Modules.Payments.Service.Interfaces;
 
 namespace project.Modules.Payments.Controller
@@ -9,27 +10,44 @@ namespace project.Modules.Payments.Controller
     [ApiController]
     public class PaymentController : ControllerBase
     {
-         private readonly IPaymentService _paymentService;
+        private readonly IPaymentService _paymentService;
 
-    public PaymentController(IPaymentService paymentService)
-    {
-        _paymentService = paymentService;
-    }
-    
-    [HttpGet("{paymentId}/qr")]
-    [Authorize]
-    public async Task<IActionResult> GetPaymentQr(string paymentId)
-    {
-        try
+        public PaymentController(IPaymentService paymentService)
         {
-            var studentId = User.FindFirst("StudentId")?.Value ?? throw new Exception("StudentId not found in token");
-            var qrDto = await _paymentService.GeneratePaymentQrAsync(paymentId, studentId);
-            return Ok(qrDto);
+            _paymentService = paymentService;
         }
-        catch (Exception ex)
+
+        [HttpGet("{paymentId}/qr")]
+        [Authorize]
+        public async Task<IActionResult> GetPaymentQr(string paymentId)
         {
-            return BadRequest(new { message = ex.Message });
+            try
+            {
+                var studentId = User.FindFirst("StudentId")?.Value ?? throw new Exception("StudentId not found in token");
+                var qrDto = await _paymentService.GeneratePaymentQrAsync(paymentId, studentId);
+                return Ok(qrDto);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
-    }
+
+        // User quét QR → Thanh toán
+        [HttpPost("confirm")]
+        [Authorize]
+        public async Task<IActionResult> ConfirmPayment([FromBody] PaymentConfirmDto dto)
+        {
+            try
+            {
+                var studentId = User.FindFirst("StudentId")?.Value ?? throw new Exception("StudentId not found in token");
+                await _paymentService.ConfirmPaymentAsync(dto.TransactionId, studentId);
+                return Ok(new { message = "Payment successful and order updated." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
     }
 }

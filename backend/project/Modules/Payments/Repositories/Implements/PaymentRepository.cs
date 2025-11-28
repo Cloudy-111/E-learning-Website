@@ -26,6 +26,15 @@ public class PaymentRepository : IPaymentRepository
             .FirstOrDefaultAsync(p => p.Id == id);
     }
 
+     public async Task<Payment?> GetByTransactionIdAsync(string transactionId)
+    {
+        return await _context.Payments
+            .Include(p => p.Order)
+                .ThenInclude(o => o.OrderDetails)
+                    .ThenInclude(od => od.Course)
+            .FirstOrDefaultAsync(p => p.TransactionId == transactionId);
+    }
+
     public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();
