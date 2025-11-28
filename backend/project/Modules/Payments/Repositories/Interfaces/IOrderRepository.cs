@@ -1,7 +1,7 @@
 using System;
 using project.Models;
 
-namespace project.Modules.Payment.Repositories.Interfaces;
+namespace project.Modules.Payments.Repositories.Interfaces;
 
 public interface IOrderRepository
 {

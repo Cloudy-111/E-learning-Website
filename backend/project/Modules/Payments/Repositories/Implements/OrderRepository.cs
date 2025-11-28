@@ -1,7 +1,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using project.Models;
-using project.Modules.Payment.Repositories.Interfaces;
+using project.Modules.Payments.Repositories.Interfaces;
 
 namespace project.Modules.Payment.Repositories.Implements;
 

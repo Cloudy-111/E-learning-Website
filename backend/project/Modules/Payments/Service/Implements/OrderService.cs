@@ -1,20 +1,22 @@
 using System;
 using project.Models;
 using project.Modules.Payment.DTOs;
-using project.Modules.Payment.Repositories.Interfaces;
+using project.Modules.Payments.Repositories.Interfaces;
 using project.Modules.Payment.Service.Interfaces;
 
-namespace project.Modules.Payment.Service.Implements;
 
 public class OrderService : IOrderService
 {
     private readonly IOrderRepository _orderRepo;
     private readonly ICourseRepository _courseRepo;
+     private readonly IPaymentRepository _paymentRepo;
 
-     public OrderService(IOrderRepository orderRepo, ICourseRepository courseRepo)
+     public OrderService(IOrderRepository orderRepo, ICourseRepository courseRepo,
+      IPaymentRepository paymentRepo)
     {
         _orderRepo = orderRepo;
         _courseRepo = courseRepo;
+        _paymentRepo = paymentRepo;
     }
 
       public async Task<OrderResponseDto> CreateOrderAsync(OrderCreateDto dto, string studentId)
@@ -53,6 +55,16 @@ public class OrderService : IOrderService
 
         await _orderRepo.AddAsync(order);
         await _orderRepo.SaveChangesAsync();
+
+         var payment = new Payment
+        {
+            OrderId = order.Id,
+            Amount = order.TotalPrice,
+            TransactionId = Guid.NewGuid().ToString(), // tạm tạo TransactionId, sẽ cập nhật sau khi thanh toán
+        };
+
+         await _paymentRepo.AddAsync(payment);
+        await _paymentRepo.SaveChangesAsync();
 
         return new OrderResponseDto
         {
