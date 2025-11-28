@@ -146,13 +146,38 @@ public class QuestionExamService : IQuestionExamService
         return result;
     }
 
-    public async Task<IEnumerable<QuestionExamForReviewSubmissionDTO>> GetQuestionsByExamIdForReviewSubmissionAsync(string examId)
+    public async Task<IEnumerable<QuestionExamForReviewSubmissionDTO>> GetQuestionsByExamIdForReviewSubmissionAsync(string studentId, string examId)
     {
-        var (exists, isOpened) = await _examRepository.GetExamStatusAsync(examId);
-        if (!exists)
+        var studendtGuid = GuidHelper.ParseOrThrow(studentId, nameof(studentId));
+        var exam = await _examRepository.GetExamByIdAsync(examId)
+                                ?? throw new KeyNotFoundException($"Exam with ID '{examId}' does not exist.");
+
+        // check if student is enrolled in the course associated with the exam  
+        if (exam.CourseContentId != null || exam.LessonId != null)
         {
-            throw new KeyNotFoundException($"Exam with ID '{examId}' does not exist.");
+            var courseId = "";
+            if (exam.CourseContentId != null)
+            {
+                var courseContent = await _courseContentRepository.GetCourseContentByIdAsync(exam.CourseContentId);
+                courseId = courseContent?.CourseId;
+            }
+            else if (exam.LessonId != null)
+            {
+                var lesson = await _lessonRepository.GetLessonByIdAsync(exam.LessonId);
+                var courseContent = lesson != null ? await _courseContentRepository.GetCourseContentByIdAsync(lesson.CourseContentId) : null;
+                courseId = courseContent?.CourseId;
+            }
+            if (courseId == null || string.IsNullOrWhiteSpace(courseId))
+            {
+                throw new KeyNotFoundException("Associated course not found for this exam.");
+            }
+            var isEnrolled = await _enrollmentCourseRepository.IsEnrollmentExistAsync(studentId, courseId);
+            if (!isEnrolled)
+            {
+                throw new UnauthorizedAccessException($"You are not enrolled in the course associated with this exam. {studentId}, {courseId} ");
+            }
         }
+
         var questionExams = await _questionExamRepository.GetQuestionsByExamIdAsync(examId);
         var choicesArrays = new List<IEnumerable<ChoiceForReviewDTO>>();
 

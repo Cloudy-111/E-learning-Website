@@ -55,7 +55,7 @@ const QuizTest = lazy(() => import("./pages/student/DoingExam/QuizTest.jsx"));
 const Learning = lazy(() => import("./pages/student/Learning.jsx"));
 const Enrollments = lazy(() => import("./pages/student/Enrollments/Enrollments.jsx"));
 const LessonDetail = lazy(() => import("./pages/student/LessonDetail/LessonDetail.jsx"));
-const ResultAttempt = lazy(() => import("./pages/student/ResultAttempt.jsx"));
+const ResultAttempt = lazy(() => import("./pages/student/ResultExamAttempt/ResultAttempt.jsx"));
 const ProfilePage = lazy(() => import("./pages/student/Profile.jsx"));
 const SchedulePage = lazy(() => import("./pages/student/SchedulePage.jsx"));
 const PaymentHistory = lazy(() => import("./pages/student/PaymentHistory.jsx"));

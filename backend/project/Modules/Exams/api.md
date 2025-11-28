@@ -6,6 +6,7 @@
 - GET api/exam/{id} - Lấy thông tin chi tiết của một bài thi cụ thể
 - GET api/exams/course/{courseId}
 - GET api/exams/lesson/{lessonId}
+- GET api/exams/{examId}/history - Lấy các lần làm bài(có kết quả) của 1 học viên của 1 bài kiểm tra
 - POST api/exam - Tạo mới một bài thi
 - POST api/exam/{id}/order - Sắp xếp thứ tự câu hỏi trong bài thi
 - PATCH api/exam/{id} - Cập nhật thông tin bài thi

@@ -25,13 +25,15 @@ public class ExamAttempRepository : IExamAttempRepository
         return await _context.ExamAttemps.FirstOrDefaultAsync(ea =>
             ea.StudentId == studentId &&
             ea.ExamId == examId &&
+            ea.IsSubmitted == false &&
             ea.StartTime <= currentTime &&
             ea.EndTime >= currentTime);
     }
 
-    public async Task SaveExamAttempAsync(ExamAttemp examAttemp)
+    public async Task<bool> SaveExamAttempAsync(ExamAttemp examAttemp)
     {
         _context.ExamAttemps.Update(examAttemp);
         await _context.SaveChangesAsync();
+        return true;
     }
 }

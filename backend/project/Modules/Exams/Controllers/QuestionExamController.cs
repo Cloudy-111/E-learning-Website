@@ -71,12 +71,14 @@ public class QuestionExamController : ControllerBase
         }
     }
 
+    [Authorize]
     [HttpGet("for-review")]
     public async Task<IActionResult> GetQuestionsForReviewSubmission(string examId)
     {
         try
         {
-            var questionExams = await _questionExamService.GetQuestionsByExamIdForReviewSubmissionAsync(examId);
+            var studentId = User.FindFirst("studentId")?.Value;
+            var questionExams = await _questionExamService.GetQuestionsByExamIdForReviewSubmissionAsync(studentId, examId);
             return Ok(new APIResponse("success", "Get questions successfully", questionExams));
         }
         catch
