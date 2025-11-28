@@ -32,7 +32,7 @@ public class OrderService : IOrderService
         foreach (var detail in dto.OrderDetails)
         {
             var course = await _courseRepo.GetCourseByIdAsync(detail.CourseId); // Course.Id
-            if (course == null)
+            if (course == null || course.Status != "published")
                 throw new Exception($"Course {detail.CourseId} does not exist or is not published.");
 
             // Tính giá sau giảm: DiscountPrice là % giảm
