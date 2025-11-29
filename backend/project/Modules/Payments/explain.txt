@@ -39,7 +39,3 @@ POST http://localhost:5102/api/Payment/webhook
   "amount": 2,
   "status": "success"
 }
-
-
-
-

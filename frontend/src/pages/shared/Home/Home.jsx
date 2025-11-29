@@ -93,8 +93,6 @@ export default function Homepage() {
 
     return (
         <div className="min-h-screen bg-[#f8f9fa]">
-            <Header />
-
             <HeroSection query={q} setQuery={setQ} onSearch={doSearch} />
             <QuickNav />
             <FeaturedCourses courses={featuredCourses} loading={loading} error={errors.courses} onNavigate={navigate} />
@@ -106,8 +104,6 @@ export default function Homepage() {
             <NewsletterSection />
             <FAQSection />
             <CTASection />
-
-            <Footer />
         </div>
     );
 }

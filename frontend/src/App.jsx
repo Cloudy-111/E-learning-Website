@@ -133,17 +133,28 @@ export default function App() {
                 <Routes>
                   {/* ========== PUBLIC ROUTES ========== */}
                   <Route element={<Layout />}>
+                  
+                    <Route index element={<Home />} />
                     <Route path="/courses" element={<Courses />} />
                     <Route path="/courses/:id" element={<CourseDetail />} />
 
-                    <Route path="/s/enrollments" element={<Enrollments title="📚 /s/enrollments — Khóa học của tôi" />} />
-                    <Route path="/s/:courseContentId/lesson/:lessonId" element={<LessonDetail title="📖 /s/lesson/:lessonId — Chi tiết bài học" />} />
-                    <Route path="/s/exam/:id" element={<ExamDetail title="🧠 /s/exam/:id — Giới thiệu đề thi (CTA Bắt đầu thi)" />} />
-                    <Route path="/s/exam/:id/take-exam" element={<QuizTest />} />
-                    <Route path="/s/results/:attemptId" element={<ResultAttempt title="📈 /s/results/:attemptId — Kết quả bài thi" />} />
+                    {/* Student */}
+                    <Route element={<RequireRole roles={["Student"]} />}>
+                      <Route path="/s/enrollments" element={<Enrollments title="📚 /s/enrollments — Khóa học của tôi" />} />
+                      <Route path="/s/:courseContentId/lesson/:lessonId" element={<LessonDetail title="📖 /s/lesson/:lessonId — Chi tiết bài học" />} />
+                      <Route path="/s/exam/:id" element={<ExamDetail title="🧠 /s/exam/:id — Giới thiệu đề thi (CTA Bắt đầu thi)" />} />
+                      <Route path="/s/exam/:id/take-exam" element={<QuizTest />} />
+                      <Route path="/s/results/:attemptId" element={<ResultAttempt title="📈 /s/results/:attemptId — Kết quả bài thi" />} />
+                    </Route>
+                    
+                    {/* Teacher */}
+                    <Route element={<RequireRole roles={["Teacher"]} />}>
+                      <Route path="/i/dashboard" element={<InstructorDashboard title="📊 /i/dashboard — Tổng quan giảng viên" />} />
+                    </Route>
+                    
                   </Route>
 
-                  <Route index element={<Home />} />
+                  {/* <Route index element={<Home />} /> */}
                   <Route path="/menut" element={<Menut />} />
                   <Route path="/menuS" element={<Menu />} />
                   <Route path="/discover" element={<Discover />} />
@@ -201,7 +212,7 @@ export default function App() {
                   {/* ========== PROTECTED: INSTRUCTOR ROUTES (/i/*) ========== */}
                   <Route element={<PrivateRoute />}>
                     <Route element={<RequireRole roles={["Teacher"]} />}>
-                      <Route path="/i/dashboard" element={<InstructorDashboard title="📊 /i/dashboard — Tổng quan giảng viên" />} />
+                      
                       <Route path="/i/courses" element={<InstructorCourses title="📚 /i/courses — Khoá học đã tạo" />} />
                       <Route path="/i/courses/new" element={<CourseNew title="🆕 /i/courses/new — Tạo khoá draft" />} />
                       <Route path="/i/courses/:id/edit" element={<CourseEdit title="✏️ /i/courses/:id/edit — Sửa khoá (draft/version)" />} />
