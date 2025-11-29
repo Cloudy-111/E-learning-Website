@@ -1,5 +1,6 @@
 // src/pages/shared/Forum/QuestionDetail.jsx
 import { useEffect, useState } from "react";
+import { useToast } from "../../../components/ui/Toast";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
@@ -25,10 +26,21 @@ function renderContent(contentJson, fallback) {
     }
 }
 
+function decodeJwt(token) {
+    try {
+        return JSON.parse(atob(token.split(".")[1] || ""));
+    } catch {
+        return null;
+    }
+}
+
 export default function QuestionDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { toast } = useToast();
 
+    const [currentUser, setCurrentUser] = useState(null);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [q, setQ] = useState(null);
     const [loading, setLoading] = useState(true);
     const [err, setErr] = useState(null);
@@ -39,6 +51,15 @@ export default function QuestionDetail() {
     // Form trả lời
     const [myAnswer, setMyAnswer] = useState("");
     const [submitting, setSubmitting] = useState(false);
+
+    // Get current user info from token
+    useEffect(() => {
+        const token = localStorage.getItem("app_access_token");
+        if (token) {
+            const claims = decodeJwt(token);
+            setCurrentUser({ id: claims?.StudentId || claims?.studentId });
+        }
+    }, []);
 
     // 1. Fetch Question
     useEffect(() => {
@@ -136,6 +157,33 @@ export default function QuestionDetail() {
         }
     };
 
+    // 4. Soft Delete Question
+    const softDelete = async () => {
+        if (!window.confirm("Bạn có chắc muốn xoá (ẩn) câu hỏi này?")) return;
+        try {
+            const res = await http(`${API_BASE}/api/ForumQuestion/${id}`, {
+                method: "DELETE",
+                headers: authHeaders({ accept: "*/*" }),
+            });
+            if (!res.ok) throw new Error(`Xoá thất bại (HTTP ${res.status})`);
+            toast({
+                title: "Thành công",
+                description: "Đã xoá câu hỏi của bạn. Đang chuyển hướng...",
+            });
+            setTimeout(() => navigate('/forum/my', { replace: true }), 1500);
+        } catch (e) {
+            toast({ title: "Lỗi", description: e.message, variant: "destructive" });
+        } finally {
+            setIsMenuOpen(false);
+        }
+    };
+
+    // Check if current user is the owner of the question
+    // DEBUG: Log IDs to check for ownership
+    console.log("Current User ID:", currentUser?.id);
+    console.log("Question's Student ID:", q?.studentId);
+    const isOwner = q?.studentId && currentUser?.id && q.studentId === currentUser.id;
+
     if (loading) {
         return (
             <>
@@ -191,9 +239,50 @@ export default function QuestionDetail() {
                     <div className="lg:col-span-3 space-y-6">
                         {/* Question Detail */}
                         <article
-                            className="rounded-2xl border bg-white p-6"
+                            className="relative rounded-2xl border bg-white p-6"
                             style={{ borderColor: BORDER }}
                         >
+                            {/* More Options Menu */}
+                            {isLoggedIn() && (
+                                <div className="absolute top-4 right-4">
+                                    <button
+                                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                        onBlur={() => setTimeout(() => setIsMenuOpen(false), 200)}
+                                        className="p-2 rounded-full hover:bg-slate-100"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+                                    </button>
+                                    {isMenuOpen && (
+                                        <div className="absolute right-0 mt-2 w-40 bg-white border rounded-lg shadow-lg z-10">
+                                            <ul className="text-sm text-slate-700">
+                                                {isOwner ? (
+                                                    <>
+                                                        <li>
+                                                            <Link to={`/forum/${id}/edit`} className="block w-full text-left px-4 py-2 hover:bg-slate-50">Sửa</Link>
+                                                        </li>
+                                                        <li>
+                                                            <button onClick={softDelete} className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50">Xoá</button>
+                                                        </li>
+                                                        <li className="border-t my-1"></li>
+                                                    </>
+                                                ) : null}
+                                                <li>
+                                                    <button
+                                                        onClick={() => {
+                                                            alert("Chức năng báo cáo đang được phát triển.");
+                                                            setIsMenuOpen(false);
+                                                        }}
+                                                        className="block w-full text-left px-4 py-2 hover:bg-slate-50"
+                                                    >
+                                                        Báo cáo
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
                             <h1 className="text-2xl font-bold text-slate-900 mb-4">
                                 {q.title}
                             </h1>
