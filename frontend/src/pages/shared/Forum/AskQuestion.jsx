@@ -1,5 +1,6 @@
 // src/pages/shared/Forum/AskQuestion.jsx
 import { useEffect, useState } from "react";
+import { useToast } from "../../../components/ui/Toast";
 import { useNavigate, useLocation } from "react-router-dom";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
@@ -15,12 +16,12 @@ import { isLoggedIn, requireAuth, authHeaders } from "./utils/helpers";
 export default function AskQuestion() {
     const navigate = useNavigate();
     const location = useLocation();
+    const { toast } = useToast();
 
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
+    const [tags, setTags] = useState(""); // State for tags
     const [submitting, setSubmitting] = useState(false);
-    const [err, setErr] = useState(null);
-    const [ok, setOk] = useState("");
 
     useEffect(() => {
         if (!isLoggedIn()) {
@@ -35,11 +36,10 @@ export default function AskQuestion() {
         if (!canSubmit || submitting) return;
         try {
             setSubmitting(true);
-            setErr(null);
-            setOk("");
             const body = {
                 title: title.trim(),
                 contentJson: JSON.stringify({ blocks: [{ text: content.trim() }] }),
+                tags: tags.split(',').map(t => t.trim()).filter(Boolean).join(','), // Process and add tags
             };
             const res = await http(`${API_BASE}/api/ForumQuestion`, {
                 method: "POST",
@@ -60,11 +60,18 @@ export default function AskQuestion() {
             const data = await res.json();
             const created = data?.data || data;
             const newId = created?.id;
-            setOk("🎉 Tạo câu hỏi thành công!");
-            if (newId) navigate(`/forum/${newId}`, { replace: true });
-            else navigate(`/forum`, { replace: true });
+            toast({
+                title: "Thành công",
+                description: "Câu hỏi của bạn đã được đăng.",
+            });
+            setTimeout(() => {
+                if (newId) navigate(`/forum/${newId}`, { replace: true });
+                else navigate(`/forum`, { replace: true });
+            }, 1000);
         } catch (e) {
-            setErr(e?.message || "Không thể tạo câu hỏi");
+            toast({
+                title: "Tạo câu hỏi thất bại", description: e.message, variant: "destructive"
+            });
         } finally {
             setSubmitting(false);
         }
@@ -84,17 +91,6 @@ export default function AskQuestion() {
                         className="mt-6 rounded-2xl border bg-white p-5 grid gap-4"
                         style={{ borderColor: BORDER }}
                     >
-                        {ok && (
-                            <div className="rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 px-4 py-3">
-                                {ok}
-                            </div>
-                        )}
-                        {err && (
-                            <div className="rounded-lg border border-red-200 bg-red-50 text-red-700 px-4 py-3">
-                                {err}
-                            </div>
-                        )}
-
                         <div>
                             <label className="text-sm font-medium">Tiêu đề</label>
                             <input
@@ -104,6 +100,18 @@ export default function AskQuestion() {
                                 style={{ borderColor: BORDER }}
                                 placeholder="Mô tả ngắn gọn, rõ ràng vấn đề…"
                             />
+                        </div>
+
+                         <div>
+                            <label className="text-sm font-medium">Tags</label>
+                            <input
+                                value={tags}
+                                onChange={(e) => setTags(e.target.value)}
+                                className="mt-1 w-full rounded-xl border px-4 py-2 outline-none focus:ring-2"
+                                style={{ borderColor: BORDER }}
+                                placeholder="Ví dụ: javascript, react, api"
+                            />
+                           
                         </div>
 
                         <div>
@@ -117,6 +125,8 @@ export default function AskQuestion() {
                                 placeholder="Trình bày đầy đủ ngữ cảnh, code, dữ liệu mẫu…"
                             />
                         </div>
+
+                       
 
                         <div className="text-right">
                             <button

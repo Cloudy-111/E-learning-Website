@@ -1,5 +1,6 @@
 // src/pages/shared/Forum/MyQuestions.jsx
 import { useEffect, useState } from "react";
+import { useToast } from "../../../components/ui/Toast";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
@@ -24,6 +25,7 @@ function decodeJwt(token) {
 export default function MyQuestions() {
     const navigate = useNavigate();
     const location = useLocation();
+    const { toast } = useToast();
 
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -92,11 +94,15 @@ export default function MyQuestions() {
                 method: "DELETE",
                 headers: authHeaders({ accept: "*/*" }),
             });
-            if (!res.ok) throw new Error("Xoá thất bại");
+            if (!res.ok) throw new Error(`Xoá thất bại (HTTP ${res.status})`);
             // remove from list
             setItems((prev) => prev.filter((x) => x.id !== id));
+            toast({
+                title: "Thành công",
+                description: "Đã xoá câu hỏi của bạn.",
+            });
         } catch (e) {
-            alert(e.message);
+            toast({ title: "Lỗi", description: e.message, variant: "destructive" });
         }
     };
 
@@ -140,7 +146,7 @@ export default function MyQuestions() {
                                     <QuestionCard q={q} />
                                     <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition flex gap-2">
                                         <Link
-                                            to={`/forum/edit/${q.id}`}
+                                            to={`/forum/${q.id}/edit`}
                                             className="bg-white border shadow-sm px-2 py-1 rounded text-xs font-medium text-blue-600 hover:bg-blue-50"
                                         >
                                             Sửa
