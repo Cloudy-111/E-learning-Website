@@ -37,49 +37,28 @@ export default function MyQuestions() {
     }, [navigate, location]);
 
     const fetchMine = async () => {
-        // Lấy userId từ token
+        // Lấy StudentId từ token
         const token = localStorage.getItem("app_access_token");
         if (!token) throw new Error("Chưa đăng nhập");
         const claims = decodeJwt(token);
-        // Tuỳ backend: userId hay studentId?
-        // Giả sử backend cần userId hoặc studentId.
-        // Thử lấy StudentId hoặc TeacherId hoặc UserId từ claims
-        const uid =
-            claims?.StudentId ||
-            claims?.studentId ||
-            claims?.TeacherId ||
-            claims?.teacherId ||
-            claims?.UserId ||
-            claims?.userId;
+        
+        const studentId = claims?.StudentId || claims?.studentId;
 
-        if (!uid) throw new Error("Không tìm thấy ID người dùng trong token");
+        if (!studentId) throw new Error("Không tìm thấy StudentId trong token");
 
-        // Gọi API filter theo AuthorId
-        // Giả sử API hỗ trợ /api/ForumQuestion/member/{uid} hoặc search
-        // Nếu không có API riêng, phải gọi search?authorId=... hoặc client filter
-        // Ở đây giả định dùng endpoint search hoặc get all rồi filter (tạm thời get all rồi filter client nếu BE chưa có)
-
-        // Cách tốt nhất: gọi API get all rồi filter client (nếu list nhỏ)
-        // Hoặc nếu bạn đã có API /api/ForumQuestion/member/{id} (giống Blog) thì dùng nó.
-        // Check lại BlogMy dùng /api/Posts/member/{id}.
-        // Thử /api/ForumQuestion/member/{id} xem sao? Nếu 404 thì fallback.
-
-        // Fallback: Get all -> filter
-        const res = await http(`${API_BASE}/api/ForumQuestion`, {
+        // Gọi API member-specific endpoint
+        const res = await http(`${API_BASE}/api/ForumQuestion/member/${studentId}`, {
             headers: { accept: "*/*" },
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        const all = Array.isArray(data)
+        
+        // Return data array
+        return Array.isArray(data)
             ? data
             : Array.isArray(data?.data)
                 ? data.data
                 : [];
-
-        // Filter
-        // Cần so sánh authorId.
-        // Lưu ý: uid trong token có thể là string/number, authorId trong data cũng vậy.
-        return all.filter((q) => String(q.authorId) === String(uid));
     };
 
     useEffect(() => {

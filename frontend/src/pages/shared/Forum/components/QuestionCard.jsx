@@ -19,7 +19,7 @@ export default function QuestionCard({ q }) {
             </p>
             <div className="mt-3 flex items-center justify-between text-sm text-slate-600">
                 <span className="truncate max-w-[70%]" title={q.authorName}>
-                    {q.authorName || "Người hỏi"}
+                    {q.studentName || "Người hỏi"}
                 </span>
                 <span>
                     {new Date(q.createdAt || q.updatedAt || Date.now()).toLocaleString(

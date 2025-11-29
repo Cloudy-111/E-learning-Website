@@ -56,7 +56,11 @@ export default function QuestionDetail() {
                     throw new Error(`HTTP ${res.status}`);
                 }
                 const data = await res.json();
-                setQ(data?.data || data);
+                // The API might return the object directly, or wrapped in a `data` property.
+                // The object with `studentName` is what we need.
+                // Let's check if the `data` property exists and contains the actual question object.
+                const questionData = data?.data && typeof data.data === 'object' ? data.data : data;
+                setQ(questionData);
             } catch (e) {
                 if (e.name === "AbortError") return;
                 setErr(e?.message || "Lỗi tải câu hỏi");
@@ -195,7 +199,7 @@ export default function QuestionDetail() {
                             </h1>
                             <div className="flex items-center gap-4 text-sm text-slate-500 mb-6 pb-4 border-b border-slate-100">
                                 <span className="font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
-                                    {q.authorName || "Người hỏi"}
+                                    {q.studentName || "Người hỏi"}
                                 </span>
                                 <span>
                                     {new Date(
