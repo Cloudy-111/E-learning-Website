@@ -61,7 +61,8 @@ export default function QuestionDetail() {
         const token = localStorage.getItem("app_access_token");
         if (token) {
             const claims = decodeJwt(token);
-            setCurrentUser({ id: claims?.StudentId || claims?.studentId });
+            // Sử dụng _id để nhất quán với các component con
+            setCurrentUser({ _id: claims?.StudentId || claims?.studentId });
         }
     }, []);
 
@@ -189,7 +190,7 @@ export default function QuestionDetail() {
     // Check if current user is the owner of the question
     // DEBUG: Log IDs to check for ownership
     console.log("Current User ID:", currentUser?.id);
-    console.log("Question's Student ID:", q?.studentId);
+    console.log("Question's Student ID:", q?.studentId); // Sửa ở đây, currentUser.id -> currentUser._id
     const isOwner = q?.studentId && currentUser?.id && q.studentId === currentUser.id;
 
     if (loading) {
@@ -334,7 +335,7 @@ export default function QuestionDetail() {
                         </article>
 
                         {/* Answers List */}
-                        <AnswerList answers={answers} />
+                        <AnswerList answers={answers} currentUser={currentUser} />
 
                         {/* Reply Form */}
                         <div
