@@ -55,18 +55,18 @@ export default function RequireRole({ roles = [] }) {
     console.log("🔍 [RequireRole] isTeacher:", user.isTeacher);
 
     if (user.studentId && !user.teacherId) {
-        userRole = "Student";
+        userRole = ["Student"];
     } else if (user.teacherId || user.isTeacher) {
-        userRole = "Teacher";
+        userRole = ["Teacher", "Student"];
     } else if (user.adminId || user.role === "Admin") {
-        userRole = "Admin";
+        userRole = ["Admin"];
     }
 
     console.log("🔍 [RequireRole] Detected role:", userRole);
     console.log("🔍 [RequireRole] Required roles:", roles);
 
     // Check if user role is in allowed roles
-    const hasAccess = roles.length === 0 || roles.includes(userRole);
+    const hasAccess = roles.length === 0 || roles.some(role => userRole.includes(role));
 
     console.log("🔍 [RequireRole] Has access:", hasAccess);
 
