@@ -1,9 +1,8 @@
 // src/pages/shared/Forum/components/AnswerItem.jsx
 import { useState, useRef, useEffect } from "react";
-import { BORDER, API_BASE } from "../utils/constants";
-import { http } from "../../../../utils/http";
-import { authHeaders } from "../utils/helpers";
-import { updateAnswerApi, deleteAnswerApi } from "../../../../api/dicussion.api";
+import { BORDER } from "../utils/constants";
+import { deleteAnswerApi, updateAnswerApi } from "../../../../api/dicussion.api";
+
 
 const MoreIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -23,6 +22,7 @@ export default function AnswerItem({ a, currentUser, onAnswerUpdated }) {
     const [editedContent, setEditedContent] = useState(a.content);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
 
     // Giả sử `a.studentId` là ID của người trả lời
@@ -61,11 +61,6 @@ export default function AnswerItem({ a, currentUser, onAnswerUpdated }) {
     };
 
     const handleDeleteAnswer = async () => {
-        // Hiển thị hộp thoại xác nhận của trình duyệt
-        if (!window.confirm("Bạn có chắc chắn muốn xóa câu trả lời này không?")) {
-            return;
-        }
-
         setIsDeleting(true);
         try {
             const res = await deleteAnswerApi(a.id);
@@ -73,9 +68,11 @@ export default function AnswerItem({ a, currentUser, onAnswerUpdated }) {
 
             // Gọi callback để tải lại danh sách câu trả lời
             await onAnswerUpdated();
+            setIsDeleteConfirmOpen(false); // Đóng modal khi thành công
         } catch (error) {
             alert(error.message);
-            setIsDeleting(false); // Chỉ đặt lại khi có lỗi
+            setIsDeleting(false); // Đặt lại trạng thái deleting khi có lỗi
+            setIsDeleteConfirmOpen(false); // Đóng modal khi có lỗi
         }
     };
     return (
@@ -121,8 +118,8 @@ export default function AnswerItem({ a, currentUser, onAnswerUpdated }) {
                                             <li>
                                                 <button
                                                     onClick={() => {
-                                                        handleDeleteAnswer();
                                                         setIsMenuOpen(false);
+                                                        setIsDeleteConfirmOpen(true);
                                                     }}
                                                     disabled={isDeleting}
                                                     className="w-full text-left px-4 py-2 text-red-600 hover:bg-slate-100 disabled:opacity-50"
@@ -166,6 +163,36 @@ export default function AnswerItem({ a, currentUser, onAnswerUpdated }) {
                     {a.content}
                 </div>
             )}
+
+            {isDeleteConfirmOpen && (
+                <ConfirmationDialog
+                    isOpen={isDeleteConfirmOpen}
+                    onClose={() => setIsDeleteConfirmOpen(false)}
+                    onConfirm={handleDeleteAnswer}
+                    title="Xác nhận xoá câu trả lời"
+                    description="Bạn có chắc chắn muốn xóa câu trả lời này không? Hành động này không thể hoàn tác."
+                    confirmText={isDeleting ? "Đang xóa..." : "Xóa"}
+                    isConfirming={isDeleting}
+                />
+            )}
+        </div>
+    );
+}
+
+// Component Modal xác nhận (tái sử dụng từ QuestionDetail)
+function ConfirmationDialog({ isOpen, onClose, onConfirm, title, description, confirmText, isConfirming }) {
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
+            <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+                <h3 className="text-lg font-bold text-slate-900">{title}</h3>
+                <p className="text-sm text-slate-600 mt-2 mb-6">{description}</p>
+                <div className="flex justify-end gap-3">
+                    <button onClick={onClose} disabled={isConfirming} className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-md hover:bg-slate-200 disabled:opacity-50">Hủy</button>
+                    <button onClick={onConfirm} disabled={isConfirming} className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50 disabled:bg-red-400">{confirmText}</button>
+                </div>
+            </div>
         </div>
     );
 }
