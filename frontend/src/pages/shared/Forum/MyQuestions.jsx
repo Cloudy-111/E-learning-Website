@@ -31,6 +31,12 @@ export default function MyQuestions() {
     const [loading, setLoading] = useState(true);
     const [err, setErr] = useState(null);
 
+    // State cho menu và modal
+    const [openMenuId, setOpenMenuId] = useState(null); // ID của câu hỏi đang mở menu
+    const [deleteConfirmId, setDeleteConfirmId] = useState(null); // ID của câu hỏi đang chờ xác nhận xoá
+    const [isDeleting, setIsDeleting] = useState(false);
+
+
     useEffect(() => {
         if (!isLoggedIn()) {
             requireAuth(navigate, location.pathname + location.search);
@@ -88,21 +94,26 @@ export default function MyQuestions() {
     }, []);
 
     const softDelete = async (id) => {
-        if (!window.confirm("Bạn có chắc muốn xoá (ẩn) câu hỏi này?")) return;
+        if (!id) return;
+        setIsDeleting(true);
         try {
             const res = await http(`${API_BASE}/api/ForumQuestion/${id}`, {
                 method: "DELETE",
                 headers: authHeaders({ accept: "*/*" }),
             });
             if (!res.ok) throw new Error(`Xoá thất bại (HTTP ${res.status})`);
+            
             // remove from list
             setItems((prev) => prev.filter((x) => x.id !== id));
+            setDeleteConfirmId(null); // Đóng modal
             toast({
                 title: "Thành công",
                 description: "Đã xoá câu hỏi của bạn.",
             });
         } catch (e) {
             toast({ title: "Lỗi", description: e.message, variant: "destructive" });
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -144,19 +155,33 @@ export default function MyQuestions() {
                             {items.map((q) => (
                                 <div key={q.id} className="relative group">
                                     <QuestionCard q={q} />
-                                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition flex gap-2">
-                                        <Link
-                                            to={`/forum/${q.id}/edit`}
-                                            className="bg-white border shadow-sm px-2 py-1 rounded text-xs font-medium text-blue-600 hover:bg-blue-50"
-                                        >
-                                            Sửa
-                                        </Link>
+                                    <div className="absolute top-3 right-3">
                                         <button
-                                            onClick={() => softDelete(q.id)}
-                                            className="bg-white border shadow-sm px-2 py-1 rounded text-xs font-medium text-red-600 hover:bg-red-50"
+                                            onClick={() => setOpenMenuId(openMenuId === q.id ? null : q.id)}
+                                            onBlur={() => setTimeout(() => setOpenMenuId(null), 200)}
+                                            className="p-2 rounded-full bg-white/50 backdrop-blur-sm border border-transparent opacity-0 group-hover:opacity-100 hover:border-slate-200 transition"
                                         >
-                                            Xoá
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
                                         </button>
+                                        {openMenuId === q.id && (
+                                            <div className="absolute right-0 mt-2 w-28 bg-white border rounded-lg shadow-lg z-10">
+                                                <ul className="text-sm text-slate-700">
+                                                    <li>
+                                                        <Link to={`/forum/${q.id}/edit`} className="block w-full text-left px-3 py-1.5 hover:bg-slate-50">Sửa</Link>
+                                                    </li>
+                                                    <li>
+                                                        <button 
+                                                            onClick={() => {
+                                                                setDeleteConfirmId(q.id);
+                                                                setOpenMenuId(null);
+                                                            }} 
+                                                            className="block w-full text-left px-3 py-1.5 text-red-600 hover:bg-red-50">
+                                                            Xoá
+                                                        </button>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             ))}
@@ -169,7 +194,38 @@ export default function MyQuestions() {
                     )}
                 </section>
             </main>
+
+            {deleteConfirmId && (
+                <ConfirmationDialog
+                    isOpen={!!deleteConfirmId}
+                    onClose={() => setDeleteConfirmId(null)}
+                    onConfirm={() => softDelete(deleteConfirmId)}
+                    title="Xác nhận xoá câu hỏi"
+                    description="Bạn có chắc muốn xoá (ẩn) câu hỏi này không? Hành động này không thể hoàn tác."
+                    confirmText={isDeleting ? "Đang xoá..." : "Xoá"}
+                    isConfirming={isDeleting}
+                />
+            )}
+
             <Footer />
         </>
+    );
+}
+
+// Component Modal xác nhận (copied from QuestionDetail)
+function ConfirmationDialog({ isOpen, onClose, onConfirm, title, description, confirmText, isConfirming }) {
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
+            <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+                <h3 className="text-lg font-bold text-slate-900">{title}</h3>
+                <p className="text-sm text-slate-600 mt-2 mb-6">{description}</p>
+                <div className="flex justify-end gap-3">
+                    <button onClick={onClose} disabled={isConfirming} className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-md hover:bg-slate-200 disabled:opacity-50">Huỷ</button>
+                    <button onClick={onConfirm} disabled={isConfirming} className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50 disabled:bg-red-400">{confirmText}</button>
+                </div>
+            </div>
+        </div>
     );
 }

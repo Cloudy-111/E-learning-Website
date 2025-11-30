@@ -101,7 +101,7 @@ export default function EditQuestion() {
                 title: "Thành công",
                 description: "Câu hỏi của bạn đã được cập nhật.",
             });
-            setTimeout(() => navigate(`/forum/${id}`, { replace: true }), 1000);
+            setTimeout(() => navigate(`/forum/my`, { replace: true }), 1000);
         } catch (e) {
             toast({ title: "Cập nhật thất bại", description: e.message, variant: "destructive" });
             setIsSubmitting(false);
@@ -118,8 +118,8 @@ export default function EditQuestion() {
                             Hỏi – Đáp
                         </Link>{" "}
                         /{" "}
-                        <Link to={`/forum/${id}`} className="hover:text-blue-600">
-                            Chi tiết
+                        <Link to={`/forum/my`} className="hover:text-blue-600">
+                            Câu hỏi của tôi
                         </Link>{" "}
                         / <span>Sửa</span>
                     </div>
