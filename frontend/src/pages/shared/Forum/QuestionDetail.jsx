@@ -52,6 +52,10 @@ export default function QuestionDetail() {
     const [myAnswer, setMyAnswer] = useState("");
     const [submitting, setSubmitting] = useState(false);
 
+    // State cho modal xác nhận xoá
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+
     // Get current user info from token
     useEffect(() => {
         const token = localStorage.getItem("app_access_token");
@@ -159,22 +163,26 @@ export default function QuestionDetail() {
 
     // 4. Soft Delete Question
     const softDelete = async () => {
-        if (!window.confirm("Bạn có chắc muốn xoá (ẩn) câu hỏi này?")) return;
+        setIsDeleting(true);
         try {
             const res = await http(`${API_BASE}/api/ForumQuestion/${id}`, {
                 method: "DELETE",
                 headers: authHeaders({ accept: "*/*" }),
             });
             if (!res.ok) throw new Error(`Xoá thất bại (HTTP ${res.status})`);
+            
+            setIsDeleteConfirmOpen(false); // Đóng modal trước khi hiển thị toast
             toast({
                 title: "Thành công",
                 description: "Đã xoá câu hỏi của bạn. Đang chuyển hướng...",
             });
             setTimeout(() => navigate('/forum/my', { replace: true }), 1500);
         } catch (e) {
+            setIsDeleteConfirmOpen(false); // Đóng modal khi có lỗi
             toast({ title: "Lỗi", description: e.message, variant: "destructive" });
         } finally {
             setIsMenuOpen(false);
+            setIsDeleting(false);
         }
     };
 
@@ -261,7 +269,12 @@ export default function QuestionDetail() {
                                                             <Link to={`/forum/${id}/edit`} className="block w-full text-left px-4 py-2 hover:bg-slate-50">Sửa</Link>
                                                         </li>
                                                         <li>
-                                                            <button onClick={softDelete} className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50">Xoá</button>
+                                                            <button 
+                                                                onClick={() => {
+                                                                    setIsDeleteConfirmOpen(true);
+                                                                    setIsMenuOpen(false);
+                                                                }} 
+                                                                className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50">Xoá</button>
                                                         </li>
                                                         <li className="border-t my-1"></li>
                                                     </>
@@ -269,7 +282,10 @@ export default function QuestionDetail() {
                                                 <li>
                                                     <button
                                                         onClick={() => {
-                                                            alert("Chức năng báo cáo đang được phát triển.");
+                                                            toast({
+                                                                title: "Thông báo",
+                                                                description: "Chức năng báo cáo đang được phát triển.",
+                                                            });
                                                             setIsMenuOpen(false);
                                                         }}
                                                         className="block w-full text-left px-4 py-2 hover:bg-slate-50"
@@ -376,6 +392,26 @@ export default function QuestionDetail() {
                             className="rounded-2xl border bg-white p-5"
                             style={{ borderColor: BORDER }}
                         >
+                           
+                            <ul className="space-y-2">
+                                <li>
+                                    <Link to="/forum" className="flex items-center gap-2 text-sm text-blue-600 hover:underline">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                                        <span>Danh sách câu hỏi</span>
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link to="/forum/my" className="flex items-center gap-2 text-sm text-blue-600 hover:underline">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                                        <span>Câu hỏi của tôi</span>
+                                    </Link>
+                                </li>
+                            </ul>
+                        </div>
+                        <div
+                            className="rounded-2xl border bg-white p-5"
+                            style={{ borderColor: BORDER }}
+                        >
                             <h3 className="font-bold text-slate-900 mb-3">Mẹo đặt câu hỏi</h3>
                             <ul className="text-sm text-slate-600 space-y-2 list-disc pl-4">
                                 <li>Mô tả rõ vấn đề bạn gặp phải</li>
@@ -386,7 +422,38 @@ export default function QuestionDetail() {
                     </div>
                 </div>
             </main>
+
+            {isDeleteConfirmOpen && (
+                <ConfirmationDialog
+                    isOpen={isDeleteConfirmOpen}
+                    onClose={() => setIsDeleteConfirmOpen(false)}
+                    onConfirm={softDelete}
+                    title="Xác nhận xoá câu hỏi"
+                    description="Bạn có chắc muốn xoá (ẩn) câu hỏi này không? Hành động này không thể hoàn tác."
+                    confirmText={isDeleting ? "Đang xoá..." : "Xoá"}
+                    isConfirming={isDeleting}
+                />
+            )}
+
             <Footer />
         </>
+    );
+}
+
+// Component Modal xác nhận
+function ConfirmationDialog({ isOpen, onClose, onConfirm, title, description, confirmText, isConfirming }) {
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
+            <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+                <h3 className="text-lg font-bold text-slate-900">{title}</h3>
+                <p className="text-sm text-slate-600 mt-2 mb-6">{description}</p>
+                <div className="flex justify-end gap-3">
+                    <button onClick={onClose} disabled={isConfirming} className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-md hover:bg-slate-200 disabled:opacity-50">Huỷ</button>
+                    <button onClick={onConfirm} disabled={isConfirming} className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50 disabled:bg-red-400">{confirmText}</button>
+                </div>
+            </div>
+        </div>
     );
 }
