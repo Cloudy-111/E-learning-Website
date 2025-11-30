@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { BORDER, API_BASE } from "../utils/constants";
 import { http } from "../../../../utils/http";
 import { authHeaders } from "../utils/helpers";
+import { updateAnswerApi, deleteAnswerApi } from "../../../../api/dicussion.api";
 
 const MoreIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -46,12 +47,7 @@ export default function AnswerItem({ a, currentUser, onAnswerUpdated }) {
         }
         setIsSubmitting(true);
         try {
-            const res = await http(`${API_BASE}/api/Discussion/${a.id}`, {
-                method: 'PUT',
-                headers: authHeaders({ 'Content-Type': 'application/json' }),
-                body: JSON.stringify({ content: editedContent.trim() })
-            });
-
+            const res = await updateAnswerApi(a.id, editedContent);
             if (!res.ok) throw new Error("Cập nhật thất bại");
 
             // Gọi callback để tải lại danh sách câu trả lời
@@ -72,11 +68,7 @@ export default function AnswerItem({ a, currentUser, onAnswerUpdated }) {
 
         setIsDeleting(true);
         try {
-            const res = await http(`${API_BASE}/api/Discussion/${a.id}`, {
-                method: 'DELETE',
-                headers: authHeaders(),
-            });
-
+            const res = await deleteAnswerApi(a.id);
             if (!res.ok) throw new Error("Xóa câu trả lời thất bại");
 
             // Gọi callback để tải lại danh sách câu trả lời
