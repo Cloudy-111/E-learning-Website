@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [Route("api/[controller]")]
@@ -17,8 +18,8 @@ public class SubmitController : ControllerBase
     }
 
     // API go here
-    [HttpPost("{examId}")]
-    public async Task<IActionResult> SubmitExam(string examId, [FromBody] SubmissionExamSubmitDTO submissionExamDto)
+    [HttpPost("{attemptId}/submit-exam")]
+    public async Task<IActionResult> SubmitExam(string attemptId, [FromBody] string lastAnswers)
     {
         if (!ModelState.IsValid)
         {
@@ -27,8 +28,8 @@ public class SubmitController : ControllerBase
 
         try
         {
-            // Create a new SubmissionExam
-            await _submissionExamService.CreateSubmissionExamAsync(examId, submissionExamDto);
+            var studentId = User.FindFirst("studentId")?.Value;
+            await _submissionExamService.CreateSubmissionExamAsync(studentId, attemptId, lastAnswers);
             return Ok(new APIResponse("Success", "Submit exam successfully"));
         }
         catch (KeyNotFoundException ex)

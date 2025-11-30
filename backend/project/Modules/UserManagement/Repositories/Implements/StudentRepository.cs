@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using project.Models;
 
 public class StudentRepository : IStudentRepository
 {
@@ -11,5 +12,13 @@ public class StudentRepository : IStudentRepository
     public async Task<bool> IsStudentExistAsync(string studentId)
     {
         return await _dbContext.Students.AnyAsync(s => s.StudentId == studentId);
+    }
+
+    public async Task<Student?> GetStudentByUserIdAsync(string userId)
+    {
+        var student = await _dbContext.Students
+            .AsNoTracking()
+            .FirstOrDefaultAsync(s => s.UserId == userId);
+        return student;
     }
 }

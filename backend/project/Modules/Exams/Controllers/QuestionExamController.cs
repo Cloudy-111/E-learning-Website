@@ -55,26 +55,30 @@ public class QuestionExamController : ControllerBase
     //     }
     // }
 
+    [Authorize]
     [HttpGet("for-exam")]
     public async Task<IActionResult> GetQuestionsForDoingExam(string examId)
     {
         try
         {
-            var questionExams = await _questionExamService.GetQuestionsByExamIdForDoingExamAsync(examId);
+            var studentId = User.FindFirst("studentId")?.Value;
+            var questionExams = await _questionExamService.GetQuestionsByExamIdForDoingExamAsync(studentId, examId);
             return Ok(new APIResponse("success", "Get questions successfully", questionExams));
         }
-        catch
+        catch (Exception ex)
         {
-            return NotFound(new APIResponse("error", $"Not found questions with {examId}"));
+            return NotFound(new APIResponse("error", ex.Message));
         }
     }
 
+    [Authorize]
     [HttpGet("for-review")]
     public async Task<IActionResult> GetQuestionsForReviewSubmission(string examId)
     {
         try
         {
-            var questionExams = await _questionExamService.GetQuestionsByExamIdForReviewSubmissionAsync(examId);
+            var studentId = User.FindFirst("studentId")?.Value;
+            var questionExams = await _questionExamService.GetQuestionsByExamIdForReviewSubmissionAsync(studentId, examId);
             return Ok(new APIResponse("success", "Get questions successfully", questionExams));
         }
         catch

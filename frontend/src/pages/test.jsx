@@ -3094,6 +3094,285 @@
 // }
 
 
+// "use client";
+
+// import { useState, useEffect } from "react";
+// import { PlayCircle, Check, X } from "lucide-react";
+// import Header from "../components/Header";
+// import Footer from "../components/Footer";
+
+// export default function QuizTest() {
+//   const [answers, setAnswers] = useState({});
+//   const [submitted, setSubmitted] = useState(false);
+//   const [timeLeft, setTimeLeft] = useState(20 * 60); // 20 phút
+//   const [currentSection, setCurrentSection] = useState(1);
+
+//   // ===== TIMER =====
+//   useEffect(() => {
+//     const timer = setInterval(() => setTimeLeft((t) => (t > 0 ? t - 1 : 0)), 1000);
+//     return () => clearInterval(timer);
+//   }, []);
+
+//   const formatTime = (s) => {
+//     const m = Math.floor(s / 60);
+//     const sec = s % 60;
+//     return `${m.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
+//   };
+
+//   // ===== DATA =====
+//   const sections = [
+//     { id: 1, title: "JavaScript Cơ Bản" },
+//     { id: 2, title: "ReactJS Căn Bản" },
+//   ];
+
+//   const questions = {
+//     1: [
+//       {
+//         num: 1,
+//         question: "Từ khoá nào được dùng để khai báo biến có phạm vi khối trong JavaScript?",
+//         options: ["var", "let", "const", "define"],
+//         correct: "let",
+//       },
+//       {
+//         num: 2,
+//         question: "Giá trị của biểu thức: typeof null là gì?",
+//         options: ["'object'", "'null'", "'undefined'", "'number'"],
+//         correct: "'object'",
+//       },
+//       {
+//         num: 3,
+//         question: "Phương thức nào dùng để chuyển chuỗi thành số?",
+//         options: ["Number()", "toNumber()", "parseNum()", "int()"],
+//         correct: "Number()",
+//       },
+//       {
+//         num: 4,
+//         question: "Kết quả của 2 + '2' trong JS là gì?",
+//         options: ["4", "'22'", "NaN", "Error"],
+//         correct: "'22'",
+//       },
+//       {
+//         num: 5,
+//         question: "Từ khoá nào dừng vòng lặp hiện tại và nhảy sang lần lặp tiếp theo?",
+//         options: ["return", "continue", "break", "skip"],
+//         correct: "continue",
+//       },
+//     ],
+//     2: [
+//       {
+//         num: 6,
+//         question: "Thành phần nào chịu trách nhiệm hiển thị giao diện trong React?",
+//         options: ["Component", "State", "Hook", "Prop"],
+//         correct: "Component",
+//       },
+//       {
+//         num: 7,
+//         question: "Hook nào dùng để quản lý trạng thái trong React?",
+//         options: ["useEffect", "useState", "useRef", "useMemo"],
+//         correct: "useState",
+//       },
+//       {
+//         num: 8,
+//         question: "Thuộc tính nào truyền dữ liệu từ component cha sang con?",
+//         options: ["state", "props", "context", "data"],
+//         correct: "props",
+//       },
+//       {
+//         num: 9,
+//         question: "Câu lệnh nào render nội dung ra màn hình trong React?",
+//         options: ["render()", "ReactDOM.render()", "useRender()", "show()"],
+//         correct: "ReactDOM.render()",
+//       },
+//       {
+//         num: 10,
+//         question: "Cú pháp JSX là sự kết hợp của?",
+//         options: ["HTML + CSS", "HTML + JavaScript", "JS + JSON", "JS + XML"],
+//         correct: "HTML + JavaScript",
+//       },
+//     ],
+//   };
+
+//   // ===== HANDLERS =====
+//   const handleAnswer = (num, opt) =>
+//     setAnswers((prev) => ({ ...prev, [num]: opt }));
+
+//   const handleSubmit = () => {
+//     if (window.confirm("Bạn có chắc chắn muốn nộp bài?")) setSubmitted(true);
+//   };
+
+//   const calcScore = () => {
+//     let correctCount = 0;
+//     Object.values(questions)
+//       .flat()
+//       .forEach((q) => {
+//         if (answers[q.num] === q.correct) correctCount++;
+//       });
+//     return correctCount;
+//   };
+
+//   // ===== UI =====
+//   return (
+
+//     <div className="min-h-screen bg-gray-50 text-gray-900 w-screen max-w-none overflow-hidden">
+//       {/* HEADER */}
+//       <Header />
+//       <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-20">
+//         <h1 className="font-bold text-lg md:text-xl text-blue-600">
+//           🧠 Trắc nghiệm Lập trình Web
+//         </h1>
+//         <div className="text-right">
+//           <p className="text-sm text-gray-600">Thời gian còn lại</p>
+//           <p className="text-2xl font-bold text-blue-700">{formatTime(timeLeft)}</p>
+//         </div>
+//       </header>
+
+//       {/* MAIN */}
+//       <main className="grid grid-cols-[1fr_300px]">
+//         {/* LEFT SIDE */}
+//         <section className="h-[calc(100vh-64px)] overflow-y-auto p-6 space-y-8">
+//           {/* Tabs */}
+//           <div className="flex gap-3 border-b border-gray-200 pb-2 overflow-x-auto">
+//             {sections.map((s) => (
+//               <button
+//                 key={s.id}
+//                 onClick={() => setCurrentSection(s.id)}
+//                 className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+//                   currentSection === s.id
+//                     ? "bg-blue-600 text-white"
+//                     : "text-gray-700 hover:bg-gray-100"
+//                 }`}
+//               >
+//                 {s.title}
+//               </button>
+//             ))}
+//           </div>
+
+//           {/* Question List */}
+//           <div className="space-y-6">
+//             {questions[currentSection].map((q) => (
+//               <div
+//                 key={q.num}
+//                 id={`q-${q.num}`}
+//                 className="bg-white p-6 rounded-xl shadow-sm border border-gray-100"
+//               >
+//                 <p className="font-semibold mb-4 text-gray-800">
+//                   Câu {q.num}. {q.question}
+//                 </p>
+//                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+//                   {q.options.map((opt) => {
+//                     const selected = answers[q.num] === opt;
+//                     const isCorrect = q.correct === opt;
+//                     return (
+//                       <button
+//                         key={opt}
+//                         disabled={submitted}
+//                         onClick={() => handleAnswer(q.num, opt)}
+//                         className={`text-left border rounded-lg px-4 py-3 transition-all ${
+//                           submitted
+//                             ? isCorrect
+//                               ? "bg-green-50 border-green-400 text-green-700"
+//                               : selected
+//                               ? "bg-red-50 border-red-400 text-red-700"
+//                               : "bg-gray-50"
+//                             : selected
+//                             ? "border-blue-600 bg-blue-50 text-blue-700"
+//                             : "border-gray-200 hover:border-blue-400"
+//                         }`}
+//                       >
+//                         {opt}
+//                         {submitted &&
+//                           (isCorrect ? (
+//                             <Check className="inline ml-2 text-green-600" size={18} />
+//                           ) : selected ? (
+//                             <X className="inline ml-2 text-red-600" size={18} />
+//                           ) : null)}
+//                       </button>
+//                     );
+//                   })}
+//                 </div>
+//               </div>
+//             ))}
+//           </div>
+
+//           {/* Footer Buttons */}
+//           <div className="flex justify-between pt-6">
+//             <button
+//               onClick={() =>
+//                 setCurrentSection((s) => (s > 1 ? s - 1 : s))
+//               }
+//               className="px-5 py-3 rounded-lg text-gray-600 hover:text-blue-600 transition"
+//             >
+//               ‹ Trước
+//             </button>
+
+//             {!submitted ? (
+//               <button
+//                 onClick={handleSubmit}
+//                 className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-sm transition"
+//               >
+//                 Nộp bài
+//               </button>
+//             ) : (
+//               <div className="text-right text-green-600 font-semibold">
+//                 ✅ Bạn đúng {calcScore()} /{" "}
+//                 {Object.values(questions).flat().length} câu
+//               </div>
+//             )}
+
+//             <button
+//               onClick={() =>
+//                 setCurrentSection((s) =>
+//                   s < sections.length ? s + 1 : s
+//                 )
+//               }
+//               className="px-5 py-3 rounded-lg text-gray-600 hover:text-blue-600 transition"
+//             >
+//               Sau ›
+//             </button>
+//           </div>
+//         </section>
+
+//         {/* RIGHT SIDE */}
+//         <aside className="bg-white border-l border-gray-200 p-6 h-[calc(100vh-64px)] overflow-y-auto sticky top-16">
+//           <h2 className="font-bold text-gray-800 mb-4">Danh sách câu hỏi</h2>
+//           {sections.map((s) => (
+//             <div key={s.id} className="mb-6">
+//               <p className="text-sm font-semibold mb-2 text-gray-600">
+//                 {s.title}
+//               </p>
+//               <div className="grid grid-cols-5 gap-2">
+//                 {questions[s.id].map((q) => {
+//                   const done = !!answers[q.num];
+//                   return (
+//                     <button
+//                       key={q.num}
+//                       onClick={() => {
+//                         setCurrentSection(s.id);
+//                         document
+//                           .getElementById(`q-${q.num}`)
+//                           ?.scrollIntoView({ behavior: "smooth", block: "center" });
+//                       }}
+//                       className={`w-9 h-9 rounded-lg text-sm font-semibold transition ${
+//                         done
+//                           ? "bg-blue-600 text-white"
+//                           : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+//                       }`}
+//                     >
+//                       {q.num}
+//                     </button>
+//                   );
+//                 })}
+//               </div>
+//             </div>
+//           ))}
+//         </aside>
+//       </main>
+//       <Footer />
+//     </div>
+//   );
+// }
+
+
 
 
 
@@ -4402,6 +4681,392 @@
 
 
 
+// // src/pages/Schedule.jsx
+// "use client";
+
+// import { useState } from "react";
+// import Header from "../components/Header";
+// import Footer from "../components/Footer";
+// import {
+//   Calendar,
+//   Plus,
+//   Search,
+//   Clock,
+//   CheckCircle2,
+//   Trash2,
+//   Pencil,
+//   ChevronRight,
+// } from "lucide-react";
+
+// export default function SchedulePage() {
+//   const [activeTab, setActiveTab] = useState("my-schedule");
+//   const [query, setQuery] = useState("");
+//   const [todos, setTodos] = useState([
+//     { id: "t1", title: "Học JavaScript: Scope & Closure", time: "07:30 - 08:30", done: false },
+//     { id: "t2", title: "Làm bài tập: Array Methods", time: "09:00 - 10:00", done: true },
+//     { id: "t3", title: "Xem lại React Hooks (useMemo, useCallback)", time: "14:00 - 15:00", done: false },
+//   ]);
+
+//   const [newTodo, setNewTodo] = useState({ title: "", time: "" });
+
+//   const filteredTodos = todos.filter(
+//     (t) =>
+//       t.title.toLowerCase().includes(query.toLowerCase()) ||
+//       t.time.toLowerCase().includes(query.toLowerCase())
+//   );
+
+//   const toggleDone = (id) =>
+//     setTodos((arr) => arr.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));
+
+//   const removeTodo = (id) => setTodos((arr) => arr.filter((t) => t.id !== id));
+
+//   const addTodo = () => {
+//     if (!newTodo.title.trim()) return;
+//     setTodos((arr) => [
+//       {
+//         id: "t_" + Date.now(),
+//         title: newTodo.title.trim(),
+//         time: newTodo.time.trim() || "Chưa đặt thời gian",
+//         done: false,
+//       },
+//       ...arr,
+//     ]);
+//     setNewTodo({ title: "", time: "" });
+//   };
+
+//   return (
+//     <div className="min-h-screen w-screen max-w-none bg-white text-gray-900 overflow-x-hidden">
+//       {/* Header tái sử dụng, full-width */}
+//       <Header />
+
+//       {/* HERO: gradient full-bleed */}
+//       <section className="w-screen max-w-none bg-gradient-to-r from-blue-50 via-indigo-50 to-cyan-50 border-b border-gray-200">
+//         <div className="px-6 lg:px-12 py-8">
+//           <div className="flex flex-wrap items-center gap-4">
+//             <div className="flex items-center gap-3">
+//               <div className="p-2 rounded-xl bg-white shadow-sm border border-gray-200">
+//                 <Calendar className="w-6 h-6 text-blue-700" />
+//               </div>
+//               <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
+//                 Lịch học lập trình
+//               </h1>
+//             </div>
+
+//             <button
+//               onClick={() => {
+//                 const el = document.getElementById("todo-form");
+//                 el?.scrollIntoView({ behavior: "smooth", block: "center" });
+//               }}
+//               className="ml-auto rounded-full bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 font-medium transition"
+//             >
+//               Tạo lịch học
+//             </button>
+//           </div>
+
+//           {/* Tabs */}
+//           <div className="mt-6 flex gap-6 border-b border-gray-200">
+//             <button
+//               onClick={() => setActiveTab("my-schedule")}
+//               className={`pb-3 font-semibold transition ${
+//                 activeTab === "my-schedule"
+//                   ? "text-blue-700 border-b-2 border-blue-700"
+//                   : "text-gray-600 hover:text-gray-900"
+//               }`}
+//             >
+//               Lịch học của tôi
+//             </button>
+//             <button
+//               onClick={() => setActiveTab("explore")}
+//               className={`pb-3 font-semibold transition ${
+//                 activeTab === "explore"
+//                   ? "text-blue-700 border-b-2 border-blue-700"
+//                   : "text-gray-600 hover:text-gray-900"
+//               }`}
+//             >
+//               Khám phá lộ trình
+//             </button>
+//           </div>
+//         </div>
+//       </section>
+
+//       {/* MAIN grid full-width: [content | sidebar] */}
+//       <main className="w-screen max-w-none px-6 lg:px-12 py-8">
+//         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
+//           {/* LEFT: Nội dung chính */}
+//           <section className="space-y-6">
+//             {/* Card: Thời biểu trong ngày */}
+//             <div className="border rounded-2xl shadow-sm overflow-hidden">
+//               <div className="bg-gradient-to-r from-white to-blue-50 px-6 py-4 border-b">
+//                 <div className="flex items-center justify-between">
+//                   <div>
+//                     <h3 className="font-bold text-lg">Thời biểu hôm nay</h3>
+//                     <p className="text-sm text-gray-600">
+//                       Tối ưu 3 phiên học ngắn (Deep Work 50-60 phút) cho Frontend
+//                     </p>
+//                   </div>
+//                   <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-medium">
+//                     Active
+//                   </span>
+//                 </div>
+//               </div>
+
+//               <div className="p-6">
+//                 {/* Quick search trong card */}
+//                 <div className="relative mb-5">
+//                   <input
+//                     type="text"
+//                     value={query}
+//                     onChange={(e) => setQuery(e.target.value)}
+//                     placeholder="Tìm phiên học, chủ đề…"
+//                     className="w-full rounded-xl border border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none px-4 py-2 pr-10"
+//                   />
+//                   <Search className="absolute right-3 top-2.5 w-5 h-5 text-gray-400" />
+//                 </div>
+
+//                 {/* Danh sách phiên học (todos) */}
+//                 <ul className="space-y-3">
+//                   {filteredTodos.map((t) => (
+//                     <li
+//                       key={t.id}
+//                       className="group border rounded-xl p-4 flex items-start gap-4 hover:shadow-sm transition"
+//                     >
+//                       <button
+//                         onClick={() => toggleDone(t.id)}
+//                         className={`mt-0.5 rounded-full border w-5 h-5 flex items-center justify-center ${
+//                           t.done
+//                             ? "bg-green-600 border-green-600 text-white"
+//                             : "border-gray-300 text-transparent"
+//                         }`}
+//                         aria-label="Đánh dấu hoàn thành"
+//                       >
+//                         <CheckCircle2 className="w-4 h-4" />
+//                       </button>
+
+//                       <div className="flex-1">
+//                         <div className="flex flex-wrap items-center gap-2">
+//                           <p
+//                             className={`font-semibold ${
+//                               t.done ? "line-through text-gray-400" : "text-gray-900"
+//                             }`}
+//                           >
+//                             {t.title}
+//                           </p>
+//                           <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
+//                             <Clock className="w-3 h-3" />
+//                             {t.time}
+//                           </span>
+//                         </div>
+//                         <p className="text-xs text-gray-500 mt-1">
+//                           Gợi ý: bật Pomodoro 50’ tập trung + 10’ nghỉ.
+//                         </p>
+//                       </div>
+
+//                       <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition">
+//                         <button
+//                           className="p-2 rounded-lg border hover:bg-gray-50"
+//                           title="Sửa nhanh (demo)"
+//                           onClick={() =>
+//                             alert("Bạn có thể gắn modal chỉnh sửa chi tiết tại đây.")
+//                           }
+//                         >
+//                           <Pencil className="w-4 h-4" />
+//                         </button>
+//                         <button
+//                           className="p-2 rounded-lg border hover:bg-red-50 hover:border-red-300 hover:text-red-600"
+//                           title="Xoá"
+//                           onClick={() => removeTodo(t.id)}
+//                         >
+//                           <Trash2 className="w-4 h-4" />
+//                         </button>
+//                       </div>
+//                     </li>
+//                   ))}
+//                 </ul>
+
+//                 {/* Phân trang mẫu (demo) */}
+//                 <div className="mt-6 flex justify-end">
+//                   <button className="text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-1">
+//                     Xem thêm <ChevronRight className="w-4 h-4" />
+//                   </button>
+//                 </div>
+//               </div>
+//             </div>
+
+//             {/* Card: Chính sách / Thêm mới */}
+//             <div className="border rounded-2xl shadow-sm overflow-hidden" id="todo-form">
+//               <div className="px-6 py-4 border-b bg-white">
+//                 <h3 className="font-bold text-lg">Thêm phiên học mới</h3>
+//                 <p className="text-sm text-gray-600">
+//                   Giữ phiên học <strong>50–60 phút</strong>, mục tiêu rõ ràng, có bài kiểm tra ngắn sau buổi.
+//                 </p>
+//               </div>
+
+//               <div className="p-6 grid md:grid-cols-[1fr_240px_auto] gap-3">
+//                 <input
+//                   type="text"
+//                   value={newTodo.title}
+//                   onChange={(e) => setNewTodo((s) => ({ ...s, title: e.target.value }))}
+//                   placeholder="Ví dụ: Luyện React Router v6 (Routes, NavLink, ProtectedRoute)"
+//                   className="rounded-xl border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none"
+//                 />
+//                 <input
+//                   type="text"
+//                   value={newTodo.time}
+//                   onChange={(e) => setNewTodo((s) => ({ ...s, time: e.target.value }))}
+//                   placeholder="Ví dụ: 19:30 - 20:30"
+//                   className="rounded-xl border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none"
+//                 />
+//                 <button
+//                   onClick={addTodo}
+//                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 font-medium transition"
+//                 >
+//                   <Plus className="w-5 h-5" />
+//                   Thêm
+//                 </button>
+//               </div>
+
+//               <div className="px-6 pb-6 text-sm text-gray-600">
+//                 <ul className="list-disc pl-5 space-y-1">
+//                   <li>Ưu tiên chủ đề nền tảng (JS, HTTP, Git, React core) trước thư viện nâng cao.</li>
+//                   <li>Đặt checkpoint kiến thức 2–3 ngày/lần bằng quiz ngắn (10–15 câu).</li>
+//                   <li>Cuối tuần: tổng hợp ghi chú, refactor code, viết README cho mini-project.</li>
+//                 </ul>
+//               </div>
+//             </div>
+
+//             {/* Tab "Khám phá" (demo nội dung) */}
+//             {activeTab === "explore" && (
+//               <div className="border rounded-2xl shadow-sm overflow-hidden">
+//                 <div className="px-6 py-4 border-b bg-white">
+//                   <h3 className="font-bold text-lg">Gợi ý lộ trình</h3>
+//                   <p className="text-sm text-gray-600">
+//                     Các module kỹ năng lập trình theo cấp độ — có thể thêm trực tiếp vào lịch.
+//                   </p>
+//                 </div>
+//                 <div className="p-6 grid md:grid-cols-2 gap-4">
+//                   {[
+//                     {
+//                       title: "Frontend Essentials",
+//                       items: ["HTML/CSS hiện đại", "JavaScript cơ bản → nâng cao", "React core"],
+//                     },
+//                     {
+//                       title: "React Pro",
+//                       items: ["Hooks nâng cao", "Router v6", "State Management (Context/Zustand)"],
+//                     },
+//                     {
+//                       title: "Backend Node.js",
+//                       items: ["Express/Fastify", "REST API", "ORM (Prisma/TypeORM)"],
+//                     },
+//                     {
+//                       title: "Dev Tools",
+//                       items: ["Git/GitHub flow", "ESLint/Prettier", "Vite/Turbo/Multi-env"],
+//                     },
+//                   ].map((bucket) => (
+//                     <div
+//                       key={bucket.title}
+//                       className="rounded-xl border p-4 hover:shadow-sm transition"
+//                     >
+//                       <p className="font-semibold">{bucket.title}</p>
+//                       <ul className="mt-2 text-sm text-gray-600 space-y-1">
+//                         {bucket.items.map((it) => (
+//                           <li key={it} className="flex gap-2">
+//                             <span className="text-blue-600">•</span>
+//                             <span>{it}</span>
+//                           </li>
+//                         ))}
+//                       </ul>
+//                       <div className="mt-3">
+//                         <button
+//                           onClick={() =>
+//                             setTodos((arr) => [
+//                               {
+//                                 id: "t_" + Date.now(),
+//                                 title: `${bucket.title}: ${bucket.items[0]}`,
+//                                 time: "19:00 - 20:00",
+//                                 done: false,
+//                               },
+//                               ...arr,
+//                             ])
+//                           }
+//                           className="text-blue-600 hover:text-blue-700 font-medium inline-flex items-center gap-1"
+//                         >
+//                           Thêm vào lịch <ChevronRight className="w-4 h-4" />
+//                         </button>
+//                       </div>
+//                     </div>
+//                   ))}
+//                 </div>
+//               </div>
+//             )}
+//           </section>
+
+//           {/* RIGHT: Sidebar hẹp, sticky */}
+//           <aside className="hidden lg:block">
+//             <div className="sticky top-20 space-y-6">
+//               {/* Search box tổng */}
+//               <div className="relative">
+//                 <input
+//                   type="text"
+//                   value={query}
+//                   onChange={(e) => setQuery(e.target.value)}
+//                   placeholder="Tìm nhanh phiên học, chủ đề…"
+//                   className="w-full rounded-xl border border-gray-300 px-4 py-3 pr-10 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none"
+//                 />
+//                 <Search className="absolute right-3 top-3.5 w-5 h-5 text-gray-400" />
+//               </div>
+
+//               {/* Promo card lập trình 1 */}
+//               <div className="rounded-2xl border overflow-hidden shadow-sm">
+//                 <div className="bg-gradient-to-br from-sky-100 to-blue-50 p-4">
+//                   <p className="text-xs font-medium text-blue-700">Lộ trình</p>
+//                   <p className="font-bold text-gray-900 mt-1">
+//                     React Fundamentals → React Pro
+//                   </p>
+//                   <p className="text-sm text-gray-600 mt-1">
+//                     6 tuần • Bài tập dự án • Quiz mỗi module
+//                   </p>
+//                 </div>
+//                 <div className="p-4">
+//                   <button className="w-full rounded-xl bg-blue-600 hover:bg-blue-700 text-white py-2 font-medium transition">
+//                     Xem chi tiết
+//                   </button>
+//                 </div>
+//               </div>
+
+//               {/* Promo card lập trình 2 */}
+//               <div className="rounded-2xl border overflow-hidden shadow-sm">
+//                 <div className="bg-gradient-to-br from-emerald-100 to-green-50 p-4">
+//                   <p className="text-xs font-medium text-emerald-700">Khoá học</p>
+//                   <p className="font-bold text-gray-900 mt-1">Node.js REST API</p>
+//                   <p className="text-sm text-gray-600 mt-1">
+//                     Express • Prisma • Auth • Best Practices
+//                   </p>
+//                 </div>
+//                 <div className="p-4">
+//                   <button className="w-full rounded-xl border border-emerald-300 text-emerald-700 hover:bg-emerald-50 py-2 font-medium transition">
+//                     Tham khảo
+//                   </button>
+//                 </div>
+//               </div>
+
+//               {/* Nhắc nhở kỷ luật học */}
+//               <div className="rounded-2xl border p-4">
+//                 <p className="font-semibold">Mẹo duy trì thói quen</p>
+//                 <ul className="mt-2 text-sm text-gray-600 space-y-1">
+//                   <li>• Lên lịch cố định theo khung giờ.</li>
+//                   <li>• Tắt thông báo trong giờ học.</li>
+//                   <li>• Kết thúc buổi học bằng 5’ ghi chú.</li>
+//                 </ul>
+//               </div>
+//             </div>
+//           </aside>
+//         </div>
+//       </main>
+
+//       <Footer />
+//     </div>
+//   );
+// }
 
 
 
@@ -4914,6 +5579,432 @@
 
 
 
+// src/pages/Explore.jsx
+// "use client";
+
+// import { useMemo, useState } from "react";
+// import { Search, Clock, Layers, Cpu, Code2, Database, Cloud } from "lucide-react";
+// import Header from "../components/Header";
+// import Footer from "../components/Footer";
+
+// /**
+//  * DATA: Khóa học lập trình (thay cho TOEIC/IELTS)
+//  * - Giữ cấu trúc features + details để khớp design trước
+//  */
+// const COURSES = [
+//   {
+//     id: "js-foundation",
+//     title: "JavaScript Foundation",
+//     category: "Frontend Web",
+//     description:
+//       "Nền tảng JavaScript hiện đại: biến, scope, closure, this, async/await, module hoá, và làm quen DOM + fetch API.",
+//     features: [
+//       { label: "100+ bài tập Code", color: "cyan" },
+//       { label: "Project To-Do/Quiz App", color: "teal" },
+//       { label: "ES6+ Best Practices", color: "pink" },
+//     ],
+//     details: [
+//       {
+//         title: "Ngôn ngữ & Cú pháp",
+//         items: [
+//           "let/const, hoisting, scope & closure",
+//           "Prototype, OOP nhẹ trong JS",
+//           "Async: Promise, async/await",
+//         ],
+//       },
+//       {
+//         title: "Web APIs & Thực hành",
+//         items: ["DOM, fetch, localStorage", "Form validation", "Xử lý lỗi & loading states"],
+//       },
+//       {
+//         title: "Dự án nhỏ",
+//         items: ["To-Do App", "Quiz App (timers, results)", "Refactor theo clean code"],
+//       },
+//     ],
+//     topic: "web",
+//     duration: "4 tuần",
+//     students: "5,430+",
+//   },
+//   {
+//     id: "react-essentials",
+//     title: "ReactJS Essentials",
+//     category: "Frontend Web",
+//     description:
+//       "Xây dựng UI component-based với React: hooks, state, props, router, tối ưu hiệu năng & kiến trúc folder chuẩn.",
+//     features: [
+//       { label: "Router + State Mgmt", color: "cyan" },
+//       { label: "Hook thực chiến", color: "teal" },
+//       { label: "Clean Architecture", color: "pink" },
+//     ],
+//     details: [
+//       {
+//         title: "Cốt lõi",
+//         items: ["Component, Props, State", "Hooks: useState, useEffect, useMemo", "Context & tách logic"],
+//       },
+//       {
+//         title: "Routing & Data",
+//         items: ["react-router, nested routes", "Fetch & cache dữ liệu", "Form + validation"],
+//       },
+//       {
+//         title: "Best Practices",
+//         items: ["Folder convention", "UI patterns, memo hoá", "Error boundaries"],
+//       },
+//     ],
+//     topic: "web",
+//     duration: "5 tuần",
+//     students: "7,210+",
+//   },
+//   {
+//     id: "python-ds",
+//     title: "Python & Data Structures",
+//     category: "Core CS",
+//     description:
+//       "Học Python theo hướng thuật toán: mảng, stack/queue, hash map, tree/graph, complexity & pattern tư duy.",
+//     features: [
+//       { label: "120+ bài Leet-like", color: "cyan" },
+//       { label: "Phân tích độ phức tạp", color: "teal" },
+//       { label: "Template hoá lời giải", color: "pink" },
+//     ],
+//     details: [
+//       {
+//         title: "Python nhanh",
+//         items: ["List/Dict/Set/Comprehension", "Typing & dataclass", "I/O & exceptions"],
+//       },
+//       {
+//         title: "Cấu trúc dữ liệu",
+//         items: ["Two pointers, sliding window", "Stack/Queue/Heap/Hash", "Tree/Graph cơ bản"],
+//       },
+//       {
+//         title: "Thuật toán",
+//         items: ["DFS/BFS/Backtracking", "Greedy & DP cơ bản", "Complexity & tối ưu"],
+//       },
+//     ],
+//     topic: "cs",
+//     duration: "6 tuần",
+//     students: "4,980+",
+//   },
+//   {
+//     id: "node-api",
+//     title: "Node.js RESTful API",
+//     category: "Backend Web",
+//     description:
+//       "Thiết kế & triển khai RESTful API với Express, auth JWT, upload, pagination, logging, testing & deploy.",
+//     features: [
+//       { label: "Express & Middleware", color: "cyan" },
+//       { label: "Auth JWT/OAuth", color: "teal" },
+//       { label: "Test & Deploy", color: "pink" },
+//     ],
+//     details: [
+//       {
+//         title: "Kiến trúc & chuẩn hoá",
+//         items: ["Layered architecture", "Env & config", "Error handling, logger"],
+//       },
+//       {
+//         title: "Tính năng",
+//         items: ["CRUD chuẩn REST", "Auth JWT/Role", "Upload file, pagination, search"],
+//       },
+//       {
+//         title: "Triển khai",
+//         items: ["Unit/integration test", "CI/CD cơ bản", "Deploy (Railway/Render/VPS)"],
+//       },
+//     ],
+//     topic: "backend",
+//     duration: "4 tuần",
+//     students: "3,640+",
+//   },
+//   {
+//     id: "sql-practical",
+//     title: "SQL Practical for Dev",
+//     category: "Database",
+//     description:
+//       "Viết truy vấn hiệu quả: JOIN, window function, CTE, indexing, transaction & tối ưu thực thi.",
+//     features: [
+//       { label: "50+ bài tập data", color: "cyan" },
+//       { label: "Window functions", color: "teal" },
+//       { label: "Index & Explain", color: "pink" },
+//     ],
+//     details: [
+//       {
+//         title: "Truy vấn",
+//         items: ["JOIN/UNION/CTE", "GROUP BY/ROLLUP", "Window functions"],
+//       },
+//       {
+//         title: "Tối ưu",
+//         items: ["Index chiến lược", "Explain plan", "Anti-pattern thường gặp"],
+//       },
+//       {
+//         title: "An toàn dữ liệu",
+//         items: ["Transaction/Isolation", "Deadlock cơ bản", "Migration/versioning"],
+//       },
+//     ],
+//     topic: "db",
+//     duration: "3 tuần",
+//     students: "2,120+",
+//   },
+//   {
+//     id: "devops-begin",
+//     title: "DevOps cơ bản",
+//     category: "DevOps",
+//     description:
+//       "Pipeline CI/CD, container hoá với Docker, cơ bản Kubernetes & monitoring để ship nhanh – an toàn.",
+//     features: [
+//       { label: "Docker hoá dự án", color: "cyan" },
+//       { label: "CI/CD cơ bản", color: "teal" },
+//       { label: "K8s intro + Observability", color: "pink" },
+//     ],
+//     details: [
+//       {
+//         title: "Container hoá",
+//         items: ["Dockerfile best practices", "Compose multi-services", "Secrets & env"],
+//       },
+//       {
+//         title: "CI/CD",
+//         items: ["GitHub Actions", "Build/test/lint", "Auto deploy preview"],
+//       },
+//       {
+//         title: "K8s & Monitor",
+//         items: ["Concept k8s", "Health check, resource", "Log/metrics cơ bản"],
+//       },
+//     ],
+//     topic: "devops",
+//     duration: "4 tuần",
+//     students: "1,780+",
+//   },
+// ];
+
+// /** Tag màu */
+// const tagColor = (color) =>
+//   ({
+//     cyan: "bg-cyan-100 text-cyan-700",
+//     teal: "bg-teal-100 text-teal-700",
+//     pink: "bg-pink-100 text-pink-700",
+//   }[color] || "bg-gray-100 text-gray-700");
+
+// /** Icon theo topic */
+// const TopicIcon = ({ topic, className = "w-4 h-4" }) => {
+//   const map = {
+//     web: <Code2 className={className} />,
+//     backend: <Layers className={className} />,
+//     cs: <Cpu className={className} />,
+//     db: <Database className={className} />,
+//     devops: <Cloud className={className} />,
+//   };
+//   return map[topic] || <Code2 className={className} />;
+// };
+
+// export default function Discover() {
+//   const [activeTab, setActiveTab] = useState("explore");
+//   const [search, setSearch] = useState("");
+//   const [topic, setTopic] = useState("all");
+
+//   const topics = [
+//     { id: "all", label: "Tất cả" },
+//     { id: "web", label: "Frontend Web" },
+//     { id: "backend", label: "Backend" },
+//     { id: "cs", label: "CS/Algorithms" },
+//     { id: "db", label: "Database" },
+//     { id: "devops", label: "DevOps" },
+//   ];
+
+//   const filtered = useMemo(() => {
+//     const byTopic = topic === "all" ? COURSES : COURSES.filter((c) => c.topic === topic);
+//     if (!search.trim()) return byTopic;
+//     const q = search.toLowerCase();
+//     return byTopic.filter(
+//       (c) =>
+//         c.title.toLowerCase().includes(q) ||
+//         c.description.toLowerCase().includes(q) ||
+//         c.category.toLowerCase().includes(q)
+//     );
+//   }, [search, topic]);
+
+//   return (
+//     <div className="min-h-screen w-screen max-w-none bg-white">
+//       {/* Header dùng chung */}
+//       <Header />
+
+//       {/* Hero + Tabs */}
+//       <section className="w-full bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-b border-gray-200">
+//         <div className="w-full px-6 lg:px-12 py-8">
+//           <div className="flex items-center gap-3 mb-3">
+//             <Clock className="w-6 h-6 text-gray-800" />
+//             <h1 className="text-2xl md:text-3xl font-extrabold text-gray-900">Khám phá lộ trình học lập trình</h1>
+//           </div>
+
+//           {/* Tabs */}
+//           <div className="flex gap-6 border-b border-gray-300">
+//             <button
+//               onClick={() => setActiveTab("my")}
+//               className={`pb-3 font-medium transition ${
+//                 activeTab === "my" ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-600 hover:text-gray-900"
+//               }`}
+//             >
+//               Lịch học của tôi
+//             </button>
+//             <button
+//               onClick={() => setActiveTab("explore")}
+//               className={`pb-3 font-medium transition ${
+//                 activeTab === "explore"
+//                   ? "text-blue-600 border-b-2 border-blue-600"
+//                   : "text-gray-600 hover:text-gray-900"
+//               }`}
+//             >
+//               Khám phá
+//             </button>
+//           </div>
+
+//           {/* Search + Filters */}
+//           <div className="mt-6 flex flex-col md:flex-row gap-3">
+//             <div className="relative md:flex-1">
+//               <input
+//                 type="text"
+//                 value={search}
+//                 onChange={(e) => setSearch(e.target.value)}
+//                 placeholder="Tìm khóa học, chủ đề, kỹ năng..."
+//                 className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 pl-11 outline-none focus:ring-2 focus:ring-blue-500"
+//               />
+//               <Search className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
+//             </div>
+//             <div className="flex gap-2 overflow-auto">
+//               {topics.map((t) => (
+//                 <button
+//                   key={t.id}
+//                   onClick={() => setTopic(t.id)}
+//                   className={`px-3 py-2 rounded-lg text-sm font-medium border transition ${
+//                     topic === t.id
+//                       ? "bg-blue-600 text-white border-blue-600"
+//                       : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"
+//                   }`}
+//                 >
+//                   {t.label}
+//                 </button>
+//               ))}
+//             </div>
+//           </div>
+//         </div>
+//       </section>
+
+//       {/* Main */}
+//       <main className="w-full px-6 lg:px-12 py-10">
+//         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-10">
+//           {/* LEFT: Course list */}
+//           <section className="space-y-6">
+//             {filtered.map((course) => (
+//               <article
+//                 key={course.id}
+//                 className="bg-white border border-gray-200 rounded-2xl hover:shadow-md transition overflow-hidden"
+//               >
+//                 {/* Header */}
+//                 <div className="px-6 py-5 border-b border-gray-100 flex items-start justify-between gap-4">
+//                   <div className="min-w-0">
+//                     <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
+//                       <TopicIcon topic={course.topic} />
+//                       <span className="truncate">{course.category}</span>
+//                       <span className="mx-1">•</span>
+//                       <span>{course.duration}</span>
+//                       <span className="mx-1">•</span>
+//                       <span>{course.students} học viên</span>
+//                     </div>
+//                     <h3 className="text-xl font-bold text-gray-900 truncate">{course.title}</h3>
+//                   </div>
+//                   <span className="shrink-0 inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
+//                     Active
+//                   </span>
+//                 </div>
+
+//                 {/* Body */}
+//                 <div className="px-6 py-5">
+//                   <p className="text-gray-700 leading-relaxed mb-4">{course.description}</p>
+
+//                   {/* Feature tags */}
+//                   <div className="flex flex-wrap gap-2 mb-6">
+//                     {course.features.map((f, i) => (
+//                       <span key={i} className={`inline-block px-3 py-1 rounded-full text-sm font-medium ${tagColor(f.color)}`}>
+//                         {f.label}
+//                       </span>
+//                     ))}
+//                   </div>
+
+//                   {/* Details: 3 cột */}
+//                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-xl">
+//                     {course.details.map((d, i) => (
+//                       <div key={i}>
+//                         <h4 className="font-semibold text-sm text-gray-900 mb-2">{d.title}</h4>
+//                         <ul className="text-xs text-gray-700 space-y-1">
+//                           {d.items.map((it, idx) => (
+//                             <li key={idx} className="flex gap-2">
+//                               <span className="text-gray-400">•</span>
+//                               <span>{it}</span>
+//                             </li>
+//                           ))}
+//                         </ul>
+//                       </div>
+//                     ))}
+//                   </div>
+
+//                   <div className="mt-6 flex flex-wrap gap-3">
+//                     <button className="rounded-xl border border-gray-300 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50">
+//                       Xem chi tiết lộ trình
+//                     </button>
+//                     <button className="rounded-xl bg-blue-600 text-white px-4 py-2 text-sm font-medium hover:bg-blue-700">
+//                       Sử dụng lịch học này
+//                     </button>
+//                   </div>
+//                 </div>
+//               </article>
+//             ))}
+
+//             {filtered.length === 0 && (
+//               <div className="text-center text-gray-600 py-16 border rounded-2xl">
+//                 Không tìm thấy khóa học phù hợp. Hãy thử từ khóa khác hoặc chọn “Tất cả”.
+//               </div>
+//             )}
+//           </section>
+
+//           {/* RIGHT: Sidebar nhỏ gọn */}
+//           <aside className="space-y-6">
+//             {/* Quick tips */}
+//             <div className="bg-white border border-gray-200 rounded-2xl p-5">
+//               <h4 className="font-bold text-gray-900 mb-3">Mẹo chọn lộ trình</h4>
+//               <ul className="text-sm text-gray-700 space-y-2">
+//                 <li>• Bắt đầu từ nền tảng (JS/Python) nếu bạn mới.</li>
+//                 <li>• Chọn 1 hướng chính (Frontend/Backend/Data/DevOps).</li>
+//                 <li>• Gắn mục tiêu theo tuần và đều đặn 60–90 phút/ngày.</li>
+//               </ul>
+//             </div>
+
+//             {/* Promo 1 */}
+//             <div className="bg-gradient-to-r from-slate-900 to-slate-800 rounded-2xl overflow-hidden">
+//               <div className="p-5">
+//                 <p className="text-sm text-slate-300 mb-1">Cộng đồng</p>
+//                 <h4 className="text-white font-bold mb-2">Discord lập trình Study4</h4>
+//                 <p className="text-slate-300 text-sm mb-4">
+//                   Chia sẻ code, review CV, mock interview mỗi tuần.
+//                 </p>
+//                 <button className="bg-white text-slate-900 rounded-xl px-4 py-2 text-sm font-semibold hover:opacity-90">
+//                   Tham gia ngay
+//                 </button>
+//               </div>
+//             </div>
+
+//             {/* Promo 2 */}
+//             <div className="bg-white border border-gray-200 rounded-2xl p-5">
+//               <h4 className="font-bold text-gray-900 mb-2">Github Template Dự án</h4>
+//               <p className="text-sm text-gray-700 mb-4">
+//                 Boilerplate React/Node/SQL/CI-CD để bạn khởi tạo sản phẩm nhanh.
+//               </p>
+//               <button className="rounded-xl bg-blue-600 text-white px-4 py-2 text-sm font-medium hover:bg-blue-700">
+//                 Xem template
+//               </button>
+//             </div>
+//           </aside>
+//         </div>
+//       </main>
+
+//       <Footer />
+//     </div>
+//   );
+// }
 
 
 
@@ -4934,250 +6025,956 @@
 
 // Lịch sử bài thi
 
-"use client"
+// "use client"
 
-import { useState } from "react"
-import { Link } from "react-router-dom"
-import { ChevronDown, Calendar } from "lucide-react"
+// import { useState } from "react"
+// import { Link } from "react-router-dom"
+// import { ChevronDown, Calendar } from "lucide-react"
 
-export default function ProfilePage() {
-  const [activeTab, setActiveTab] = useState("results")
+// export default function ProfilePage() {
+//   const [activeTab, setActiveTab] = useState("results")
 
-  const testResults = [
-    {
-      id: 1,
-      name: "New Economy TOEIC Test 1",
-      date: "12/10/2025",
-      score: "83/200",
-      totalScore: 420,
-      duration: "1:20:14",
-      type: "Full test",
-    },
-    {
-      id: 2,
-      name: "IELTS Academic Practice Test 2",
-      date: "08/10/2025",
-      score: "6.5",
-      totalScore: 9,
-      duration: "2:45:30",
-      type: "Full test",
-    },
-    {
-      id: 3,
-      name: "TOEIC Listening & Reading Mock",
-      date: "05/10/2025",
-      score: "765/990",
-      totalScore: 990,
-      duration: "2:10:00",
-      type: "Full test",
-    },
-  ]
+//   const testResults = [
+//     {
+//       id: 1,
+//       name: "New Economy TOEIC Test 1",
+//       date: "12/10/2025",
+//       score: "83/200",
+//       totalScore: 420,
+//       duration: "1:20:14",
+//       type: "Full test",
+//     },
+//     {
+//       id: 2,
+//       name: "IELTS Academic Practice Test 2",
+//       date: "08/10/2025",
+//       score: "6.5",
+//       totalScore: 9,
+//       duration: "2:45:30",
+//       type: "Full test",
+//     },
+//     {
+//       id: 3,
+//       name: "TOEIC Listening & Reading Mock",
+//       date: "05/10/2025",
+//       score: "765/990",
+//       totalScore: 990,
+//       duration: "2:10:00",
+//       type: "Full test",
+//     },
+//   ]
+
+//   return (
+//     <div className="w-full min-h-screen bg-white overflow-x-hidden">
+//       {/* Header */}
+//       <header className="w-full bg-white border-b border-gray-200 sticky top-0 z-50">
+//         <div className="w-full px-8 py-4 flex items-center justify-between">
+//           <div className="flex items-center gap-3">
+//             <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
+//               S
+//             </div>
+//             <span className="text-2xl font-bold">STUDY4</span>
+//           </div>
+
+//           <nav className="hidden md:flex items-center gap-8">
+//             <Link to="#" className="text-gray-700 hover:text-blue-600">
+//               Khóa học của tôi
+//             </Link>
+//             <Link to="#" className="text-gray-700 hover:text-blue-600">
+//               Chương trình học
+//             </Link>
+//             <Link to="#" className="text-gray-700 hover:text-blue-600">
+//               Đề thi online
+//             </Link>
+//             <Link to="#" className="text-gray-700 hover:text-blue-600">
+//               Flashcards
+//             </Link>
+//             <Link to="#" className="text-gray-700 hover:text-blue-600">
+//               Blog
+//             </Link>
+//             <Link to="#" className="text-gray-700 hover:text-blue-600">
+//               Kích hoạt tài khoản
+//             </Link>
+//           </nav>
+
+//           <button className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+//             <ChevronDown className="w-5 h-5 text-gray-600" />
+//           </button>
+//         </div>
+//       </header>
+
+//       {/* Main */}
+//       <main className="w-full">
+//         {/* Banner */}
+//         <div className="w-full bg-white px-8 py-12">
+//           <div className="w-full">
+//             <div className="w-full h-24 bg-gradient-to-r from-blue-300 via-blue-500 to-orange-400 rounded-lg relative mb-8 flex items-center justify-center overflow-hidden">
+//               <div className="absolute left-0 top-0 w-32 h-32 bg-gradient-to-br from-blue-400 to-transparent opacity-60 rounded-full -translate-x-16 -translate-y-8"></div>
+//               <div className="absolute right-1/3 top-0 w-40 h-40 bg-gradient-to-bl from-orange-400 to-transparent opacity-50 rounded-full"></div>
+
+//               <div className="relative z-10 w-24 h-24 bg-white rounded-full flex items-center justify-center border-4 border-white shadow-lg">
+//                 <div className="w-20 h-20 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
+//                   B
+//                 </div>
+//               </div>
+//             </div>
+
+//             <div className="text-center mb-8">
+//               <h1 className="text-2xl font-bold text-gray-900">billveoth</h1>
+//               <p className="text-gray-600 text-sm">Trang cá nhân công khai</p>
+//             </div>
+
+//             {/* Tabs */}
+//             <div className="flex gap-8 border-b border-gray-200">
+//               <button
+//                 onClick={() => setActiveTab("courses")}
+//                 className={`pb-4 font-medium text-base transition-colors ${
+//                   activeTab === "courses"
+//                     ? "text-blue-600 border-b-2 border-blue-600"
+//                     : "text-gray-600 hover:text-gray-900"
+//                 }`}
+//               >
+//                 Khóa học
+//               </button>
+//               <button
+//                 onClick={() => setActiveTab("results")}
+//                 className={`pb-4 font-medium text-base transition-colors ${
+//                   activeTab === "results"
+//                     ? "text-blue-600 border-b-2 border-blue-600"
+//                     : "text-gray-600 hover:text-gray-900"
+//                 }`}
+//               >
+//                 Kết quả luyện thi
+//               </button>
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* Tab Content */}
+//         <div className="w-full bg-gray-50 px-8 py-8">
+//           {activeTab === "results" && (
+//             <div className="space-y-6">
+//               <div className="flex justify-center mb-8">
+//                 <button className="px-8 py-3 border-2 border-blue-600 text-blue-600 rounded-full hover:bg-blue-50 transition-colors font-medium flex items-center gap-2">
+//                   <Calendar className="w-5 h-5" />
+//                   Tới trang thống kê kết quả luyện thi
+//                 </button>
+//               </div>
+
+//               {testResults.map((result) => (
+//                 <div
+//                   key={result.id}
+//                   className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
+//                 >
+//                   <div className="flex items-start justify-between gap-6">
+//                     <div className="flex-1">
+//                       <div className="mb-4">
+//                         <h3 className="text-lg font-semibold text-gray-900 mb-2">
+//                           {result.name}
+//                         </h3>
+//                         <div className="inline-flex px-2 py-1 bg-green-100 rounded text-green-700 text-xs font-medium">
+//                           {result.type}
+//                         </div>
+//                       </div>
+
+//                       <div className="grid grid-cols-3 gap-6">
+//                         <div>
+//                           <p className="text-gray-600 text-sm mb-1">Ngày làm</p>
+//                           <p className="text-gray-900 font-medium">{result.date}</p>
+//                         </div>
+//                         <div>
+//                           <p className="text-gray-600 text-sm mb-1">Kết quả</p>
+//                           <p className="text-gray-900 font-medium">
+//                             {result.score} (Điểm: {result.totalScore})
+//                           </p>
+//                         </div>
+//                         <div>
+//                           <p className="text-gray-600 text-sm mb-1">Thời gian làm bài</p>
+//                           <p className="text-gray-900 font-medium">{result.duration}</p>
+//                         </div>
+//                       </div>
+//                     </div>
+
+//                     <button className="px-6 py-2 text-blue-600 font-medium hover:bg-blue-50 rounded-lg transition-colors whitespace-nowrap">
+//                       Xem chi tiết
+//                     </button>
+//                   </div>
+//                 </div>
+//               ))}
+//             </div>
+//           )}
+
+//           {activeTab === "courses" && (
+//             <div className="text-center py-12">
+//               <p className="text-gray-600 text-lg">Bạn chưa đăng ký khóa học nào</p>
+//             </div>
+//           )}
+//         </div>
+//       </main>
+
+//       {/* Footer */}
+//       <footer className="w-full bg-slate-900 text-gray-300 px-8 py-12 mt-12">
+//         <div className="w-full grid grid-cols-4 gap-8 mb-12">
+//           <div>
+//             <div className="flex items-center gap-2 mb-4">
+//               <div className="w-8 h-8 bg-blue-600 rounded text-white flex items-center justify-center font-bold text-sm">
+//                 S
+//               </div>
+//               <span className="font-bold">STUDY4</span>
+//             </div>
+//             <p className="text-sm">© STUDY4.COM</p>
+//             <p className="text-sm">Bản quyền của Công ty TNHH Công Nghệ A Plus</p>
+//           </div>
+
+//           <div>
+//             <h4 className="font-bold text-white mb-4">Về STUDY4</h4>
+//             <ul className="space-y-2 text-sm">
+//               <li><Link to="#" className="text-blue-400 hover:text-blue-300">Giới thiệu</Link></li>
+//               <li><Link to="#" className="text-blue-400 hover:text-blue-300">Thư viện đề thi</Link></li>
+//               <li><Link to="#" className="text-blue-400 hover:text-blue-300">Hướng dẫn sử dụng</Link></li>
+//               <li><Link to="#" className="text-blue-400 hover:text-blue-300">Liên hệ</Link></li>
+//               <li><Link to="#" className="text-blue-400 hover:text-blue-300">Blog</Link></li>
+//             </ul>
+//           </div>
+
+//           <div>
+//             <h4 className="font-bold text-white mb-4">Tài nguyên</h4>
+//             <ul className="space-y-2 text-sm">
+//               <li><Link to="#" className="text-blue-400 hover:text-blue-300">Hướng dẫn thanh toán</Link></li>
+//               <li><Link to="#" className="text-blue-400 hover:text-blue-300">Điều khoản bảo mật</Link></li>
+//               <li><Link to="#" className="text-blue-400 hover:text-blue-300">Tổng hợp tài liệu</Link></li>
+//               <li><Link to="#" className="text-blue-400 hover:text-blue-300">Điều khoản & Điều kiện</Link></li>
+//             </ul>
+//           </div>
+
+//           <div>
+//             <h4 className="font-bold text-white mb-4">Chính sách chung</h4>
+//             <ul className="space-y-2 text-sm">
+//               <li><Link to="#" className="text-blue-400 hover:text-blue-300">Chính sách kiểm hàng</Link></li>
+//               <li><Link to="#" className="text-blue-400 hover:text-blue-300">Chính sách giao hàng</Link></li>
+//               <li><Link to="#" className="text-blue-400 hover:text-blue-300">Phản hồi & khiếu nại</Link></li>
+//               <li><Link to="#" className="text-blue-400 hover:text-blue-300">Chính sách đổi & hoàn</Link></li>
+//             </ul>
+//           </div>
+//         </div>
+
+//         <div className="border-t border-gray-700 pt-6 text-xs text-gray-500">
+//           <p className="mb-2">
+//             IELTS is a registered trademark of University of Cambridge, the British Council, and IDP Education
+//             Australia. This site and its owners are not affiliated, approved or endorsed by them.
+//           </p>
+//           <p>
+//             ETS®, TOEIC® and TOEFL® are registered trademarks of Educational Testing Service (ETS). This web site is
+//             not endorsed or approved by ETS.
+//           </p>
+//         </div>
+//       </footer>
+//     </div>
+//   )
+// }
+
+
+
+// src/pages/Profile.jsx
+// "use client";
+
+// import { useState } from "react";
+// import { Link } from "react-router-dom";
+// import { Calendar, Code2, Trophy } from "lucide-react";
+// import Header from "../components/Header";
+// import Footer from "../components/Footer";
+
+// export default function ProfilePage() {
+//   const [activeTab, setActiveTab] = useState("results");
+
+//   // ===== DATA (đổi sang nội dung lập trình) =====
+//   const codingResults = [
+//     {
+//       id: "r1",
+//       name: "JavaScript Foundation Quiz",
+//       date: "12/10/2025",
+//       scoreText: "18/25",
+//       totalScore: 72, // %
+//       duration: "00:32:14",
+//       type: "Quiz",
+//       tag: "JavaScript",
+//     },
+//     {
+//       id: "r2",
+//       name: "React Hooks & State Management",
+//       date: "08/10/2025",
+//       scoreText: "22/30",
+//       totalScore: 73.3,
+//       duration: "00:45:30",
+//       type: "Quiz",
+//       tag: "React",
+//     },
+//     {
+//       id: "r3",
+//       name: "Node.js RESTful API – Fundamentals",
+//       date: "05/10/2025",
+//       scoreText: "84/100",
+//       totalScore: 84,
+//       duration: "01:10:00",
+//       type: "Assessment",
+//       tag: "Node.js",
+//     },
+//   ];
+
+//   const enrolledCourses = [
+//     {
+//       id: "c1",
+//       title: "ReactJS Essentials",
+//       progress: 65,
+//       lessonsDone: 26,
+//       lessonsTotal: 40,
+//       tag: "Frontend",
+//     },
+//     {
+//       id: "c2",
+//       title: "Node.js RESTful API",
+//       progress: 30,
+//       lessonsDone: 9,
+//       lessonsTotal: 30,
+//       tag: "Backend",
+//     },
+//   ];
+
+//   return (
+//     <div className="w-screen max-w-none min-h-screen bg-white overflow-x-hidden">
+//       {/* Header chung */}
+//       <Header />
+
+//       {/* Banner + Profile */}
+//       <section className="w-full px-6 lg:px-12 py-10">
+//         {/* Cover */}
+//         <div className="w-full h-28 rounded-2xl bg-gradient-to-r from-blue-400 via-indigo-500 to-purple-500 relative overflow-hidden mb-10">
+//           <div className="absolute inset-0 opacity-30">
+//             <div className="w-40 h-40 bg-white/20 rounded-full blur-2xl -left-8 -top-10 absolute" />
+//             <div className="w-52 h-52 bg-white/10 rounded-full blur-2xl right-20 -bottom-12 absolute" />
+//           </div>
+//           <div className="absolute -bottom-10 left-6 lg:left-12">
+//             <div className="w-24 h-24 rounded-full ring-4 ring-white shadow-lg bg-gradient-to-br from-slate-400 to-slate-700 text-white grid place-items-center text-3xl font-bold">
+//               B
+//             </div>
+//           </div>
+//         </div>
+
+//         <div className="pl-6 lg:pl-12">
+//           <h1 className="text-2xl font-extrabold text-gray-900">billveoth</h1>
+//           <p className="text-gray-600 text-sm">Trang cá nhân công khai • Học viên lập trình</p>
+//         </div>
+
+//         {/* Tabs */}
+//         <div className="mt-8 border-b border-gray-200">
+//           <div className="flex gap-8">
+//             <button
+//               onClick={() => setActiveTab("courses")}
+//               className={`pb-4 font-medium text-base transition-colors ${
+//                 activeTab === "courses"
+//                   ? "text-blue-600 border-b-2 border-blue-600"
+//                   : "text-gray-600 hover:text-gray-900"
+//               }`}
+//             >
+//               Khóa học
+//             </button>
+//             <button
+//               onClick={() => setActiveTab("results")}
+//               className={`pb-4 font-medium text-base transition-colors ${
+//                 activeTab === "results"
+//                   ? "text-blue-600 border-b-2 border-blue-600"
+//                   : "text-gray-600 hover:text-gray-900"
+//               }`}
+//             >
+//               Kết quả luyện tập
+//             </button>
+//           </div>
+//         </div>
+//       </section>
+
+//       {/* Content */}
+//       <main className="w-full bg-gray-50">
+//         <div className="w-full px-6 lg:px-12 py-10">
+//           {/* RESULTS TAB */}
+//           {activeTab === "results" && (
+//             <div className="space-y-6">
+//               {/* CTA tới trang thống kê */}
+//               <div className="flex justify-center">
+//                 <Link
+//                   to="/resultstest"
+//                   className="px-6 py-3 rounded-full border-2 border-blue-600 text-blue-600 hover:bg-blue-50 transition font-medium inline-flex items-center gap-2"
+//                 >
+//                   <Calendar className="w-5 h-5" />
+//                   Tới trang thống kê kết quả
+//                 </Link>
+//               </div>
+
+//               {/* Summary */}
+//               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+//                 <div className="bg-white rounded-2xl p-5 border border-gray-200">
+//                   <div className="flex items-center gap-3 text-gray-500 text-sm">
+//                     <Trophy className="w-4 h-4" />
+//                     Tổng bài đã làm
+//                   </div>
+//                   <p className="mt-2 text-3xl font-extrabold text-gray-900">{codingResults.length}</p>
+//                 </div>
+//                 <div className="bg-white rounded-2xl p-5 border border-gray-200">
+//                   <div className="flex items-center gap-3 text-gray-500 text-sm">
+//                     <Code2 className="w-4 h-4" />
+//                     Chủ đề gần đây
+//                   </div>
+//                   <p className="mt-2 text-lg font-semibold text-gray-900">
+//                     {codingResults[0]?.tag || "—"}
+//                   </p>
+//                 </div>
+//                 <div className="bg-white rounded-2xl p-5 border border-gray-200">
+//                   <div className="flex items-center gap-3 text-gray-500 text-sm">
+//                     <Calendar className="w-4 h-4" />
+//                     Lần gần nhất
+//                   </div>
+//                   <p className="mt-2 text-lg font-semibold text-gray-900">
+//                     {codingResults[0]?.date || "—"}
+//                   </p>
+//                 </div>
+//               </div>
+
+//               {/* List results */}
+//               <div className="space-y-4">
+//                 {codingResults.map((r) => (
+//                   <article
+//                     key={r.id}
+//                     className="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-md transition"
+//                   >
+//                     <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+//                       <div className="flex-1 min-w-0">
+//                         <div className="mb-3 flex items-center gap-3 flex-wrap">
+//                           <h3 className="text-lg font-bold text-gray-900">{r.name}</h3>
+//                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700">
+//                             <Code2 className="w-3.5 h-3.5" />
+//                             {r.tag}
+//                           </span>
+//                           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-700">
+//                             {r.type}
+//                           </span>
+//                         </div>
+
+//                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+//                           <div>
+//                             <p className="text-gray-600 text-sm mb-1">Ngày làm</p>
+//                             <p className="text-gray-900 font-medium">{r.date}</p>
+//                           </div>
+//                           <div>
+//                             <p className="text-gray-600 text-sm mb-1">Kết quả</p>
+//                             <p className="text-gray-900 font-medium">
+//                               {r.scoreText} (Điểm: {typeof r.totalScore === "number" ? `${r.totalScore}%` : r.totalScore})
+//                             </p>
+//                           </div>
+//                           <div>
+//                             <p className="text-gray-600 text-sm mb-1">Thời gian</p>
+//                             <p className="text-gray-900 font-medium">{r.duration}</p>
+//                           </div>
+//                         </div>
+//                       </div>
+
+//                       <div className="shrink-0">
+//                         <Link
+//                           to={`/results/${r.id}`}
+//                           className="px-5 py-2 rounded-lg text-blue-600 hover:bg-blue-50 font-medium transition whitespace-nowrap"
+//                         >
+//                           Xem chi tiết
+//                         </Link>
+//                       </div>
+//                     </div>
+//                   </article>
+//                 ))}
+//               </div>
+//             </div>
+//           )}
+
+//           {/* COURSES TAB */}
+//           {activeTab === "courses" && (
+//             <div className="space-y-6">
+//               {enrolledCourses.length === 0 ? (
+//                 <div className="text-center py-16 bg-white rounded-2xl border border-gray-200">
+//                   <p className="text-gray-700">Bạn chưa đăng ký khóa học nào</p>
+//                   <Link
+//                     to="/courses"
+//                     className="mt-4 inline-block px-5 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 font-medium"
+//                   >
+//                     Khám phá khóa học
+//                   </Link>
+//                 </div>
+//               ) : (
+//                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+//                   {enrolledCourses.map((c) => (
+//                     <article
+//                       key={c.id}
+//                       className="bg-white rounded-2xl p-6 border border-gray-200 hover:shadow-md transition"
+//                     >
+//                       <div className="flex items-start justify-between gap-4">
+//                         <div className="min-w-0">
+//                           <div className="text-xs text-gray-500 mb-1">{c.tag}</div>
+//                           <h3 className="text-lg font-bold text-gray-900 truncate">{c.title}</h3>
+//                           <p className="text-sm text-gray-600 mt-1">
+//                             {c.lessonsDone}/{c.lessonsTotal} bài học
+//                           </p>
+//                         </div>
+//                         <span className="text-sm font-semibold text-blue-700 bg-blue-50 px-2 py-1 rounded">
+//                           {c.progress}%
+//                         </span>
+//                       </div>
+
+//                       <div className="mt-4 h-2 w-full bg-gray-100 rounded">
+//                         <div
+//                           className="h-2 bg-blue-600 rounded"
+//                           style={{ width: `${c.progress}%` }}
+//                         />
+//                       </div>
+
+//                       <div className="mt-5 flex gap-3">
+//                         <Link
+//                           to={`/courses/${c.id}`}
+//                           className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-50 text-gray-800 text-sm font-medium"
+//                         >
+//                           Xem chi tiết
+//                         </Link>
+//                         <Link
+//                           to={`/learning/${c.id}`}
+//                           className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 text-sm font-medium"
+//                         >
+//                           Tiếp tục học
+//                         </Link>
+//                       </div>
+//                     </article>
+//                   ))}
+//                 </div>
+//               )}
+//             </div>
+//           )}
+//         </div>
+//       </main>
+
+//       {/* Footer chung */}
+//       <Footer />
+//     </div>
+//   );
+// }
+
+
+
+// // src/pages/ExamDetail.jsx
+// "use client";
+
+// import { useMemo } from "react";
+// import { useParams, Link, useNavigate } from "react-router-dom";
+// import { Clock3, Layers3, Tag, BadgeDollarSign, ArrowLeft, PlayCircle } from "lucide-react";
+// import Header from "../components/Header";
+// import Footer from "../components/Footer";
+// import { getExamById, DEFAULT_DETAIL } from "../data/exams";
+
+// const nf = new Intl.NumberFormat("vi-VN");
+
+// export default function ExamDetail() {
+//   const { id } = useParams();
+//   const navigate = useNavigate();
+
+//   // Lấy dữ liệu theo id
+//   const exam = useMemo(() => getExamById(id), [id]);
+
+//   // Không tìm thấy -> hiển thị gọn gàng
+//   if (!exam) {
+//     return (
+//       <div className="min-h-screen w-screen max-w-none bg-white">
+//         <Header />
+//         <main className="w-full px-6 lg:px-12 py-16">
+//           <div className="max-w-3xl">
+//             <Link to="/exam" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6">
+//               <ArrowLeft className="w-4 h-4" /> Quay lại thư viện đề thi
+//             </Link>
+//             <h1 className="text-2xl font-bold text-gray-900 mb-2">Không tìm thấy đề thi</h1>
+//             <p className="text-gray-600">ID: {id}</p>
+//           </div>
+//         </main>
+//         <Footer />
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <div className="min-h-screen w-screen max-w-none bg-white">
+//       <Header />
+
+//       {/* Hero / Breadcrumb */}
+//       <section className="w-full px-6 lg:px-12 pt-6 pb-4">
+//         <div className="flex items-center justify-between gap-4">
+//           <Link to="/exam" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700">
+//             <ArrowLeft className="w-4 h-4" /> Quay lại
+//           </Link>
+//         </div>
+//       </section>
+
+//       {/* Title + meta chips */}
+//       <section className="w-full px-6 lg:px-12 pb-8">
+//         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-indigo-100 rounded-2xl p-6">
+//           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+//             <div className="min-w-0">
+//               <h1 className="text-2xl lg:text-3xl font-extrabold text-gray-900 mb-2">
+//                 {exam.title}
+//               </h1>
+//               <div className="flex flex-wrap items-center gap-2 text-sm">
+//                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-100 text-blue-800">
+//                   <Tag className="w-4 h-4" /> {exam.type}
+//                 </span>
+//                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-violet-100 text-violet-800">
+//                   #{exam.category}
+//                 </span>
+//               </div>
+//             </div>
+
+//             <div className="flex gap-3 text-sm">
+//               <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white border">
+//                 <Clock3 className="w-4 h-4 text-gray-600" />
+//                 <span className="font-medium text-gray-800">{exam.duration}</span>
+//               </div>
+//               <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white border">
+//                 <Layers3 className="w-4 h-4 text-gray-600" />
+//                 <span className="font-medium text-gray-800">{exam.lessons} câu hỏi</span>
+//               </div>
+//               <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white border">
+//                 <BadgeDollarSign className="w-4 h-4 text-gray-600" />
+//                 <span className="font-semibold text-gray-900">{nf.format(exam.price)} đ</span>
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//       </section>
+
+//       {/* Main layout: content | sidebar */}
+//       <main className="w-full px-6 lg:px-12 pb-16">
+//         <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8">
+//           {/* LEFT: content */}
+//           <section className="space-y-8">
+//             {/* Video / Banner placeholder (nếu cần) */}
+//             <div className="w-full aspect-video bg-gray-100 border rounded-2xl grid place-items-center text-gray-500">
+//               Xem demo/giới thiệu (tuỳ chọn)
+//             </div>
+
+//             {/* Mô tả */}
+//             <div className="bg-white border rounded-2xl p-6">
+//               <h2 className="text-xl font-bold text-gray-900 mb-3">Giới thiệu</h2>
+//               <p className="text-gray-700 leading-relaxed">{DEFAULT_DETAIL.description}</p>
+//             </div>
+
+//             {/* Outcomes */}
+//             <div className="bg-white border rounded-2xl p-6">
+//               <h3 className="text-lg font-semibold text-gray-900 mb-3">Bạn đạt được gì?</h3>
+//               <ul className="space-y-2 text-gray-700">
+//                 {DEFAULT_DETAIL.outcomes.map((o, i) => (
+//                   <li key={i} className="flex gap-2">
+//                     <span className="text-gray-400">•</span>
+//                     <span>{o}</span>
+//                   </li>
+//                 ))}
+//               </ul>
+//             </div>
+
+//             {/* Syllabus / Cấu trúc bài thi */}
+//             <div className="bg-white border rounded-2xl p-6">
+//               <h3 className="text-lg font-semibold text-gray-900 mb-4">Cấu trúc bài thi</h3>
+//               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+//                 {DEFAULT_DETAIL.syllabus.map((sec, idx) => (
+//                   <div key={idx} className="border rounded-xl p-4">
+//                     <p className="font-semibold text-gray-900 mb-2">{sec.title}</p>
+//                     <ul className="text-sm text-gray-700 space-y-1">
+//                       {sec.items.map((item, j) => (
+//                         <li key={j} className="flex gap-2">
+//                           <span className="text-gray-400">–</span>
+//                           <span>{item}</span>
+//                         </li>
+//                       ))}
+//                     </ul>
+//                   </div>
+//                 ))}
+//               </div>
+//             </div>
+//           </section>
+
+//           {/* RIGHT: sidebar action */}
+//           <aside className="space-y-4">
+//             <div className="bg-white border rounded-2xl p-6 sticky top-24">
+//               <div className="mb-4">
+//                 <div className="text-sm text-gray-600">Giá</div>
+//                 <div className="text-2xl font-extrabold text-gray-900">
+//                   {nf.format(exam.price)} đ
+//                 </div>
+//                 <div className="text-xs text-gray-500 mt-1">Đã bao gồm VAT (nếu có)</div>
+//               </div>
+
+//               <button
+//                 className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition"
+//                 onClick={() => navigate(`/exam/${exam.id}/start`)}
+//               >
+//                 <PlayCircle className="w-5 h-5" />
+//                 Bắt đầu làm bài
+//               </button>
+
+//               <div className="mt-4 grid grid-cols-3 gap-3 text-center">
+//                 <div className="rounded-lg bg-gray-50 border p-3">
+//                   <div className="text-xs text-gray-500">Thời lượng</div>
+//                   <div className="text-sm font-semibold text-gray-800">{exam.duration}</div>
+//                 </div>
+//                 <div className="rounded-lg bg-gray-50 border p-3">
+//                   <div className="text-xs text-gray-500">Câu hỏi</div>
+//                   <div className="text-sm font-semibold text-gray-800">{exam.lessons}</div>
+//                 </div>
+//                 <div className="rounded-lg bg-gray-50 border p-3">
+//                   <div className="text-xs text-gray-500">Danh mục</div>
+//                   <div className="text-sm font-semibold text-gray-800">{exam.category}</div>
+//                 </div>
+//               </div>
+
+//               <hr className="my-6" />
+
+//               <div className="text-xs text-gray-600 space-y-2">
+//                 <p>• Làm bài trực tuyến, chấm điểm tự động.</p>
+//                 <p>• Lưu tiến trình & xem lại đáp án chi tiết.</p>
+//                 <p>• Cập nhật thêm câu hỏi theo lộ trình.</p>
+//               </div>
+//             </div>
+
+//             {/* Gợi ý khác (tuỳ chọn) */}
+//             <div className="bg-white border rounded-2xl p-6">
+//               <p className="text-sm font-semibold text-gray-900 mb-3">Bạn có thể quan tâm</p>
+//               <div className="space-y-3 text-sm">
+//                 <Link to="/exam" className="text-blue-600 hover:text-blue-700">
+//                   Xem thêm đề thi khác
+//                 </Link>
+//                 <Link to="/courses" className="block text-blue-600 hover:text-blue-700">
+//                   Khóa học liên quan
+//                 </Link>
+//               </div>
+//             </div>
+//           </aside>
+//         </div>
+//       </main>
+
+//       <Footer />
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// src/pages/ExamDetail.jsx
+"use client";
+
+import { useMemo } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { Clock3, Layers3, Tag, BadgeDollarSign, ArrowLeft, PlayCircle } from "lucide-react";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
+import { getExamById, DEFAULT_DETAIL } from "../data/exams";
+
+const nf = new Intl.NumberFormat("vi-VN");
+
+export default function ExamDetail() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  // Lấy dữ liệu theo id
+  const exam = useMemo(() => getExamById(id), [id]);
+
+  // Không tìm thấy -> hiển thị gọn gàng
+  if (!exam) {
+    return (
+      <div className="min-h-screen w-screen max-w-none bg-white">
+        <Header />
+        <main className="w-full px-6 lg:px-12 py-16">
+          <div className="max-w-3xl">
+            <Link to="/exam" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-6">
+              <ArrowLeft className="w-4 h-4" /> Quay lại thư viện đề thi
+            </Link>
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">Không tìm thấy đề thi</h1>
+            <p className="text-gray-600">ID: {id}</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
-    <div className="w-full min-h-screen bg-white overflow-x-hidden">
-      {/* Header */}
-      <header className="w-full bg-white border-b border-gray-200 sticky top-0 z-50">
-        <div className="w-full px-8 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">
-              S
-            </div>
-            <span className="text-2xl font-bold">STUDY4</span>
-          </div>
+    <div className="min-h-screen w-screen max-w-none bg-white">
+      <Header />
 
-          <nav className="hidden md:flex items-center gap-8">
-            <Link to="#" className="text-gray-700 hover:text-blue-600">
-              Khóa học của tôi
-            </Link>
-            <Link to="#" className="text-gray-700 hover:text-blue-600">
-              Chương trình học
-            </Link>
-            <Link to="#" className="text-gray-700 hover:text-blue-600">
-              Đề thi online
-            </Link>
-            <Link to="#" className="text-gray-700 hover:text-blue-600">
-              Flashcards
-            </Link>
-            <Link to="#" className="text-gray-700 hover:text-blue-600">
-              Blog
-            </Link>
-            <Link to="#" className="text-gray-700 hover:text-blue-600">
-              Kích hoạt tài khoản
-            </Link>
-          </nav>
-
-          <button className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-            <ChevronDown className="w-5 h-5 text-gray-600" />
-          </button>
+      {/* Hero / Breadcrumb */}
+      <section className="w-full px-6 lg:px-12 pt-6 pb-4">
+        <div className="flex items-center justify-between gap-4">
+          <Link to="/exam" className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-700">
+            <ArrowLeft className="w-4 h-4" /> Quay lại
+          </Link>
         </div>
-      </header>
+      </section>
 
-      {/* Main */}
-      <main className="w-full">
-        {/* Banner */}
-        <div className="w-full bg-white px-8 py-12">
-          <div className="w-full">
-            <div className="w-full h-24 bg-gradient-to-r from-blue-300 via-blue-500 to-orange-400 rounded-lg relative mb-8 flex items-center justify-center overflow-hidden">
-              <div className="absolute left-0 top-0 w-32 h-32 bg-gradient-to-br from-blue-400 to-transparent opacity-60 rounded-full -translate-x-16 -translate-y-8"></div>
-              <div className="absolute right-1/3 top-0 w-40 h-40 bg-gradient-to-bl from-orange-400 to-transparent opacity-50 rounded-full"></div>
-
-              <div className="relative z-10 w-24 h-24 bg-white rounded-full flex items-center justify-center border-4 border-white shadow-lg">
-                <div className="w-20 h-20 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                  B
-                </div>
+      {/* Title + meta chips */}
+      <section className="w-full px-6 lg:px-12 pb-8">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-indigo-100 rounded-2xl p-6">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="min-w-0">
+              <h1 className="text-2xl lg:text-3xl font-extrabold text-gray-900 mb-2">
+                {exam.title}
+              </h1>
+              <div className="flex flex-wrap items-center gap-2 text-sm">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-100 text-blue-800">
+                  <Tag className="w-4 h-4" /> {exam.type}
+                </span>
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-violet-100 text-violet-800">
+                  #{exam.category}
+                </span>
               </div>
             </div>
 
-            <div className="text-center mb-8">
-              <h1 className="text-2xl font-bold text-gray-900">billveoth</h1>
-              <p className="text-gray-600 text-sm">Trang cá nhân công khai</p>
-            </div>
-
-            {/* Tabs */}
-            <div className="flex gap-8 border-b border-gray-200">
-              <button
-                onClick={() => setActiveTab("courses")}
-                className={`pb-4 font-medium text-base transition-colors ${
-                  activeTab === "courses"
-                    ? "text-blue-600 border-b-2 border-blue-600"
-                    : "text-gray-600 hover:text-gray-900"
-                }`}
-              >
-                Khóa học
-              </button>
-              <button
-                onClick={() => setActiveTab("results")}
-                className={`pb-4 font-medium text-base transition-colors ${
-                  activeTab === "results"
-                    ? "text-blue-600 border-b-2 border-blue-600"
-                    : "text-gray-600 hover:text-gray-900"
-                }`}
-              >
-                Kết quả luyện thi
-              </button>
+            <div className="flex gap-3 text-sm">
+              <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white border">
+                <Clock3 className="w-4 h-4 text-gray-600" />
+                <span className="font-medium text-gray-800">{exam.duration}</span>
+              </div>
+              <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white border">
+                <Layers3 className="w-4 h-4 text-gray-600" />
+                <span className="font-medium text-gray-800">{exam.lessons} câu hỏi</span>
+              </div>
+              <div className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white border">
+                <BadgeDollarSign className="w-4 h-4 text-gray-600" />
+                <span className="font-semibold text-gray-900">{nf.format(exam.price)} đ</span>
+              </div>
             </div>
           </div>
         </div>
+      </section>
 
-        {/* Tab Content */}
-        <div className="w-full bg-gray-50 px-8 py-8">
-          {activeTab === "results" && (
-            <div className="space-y-6">
-              <div className="flex justify-center mb-8">
-                <button className="px-8 py-3 border-2 border-blue-600 text-blue-600 rounded-full hover:bg-blue-50 transition-colors font-medium flex items-center gap-2">
-                  <Calendar className="w-5 h-5" />
-                  Tới trang thống kê kết quả luyện thi
-                </button>
-              </div>
+      {/* Main layout: content | sidebar */}
+      <main className="w-full px-6 lg:px-12 pb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-8">
+          {/* LEFT: content */}
+          <section className="space-y-8">
+            {/* Video / Banner placeholder (nếu cần) */}
+            <div className="w-full aspect-video bg-gray-100 border rounded-2xl grid place-items-center text-gray-500">
+              Xem demo/giới thiệu (tuỳ chọn)
+            </div>
 
-              {testResults.map((result) => (
-                <div
-                  key={result.id}
-                  className="bg-white rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-start justify-between gap-6">
-                    <div className="flex-1">
-                      <div className="mb-4">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                          {result.name}
-                        </h3>
-                        <div className="inline-flex px-2 py-1 bg-green-100 rounded text-green-700 text-xs font-medium">
-                          {result.type}
-                        </div>
-                      </div>
+            {/* Mô tả */}
+            <div className="bg-white border rounded-2xl p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-3">Giới thiệu</h2>
+              <p className="text-gray-700 leading-relaxed">{DEFAULT_DETAIL.description}</p>
+            </div>
 
-                      <div className="grid grid-cols-3 gap-6">
-                        <div>
-                          <p className="text-gray-600 text-sm mb-1">Ngày làm</p>
-                          <p className="text-gray-900 font-medium">{result.date}</p>
-                        </div>
-                        <div>
-                          <p className="text-gray-600 text-sm mb-1">Kết quả</p>
-                          <p className="text-gray-900 font-medium">
-                            {result.score} (Điểm: {result.totalScore})
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-gray-600 text-sm mb-1">Thời gian làm bài</p>
-                          <p className="text-gray-900 font-medium">{result.duration}</p>
-                        </div>
-                      </div>
-                    </div>
+            {/* Outcomes */}
+            <div className="bg-white border rounded-2xl p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-3">Bạn đạt được gì?</h3>
+              <ul className="space-y-2 text-gray-700">
+                {DEFAULT_DETAIL.outcomes.map((o, i) => (
+                  <li key={i} className="flex gap-2">
+                    <span className="text-gray-400">•</span>
+                    <span>{o}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-                    <button className="px-6 py-2 text-blue-600 font-medium hover:bg-blue-50 rounded-lg transition-colors whitespace-nowrap">
-                      Xem chi tiết
-                    </button>
+            {/* Syllabus / Cấu trúc bài thi */}
+            <div className="bg-white border rounded-2xl p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Cấu trúc bài thi</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {DEFAULT_DETAIL.syllabus.map((sec, idx) => (
+                  <div key={idx} className="border rounded-xl p-4">
+                    <p className="font-semibold text-gray-900 mb-2">{sec.title}</p>
+                    <ul className="text-sm text-gray-700 space-y-1">
+                      {sec.items.map((item, j) => (
+                        <li key={j} className="flex gap-2">
+                          <span className="text-gray-400">–</span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          )}
+          </section>
 
-          {activeTab === "courses" && (
-            <div className="text-center py-12">
-              <p className="text-gray-600 text-lg">Bạn chưa đăng ký khóa học nào</p>
+          {/* RIGHT: sidebar action */}
+          <aside className="space-y-4">
+            <div className="bg-white border rounded-2xl p-6 sticky top-24">
+              <div className="mb-4">
+                <div className="text-sm text-gray-600">Giá</div>
+                <div className="text-2xl font-extrabold text-gray-900">
+                  {nf.format(exam.price)} đ
+                </div>
+                <div className="text-xs text-gray-500 mt-1">Đã bao gồm VAT (nếu có)</div>
+              </div>
+
+              <button
+                className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold transition"
+                onClick={() => navigate(`/exam/${exam.id}/start`)}
+              >
+                <PlayCircle className="w-5 h-5" />
+                Bắt đầu làm bài
+              </button>
+
+              <div className="mt-4 grid grid-cols-3 gap-3 text-center">
+                <div className="rounded-lg bg-gray-50 border p-3">
+                  <div className="text-xs text-gray-500">Thời lượng</div>
+                  <div className="text-sm font-semibold text-gray-800">{exam.duration}</div>
+                </div>
+                <div className="rounded-lg bg-gray-50 border p-3">
+                  <div className="text-xs text-gray-500">Câu hỏi</div>
+                  <div className="text-sm font-semibold text-gray-800">{exam.lessons}</div>
+                </div>
+                <div className="rounded-lg bg-gray-50 border p-3">
+                  <div className="text-xs text-gray-500">Danh mục</div>
+                  <div className="text-sm font-semibold text-gray-800">{exam.category}</div>
+                </div>
+              </div>
+
+              <hr className="my-6" />
+
+              <div className="text-xs text-gray-600 space-y-2">
+                <p>• Làm bài trực tuyến, chấm điểm tự động.</p>
+                <p>• Lưu tiến trình & xem lại đáp án chi tiết.</p>
+                <p>• Cập nhật thêm câu hỏi theo lộ trình.</p>
+              </div>
             </div>
-          )}
+
+            {/* Gợi ý khác (tuỳ chọn) */}
+            <div className="bg-white border rounded-2xl p-6">
+              <p className="text-sm font-semibold text-gray-900 mb-3">Bạn có thể quan tâm</p>
+              <div className="space-y-3 text-sm">
+                <Link to="/exam" className="text-blue-600 hover:text-blue-700">
+                  Xem thêm đề thi khác
+                </Link>
+                <Link to="/courses" className="block text-blue-600 hover:text-blue-700">
+                  Khóa học liên quan
+                </Link>
+              </div>
+            </div>
+          </aside>
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="w-full bg-slate-900 text-gray-300 px-8 py-12 mt-12">
-        <div className="w-full grid grid-cols-4 gap-8 mb-12">
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 bg-blue-600 rounded text-white flex items-center justify-center font-bold text-sm">
-                S
-              </div>
-              <span className="font-bold">STUDY4</span>
-            </div>
-            <p className="text-sm">© STUDY4.COM</p>
-            <p className="text-sm">Bản quyền của Công ty TNHH Công Nghệ A Plus</p>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-white mb-4">Về STUDY4</h4>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="#" className="text-blue-400 hover:text-blue-300">Giới thiệu</Link></li>
-              <li><Link to="#" className="text-blue-400 hover:text-blue-300">Thư viện đề thi</Link></li>
-              <li><Link to="#" className="text-blue-400 hover:text-blue-300">Hướng dẫn sử dụng</Link></li>
-              <li><Link to="#" className="text-blue-400 hover:text-blue-300">Liên hệ</Link></li>
-              <li><Link to="#" className="text-blue-400 hover:text-blue-300">Blog</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-white mb-4">Tài nguyên</h4>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="#" className="text-blue-400 hover:text-blue-300">Hướng dẫn thanh toán</Link></li>
-              <li><Link to="#" className="text-blue-400 hover:text-blue-300">Điều khoản bảo mật</Link></li>
-              <li><Link to="#" className="text-blue-400 hover:text-blue-300">Tổng hợp tài liệu</Link></li>
-              <li><Link to="#" className="text-blue-400 hover:text-blue-300">Điều khoản & Điều kiện</Link></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-white mb-4">Chính sách chung</h4>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="#" className="text-blue-400 hover:text-blue-300">Chính sách kiểm hàng</Link></li>
-              <li><Link to="#" className="text-blue-400 hover:text-blue-300">Chính sách giao hàng</Link></li>
-              <li><Link to="#" className="text-blue-400 hover:text-blue-300">Phản hồi & khiếu nại</Link></li>
-              <li><Link to="#" className="text-blue-400 hover:text-blue-300">Chính sách đổi & hoàn</Link></li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="border-t border-gray-700 pt-6 text-xs text-gray-500">
-          <p className="mb-2">
-            IELTS is a registered trademark of University of Cambridge, the British Council, and IDP Education
-            Australia. This site and its owners are not affiliated, approved or endorsed by them.
-          </p>
-          <p>
-            ETS®, TOEIC® and TOEFL® are registered trademarks of Educational Testing Service (ETS). This web site is
-            not endorsed or approved by ETS.
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
-  )
+  );
 }

@@ -50,7 +50,7 @@ public class CourseContentController : ControllerBase
         try
         {
             var contentDto = await _courseContentService.GetCourseContentInformationDTOAsync(courseId);
-            return Ok(contentDto);
+            return Ok(new APIResponse("success", "Course content retrieved successfully", contentDto));
         }
         catch (KeyNotFoundException knfEx)
         {

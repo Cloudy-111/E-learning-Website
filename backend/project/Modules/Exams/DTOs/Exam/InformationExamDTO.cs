@@ -8,4 +8,5 @@ public class InformationExamDTO
     public bool IsOpened { get; set; }
     public string? CourseContentId { get; set; }
     public string? LessonId { get; set; }
+    public string? CourseId { get; set; }
 }

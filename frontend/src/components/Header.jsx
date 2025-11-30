@@ -1,262 +1,297 @@
-// // src/components/Header.jsx
-// "use client";
-
-// import { Link, NavLink } from "react-router-dom";
-// import { useEffect, useRef, useState, useMemo } from "react";
-// import { useAuth } from "../store/auth";
-
-// // ✅ thay bằng file của bạn
-// import logo from "../assets/logo-ptit-logo-1.png";
-// import avatarFallback from "../assets/logo-ptit-logo-1.png";
-
-// // util: class cho NavLink
-// const linkCls = ({ isActive }) =>
-//   "px-4 py-2 text-[15px] font-medium transition " +
-//   (isActive ? "text-[#54c3be]" : "text-neutral-900 hover:text-[#54c3be]");
-
-// export default function Header({
-//   className = "",
-//   brand = { name: "Elearning", abbr: "P", href: "/" },
-//   // có thể override routes ở mỗi page nếu cần
-//   routes = [
-//     { to: "/", label: "Trang chủ", end: true },
-//     { to: "/courses", label: "Khóa học" },
-//     { to: "/dashboard", label: "Dashboard" },
-//     { to: "/blog", label: "Blog" },
-//     { to: "/about", label: "About Us" },
-//     { to: "/membership", label: "MemberShip" },
-//     { to: "/payment", label: "Payment" },
-//   ],
-// }) {
-//   const { user, hydrate, logout } = useAuth();
-//   const [openUser, setOpenUser] = useState(false);
-//   const [openMobile, setOpenMobile] = useState(false);
-//   const menuRef = useRef(null);
-
-//   const navItems = useMemo(() => routes ?? [], [routes]);
-
-//   useEffect(() => {
-//     hydrate();
-//   }, [hydrate]);
-
-//   // click-outside cho dropdown user
-//   useEffect(() => {
-//     const onClick = (e) => {
-//       if (!menuRef.current) return;
-//       if (!menuRef.current.contains(e.target)) setOpenUser(false);
-//     };
-//     document.addEventListener("mousedown", onClick);
-//     return () => document.removeEventListener("mousedown", onClick);
-//   }, []);
-
-//   return (
-//     <header className={`w-full bg-neutral-100 border-b ${className}`}>
-//       <div className="w-full h-16 px-6 lg:px-12 flex items-center gap-4">
-//         {/* Logo trái */}
-//         <Link to={brand.href || "/"} className="flex items-center gap-2 shrink-0">
-//           <img src={logo} alt={brand.name || "Logo"} className="h-10 w-auto object-contain" />
-//           {/* thêm chữ nếu muốn */}
-//           {/* <span className="font-bold">{brand.name || "Elearning"}</span> */}
-//         </Link>
-
-//         {/* Menu giữa (ẩn trên mobile) */}
-//         <nav className="hidden md:flex flex-1 justify-center items-center gap-2">
-//           {navItems.map((r) => (
-//             <NavLink key={r.to} to={r.to} end={!!r.end} className={linkCls}>
-//               {r.label}
-//             </NavLink>
-//           ))}
-//         </nav>
-
-//         {/* Mobile hamburger */}
-//         <button
-//           className="md:hidden ml-auto p-2"
-//           onClick={() => setOpenMobile((s) => !s)}
-//           aria-label="Mở menu"
-//           type="button"
-//         >
-//           <svg width="24" height="24" viewBox="0 0 24 24">
-//             <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" />
-//           </svg>
-//         </button>
-
-//         {/* User bên phải (desktop) */}
-//         <div className="hidden md:flex items-center gap-3 relative" ref={menuRef}>
-//           {user ? (
-//             <>
-//               <img
-//                 src={user.avatar || avatarFallback}
-//                 alt={user.name || "user"}
-//                 className="h-9 w-9 rounded-full object-cover"
-//               />
-//               <button
-//                 onClick={() => setOpenUser((s) => !s)}
-//                 className="flex items-center gap-1 text-[15px] font-medium"
-//                 type="button"
-//               >
-//                 {user.name || "Luân"}
-//                 <svg width="18" height="18" viewBox="0 0 24 24">
-//                   <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" fill="none" />
-//                 </svg>
-//               </button>
-
-//               {/* Dropdown */}
-//               {openUser && (
-//                 <div className="absolute right-0 top-12 w-56 rounded-xl border bg-white shadow-md overflow-hidden">
-//                   <Link to="/profile" className="block px-4 py-2 hover:bg-slate-50">
-//                     Hồ sơ cá nhân
-//                   </Link>
-//                   <Link to="/my-courses" className="block px-4 py-2 hover:bg-slate-50">
-//                     Khóa học của tôi
-//                   </Link>
-//                   <Link to="/settings" className="block px-4 py-2 hover:bg-slate-50">
-//                     Cài đặt
-//                   </Link>
-//                   <button
-//                     onClick={logout}
-//                     className="w-full text-left px-4 py-2 hover:bg-slate-50"
-//                     type="button"
-//                   >
-//                     Đăng xuất
-//                   </button>
-//                 </div>
-//               )}
-//             </>
-//           ) : (
-//             <>
-//               <NavLink to="/login" className="px-4 py-2 text-[15px]">
-//                 Đăng nhập
-//               </NavLink>
-//               <Link
-//                 to="/register"
-//                 className="rounded-full bg-[#54c3be] text-white px-4 py-2 text-[15px] hover:opacity-95"
-//               >
-//                 Đăng ký
-//               </Link>
-//             </>
-//           )}
-//         </div>
-//       </div>
-
-//       {/* Mobile menu (full-width) */}
-//       {openMobile && (
-//         <div className="md:hidden w-full border-t bg-white">
-//           <nav className="px-6 py-4 flex flex-col gap-2">
-//             {navItems.map((r) => (
-//               <NavLink
-//                 key={r.to}
-//                 to={r.to}
-//                 end={!!r.end}
-//                 className={linkCls}
-//                 onClick={() => setOpenMobile(false)}
-//               >
-//                 {r.label}
-//               </NavLink>
-//             ))}
-
-//             <div className="h-px bg-slate-200 my-2" />
-
-//             {user ? (
-//               <>
-//                 <Link to="/profile" className={linkCls} onClick={() => setOpenMobile(false)}>
-//                   Hồ sơ cá nhân
-//                 </Link>
-//                 <Link to="/my-courses" className={linkCls} onClick={() => setOpenMobile(false)}>
-//                   Khóa học của tôi
-//                 </Link>
-//                 <button
-//                   onClick={() => {
-//                     setOpenMobile(false);
-//                     logout();
-//                   }}
-//                   className="text-left px-4 py-2 text-[15px]"
-//                   type="button"
-//                 >
-//                   Đăng xuất
-//                 </button>
-//               </>
-//             ) : (
-//               <>
-//                 <NavLink to="/login" className={linkCls} onClick={() => setOpenMobile(false)}>
-//                   Đăng nhập
-//                 </NavLink>
-//                 <NavLink to="/register" className={linkCls} onClick={() => setOpenMobile(false)}>
-//                   Đăng ký
-//                 </NavLink>
-//               </>
-//             )}
-//           </nav>
-//         </div>
-//       )}
-//     </header>
-//   );
-// }
-
-
-
 
 // src/components/Header.jsx
 "use client";
 
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useAuth } from "../store/auth";
 
-// ✅ thay bằng file của bạn
 import logo from "../assets/logo-ptit-logo-1.png";
 import avatarFallback from "../assets/logo-ptit-logo-1.png";
 
+import {
+  isLoggedIn,
+  clearAllAuth,
+  authHeader,
+} from "../utils/auth";
+
+import {
+  getUserRole,
+  getNavigationForRole,
+  getUserDropdownItems,
+} from "../utils/userRole";
+
+const API_BASE = import.meta.env?.VITE_API_BASE || "http://localhost:5102";
+
 // ===== Theme =====
 const BRAND = {
-  primary: "#2563eb", // xanh chủ đạo
+  primary: "#2563eb",
   primaryHover: "#1d4ed8",
   ring: "#93c5fd",
 };
 
-// util: class cho NavLink (active = xanh + gạch chân)
-const linkCls = ({ isActive }) =>
-  `px-4 py-2 text-[15px] font-medium transition
-   ${isActive
-     ? `text-[${BRAND.primary}] underline underline-offset-4 decoration-2`
-     : `text-neutral-900 hover:text-[${BRAND.primary}]`}`;
+const baseLinkCls = "px-4 py-2 text-[15px] font-medium transition";
+
+function ActiveLink({ to, end, children, className = "" }) {
+  return (
+    <NavLink
+      to={to}
+      end={end}
+      className={({ isActive }) =>
+        `${baseLinkCls} ${className} ${isActive
+          ? "underline underline-offset-4 decoration-2"
+          : "hover:opacity-90"
+        }`
+      }
+      style={({ isActive }) => ({
+        color: isActive ? BRAND.primary : "#111827",
+      })}
+    >
+      {children}
+    </NavLink>
+  );
+}
 
 export default function Header({
   className = "",
   brand = { name: "Elearning", abbr: "P", href: "/" },
-  // có thể override routes ở mỗi page nếu cần
-  routes = [
-    { to: "/", label: "Trang chủ", end: true },
-    { to: "/courses", label: "Khóa học" },
-    { to: "/dashboard", label: "Dashboard" },
-    { to: "/blog", label: "Blog" },
-    { to: "/about", label: "Giới thiệu" },
-    { to: "/membership", label: "Gói thành viên" },
-    { to: "/payment", label: "Thanh toán" },
-  ],
+  routes, // Remove default routes - we'll build them dynamically
 }) {
-  const { user, hydrate, logout } = useAuth();
+  const { hydrate } = useAuth();
+
+  const [auth, setAuth] = useState(() => isLoggedIn());
+
+  // displayUser sẽ chứa: name, email, avatar, studentId, teacherId, isTeacher
+  const [displayUser, setDisplayUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("app_user") || "null");
+    } catch {
+      return null;
+    }
+  });
+
   const [openUser, setOpenUser] = useState(false);
   const [openMobile, setOpenMobile] = useState(false);
   const menuRef = useRef(null);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const navItems = useMemo(() => routes ?? [], [routes]);
+  // Get current user role
+  const userRole = useMemo(() => {
+    if (!auth || !displayUser) return null;
+    return getUserRole();
+  }, [auth, displayUser]);
 
+  // Build navigation items based on role
+  const navItems = useMemo(() => {
+    // Base public routes shown to everyone
+    const baseRoutes = [
+      { to: "/", label: "Trang chủ", end: true },
+      { to: "/courses", label: "Khóa học" },
+      { to: "/forum", label: "Hỏi đáp" },
+      { to: "/blog", label: "Blog" },
+      // { to: "/study4test", label: "Exam" },
+      { to: "/exam", label: "Exam" },
+    ];
+
+    // If custom routes provided, use them
+    if (routes) return routes;
+
+    // Add role-specific routes
+    const roleRoutes = getNavigationForRole(userRole);
+    return [...baseRoutes, ...roleRoutes];
+  }, [routes, userRole]);
+
+  // ---- helper: đã là giảng viên chưa?
+  const hasTeacherRole =
+    !!displayUser?.teacherId || displayUser?.isTeacher === true;
+
+  // Get dropdown menu items based on role
+  const dropdownItems = useMemo(() => {
+    return getUserDropdownItems(userRole, hasTeacherRole);
+  }, [userRole, hasTeacherRole]);
+
+  // ===== Đồng bộ state + kéo claims =====
   useEffect(() => {
-    hydrate();
+    hydrate?.();
+    const logged = isLoggedIn();
+    setAuth(logged);
+
+    if (!logged) {
+      setDisplayUser(null);
+      return;
+    }
+
+    // Nếu đã có app_user trong localStorage (ví dụ lúc login đã set)
+    // thì set trước cho nhanh, rồi vẫn gọi claims để cập nhật teacherId/isTeacher mới.
+    let fromStorage = null;
+    try {
+      fromStorage = JSON.parse(localStorage.getItem("app_user") || "null");
+    } catch {
+      fromStorage = null;
+    }
+    if (fromStorage) {
+      setDisplayUser(fromStorage);
+    }
+
+    // Gọi API /api/Auth/claims để luôn lấy dữ liệu mới nhất
+    (async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/Auth/claims`, {
+          headers: { accept: "*/*", ...authHeader() },
+        });
+        if (!res.ok) return; // nếu 401 thì để nguyên state cũ
+
+        const data = await res.json();
+
+        // Parse mọi kiểu trả về: mảng claims hoặc object
+        let name = fromStorage?.name || "";
+        let email = fromStorage?.email || "";
+        let avatar = fromStorage?.avatar || null;
+        let studentId = fromStorage?.studentId ?? null;
+        let teacherId = fromStorage?.teacherId ?? null;
+        let isTeacher = fromStorage?.isTeacher ?? false;
+
+        if (Array.isArray(data)) {
+          // API kiểu: [{ type, value }, ...] hoặc { Type, Value }
+          for (const c of data) {
+            const type = (c.type || c.Type || "").toString();
+            const value = (c.value || c.Value || "").toString();
+
+            const tLower = type.toLowerCase();
+
+            // name
+            if (
+              tLower.endsWith("claims/name") ||
+              type === "name" ||
+              type === "FullName"
+            ) {
+              name = value;
+            }
+
+            // email
+            if (
+              tLower.endsWith("claims/emailaddress") ||
+              type === "email" ||
+              type === "Email"
+            ) {
+              email = value;
+            }
+
+            // avatar (nếu có claim)
+            if (tLower.includes("avatar")) {
+              avatar = value;
+            }
+
+            // studentId
+            if (tLower.includes("studentid")) {
+              studentId = value;
+            }
+
+            // teacherId
+            if (tLower.includes("teacherid")) {
+              teacherId = value;
+            }
+
+            // role Teacher
+            if (tLower.endsWith("/role") && value === "Teacher") {
+              isTeacher = true;
+            }
+          }
+        } else if (data && typeof data === "object") {
+          // API kiểu: { name, email, avatarUrl, studentId, teacherId, roles: ["Teacher"] ... }
+          name =
+            data.name || data.fullName || data.username || name || "User";
+          email = data.email || email || "";
+          avatar = data.avatarUrl || avatar || null;
+          studentId = data.studentId ?? studentId ?? null;
+          teacherId = data.teacherId ?? teacherId ?? null;
+
+          if (Array.isArray(data.roles)) {
+            isTeacher =
+              isTeacher || data.roles.includes("Teacher") ? true : false;
+          }
+        }
+
+        const userObj = {
+          name,
+          email,
+          avatar,
+          studentId,
+          teacherId,
+          isTeacher,
+        };
+
+        setDisplayUser(userObj);
+        try {
+          localStorage.setItem("app_user", JSON.stringify(userObj));
+        } catch { }
+      } catch {
+        // ignore
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrate]);
 
-  // click-outside cho dropdown user
+  // Lắng nghe thay đổi token / localStorage từ tab khác
+  useEffect(() => {
+    const onStorage = () => {
+      const logged = isLoggedIn();
+      setAuth(logged);
+      try {
+        setDisplayUser(
+          JSON.parse(localStorage.getItem("app_user") || "null")
+        );
+      } catch {
+        setDisplayUser(null);
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
+
+  // click-outside + ESC
   useEffect(() => {
     const onClick = (e) => {
       if (!menuRef.current) return;
+      // @ts-ignore
       if (!menuRef.current.contains(e.target)) setOpenUser(false);
     };
+    const onKey = (e) => {
+      if (e.key === "Escape") {
+        setOpenUser(false);
+        setOpenMobile(false);
+      }
+    };
     document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("keydown", onKey);
+    };
   }, []);
 
+  const handleLogout = () => {
+    clearAllAuth();
+    try {
+      localStorage.removeItem("app_user");
+    } catch { }
+    setAuth(false);
+    setDisplayUser(null);
+    setOpenUser(false);
+    setOpenMobile(false);
+
+    const redirect = encodeURIComponent(
+      location.pathname + location.search
+    );
+    navigate(`/login?redirect=${redirect}`, { replace: true });
+  };
+
   return (
-    <header className={`w-full bg-white border-b ${className}`}>
+    <header
+      className={`w-full bg-white border-b relative z-[100] isolate ${className}`}
+      style={{ borderColor: "#e5e7eb" }}
+    >
       <div className="w-full h-16 px-6 lg:px-12 flex items-center gap-4">
         {/* Logo trái */}
         <Link
@@ -264,56 +299,89 @@ export default function Header({
           className="flex items-center gap-2 shrink-0 focus:outline-none"
           aria-label="Trang chủ"
         >
-          <img src={logo} alt={brand.name || "Logo"} className="h-10 w-auto object-contain" />
-          {/* <span className="font-bold">{brand.name || "Elearning"}</span> */}
+          <img
+            src={logo}
+            alt={brand.name || "Logo"}
+            className="h-10 w-auto object-contain"
+          />
         </Link>
 
-        {/* Menu giữa (ẩn trên mobile) */}
+        {/* Menu giữa (ẩn mobile) */}
         <nav className="hidden md:flex flex-1 justify-center items-center gap-2">
           {navItems.map((r) => (
-            <NavLink key={r.to} to={r.to} end={!!r.end} className={linkCls}>
+            <ActiveLink key={r.to} to={r.to} end={!!r.end}>
               {r.label}
-            </NavLink>
+            </ActiveLink>
           ))}
         </nav>
 
         {/* User bên phải (desktop) */}
-        <div className="hidden md:flex items-center gap-3 relative" ref={menuRef}>
-          {user ? (
+        <div
+          className="hidden md:flex items-center gap-3 relative"
+          ref={menuRef}
+        >
+          {auth ? (
             <>
               <img
-                src={user.avatar || avatarFallback}
-                alt={user.name || "user"}
+                src={displayUser?.avatar || avatarFallback}
+                alt={displayUser?.name || "user"}
                 className="h-9 w-9 rounded-full object-cover ring-1 ring-slate-200"
               />
               <button
                 onClick={() => setOpenUser((s) => !s)}
-                className={`flex items-center gap-1 text-[15px] font-medium focus:outline-none focus:ring-2`}
-                style={{ color: "#111827", boxShadow: `0 0 0 2px transparent` }}
+                className="flex items-center gap-1 bg-transparent text-[15px] font-medium focus:outline-none focus:ring-2 rounded-md px-1"
+                style={{ color: "#000000ff", outlineColor: BRAND.ring }}
+                aria-haspopup="menu"
+                aria-expanded={openUser}
                 type="button"
               >
-                {user.name || "Luân"}
-                <svg width="18" height="18" viewBox="0 0 24 24">
-                  <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" fill="none" />
+                {displayUser?.name || displayUser?.email || "Tài khoản"}
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M6 9l6 6 6-6"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    fill="none"
+                  />
                 </svg>
               </button>
 
-              {/* Dropdown */}
               {openUser && (
-                <div className="absolute right-0 top-12 w-56 rounded-xl border bg-white shadow-md overflow-hidden">
-                  <Link to="/profile" className="block px-4 py-2 hover:bg-slate-50">
-                    Hồ sơ cá nhân
-                  </Link>
-                  <Link to="/my-courses" className="block px-4 py-2 hover:bg-slate-50">
-                    Khóa học của tôi
-                  </Link>
-                  <Link to="/settings" className="block px-4 py-2 hover:bg-slate-50">
+                <div
+                  className="absolute right-0 top-12 w-64 rounded-xl border bg-white shadow-md overflow-hidden z-[200] pointer-events-auto"
+                  role="menu"
+                >
+                  {dropdownItems.map((item) => (
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      className={`block px-4 py-2 hover:bg-slate-50 ${item.className || ""}`}
+                      role="menuitem"
+                      onClick={() => setOpenUser(false)}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+
+                  <Link
+                    to="/settings"
+                    className="block px-4 py-2 hover:bg-slate-50"
+                    role="menuitem"
+                    onClick={() => setOpenUser(false)}
+                  >
                     Cài đặt
                   </Link>
                   <button
-                    onClick={logout}
+                    onClick={handleLogout}
                     className="w-full text-left px-4 py-2 hover:bg-slate-50"
                     type="button"
+                    role="menuitem"
+                    aria-label="Đăng xuất"
                   >
                     Đăng xuất
                   </button>
@@ -322,18 +390,24 @@ export default function Header({
             </>
           ) : (
             <>
-              <NavLink to="/login" className="px-4 py-2 text-[15px] hover:text-[#2563eb]">
+              <NavLink
+                to="/login"
+                className={`${baseLinkCls} px-4 py-2 text-[15px]`}
+                style={{ color: BRAND.primary }}
+              >
                 Đăng nhập
               </NavLink>
               <Link
                 to="/register"
                 className="rounded-full text-white px-4 py-2 text-[15px] transition focus:outline-none focus:ring-2"
-                style={{
-                  backgroundColor: BRAND.primary,
-                  boxShadow: `0 0 0 2px transparent`,
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = BRAND.primaryHover)}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = BRAND.primary)}
+                style={{ backgroundColor: BRAND.primary }}
+                onMouseEnter={(e) =>
+                (e.currentTarget.style.backgroundColor =
+                  BRAND.primaryHover)
+                }
+                onMouseLeave={(e) =>
+                  (e.currentTarget.style.backgroundColor = BRAND.primary)
+                }
               >
                 Đăng ký
               </Link>
@@ -346,31 +420,34 @@ export default function Header({
           className="md:hidden ml-auto p-2 rounded-lg focus:outline-none focus:ring-2"
           onClick={() => setOpenMobile((s) => !s)}
           aria-label="Mở menu"
+          aria-expanded={openMobile}
           type="button"
-          style={{ boxShadow: `0 0 0 2px transparent` }}
+          style={{ outlineColor: BRAND.ring }}
         >
-          <svg width="24" height="24" viewBox="0 0 24 24">
-            <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" />
+          <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M3 6h18M3 12h18M3 18h18"
+              stroke="currentColor"
+              strokeWidth="2"
+            />
           </svg>
         </button>
       </div>
 
-      {/* Mobile menu (full-width) */}
+      {/* Mobile menu */}
       {openMobile && (
-        <div className="md:hidden w-full border-t bg-white">
+        <div className="md:hidden w-full border-t bg-white z-[150] relative">
           <nav className="px-6 py-4 flex flex-col gap-2">
             {navItems.map((r) => (
               <NavLink
                 key={r.to}
                 to={r.to}
                 end={!!r.end}
-                className={({ isActive }) =>
-                  `px-4 py-2 text-[15px] font-medium rounded-md transition ${
-                    isActive
-                      ? `bg-[${BRAND.primary}]/10 text-[${BRAND.primary}]`
-                      : `text-neutral-900 hover:bg-slate-50 hover:text-[${BRAND.primary}]`
-                  }`
-                }
+                className="px-4 py-2 text-[15px] font-medium rounded-md transition"
+                style={({ isActive }) => ({
+                  color: isActive ? BRAND.primary : "#111827",
+                  backgroundColor: isActive ? "#dbeafe" : "transparent",
+                })}
                 onClick={() => setOpenMobile(false)}
               >
                 {r.label}
@@ -379,29 +456,25 @@ export default function Header({
 
             <div className="h-px bg-slate-200 my-2" />
 
-            {user ? (
+            {auth ? (
               <>
-                <Link
-                  to="/profile"
-                  className={`px-4 py-2 text-[15px] rounded-md hover:bg-slate-50 hover:text-[${BRAND.primary}]`}
-                  onClick={() => setOpenMobile(false)}
-                >
-                  Hồ sơ cá nhân
-                </Link>
-                <Link
-                  to="/my-courses"
-                  className={`px-4 py-2 text-[15px] rounded-md hover:bg-slate-50 hover:text-[${BRAND.primary}]`}
-                  onClick={() => setOpenMobile(false)}
-                >
-                  Khóa học của tôi
-                </Link>
+                {dropdownItems.map((item) => (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    className={`px-4 py-2 text-[15px] rounded-md hover:bg-slate-50 ${item.className || ""}`}
+                    style={{ color: item.className ? undefined : "#111827" }}
+                    onClick={() => setOpenMobile(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+
                 <button
-                  onClick={() => {
-                    setOpenMobile(false);
-                    logout();
-                  }}
+                  onClick={handleLogout}
                   className="text-left px-4 py-2 text-[15px] rounded-md hover:bg-slate-50"
                   type="button"
+                  style={{ color: BRAND.primary }}
                 >
                   Đăng xuất
                 </button>
@@ -410,7 +483,8 @@ export default function Header({
               <>
                 <NavLink
                   to="/login"
-                  className={`px-4 py-2 text-[15px] rounded-md hover:bg-slate-50 hover:text-[${BRAND.primary}]`}
+                  className="px-4 py-2 text-[15px] rounded-md hover:bg-slate-50"
+                  style={{ color: BRAND.primary }}
                   onClick={() => setOpenMobile(false)}
                 >
                   Đăng nhập
@@ -418,8 +492,8 @@ export default function Header({
                 <NavLink
                   to="/register"
                   className="px-4 py-2 text-[15px] rounded-md text-white text-center"
-                  onClick={() => setOpenMobile(false)}
                   style={{ backgroundColor: BRAND.primary }}
+                  onClick={() => setOpenMobile(false)}
                 >
                   Đăng ký
                 </NavLink>

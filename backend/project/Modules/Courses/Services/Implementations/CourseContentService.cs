@@ -86,6 +86,7 @@ public class CourseContentService : ICourseContentService
 
         return new CourseContentInformationDTO
         {
+            Id = courseContent.Id,
             Title = courseContent.Title,
             Introduce = courseContent.Introduce,
         };

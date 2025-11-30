@@ -17,6 +17,8 @@ public class LessonRepository : ILessonRepository
     public async Task<Lesson?> GetLessonByIdAsync(string id)
     {
         return await _dbContext.Lessons
+            .Include(l => l.CourseContent)
+                .ThenInclude(cc => cc.Course)
             .FirstOrDefaultAsync(l => l.Id == id);
     }
 

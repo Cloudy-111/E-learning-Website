@@ -212,6 +212,9 @@ public class AuthService : IAuthService
 
         //Thêm claim role
         claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+        claims.AddRange(roles.Select(r =>
+            new Claim("role", r) // frontend decode
+        ));
 
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));

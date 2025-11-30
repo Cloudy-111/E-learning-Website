@@ -5,28 +5,38 @@ public class LessonService : ILessonService
     private readonly ILessonRepository _lessonRepository;
     private readonly ICourseContentRepository _courseContentRepository;
     private readonly ICourseRepository _courseRepository;
+    private readonly IEnrollmentCourseRepository _enrollmentRepository;
 
     public LessonService(
         ILessonRepository lessonRepository,
         ICourseContentRepository courseContentRepository,
-        ICourseRepository courseRepository)
+        ICourseRepository courseRepository,
+        IEnrollmentCourseRepository enrollmentRepository)
     {
         _lessonRepository = lessonRepository;
         _courseContentRepository = courseContentRepository;
         _courseRepository = courseRepository;
+        _enrollmentRepository = enrollmentRepository;
     }
 
-    public async Task<LessonInformationDTO> GetLessonByIdAsync(string courseContentId, string id)
+    public async Task<LessonInformationDTO> GetLessonByIdAsync(string studentId, string courseContentId, string id)
     {
-        var courseContentExist = await _courseContentRepository.CourseContentExistsByContentIdAsync(courseContentId);
-        if (!courseContentExist)
+        var courseContentExist = await _courseContentRepository.GetCourseContentByIdAsync(courseContentId) ?? throw new Exception($"Course content with id: {courseContentId} not found");
+        var courseId = courseContentExist.CourseId;
+
+        var enrollmentExist = await _enrollmentRepository.IsEnrollmentExistAsync(studentId, courseId);
+        if (!enrollmentExist)
         {
-            throw new Exception($"Course content with id: {courseContentId} not found");
+            throw new Exception("You are not enrolled in this course");
         }
+
         var lesson = await _lessonRepository.GetLessonByIdAsync(id) ?? throw new Exception($"Lesson with id: {id} not found");
         return new LessonInformationDTO
         {
             Id = lesson.Id,
+            CourseContentId = lesson.CourseContentId,
+            CourseId = lesson.CourseContent.CourseId,
+            CourseTitle = lesson.CourseContent.Course.Title,
             Title = lesson.Title,
             VideoUrl = lesson.VideoUrl,
             Duration = lesson.Duration,

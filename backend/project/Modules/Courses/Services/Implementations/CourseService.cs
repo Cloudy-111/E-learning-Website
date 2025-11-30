@@ -4,13 +4,22 @@ public class CourseService : ICourseService
 {
     private readonly ICourseRepository _courseRepository;
     private readonly ICourseContentRepository _courseContentRepository;
+    private readonly IUserRepository _userRepository;
+    private readonly ITeacherRepository _teacherRepository;
+    private readonly IStudentRepository _studentRepository;
 
     public CourseService(
         ICourseRepository courseRepository,
-        ICourseContentRepository courseContentRepository)
+        ICourseContentRepository courseContentRepository,
+        IUserRepository userRepository,
+        ITeacherRepository teacherRepository,
+        IStudentRepository studentRepository)
     {
         _courseRepository = courseRepository;
         _courseContentRepository = courseContentRepository;
+        _userRepository = userRepository;
+        _teacherRepository = teacherRepository;
+        _studentRepository = studentRepository;
     }
 
     public async Task<IEnumerable<CourseInformationDTO>> GetAllCoursesAsync()
@@ -37,12 +46,12 @@ public class CourseService : ICourseService
         });
     }
 
-    public async Task<IEnumerable<CourseInformationDTO>> GetCoursesAsync(string? keyword, string? category, int page, int pageSize)
+    public async Task<PageResultCoursesDTO> SearchItemsAsync(string? keyword, string? category, int page, int pageSize)
     {
         try
         {
-            var courses = await _courseRepository.GetCoursesAsync(keyword, category, page, pageSize);
-            return courses.Select(c => new CourseInformationDTO
+            var (courses, totalCount) = await _courseRepository.SearchItemsAsync(keyword, category, page, pageSize);
+            var courseResult = courses.Select(c => new CourseInformationDTO
             {
                 Id = c.Id,
                 Title = c.Title,
@@ -60,6 +69,15 @@ public class CourseService : ICourseService
                 TeacherId = c.TeacherId,
                 TeacherName = c.Teacher?.User?.FullName ?? "Unknown"
             });
+
+            return new PageResultCoursesDTO
+            {
+                Courses = courseResult,
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalCount = totalCount,
+                TotalPages = (int)Math.Ceiling((double)totalCount / pageSize)
+            };
         }
         catch (Exception ex)
         {
@@ -96,15 +114,19 @@ public class CourseService : ICourseService
         };
     }
 
-    public async Task AddCourseAsync(string userId, CourseCreateDTO courseDto)
+    public async Task AddCourseAsync(string teacherId, CourseCreateDTO courseDto)
     {
-        var userIdGuid = GuidHelper.ParseOrThrow(userId, nameof(userId));
+        var teacherGuid = GuidHelper.ParseOrThrow(teacherId, nameof(teacherId));
+        if (!await _teacherRepository.IsTeacherExistsAsync(teacherId))
+        {
+            throw new KeyNotFoundException("Teacher not found");
+        }
         var course = new Course
         {
             Title = courseDto.Title,
             Description = courseDto.Description,
             CategoryId = courseDto.CategoryId,
-            TeacherId = userId,
+            TeacherId = teacherId,
             Price = courseDto.Price,
             DiscountPrice = courseDto.DiscountPrice,
             ThumbnailUrl = courseDto.ThumbnailUrl,
@@ -116,7 +138,7 @@ public class CourseService : ICourseService
         await _courseRepository.AddCourseAsync(course);
     }
 
-    public async Task UpdateCourseAsync(string userId, string courseId, CourseUpdateDTO courseDto)
+    public async Task UpdateCourseAsync(string teacherId, string courseId, CourseUpdateDTO courseDto)
     {
         var courseExist = await _courseRepository.GetCourseByIdAsync(courseId) ??
             throw new KeyNotFoundException("Course not found");
@@ -124,8 +146,8 @@ public class CourseService : ICourseService
         {
             throw new InvalidOperationException("Only draft courses can be updated");
         }
-        var userIdGuid = GuidHelper.ParseOrThrow(userId, nameof(userId));
-        if (courseExist.Teacher.User.Id != userId)
+        var teacherGuid = GuidHelper.ParseOrThrow(teacherId, nameof(teacherId));
+        if (courseExist.TeacherId != teacherId)
         {
             throw new UnauthorizedAccessException("You are not the teacher of this course");
         }
@@ -139,7 +161,7 @@ public class CourseService : ICourseService
         await _courseRepository.UpdateCourseAsync(courseExist);
     }
 
-    public async Task RequestPublishCourseAsync(string userId, string courseId)
+    public async Task RequestPublishCourseAsync(string teacherId, string courseId)
     {
         var courseExist = await _courseRepository.GetCourseByStatusAsync(courseId, "draft") ??
             throw new KeyNotFoundException("Course not found");
@@ -147,13 +169,91 @@ public class CourseService : ICourseService
         {
             throw new InvalidOperationException("Only draft courses can request publish");
         }
-        var userIdGuid = GuidHelper.ParseOrThrow(userId, nameof(userId));
-        if (courseExist.Teacher.User.Id != userId)
+        var teacherGuid = GuidHelper.ParseOrThrow(teacherId, nameof(teacherId));
+        if (courseExist.TeacherId != teacherId)
         {
             throw new UnauthorizedAccessException("You are not the teacher of this course");
         }
         courseExist.Status = "pending";
 
         await _courseRepository.UpdateCourseAsync(courseExist);
+    }
+
+    public async Task<IEnumerable<CourseInformationDTO>> GetCoursesByTeacherIdAsync(string teacherId)
+    {
+        var teacherGuid = GuidHelper.ParseOrThrow(teacherId, nameof(teacherId));
+        if (!await _teacherRepository.IsTeacherExistsAsync(teacherId))
+        {
+            throw new KeyNotFoundException("Teacher not found");
+        }
+        var courses = await _courseRepository.GetCoursesByTeacherIdAsync(teacherId);
+        if (courses == null || !courses.Any())
+        {
+            return [];
+        }
+        return courses.Select(c => new CourseInformationDTO
+        {
+            Id = c.Id,
+            Title = c.Title,
+            Description = c.Description,
+            Price = c.Price,
+            DiscountPrice = c.DiscountPrice,
+            Status = c.Status,
+            ThumbnailUrl = c.ThumbnailUrl,
+            CreatedAt = c.CreatedAt,
+            UpdatedAt = c.UpdatedAt,
+            AverageRating = c.AverageRating,
+            ReviewCount = c.ReviewCount,
+            CategoryId = c.CategoryId,
+            CategoryName = c.Category.Name,
+            TeacherId = c.TeacherId,
+            TeacherName = c.Teacher.User.FullName
+        });
+    }
+
+    public async Task<PageResultCourseEnrollmentDTO> GetEnrolledCoursesByStudentIdAsync(string studentId, string? keyword, string? status, string? sort, int page, int pageSize)
+    {
+        try
+        {
+            var studentGuid = GuidHelper.ParseOrThrow(studentId, nameof(studentId));
+            if (!await _studentRepository.IsStudentExistAsync(studentId))
+            {
+                throw new KeyNotFoundException("Student not found");
+            }
+            var (courses, totalCourses) = await _courseRepository.GetEnrolledCoursesByStudentIdAsync(studentId, keyword, status, sort, page, pageSize);
+            var courseResult = courses.Select(c => new CourseEnrollmentInforDTO
+            {
+                Id = c.Course.Id,
+                Title = c.Course.Title,
+                Description = c.Course.Description,
+                Price = c.Course.Price,
+                DiscountPrice = c.Course.DiscountPrice,
+                Status = c.Course.Status,
+                ThumbnailUrl = c.Course.ThumbnailUrl,
+                CreatedAt = c.Course.CreatedAt,
+                UpdatedAt = c.Course.UpdatedAt,
+                AverageRating = c.Course.AverageRating,
+                ReviewCount = c.Course.ReviewCount,
+                CategoryId = c.Course.CategoryId,
+                CategoryName = c.Course.Category.Name,
+                TeacherId = c.Course.TeacherId,
+                TeacherName = c.Course.Teacher.User.FullName,
+                Progress = (double)c.Progress
+            });
+
+            return new PageResultCourseEnrollmentDTO
+            {
+                Courses = courseResult,
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalCount = totalCourses,
+                TotalPages = (int)Math.Ceiling((double)totalCourses / pageSize)
+            };
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Error when retriev enrolled courses: ", ex);
+
+        }
     }
 }

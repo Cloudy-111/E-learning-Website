@@ -98,6 +98,46 @@ namespace project.Migrations
                     b.ToTable("Exams");
                 });
 
+            modelBuilder.Entity("ExamAttemp", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("AttemptedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ExamId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<bool>("IsSubmitted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("SavedAnswers")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("StudentId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExamId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("ExamAttemps");
+                });
+
             modelBuilder.Entity("LessonProgress", b =>
                 {
                     b.Property<string>("Id")
@@ -391,6 +431,9 @@ namespace project.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("ExamAttemptId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("ExamId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -409,6 +452,8 @@ namespace project.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ExamAttemptId");
 
                     b.HasIndex("ExamId");
 
@@ -1271,6 +1316,25 @@ namespace project.Migrations
                     b.Navigation("Lesson");
                 });
 
+            modelBuilder.Entity("ExamAttemp", b =>
+                {
+                    b.HasOne("Exam", "Exam")
+                        .WithMany("ExamAttemps")
+                        .HasForeignKey("ExamId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("project.Models.Student", "Student")
+                        .WithMany("ExamAttemps")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Exam");
+
+                    b.Navigation("Student");
+                });
+
             modelBuilder.Entity("LessonProgress", b =>
                 {
                     b.HasOne("project.Models.Lesson", "Lesson")
@@ -1406,6 +1470,10 @@ namespace project.Migrations
 
             modelBuilder.Entity("SubmissionExam", b =>
                 {
+                    b.HasOne("ExamAttemp", "ExamAttempt")
+                        .WithMany()
+                        .HasForeignKey("ExamAttemptId");
+
                     b.HasOne("Exam", "Exam")
                         .WithMany("Submissions")
                         .HasForeignKey("ExamId")
@@ -1419,6 +1487,8 @@ namespace project.Migrations
                         .IsRequired();
 
                     b.Navigation("Exam");
+
+                    b.Navigation("ExamAttempt");
 
                     b.Navigation("Student");
                 });
@@ -1710,6 +1780,8 @@ namespace project.Migrations
 
             modelBuilder.Entity("Exam", b =>
                 {
+                    b.Navigation("ExamAttemps");
+
                     b.Navigation("Questions");
 
                     b.Navigation("Submissions");
@@ -1785,6 +1857,8 @@ namespace project.Migrations
                     b.Navigation("Discussions");
 
                     b.Navigation("Enrollments");
+
+                    b.Navigation("ExamAttemps");
 
                     b.Navigation("ForumQuestions");
 

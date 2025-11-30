@@ -34,8 +34,9 @@ public class EnrollmentController : ControllerBase
     }
 
     // Student only
+    [Authorize(Roles = "Student")]
     [HttpPost]
-    public async Task<IActionResult> CreateEnrollmentAsync(string courseId, [FromBody] EnrollmentCreateDTO enrollment)
+    public async Task<IActionResult> CreateEnrollmentAsync(string courseId)
     {
         if (!ModelState.IsValid)
         {
@@ -43,7 +44,8 @@ public class EnrollmentController : ControllerBase
         }
         try
         {
-            await _enrollmentCourseService.CreateEnrollmentAsync(courseId, enrollment);
+            var studentId = User.FindFirst("studentId")?.Value;
+            await _enrollmentCourseService.CreateEnrollmentAsync(courseId, studentId);
             return Ok(new APIResponse("Success", "Enrollment create successfully"));
         }
         catch (KeyNotFoundException knfE)
@@ -128,6 +130,23 @@ public class EnrollmentController : ControllerBase
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new
             APIResponse("error", "An error occurred while create Request Refund Course", ex.Message));
+        }
+    }
+
+    [Authorize(Roles = "Student,Teacher")]
+    [HttpGet("is-enrolled")]
+    public async Task<IActionResult> IsEnrolledInCourseAsync(string courseId)
+    {
+        try
+        {
+            var studentId = User.FindFirst("studentId")?.Value;
+            var isEnrolled = await _enrollmentCourseService.IsEnrolledInCourseAsync(studentId, courseId);
+            return Ok(new APIResponse("Success", "Check enrollment successfully", new { IsEnrolled = isEnrolled }));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while checking enrollment", ex.Message));
         }
     }
 }

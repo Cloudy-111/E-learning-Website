@@ -22,7 +22,7 @@ public class CourseController : ControllerBase
     public async Task<IActionResult> GetAllCourses()
     {
         var courses = await _courseService.GetAllCoursesAsync();
-        return Ok(courses);
+        return Ok(new APIResponse("Success", "Retrieve Courses Successfully", courses));
     }
 
     // All users
@@ -32,7 +32,7 @@ public class CourseController : ControllerBase
         try
         {
             var course = await _courseService.GetCourseByIdAsync(id);
-            return Ok(course);
+            return Ok(new APIResponse("Success", "Retrieve Course Successfully", course));
         }
         catch (KeyNotFoundException ex)
         {
@@ -47,7 +47,7 @@ public class CourseController : ControllerBase
 
     // All users
     [HttpGet("search")]
-    public async Task<IActionResult> GetCourse(
+    public async Task<IActionResult> SearchItems(
         [FromQuery] string? keyword,
         [FromQuery] string? category,
         [FromQuery] int page = 1,
@@ -56,7 +56,7 @@ public class CourseController : ControllerBase
     {
         try
         {
-            var courses = await _courseService.GetCoursesAsync(keyword, category, page, pageSize);
+            var courses = await _courseService.SearchItemsAsync(keyword, category, page, pageSize);
             return Ok(new APIResponse("Success", "Retrieve Course Successfully", courses));
         }
         catch (Exception ex)
@@ -78,8 +78,8 @@ public class CourseController : ControllerBase
 
         try
         {
-            var userId = User.FindFirst("userId")?.Value;
-            await _courseService.AddCourseAsync(userId, courseDto);
+            var teacherId = User.FindFirst("teacherId")?.Value;
+            await _courseService.AddCourseAsync(teacherId, courseDto);
             return Ok(new APIResponse("Success", "Create new Course successfully"));
         }
         catch (Exception ex)
@@ -104,8 +104,8 @@ public class CourseController : ControllerBase
 
         try
         {
-            var userId = User.FindFirst("userId")?.Value;
-            await _courseService.UpdateCourseAsync(userId, id, courseDto);
+            var teacherId = User.FindFirst("teacherId")?.Value;
+            await _courseService.UpdateCourseAsync(teacherId, id, courseDto);
             return Ok(new APIResponse("success", "Update course successfully"));
         }
         catch (KeyNotFoundException ex)
@@ -129,8 +129,8 @@ public class CourseController : ControllerBase
     {
         try
         {
-            var userId = User.FindFirst("userId")?.Value;
-            await _courseService.RequestPublishCourseAsync(userId, id);
+            var teacherId = User.FindFirst("teacherId")?.Value;
+            await _courseService.RequestPublishCourseAsync(teacherId, id);
             return Ok(new APIResponse("success", "Course requested publish successfully"));
         }
         catch (KeyNotFoundException ex)
@@ -159,8 +159,8 @@ public class CourseController : ControllerBase
 
         try
         {
-            var userId = User.FindFirst("userId")?.Value;
-            await _requestUpdateService.CreateRequestUpdateAsync(userId, requestDto);
+            var teacherId = User.FindFirst("teacherId")?.Value;
+            await _requestUpdateService.CreateRequestUpdateAsync(teacherId, requestDto);
             return Ok(new APIResponse("success", "Course update request created successfully"));
         }
         catch (ArgumentException ex)
@@ -170,6 +170,61 @@ public class CourseController : ControllerBase
         catch (Exception ex)
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new APIResponse("error", "An error occurred while creating the update request", ex.Message));
+        }
+    }
+
+    [Authorize(Roles = "Teacher")]
+    [HttpGet("teacher/my-courses")]
+    public async Task<IActionResult> GetMyCourses()
+    {
+        try
+        {
+            var teacherId = User.FindFirst("teacherId")?.Value;
+            var courses = await _courseService.GetCoursesByTeacherIdAsync(teacherId);
+            return Ok(new APIResponse("Success", "Retrieve My Courses Successfully", courses));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while retrieving the courses", ex.Message));
+        }
+    }
+
+    [HttpGet("teacher/{teacherId}/courses")]
+    public async Task<IActionResult> GetCoursesByTeacherId(string teacherId)
+    {
+        try
+        {
+            var courses = await _courseService.GetCoursesByTeacherIdAsync(teacherId);
+            return Ok(new APIResponse("Success", "Retrieve Courses by TeacherId Successfully", courses));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while retrieving the courses", ex.Message));
+        }
+    }
+
+    [Authorize(Roles = "Student")]
+    [HttpGet("student/enrolled-courses")]
+    public async Task<IActionResult> GetEnrolledCourses(
+        [FromQuery] string? keyword,
+        [FromQuery] string? status,
+        [FromQuery] string? sort,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10
+    )
+    {
+        try
+        {
+            var studentId = User.FindFirst("studentId")?.Value;
+            var courses = await _courseService.GetEnrolledCoursesByStudentIdAsync(studentId, keyword, status, sort, page, pageSize);
+            return Ok(new APIResponse("Success", "Retrieve Enrolled Courses Successfully", courses));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while retrieving the courses", ex.Message));
         }
     }
 }

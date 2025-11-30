@@ -26,4 +26,5 @@ public class Exam
 
     public ICollection<QuestionExam> Questions { get; set; } = new List<QuestionExam>();
     public ICollection<SubmissionExam> Submissions { get; set; } = new List<SubmissionExam>();
+    public ICollection<ExamAttemp> ExamAttemps { get; set; } = new List<ExamAttemp>();
 }

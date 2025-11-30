@@ -40,6 +40,11 @@ public class EnrollmentCourseService : IEnrollmentCourseService
         _userRepository = userRepository;
     }
 
+    public async Task<bool> IsEnrolledInCourseAsync(string studentId, string courseId)
+    {
+        return await _enrollmentRepository.IsEnrollmentExistAsync(studentId, courseId);
+    }
+
     public async Task<IEnumerable<EnrollmentInforDTO>> GetEnrollmentInCourseAsync(string userId, string courseId)
     {
         var courseIdGuid = GuidHelper.ParseOrThrow(courseId, nameof(courseId));
@@ -73,7 +78,7 @@ public class EnrollmentCourseService : IEnrollmentCourseService
         });
     }
 
-    public async Task CreateEnrollmentAsync(string courseId, EnrollmentCreateDTO enrollmentCreate)
+    public async Task CreateEnrollmentAsync(string courseId, string studentId)
     {
         var courseIdGuid = GuidHelper.ParseOrThrow(courseId, nameof(courseId));
 
@@ -83,18 +88,23 @@ public class EnrollmentCourseService : IEnrollmentCourseService
             throw new KeyNotFoundException($"Course with id: {courseId} not found");
         }
 
-        var studentExist = await _studentRepository.IsStudentExistAsync(enrollmentCreate.StudentId);
+        var studentExist = await _studentRepository.IsStudentExistAsync(studentId);
         if (!studentExist)
         {
-            throw new KeyNotFoundException($"Student with id: {enrollmentCreate.StudentId} not found");
+            throw new KeyNotFoundException($"Student with id: {studentId} not found");
         }
 
         // Check Enrollment with Student Exist
+        var enrollmentExist = await _enrollmentRepository.IsEnrollmentExistAsync(studentId, courseId);
+        if (enrollmentExist)
+        {
+            throw new Exception("Student has already enrolled in this course");
+        }
 
         var newEnrollment = new Enrollment_course
         {
             Id = Guid.NewGuid().ToString(),
-            StudentId = enrollmentCreate.StudentId,
+            StudentId = studentId,
             CourseId = courseId,
             EnrolledAt = DateTime.UtcNow,
             Progress = 0.00m,
