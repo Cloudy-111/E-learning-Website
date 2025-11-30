@@ -13,7 +13,7 @@ import {
     TARGET_TYPE,
 } from "./utils/constants";
 import { isLoggedIn, authHeaders } from "./utils/helpers";
-import { AnswerList } from "./components";
+import AnswerList from "./components/AnswerList"; // Thay đổi ở đây
 
 function renderContent(contentJson, fallback) {
     try {

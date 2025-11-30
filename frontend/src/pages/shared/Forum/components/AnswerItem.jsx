@@ -21,6 +21,7 @@ export default function AnswerItem({ a, currentUser, onAnswerUpdated }) {
     const [isEditing, setIsEditing] = useState(false);
     const [editedContent, setEditedContent] = useState(a.content);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
 
     // Giả sử `a.studentId` là ID của người trả lời
@@ -60,6 +61,29 @@ export default function AnswerItem({ a, currentUser, onAnswerUpdated }) {
             alert(error.message);
         } finally {
             setIsSubmitting(false);
+        }
+    };
+
+    const handleDeleteAnswer = async () => {
+        // Hiển thị hộp thoại xác nhận của trình duyệt
+        if (!window.confirm("Bạn có chắc chắn muốn xóa câu trả lời này không?")) {
+            return;
+        }
+
+        setIsDeleting(true);
+        try {
+            const res = await http(`${API_BASE}/api/Discussion/${a.id}`, {
+                method: 'DELETE',
+                headers: authHeaders(),
+            });
+
+            if (!res.ok) throw new Error("Xóa câu trả lời thất bại");
+
+            // Gọi callback để tải lại danh sách câu trả lời
+            await onAnswerUpdated();
+        } catch (error) {
+            alert(error.message);
+            setIsDeleting(false); // Chỉ đặt lại khi có lỗi
         }
     };
     return (
@@ -103,7 +127,14 @@ export default function AnswerItem({ a, currentUser, onAnswerUpdated }) {
                                                     className="w-full text-left px-4 py-2 hover:bg-slate-100">Sửa</button>
                                             </li>
                                             <li>
-                                                <button className="w-full text-left px-4 py-2 text-red-600 hover:bg-slate-100">Xóa</button>
+                                                <button
+                                                    onClick={() => {
+                                                        handleDeleteAnswer();
+                                                        setIsMenuOpen(false);
+                                                    }}
+                                                    disabled={isDeleting}
+                                                    className="w-full text-left px-4 py-2 text-red-600 hover:bg-slate-100 disabled:opacity-50"
+                                                >{isDeleting ? "Đang xóa..." : "Xóa"}</button>
                                             </li>
                                         </>
                                     ) : (
