@@ -2,7 +2,7 @@
 import { BORDER } from "../utils/constants";
 import AnswerItem from "./AnswerItem";
 
-export default function AnswerList({ answers, currentUser }) {
+export default function AnswerList({ answers, currentUser, onAnswerUpdated }) {
     if (!answers || answers.length === 0) {
         return (
             <div className="text-slate-500 italic mt-4">
@@ -20,7 +20,7 @@ export default function AnswerList({ answers, currentUser }) {
                 {answers.length} Câu trả lời
             </div>
             {answers.map((a) => (
-                <AnswerItem key={a.id} a={a} currentUser={currentUser} />
+                <AnswerItem key={a.id} a={a} currentUser={currentUser} onAnswerUpdated={onAnswerUpdated} />
             ))}
         </div>
     );

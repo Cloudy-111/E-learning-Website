@@ -335,7 +335,7 @@ export default function QuestionDetail() {
                         </article>
 
                         {/* Answers List */}
-                        <AnswerList answers={answers} currentUser={currentUser} />
+                        <AnswerList answers={answers} currentUser={currentUser} onAnswerUpdated={fetchAnswers} />
 
                         {/* Reply Form */}
                         <div
