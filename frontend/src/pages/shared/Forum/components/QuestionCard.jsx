@@ -118,19 +118,34 @@ export default function QuestionCard({ q }) {
     const handleCardClick = async () => {
         if (!q.id) return;
 
-        // 1. Cập nhật UI ngay lập tức (Optimistic Update)
+        const now = new Date().getTime();
+        const VIEW_COOLDOWN_HOURS = 1; // Giới hạn 1 giờ
+        const cooldownMs = VIEW_COOLDOWN_HOURS * 60 * 60 * 1000;
+
+        // Lấy lịch sử xem từ localStorage
+        const viewHistory = JSON.parse(localStorage.getItem('viewHistory') || '{}');
+        const lastViewTime = viewHistory[q.id];
+
+        // Nếu vẫn trong thời gian chờ, không làm gì cả
+        if (lastViewTime && (now - lastViewTime < cooldownMs)) {
+            console.log(`View count for question ${q.id} is on cooldown.`);
+            return; // Dừng lại, không tăng view
+        }
+
+        // Cập nhật UI ngay lập tức (Optimistic Update)
         setViewCount(currentCount => currentCount + 1);
 
-        // 2. Gọi API để cập nhật backend
+        // Gọi API để cập nhật backend
         try {
-            // Sử dụng đúng API POST .../view
             await fetch(`http://localhost:5102/api/ForumQuestion/${q.id}/view`, {
                 method: 'POST',
             });
-            // Không cần xử lý response vì đây là tác vụ "fire-and-forget"
+            // Nếu thành công, cập nhật lại lịch sử xem trong localStorage
+            viewHistory[q.id] = now;
+            localStorage.setItem('viewHistory', JSON.stringify(viewHistory));
         } catch (error) {
             console.error("Failed to update view count:", error);
-            // 3. Nếu có lỗi, khôi phục lại giá trị ban đầu
+            // Nếu có lỗi, khôi phục lại giá trị ban đầu
             setViewCount(currentCount => currentCount - 1);
         }
     };
