@@ -121,8 +121,16 @@ export default function MyQuestions() {
         <>
             <Header />
             <main className="w-screen overflow-x-hidden">
-                <section className="w-screen px-6 lg:px-12 pt-8">
-                    <div className="flex items-center justify-between gap-3">
+                <section className="w-screen px-6 lg:px-12 pt-8">                    
+                    <div className="mb-4">
+                        <Link to="/forum" className="text-sm text-blue-600 hover:underline flex items-center gap-1 w-fit">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="m15 18-6-6 6-6"/>
+                            </svg>
+                            <span>Quay lại</span>
+                        </Link>
+                    </div>
+                    <div className="flex items-center justify-between gap-3 mt-2">
                         <h1 className="text-2xl lg:text-3xl font-extrabold text-slate-900">
                             Câu hỏi của tôi
                         </h1>
