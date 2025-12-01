@@ -13,7 +13,7 @@ export default function SearchBar({ onSubmit }) {
             <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder="Tìm câu hỏi theo tiêu đề / tag / tác giả…"
+                placeholder="Tìm câu hỏi theo tag "
                 className="flex-1 rounded-xl border px-4 py-3 outline-none focus:ring-2"
                 style={{ borderColor: BORDER }}
             />

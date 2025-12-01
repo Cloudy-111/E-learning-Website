@@ -1,5 +1,6 @@
 // src/pages/shared/Forum/MyQuestions.jsx
 import { useEffect, useState } from "react";
+import { useToast } from "../../../components/ui/Toast";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
@@ -24,10 +25,17 @@ function decodeJwt(token) {
 export default function MyQuestions() {
     const navigate = useNavigate();
     const location = useLocation();
+    const { toast } = useToast();
 
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [err, setErr] = useState(null);
+
+    // State cho menu và modal
+    const [openMenuId, setOpenMenuId] = useState(null); // ID của câu hỏi đang mở menu
+    const [deleteConfirmId, setDeleteConfirmId] = useState(null); // ID của câu hỏi đang chờ xác nhận xoá
+    const [isDeleting, setIsDeleting] = useState(false);
+
 
     useEffect(() => {
         if (!isLoggedIn()) {
@@ -37,49 +45,28 @@ export default function MyQuestions() {
     }, [navigate, location]);
 
     const fetchMine = async () => {
-        // Lấy userId từ token
+        // Lấy StudentId từ token
         const token = localStorage.getItem("app_access_token");
         if (!token) throw new Error("Chưa đăng nhập");
         const claims = decodeJwt(token);
-        // Tuỳ backend: userId hay studentId?
-        // Giả sử backend cần userId hoặc studentId.
-        // Thử lấy StudentId hoặc TeacherId hoặc UserId từ claims
-        const uid =
-            claims?.StudentId ||
-            claims?.studentId ||
-            claims?.TeacherId ||
-            claims?.teacherId ||
-            claims?.UserId ||
-            claims?.userId;
+        
+        const studentId = claims?.StudentId || claims?.studentId;
 
-        if (!uid) throw new Error("Không tìm thấy ID người dùng trong token");
+        if (!studentId) throw new Error("Không tìm thấy StudentId trong token");
 
-        // Gọi API filter theo AuthorId
-        // Giả sử API hỗ trợ /api/ForumQuestion/member/{uid} hoặc search
-        // Nếu không có API riêng, phải gọi search?authorId=... hoặc client filter
-        // Ở đây giả định dùng endpoint search hoặc get all rồi filter (tạm thời get all rồi filter client nếu BE chưa có)
-
-        // Cách tốt nhất: gọi API get all rồi filter client (nếu list nhỏ)
-        // Hoặc nếu bạn đã có API /api/ForumQuestion/member/{id} (giống Blog) thì dùng nó.
-        // Check lại BlogMy dùng /api/Posts/member/{id}.
-        // Thử /api/ForumQuestion/member/{id} xem sao? Nếu 404 thì fallback.
-
-        // Fallback: Get all -> filter
-        const res = await http(`${API_BASE}/api/ForumQuestion`, {
+        // Gọi API member-specific endpoint
+        const res = await http(`${API_BASE}/api/ForumQuestion/member/${studentId}`, {
             headers: { accept: "*/*" },
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        const all = Array.isArray(data)
+        
+        // Return data array
+        return Array.isArray(data)
             ? data
             : Array.isArray(data?.data)
                 ? data.data
                 : [];
-
-        // Filter
-        // Cần so sánh authorId.
-        // Lưu ý: uid trong token có thể là string/number, authorId trong data cũng vậy.
-        return all.filter((q) => String(q.authorId) === String(uid));
     };
 
     useEffect(() => {
@@ -107,17 +94,26 @@ export default function MyQuestions() {
     }, []);
 
     const softDelete = async (id) => {
-        if (!window.confirm("Bạn có chắc muốn xoá (ẩn) câu hỏi này?")) return;
+        if (!id) return;
+        setIsDeleting(true);
         try {
             const res = await http(`${API_BASE}/api/ForumQuestion/${id}`, {
                 method: "DELETE",
                 headers: authHeaders({ accept: "*/*" }),
             });
-            if (!res.ok) throw new Error("Xoá thất bại");
+            if (!res.ok) throw new Error(`Xoá thất bại (HTTP ${res.status})`);
+            
             // remove from list
             setItems((prev) => prev.filter((x) => x.id !== id));
+            setDeleteConfirmId(null); // Đóng modal
+            toast({
+                title: "Thành công",
+                description: "Đã xoá câu hỏi của bạn.",
+            });
         } catch (e) {
-            alert(e.message);
+            toast({ title: "Lỗi", description: e.message, variant: "destructive" });
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -125,8 +121,16 @@ export default function MyQuestions() {
         <>
             <Header />
             <main className="w-screen overflow-x-hidden">
-                <section className="w-screen px-6 lg:px-12 pt-8">
-                    <div className="flex items-center justify-between gap-3">
+                <section className="w-screen px-6 lg:px-12 pt-8">                    
+                    <div className="mb-4">
+                        <Link to="/forum" className="text-sm text-blue-600 hover:underline flex items-center gap-1 w-fit">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="m15 18-6-6 6-6"/>
+                            </svg>
+                            <span>Quay lại</span>
+                        </Link>
+                    </div>
+                    <div className="flex items-center justify-between gap-3 mt-2">
                         <h1 className="text-2xl lg:text-3xl font-extrabold text-slate-900">
                             Câu hỏi của tôi
                         </h1>
@@ -159,19 +163,33 @@ export default function MyQuestions() {
                             {items.map((q) => (
                                 <div key={q.id} className="relative group">
                                     <QuestionCard q={q} />
-                                    <div className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition flex gap-2">
-                                        <Link
-                                            to={`/forum/edit/${q.id}`}
-                                            className="bg-white border shadow-sm px-2 py-1 rounded text-xs font-medium text-blue-600 hover:bg-blue-50"
-                                        >
-                                            Sửa
-                                        </Link>
+                                    <div className="absolute top-3 right-3">
                                         <button
-                                            onClick={() => softDelete(q.id)}
-                                            className="bg-white border shadow-sm px-2 py-1 rounded text-xs font-medium text-red-600 hover:bg-red-50"
+                                            onClick={() => setOpenMenuId(openMenuId === q.id ? null : q.id)}
+                                            onBlur={() => setTimeout(() => setOpenMenuId(null), 200)}
+                                            className="p-2 rounded-full bg-white/50 backdrop-blur-sm border border-transparent opacity-0 group-hover:opacity-100 hover:border-slate-200 transition"
                                         >
-                                            Xoá
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
                                         </button>
+                                        {openMenuId === q.id && (
+                                            <div className="absolute right-0 mt-2 w-28 bg-white border rounded-lg shadow-lg z-10">
+                                                <ul className="text-sm text-slate-700">
+                                                    <li>
+                                                        <Link to={`/forum/${q.id}/edit`} className="block w-full text-left px-3 py-1.5 hover:bg-slate-50">Sửa</Link>
+                                                    </li>
+                                                    <li>
+                                                        <button 
+                                                            onClick={() => {
+                                                                setDeleteConfirmId(q.id);
+                                                                setOpenMenuId(null);
+                                                            }} 
+                                                            className="block w-full text-left px-3 py-1.5 text-red-600 hover:bg-red-50">
+                                                            Xoá
+                                                        </button>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             ))}
@@ -184,7 +202,38 @@ export default function MyQuestions() {
                     )}
                 </section>
             </main>
+
+            {deleteConfirmId && (
+                <ConfirmationDialog
+                    isOpen={!!deleteConfirmId}
+                    onClose={() => setDeleteConfirmId(null)}
+                    onConfirm={() => softDelete(deleteConfirmId)}
+                    title="Xác nhận xoá câu hỏi"
+                    description="Bạn có chắc muốn xoá (ẩn) câu hỏi này không? Hành động này không thể hoàn tác."
+                    confirmText={isDeleting ? "Đang xoá..." : "Xoá"}
+                    isConfirming={isDeleting}
+                />
+            )}
+
             <Footer />
         </>
+    );
+}
+
+// Component Modal xác nhận (copied from QuestionDetail)
+function ConfirmationDialog({ isOpen, onClose, onConfirm, title, description, confirmText, isConfirming }) {
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
+            <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+                <h3 className="text-lg font-bold text-slate-900">{title}</h3>
+                <p className="text-sm text-slate-600 mt-2 mb-6">{description}</p>
+                <div className="flex justify-end gap-3">
+                    <button onClick={onClose} disabled={isConfirming} className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-md hover:bg-slate-200 disabled:opacity-50">Huỷ</button>
+                    <button onClick={onConfirm} disabled={isConfirming} className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50 disabled:bg-red-400">{confirmText}</button>
+                </div>
+            </div>
+        </div>
     );
 }

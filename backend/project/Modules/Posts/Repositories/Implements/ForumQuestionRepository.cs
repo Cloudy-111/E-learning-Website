@@ -24,6 +24,68 @@ public class ForumQuestionRepository : IForumQuestionRepository
             .ToListAsync();
     }
 
+    public async Task<(List<ForumQuestion> Items, int TotalRecords)> GetPagingAsync(int page, int pageSize)
+    {
+        if (page <= 0) page = 1;
+        if (pageSize <= 0) pageSize = 10;
+
+        var query = _context.ForumQuestions
+            .Where(q => !q.IsDeleted)
+            .Include(q => q.Student)
+            .ThenInclude(s => s.User)
+            .OrderByDescending(q => q.CreatedAt)
+            .AsQueryable();
+
+        int totalRecords = await query.CountAsync();
+
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items, totalRecords);
+    }
+
+    public async Task<(List<ForumQuestion> Items, int TotalRecords)> GetPagingAsync(
+    int page,
+    int pageSize,
+    List<string>? tags = null
+)
+    {
+        if (page <= 0) page = 1;
+        if (pageSize <= 0) pageSize = 10;
+
+        var query = _context.ForumQuestions
+            .Where(q => !q.IsDeleted)
+            .Include(q => q.Student)
+            .ThenInclude(s => s.User)
+            .AsQueryable();
+
+        // 🔍 Filter theo tags (varchar)
+        if (tags != null && tags.Any())
+        {
+            foreach (var tag in tags)
+            {
+                string t = tag.Trim().ToLower();
+                query = query.Where(q =>
+                    q.Tags != null &&
+                    q.Tags.ToLower().Contains(t)   // MATCH 1 trong các tag
+                );
+            }
+        }
+
+        int totalRecords = await query.CountAsync();
+
+        var items = await query
+            .OrderByDescending(q => q.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items, totalRecords);
+    }
+
+
     public async Task<ForumQuestion?> GetByIdAsync(string id)
     {
         return await _context.ForumQuestions
@@ -31,6 +93,8 @@ public class ForumQuestionRepository : IForumQuestionRepository
             .ThenInclude(s => s.User)
             .FirstOrDefaultAsync(q => q.Id == id && !q.IsDeleted);
     }
+
+
 
     public async Task<IEnumerable<ForumQuestion>> GetByStudentPublicAsync(string studentId)
     {
@@ -71,6 +135,19 @@ public class ForumQuestionRepository : IForumQuestionRepository
 
     public void Delete(ForumQuestion question) =>
            _context.ForumQuestions.Remove(question);
+
+
+    public async Task<bool> IncreaseViewCountAsync(string id)
+    {
+        var affected = await _context.ForumQuestions
+            .Where(q => q.Id == id && !q.IsDeleted)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(q => q.ViewCount, q => q.ViewCount + 1)
+            );
+
+        return affected > 0;
+    }
+
 
 
 }

@@ -13,18 +13,32 @@ export default function ForumHome() {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [err, setErr] = useState(null);
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(9); // Lấy 9 items để vừa với grid 3 cột
+    const [searchTags, setSearchTags] = useState([]); // State để lưu các tags tìm kiếm
+    const [totalRecords, setTotalRecords] = useState(0);
 
-    const fetchList = async () => {
-        const res = await http(`${API_BASE}/api/ForumQuestion`, {
+    const fetchList = async (currentPage, tags) => {
+        // Xây dựng URL với các tham số
+        const url = new URL(`${API_BASE}/api/ForumQuestion/paged`);
+        url.searchParams.append('page', currentPage);
+        url.searchParams.append('pageSize', pageSize);
+
+        // Thêm các tham số tags nếu có
+        if (tags && tags.length > 0) {
+            tags.forEach(tag => url.searchParams.append('tags', tag));
+        }
+
+        const res = await http(url.toString(), {
             headers: { accept: "*/*" },
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        return Array.isArray(data)
-            ? data
-            : Array.isArray(data?.data)
-                ? data.data
-                : [];
+
+        // API trả về object { items, totalRecords, ... }
+        setTotalRecords(data.totalRecords || 0);
+        // Dữ liệu câu hỏi nằm trong thuộc tính 'items'
+        return Array.isArray(data.items) ? data.items : [];
     };
 
     useEffect(() => {
@@ -33,13 +47,10 @@ export default function ForumHome() {
             try {
                 setLoading(true);
                 setErr(null);
-                const list = await fetchList();
+                const list = await fetchList(page, searchTags); // Truyền tags vào hàm fetch
                 if (!mounted) return;
-                setItems(
-                    list.sort(
-                        (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
-                    )
-                );
+                // Backend đã sắp xếp, không cần sort lại ở client
+                setItems(list);
             } catch (e) {
                 if (mounted) setErr(e?.message || "Fetch error");
             } finally {
@@ -49,12 +60,18 @@ export default function ForumHome() {
         return () => {
             mounted = false;
         };
-    }, []);
+    }, [page, searchTags]); // Chạy lại effect khi 'page' hoặc 'searchTags' thay đổi
 
     const onSearch = (q) => {
-        if (!q) return;
-        navigate(`/forum/search?q=${encodeURIComponent(q)}`);
+        // Tách chuỗi tìm kiếm thành mảng các tags, loại bỏ khoảng trắng thừa
+        const tags = q.split(' ').filter(tag => tag.trim() !== '');
+        setSearchTags(tags);
+        setPage(1); // Reset về trang 1 khi có tìm kiếm mới
     };
+
+    const clearSearch = () => {
+        setSearchTags([]);
+    }
 
     const canAsk = isLoggedIn();
 
@@ -91,7 +108,15 @@ export default function ForumHome() {
                     </div>
 
                     <div className="mt-6">
-                        <SearchBar onSubmit={onSearch} />
+                        <SearchBar onSubmit={onSearch} initialQuery={searchTags.join(' ')} />
+                        {searchTags.length > 0 && (
+                            <div className="mt-2 flex items-center gap-2">
+                                <span className="text-sm text-slate-600">
+                                    Đang lọc theo tags: {searchTags.map(tag => <code key={tag} className="bg-slate-100 text-slate-800 rounded px-1.5 py-0.5 text-xs">{tag}</code>).reduce((prev, curr) => [prev, ' ', curr])}
+                                </span>
+                                <button onClick={clearSearch} className="text-xs text-blue-600 hover:underline">Xóa lọc</button>
+                            </div>
+                        )}
                     </div>
                 </section>
 
@@ -123,6 +148,29 @@ export default function ForumHome() {
                             {items.length === 0 && (
                                 <div className="text-slate-600">Chưa có câu hỏi nào.</div>
                             )}
+                        </div>
+                    )}
+
+                    {/* Pagination Controls */}
+                    {!loading && totalRecords > pageSize && (
+                        <div className="mt-8 flex justify-center items-center gap-4">
+                            <button
+                                onClick={() => setPage(p => p - 1)}
+                                disabled={page <= 1}
+                                className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Trang trước
+                            </button>
+                            <span className="text-sm text-slate-600">
+                                Trang {page} / {Math.ceil(totalRecords / pageSize)}
+                            </span>
+                            <button
+                                onClick={() => setPage(p => p + 1)}
+                                disabled={page >= Math.ceil(totalRecords / pageSize)}
+                                className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Trang sau
+                            </button>
                         </div>
                     )}
                 </section>
