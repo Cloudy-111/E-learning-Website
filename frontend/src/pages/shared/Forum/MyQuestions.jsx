@@ -186,29 +186,34 @@ export default function MyQuestions() {
             <Header />
             <main className="w-screen overflow-x-hidden">
                 <section className="w-screen px-6 lg:px-12 pt-8">                    
-                    <div className="mb-4">
-                        <Link to="/forum" className="text-sm text-blue-600 hover:underline flex items-center gap-1 w-fit">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="m15 18-6-6 6-6"/>
-                            </svg>
-                            <span>Quay lại</span>
-                        </Link>
-                    </div>
+                    {viewMode === 'deleted' ? (
+                        <div className="mb-4">
+                            <Link 
+                                to="/forum/my" // Link về trang hiện tại, nhưng onClick sẽ xử lý thay đổi trạng thái
+                                onClick={() => setViewMode('active')} 
+                                className="text-sm text-blue-600 hover:underline flex items-center gap-1 w-fit">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                                <span>Quay lại câu hỏi của tôi</span>
+                            </Link>
+                        </div>
+                    ) : (
+                        <div className="mb-4">
+                            <Link to="/forum" className="text-sm text-blue-600 hover:underline flex items-center gap-1 w-fit">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                                <span>Quay lại</span>
+                            </Link>
+                        </div>
+                    )}
                     <div className="flex items-center justify-between gap-3 mt-2">
                         <div>
                             <h1 className="text-2xl lg:text-3xl font-extrabold text-slate-900">
-                                {viewMode === 'active' ? 'Câu hỏi của tôi' : 'Thùng rác'}
+                                {viewMode === 'active' ? 'Câu hỏi của tôi' : 'Câu hỏi đã xóa'}
                             </h1>
-                            {viewMode === 'deleted' && (
-                                <button onClick={() => setViewMode('active')} className="text-sm text-blue-600 hover:underline mt-1">
-                                    Quay lại câu hỏi của tôi
-                                </button>
-                            )}
                         </div>
                         <div className="flex items-center gap-4">
                             {viewMode === 'active' && (
                                 <button onClick={() => setViewMode('deleted')} className="text-sm text-slate-600 hover:text-blue-600 hover:underline">
-                                    Thùng rác
+                                    Câu hỏi đã xóa
                                 </button>
                             )}
                             <Link
@@ -291,7 +296,7 @@ export default function MyQuestions() {
                             ))}
                             {items.length === 0 && (
                                 <div className="text-slate-600 col-span-full text-center py-10 border rounded-2xl border-dashed" style={{ borderColor: BORDER }}>
-                                    {viewMode === 'active' ? 'Bạn chưa có câu hỏi nào.' : 'Thùng rác trống.'}
+                                    {viewMode === 'active' ? 'Bạn chưa có câu hỏi nào.' : 'Trống.'}
                                 </div>
                             )}
                         </div>
