@@ -34,6 +34,7 @@ export default function QuestionCard({ q }) {
     const [likeCount, setLikeCount] = useState(0);
     const [discussionCount, setDiscussionCount] = useState(0);
     const [isLiked, setIsLiked] = useState(false);
+    const [viewCount, setViewCount] = useState(q.views ?? q.viewCount ?? 0);
 
     const fetchLikes = async () => {
         if (!q.id) return;
@@ -76,7 +77,9 @@ export default function QuestionCard({ q }) {
 
         fetchLikes();
         fetchDiscussions();
-    }, [q.id]); // Chạy lại effect khi id của câu hỏi thay đổi
+        // Đồng bộ state viewCount với prop khi nó thay đổi
+        setViewCount(q.views ?? q.viewCount ?? 0);
+    }, [q.id, q.views, q.viewCount]); // Chạy lại effect khi id hoặc viewCount của câu hỏi thay đổi
 
     const handleLike = async () => {
         if (!q.id) return;
@@ -112,12 +115,33 @@ export default function QuestionCard({ q }) {
         }
     };
 
+    const handleCardClick = async () => {
+        if (!q.id) return;
+
+        // 1. Cập nhật UI ngay lập tức (Optimistic Update)
+        setViewCount(currentCount => currentCount + 1);
+
+        // 2. Gọi API để cập nhật backend
+        try {
+            // Sử dụng đúng API POST .../view
+            await fetch(`http://localhost:5102/api/ForumQuestion/${q.id}/view`, {
+                method: 'POST',
+            });
+            // Không cần xử lý response vì đây là tác vụ "fire-and-forget"
+        } catch (error) {
+            console.error("Failed to update view count:", error);
+            // 3. Nếu có lỗi, khôi phục lại giá trị ban đầu
+            setViewCount(currentCount => currentCount - 1);
+        }
+    };
+
     return (
         <article
             className="rounded-2xl border bg-white p-5 hover:shadow-sm transition"
             style={{ borderColor: BORDER }}
         >
-            <Link to={`/forum/${q.id}`} className="block">
+            {/* Gắn onClick handler vào Link */}
+            <Link to={`/forum/${q.id}`} className="block" onClick={handleCardClick}>
                 <h3 className="font-semibold text-slate-900 line-clamp-2">
                     {q.title || "Câu hỏi"}
                 </h3>
@@ -139,7 +163,7 @@ export default function QuestionCard({ q }) {
             <div className="mt-3 flex items-center gap-4 text-xs text-slate-500">
                 <span className="flex items-center gap-1">
                     <EyeIcon />
-                    {q.views ?? q.viewCount ?? 0}
+                    {viewCount} {/* Hiển thị viewCount từ state */}
                 </span>
                 <button onClick={handleLike} className={`flex items-center gap-1 hover:text-slate-800 focus:outline-none ${isLiked ? 'text-blue-600' : ''}`}>
                     <span className="flex items-center gap-1">

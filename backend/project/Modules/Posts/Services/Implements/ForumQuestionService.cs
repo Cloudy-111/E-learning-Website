@@ -209,5 +209,18 @@ public class ForumQuestionService : IForumQuestionService
         });
     }
 
+    public async Task<bool> IncreaseViewCountAsync(string id)
+    {
+        var question = await _repository.GetByIdAsync(id);
+        if (question == null) return false;
+
+        question.ViewCount++;
+
+        await _repository.UpdateAsync(question);
+        await _repository.SaveChangesAsync();
+        return true;
+    }
+
+
 }
 

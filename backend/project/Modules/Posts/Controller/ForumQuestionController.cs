@@ -175,6 +175,21 @@ namespace project.Modules.Posts.Controller
             return Ok(result);
         }
 
+        /// <summary>
+        /// Tăng view count cho câu hỏi
+        /// POST /api/forumquestion/{id}/view
+        /// </summary>
+        [HttpPost("{id}/view")]
+        public async Task<IActionResult> IncreaseView(string id)
+        {
+            var ok = await _forumService.IncreaseViewCountAsync(id);
+            if (!ok)
+                return NotFound(new { message = "Question not found" });
+
+            return Ok(new { message = "View count increased" });
+        }
+
+
 
     }
 }

@@ -137,4 +137,17 @@ public class ForumQuestionRepository : IForumQuestionRepository
            _context.ForumQuestions.Remove(question);
 
 
+    public async Task<bool> IncreaseViewCountAsync(string id)
+    {
+        var affected = await _context.ForumQuestions
+            .Where(q => q.Id == id && !q.IsDeleted)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(q => q.ViewCount, q => q.ViewCount + 1)
+            );
+
+        return affected > 0;
+    }
+
+
+
 }

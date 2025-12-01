@@ -33,4 +33,6 @@ public interface IForumQuestionRepository
 
     Task<IEnumerable<ForumQuestion>> GetDeletedByStudentAsync(string studentId);
 
+    Task<bool> IncreaseViewCountAsync(string id);
+
 }

@@ -19,4 +19,5 @@ public interface IForumQuestionService
     Task<bool> RestoreAsync(string id, string studentId);
     Task<bool> HardDeleteAsync(string id, string studentId);
     Task<IEnumerable<ForumQuestionDto>> GetDeletedQuestionsAsync(string studentId);
+    Task<bool> IncreaseViewCountAsync(string id);
 }
