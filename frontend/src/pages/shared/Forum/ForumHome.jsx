@@ -13,18 +13,21 @@ export default function ForumHome() {
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [err, setErr] = useState(null);
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(9); // Lấy 9 items để vừa với grid 3 cột
+    const [totalRecords, setTotalRecords] = useState(0);
 
-    const fetchList = async () => {
-        const res = await http(`${API_BASE}/api/ForumQuestion`, {
+    const fetchList = async (currentPage) => {
+        // Sử dụng API phân trang
+        const res = await http(`${API_BASE}/api/ForumQuestion/paged?page=${currentPage}&pageSize=${pageSize}`, {
             headers: { accept: "*/*" },
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
-        return Array.isArray(data)
-            ? data
-            : Array.isArray(data?.data)
-                ? data.data
-                : [];
+        // API trả về object { items, totalRecords, ... }
+        setTotalRecords(data.totalRecords || 0);
+        // Dữ liệu câu hỏi nằm trong thuộc tính 'items'
+        return Array.isArray(data.items) ? data.items : [];
     };
 
     useEffect(() => {
@@ -33,13 +36,10 @@ export default function ForumHome() {
             try {
                 setLoading(true);
                 setErr(null);
-                const list = await fetchList();
+                const list = await fetchList(page);
                 if (!mounted) return;
-                setItems(
-                    list.sort(
-                        (a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
-                    )
-                );
+                // Backend đã sắp xếp, không cần sort lại ở client
+                setItems(list);
             } catch (e) {
                 if (mounted) setErr(e?.message || "Fetch error");
             } finally {
@@ -49,7 +49,7 @@ export default function ForumHome() {
         return () => {
             mounted = false;
         };
-    }, []);
+    }, [page]); // Chạy lại effect khi 'page' thay đổi
 
     const onSearch = (q) => {
         if (!q) return;
@@ -123,6 +123,29 @@ export default function ForumHome() {
                             {items.length === 0 && (
                                 <div className="text-slate-600">Chưa có câu hỏi nào.</div>
                             )}
+                        </div>
+                    )}
+
+                    {/* Pagination Controls */}
+                    {!loading && totalRecords > pageSize && (
+                        <div className="mt-8 flex justify-center items-center gap-4">
+                            <button
+                                onClick={() => setPage(p => p - 1)}
+                                disabled={page <= 1}
+                                className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Trang trước
+                            </button>
+                            <span className="text-sm text-slate-600">
+                                Trang {page} / {Math.ceil(totalRecords / pageSize)}
+                            </span>
+                            <button
+                                onClick={() => setPage(p => p + 1)}
+                                disabled={page >= Math.ceil(totalRecords / pageSize)}
+                                className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                Trang sau
+                            </button>
                         </div>
                     )}
                 </section>

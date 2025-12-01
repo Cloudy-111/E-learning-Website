@@ -36,6 +36,36 @@ public class ForumQuestionService : IForumQuestionService
         });
     }
 
+    public async Task<(List<ForumQuestionDto> Items, int TotalRecords)> GetAllQuestionsPagedAsync(
+    int page,
+    int pageSize,
+    List<string>? tags = null
+)
+    {
+        var (items, totalRecords) = await _repository.GetPagingAsync(page, pageSize, tags);
+
+        var mapped = items.Select(q => new ForumQuestionDto
+        {
+            Id = q.Id,
+            Title = q.Title ?? string.Empty,
+            Tags = q.Tags,
+            ViewCount = q.ViewCount,
+            DiscussionCount = q.DiscussionCount,
+            LikeCount = q.LikeCount,
+            CreatedAt = q.CreatedAt,
+            StudentId = q.StudentId,
+            StudentName = q.Student?.User?.FullName ?? "Ẩn danh",
+            IsDeleted = q.IsDeleted,
+            DeletedAt = q.DeletedAt
+        }).ToList();
+
+        return (mapped, totalRecords);
+    }
+
+
+
+
+
     public async Task<ForumQuestionDetailDto?> GetQuestionByIdAsync(string id)
     {
         var question = await _repository.GetByIdAsync(id);
@@ -60,24 +90,24 @@ public class ForumQuestionService : IForumQuestionService
     }
 
     public async Task<IEnumerable<ForumQuestionDto>> GetQuestionsByStudentAsync(string studentId)
-{
-    var questions = await _repository.GetByStudentPublicAsync(studentId);
-
-    return questions.Select(q => new ForumQuestionDto
     {
-        Id = q.Id,
-        Title = q.Title ?? string.Empty,
-        Tags = q.Tags,
-        ViewCount = q.ViewCount,
-        DiscussionCount = q.DiscussionCount,
-        LikeCount = q.LikeCount,
-        CreatedAt = q.CreatedAt,
-        StudentId = q.StudentId,
-        StudentName = q.Student.User?.FullName ?? "Ẩn danh",
-        IsDeleted = q.IsDeleted,
-        DeletedAt = q.DeletedAt
-    });
-}
+        var questions = await _repository.GetByStudentPublicAsync(studentId);
+
+        return questions.Select(q => new ForumQuestionDto
+        {
+            Id = q.Id,
+            Title = q.Title ?? string.Empty,
+            Tags = q.Tags,
+            ViewCount = q.ViewCount,
+            DiscussionCount = q.DiscussionCount,
+            LikeCount = q.LikeCount,
+            CreatedAt = q.CreatedAt,
+            StudentId = q.StudentId,
+            StudentName = q.Student.User?.FullName ?? "Ẩn danh",
+            IsDeleted = q.IsDeleted,
+            DeletedAt = q.DeletedAt
+        });
+    }
 
 
     public async Task<string> CreateAsync(string studentId, ForumQuestionCreateDto dto)

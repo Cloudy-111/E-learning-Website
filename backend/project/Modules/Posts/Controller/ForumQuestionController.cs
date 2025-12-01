@@ -29,6 +29,30 @@ namespace project.Modules.Posts.Controller
             return Ok(questions);
         }
 
+
+        /// <summary>
+        /// Lấy danh sách câu hỏi có phân trang + tìm theo tags
+        /// /api/forumquestion/paged?page=1&pageSize=10&tags=csharp&tags=backend
+        /// </summary>
+        [HttpGet("paged")]
+        public async Task<IActionResult> GetPaged(
+            int page = 1,
+            int pageSize = 10,
+            [FromQuery] List<string>? tags = null
+        )
+        {
+            var (items, totalRecords) =
+                await _forumService.GetAllQuestionsPagedAsync(page, pageSize, tags);
+
+            return Ok(new
+            {
+                items,
+                totalRecords,
+                page,
+                pageSize
+            });
+        }
+
         /// <summary>
         /// GET /api/forum/questions/{id}
         /// Lấy chi tiết câu hỏi
@@ -42,6 +66,8 @@ namespace project.Modules.Posts.Controller
 
             return Ok(question);
         }
+
+
 
         [HttpGet("member/{memberId}")]
         public async Task<IActionResult> GetByMember(string memberId)
