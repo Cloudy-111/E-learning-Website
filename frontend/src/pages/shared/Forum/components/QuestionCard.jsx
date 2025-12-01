@@ -1,5 +1,6 @@
 // src/pages/shared/Forum/components/QuestionCard.jsx
 import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { BORDER } from "../utils/constants";
 
 const EyeIcon = () => (
@@ -17,7 +18,41 @@ const ThumbsUpIcon = () => (
 );
 
 export default function QuestionCard({ q }) {
-    const count = q?.discussionCount ?? q?.answers ?? 0;
+    const [likeCount, setLikeCount] = useState(0);
+    const [discussionCount, setDiscussionCount] = useState(0);
+
+    useEffect(() => {
+        if (!q.id) return;
+
+        const fetchLikes = async () => {
+            try {
+                // Giả sử targetType là 'ForumQuestion'. Bạn hãy thay đổi nếu cần.
+                const response = await fetch(`http://localhost:5102/api/Likes/ForumQuestion/${q.id}`);
+                const data = await response.json();
+                if (Array.isArray(data)) {
+                    setLikeCount(data.length);
+                }
+            } catch (error) {
+                console.error("Failed to fetch likes:", error);
+            }
+        };
+
+        const fetchDiscussions = async () => {
+            try {
+                const response = await fetch(`http://localhost:5102/api/Discussion/ForumQuestion/${q.id}`);
+                const data = await response.json();
+                if (Array.isArray(data)) {
+                    setDiscussionCount(data.length);
+                }
+            } catch (error) {
+                console.error("Failed to fetch discussions:", error);
+            }
+        };
+
+        fetchLikes();
+        fetchDiscussions();
+    }, [q.id]); // Chạy lại effect khi id của câu hỏi thay đổi
+
     return (
         <article
             className="rounded-2xl border bg-white p-5 hover:shadow-sm transition"
@@ -29,7 +64,7 @@ export default function QuestionCard({ q }) {
                 </h3>
             </Link>
             <p className="text-sm text-slate-600 mt-1 line-clamp-2">
-                #{(q?.tags  || "").trim() || "—"}
+                #{(q?.tags  || "").trim() || ""}
             </p>
             <div className="mt-3 flex items-center justify-between text-sm text-slate-600">
                 <span className="truncate max-w-[70%]" title={q.authorName}>
@@ -49,11 +84,11 @@ export default function QuestionCard({ q }) {
                 </span>
                 <span className="flex items-center gap-1">
                     <ThumbsUpIcon />
-                    {q.likes ?? q.likeCount ?? 0}
+                    {likeCount}
                 </span>
                 <span className="flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                    {count}
+                    {discussionCount}
                 </span>
             </div>
         </article>
