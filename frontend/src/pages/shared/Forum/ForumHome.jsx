@@ -15,15 +15,26 @@ export default function ForumHome() {
     const [err, setErr] = useState(null);
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(9); // Lấy 9 items để vừa với grid 3 cột
+    const [searchTags, setSearchTags] = useState([]); // State để lưu các tags tìm kiếm
     const [totalRecords, setTotalRecords] = useState(0);
 
-    const fetchList = async (currentPage) => {
-        // Sử dụng API phân trang
-        const res = await http(`${API_BASE}/api/ForumQuestion/paged?page=${currentPage}&pageSize=${pageSize}`, {
+    const fetchList = async (currentPage, tags) => {
+        // Xây dựng URL với các tham số
+        const url = new URL(`${API_BASE}/api/ForumQuestion/paged`);
+        url.searchParams.append('page', currentPage);
+        url.searchParams.append('pageSize', pageSize);
+
+        // Thêm các tham số tags nếu có
+        if (tags && tags.length > 0) {
+            tags.forEach(tag => url.searchParams.append('tags', tag));
+        }
+
+        const res = await http(url.toString(), {
             headers: { accept: "*/*" },
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
+
         // API trả về object { items, totalRecords, ... }
         setTotalRecords(data.totalRecords || 0);
         // Dữ liệu câu hỏi nằm trong thuộc tính 'items'
@@ -36,7 +47,7 @@ export default function ForumHome() {
             try {
                 setLoading(true);
                 setErr(null);
-                const list = await fetchList(page);
+                const list = await fetchList(page, searchTags); // Truyền tags vào hàm fetch
                 if (!mounted) return;
                 // Backend đã sắp xếp, không cần sort lại ở client
                 setItems(list);
@@ -49,12 +60,18 @@ export default function ForumHome() {
         return () => {
             mounted = false;
         };
-    }, [page]); // Chạy lại effect khi 'page' thay đổi
+    }, [page, searchTags]); // Chạy lại effect khi 'page' hoặc 'searchTags' thay đổi
 
     const onSearch = (q) => {
-        if (!q) return;
-        navigate(`/forum/search?q=${encodeURIComponent(q)}`);
+        // Tách chuỗi tìm kiếm thành mảng các tags, loại bỏ khoảng trắng thừa
+        const tags = q.split(' ').filter(tag => tag.trim() !== '');
+        setSearchTags(tags);
+        setPage(1); // Reset về trang 1 khi có tìm kiếm mới
     };
+
+    const clearSearch = () => {
+        setSearchTags([]);
+    }
 
     const canAsk = isLoggedIn();
 
@@ -91,7 +108,15 @@ export default function ForumHome() {
                     </div>
 
                     <div className="mt-6">
-                        <SearchBar onSubmit={onSearch} />
+                        <SearchBar onSubmit={onSearch} initialQuery={searchTags.join(' ')} />
+                        {searchTags.length > 0 && (
+                            <div className="mt-2 flex items-center gap-2">
+                                <span className="text-sm text-slate-600">
+                                    Đang lọc theo tags: {searchTags.map(tag => <code key={tag} className="bg-slate-100 text-slate-800 rounded px-1.5 py-0.5 text-xs">{tag}</code>).reduce((prev, curr) => [prev, ' ', curr])}
+                                </span>
+                                <button onClick={clearSearch} className="text-xs text-blue-600 hover:underline">Xóa lọc</button>
+                            </div>
+                        )}
                     </div>
                 </section>
 
