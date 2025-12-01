@@ -189,9 +189,8 @@ export default function QuestionDetail() {
 
     // Check if current user is the owner of the question
     // DEBUG: Log IDs to check for ownership
-    console.log("Current User ID:", currentUser?.id);
-    console.log("Question's Student ID:", q?.studentId); // Sửa ở đây, currentUser.id -> currentUser._id
-    const isOwner = q?.studentId && currentUser?.id && q.studentId === currentUser.id;
+    console.log("Current User ID:", currentUser?._id);
+    const isOwner = q?.studentId && currentUser?._id && q.studentId === currentUser._id;
 
     if (loading) {
         return (
@@ -276,24 +275,24 @@ export default function QuestionDetail() {
                                                                     setIsMenuOpen(false);
                                                                 }} 
                                                                 className="block w-full text-left px-4 py-2 text-red-600 hover:bg-red-50">Xoá</button>
-                                                        </li>
-                                                        <li className="border-t my-1"></li>
+                                                        </li>                                                        
                                                     </>
-                                                ) : null}
-                                                <li>
-                                                    <button
-                                                        onClick={() => {
-                                                            toast({
-                                                                title: "Thông báo",
-                                                                description: "Chức năng báo cáo đang được phát triển.",
-                                                            });
-                                                            setIsMenuOpen(false);
-                                                        }}
-                                                        className="block w-full text-left px-4 py-2 hover:bg-slate-50"
-                                                    >
-                                                        Báo cáo
-                                                    </button>
-                                                </li>
+                                                ) : (
+                                                    <li>
+                                                        <button
+                                                            onClick={() => {
+                                                                toast({
+                                                                    title: "Thông báo",
+                                                                    description: "Chức năng báo cáo đang được phát triển.",
+                                                                });
+                                                                setIsMenuOpen(false);
+                                                            }}
+                                                            className="block w-full text-left px-4 py-2 hover:bg-slate-50"
+                                                        >
+                                                            Báo cáo
+                                                        </button>
+                                                    </li>
+                                                )}
                                             </ul>
                                         </div>
                                     )}
