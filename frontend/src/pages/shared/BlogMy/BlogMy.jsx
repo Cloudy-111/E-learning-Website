@@ -184,7 +184,7 @@ function BlogMy() {
                             </h1>
                             <p className="text-sm text-slate-500 mt-1">
                                 {showDeleted
-                                    ? `Bạn có ${deletedPosts?.length || 0} bài viết trong thùng rác.`
+                                    ? `Bạn có ${deletedPosts?.length || 0} bài viết đã xóa.`
                                     : `Bạn đã viết ${activePosts?.length || 0} bài viết.`}
                             </p>
                         </div>
@@ -193,7 +193,7 @@ function BlogMy() {
                                 onClick={() => setShowDeleted(!showDeleted)}
                                 className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-md hover:bg-slate-100"
                             >
-                                {showDeleted ? 'Xem bài viết' : 'Thùng rác'}
+                                {showDeleted ? 'Xem bài viết' : 'Bài viết đã xóa'}
                             </button>
                             <a href="/blog/new" className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
                                 Viết bài mới
@@ -217,7 +217,7 @@ function BlogMy() {
                         )}
                         {!loading && !error && (!postsData || postsData.length === 0) && (
                             <div className="text-center text-slate-500 py-10">
-                                {showDeleted ? "Thùng rác trống." : "Bạn chưa có bài viết nào."}
+                                {showDeleted ? "Trống." : "Bạn chưa có bài viết nào."}
                             </div>
                         )}
                     </div>
