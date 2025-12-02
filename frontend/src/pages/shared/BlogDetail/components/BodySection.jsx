@@ -68,9 +68,7 @@ export default function BodySection({ post }) {
                         )}
                     </div>
 
-                    {/* Like + Share */}
-                    <LikeBar seedCount={post?.likes ?? 0} />
-
+                   
                     {/* Comments */}
                     <Comments />
                 </article>
