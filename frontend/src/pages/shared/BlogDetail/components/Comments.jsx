@@ -281,8 +281,7 @@ export default function Comments() {
 
             {/* list */}
             <div
-                className="mt-6 grid gap-4 max-h-[70vh] overflow-y-auto pr-2"
-                style={{ scrollbarWidth: "thin" }}
+                className="mt-6 grid gap-4"
             >
                 {isLoading && <div className="text-sm text-slate-500">Đang tải bình luận...</div>}
                 {!isLoading && items.length === 0 && (
@@ -294,7 +293,7 @@ export default function Comments() {
                     const isOwner = getUserIdFromToken() === c.studentId;
                     const isEditing = editingCommentId === c.id;
                     return (
-                        <div key={c.id} className="rounded-2xl border bg-white p-4" style={{ borderColor: BORDER }}>
+                        <div key={c.id} className="rounded-2xl border bg-white p-4 relative overflow-visible" style={{ borderColor: BORDER }}>
                             {isEditing ? (
                                 <form onSubmit={(e) => { e.preventDefault(); updateComment(c.id); }}>
                                     <textarea
