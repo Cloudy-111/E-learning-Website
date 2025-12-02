@@ -64,7 +64,7 @@ const InstructorDashboard = lazy(() => import("./pages/instructor/Dashboard.jsx"
 const InstructorCourses = lazy(() => import("./pages/instructor/Courses.jsx"));
 const CourseLessons = lazy(() => import("./pages/instructor/CourseLessons.jsx"));
 const Exams = lazy(() => import("./pages/instructor/Exams.jsx"));
-const CourseNew = lazy(() => import("./pages/instructor/CourseNew.jsx"));
+const CourseCreate = lazy(() => import("./pages/instructor/CreateCourse/CreateCourse.jsx"));
 const CourseEdit = lazy(() => import("./pages/instructor/CourseEdit.jsx"));
 const CourseStudents = lazy(() => import("./pages/instructor/CourseStudents.jsx"));
 const StudentProgress = lazy(() => import("./pages/instructor/StudentProgress.jsx"));
@@ -150,7 +150,7 @@ export default function App() {
                     {/* Teacher */}
                     <Route element={<RequireRole roles={["Teacher"]} />}>
                       <Route path="/i/dashboard" element={<InstructorDashboard title="📊 /i/dashboard — Tổng quan giảng viên" />} />
-                      <Route path="/i/courses/new" element={<CourseNew title="🆕 /i/courses/new — Tạo khoá draft" />} />
+                      <Route path="/i/courses/new" element={<CourseCreate title="🆕 /i/courses/new — Tạo khoá draft" />} />
                     </Route>
                     
                   </Route>
