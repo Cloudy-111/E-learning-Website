@@ -21,6 +21,12 @@ const CommentIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
 );
 
+const EditIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+    </svg>
+);
+
 // Helper function, học theo QuestionCard.jsx
 function decodeJwt(token) {
     try {
@@ -34,6 +40,7 @@ export default function HeroSection({ post }) {
     const [likeCount, setLikeCount] = useState(post?.likeCount ?? 0);
     const [commentCount, setCommentCount] = useState(post?.discussionCount ?? 0);
     const [isLiked, setIsLiked] = useState(false);
+    const [isOwner, setIsOwner] = useState(false);
 
     // Lấy thông tin chi tiết về likes và comments
     useEffect(() => {
@@ -66,6 +73,22 @@ export default function HeroSection({ post }) {
             .catch(err => console.error("Failed to fetch post comments:", err));
 
     }, [post?.id]);
+
+    // Kiểm tra xem người dùng hiện tại có phải là tác giả không
+    useEffect(() => {
+        if (!post?.authorId) return;
+
+        const token = localStorage.getItem("app_access_token");
+        if (!token) {
+            setIsOwner(false);
+            return;
+        }
+
+        const claims = decodeJwt(token);
+        const currentUserId = claims?.StudentId || claims?.studentId;
+
+        setIsOwner(currentUserId && currentUserId === post.authorId);
+    }, [post?.authorId]);
 
     let isViewApiCalled = false; // Cờ để tránh gọi API nhiều lần
 
@@ -192,6 +215,12 @@ export default function HeroSection({ post }) {
                             <CommentIcon />
                             {commentCount}
                         </span>
+                        {isOwner && (
+                            <Link to={`/blog/${post.id}/edit`} title="Chỉnh sửa bài viết" className="inline-flex items-center gap-1.5 text-blue-600 hover:underline">
+                                <EditIcon />
+                                Sửa
+                            </Link>
+                        )}
                     </div>
 
                 </div>

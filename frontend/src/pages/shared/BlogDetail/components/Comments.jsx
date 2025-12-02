@@ -259,7 +259,7 @@ export default function Comments() {
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                         rows={3}
-                        placeholder={`Viết bình luận với tư cách ${getUserNameFromToken()}…`}
+                        placeholder={`Viết bình luận`}
                         className="w-full rounded-2xl border px-4 py-3 outline-none focus:ring-2 focus:ring-[#93c5fd]"
                         style={{ borderColor: BORDER }}
                     />

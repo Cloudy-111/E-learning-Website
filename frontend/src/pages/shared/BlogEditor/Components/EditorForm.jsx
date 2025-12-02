@@ -91,10 +91,7 @@ export default function EditorForm({
                         style={{ borderColor: BORDER }}
                         placeholder="Nội dung (sẽ lưu vào contentJson.blocks[0].text)…"
                     />
-                    <div className="mt-2 text-xs text-slate-500">
-                        Sẽ gửi lên server ở dạng <code>contentJson</code> ={" "}
-                        <code>{`{ "blocks": [{ "text": "<nội dung>" }] }`}</code>
-                    </div>
+                    
                 </div>
 
                 <label className="inline-flex items-center gap-2 text-sm">
