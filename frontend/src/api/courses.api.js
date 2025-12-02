@@ -1,4 +1,5 @@
 import { baseFetch } from "./baseApi";
+import { authHeader } from "../utils/auth";
 
 async function fetchCourses(params = {}) {
   const searchParams = new URLSearchParams();
@@ -18,4 +19,25 @@ async function fetchCourseDetail(id) {
   return baseFetch(`/api/courses/${id}`);
 }
 
-export { fetchCourses, fetchCourseDetail };
+async function createCourseAPI(payload) {
+  try {
+    const response = await baseFetch(`/api/courses/create-full-course`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...authHeader(),
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (response.status === "error") {
+      throw new Error(response.message || "Lỗi không xác định");
+    }
+    return response;
+  } catch (e) {
+    console.error("Create course error:", e);
+    throw new Error(e);
+  }
+}
+
+export { fetchCourses, fetchCourseDetail, createCourseAPI };

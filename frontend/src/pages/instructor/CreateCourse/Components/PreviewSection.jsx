@@ -69,7 +69,7 @@ function PreviewSection( {
                         {courseContent.title || "Giới thiệu khóa học"}
                     </h4>
                     <p className="text-sm text-gray-700 mt-1">
-                        {courseContent.description || "Mô tả chi tiết"}
+                        {courseContent.introduce || "Mô tả chi tiết"}
                     </p>
 
                     <div className="mt-4 grid grid-cols-2 gap-2 text-sm">

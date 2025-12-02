@@ -1,8 +1,46 @@
 import { AlertTriangle, CheckCircle, Rocket } from "lucide-react";
 import checkCourseCreate from "../CheckCourseCreate";
+import { createCourseAPI } from "../../../../../../api/courses.api";
+import { useNavigate } from "react-router-dom";
 
-function SettingCourse({course, courseContent}) {
+function SettingCourse({course, courseContent, outcomes, requirements}) {
+    const navigate = useNavigate();
     const result = checkCourseCreate(course, courseContent);
+    const handleSubmit = async () => {
+        const mergedDescription =
+            course.description +
+            "\n\nKết quả đạt được:\n" +
+            outcomes.map(o => `- ${o}`).join("\n") + 
+            "\n\nYêu cầu:\n" +
+            requirements.map(r => `- ${r}`).join("\n");
+
+        course.price = Number(course.price);
+        course.discount = Number(course.discount);
+        courseContent.lessons = courseContent.lessons.map(lesson => ({
+            ...lesson,
+            duration: Number(lesson.duration),
+        }));
+
+        const courseData = {
+            ...course,
+            description: mergedDescription,
+        };
+
+        const payload = {
+            ...courseData,
+            courseContent: courseContent,
+        }
+
+        console.log("Submitting course:", payload);
+        
+        try{
+            await createCourseAPI(payload);
+            alert("Tạo khoá học thành công!");
+            navigate("/i/courses");
+        } catch (e) {
+            alert("Tạo khoá học thất bại: " + e.message);
+        }
+    }
 
     return (
         <div className="rounded-2xl border bg-white p-6 space-y-6">
@@ -36,7 +74,7 @@ function SettingCourse({course, courseContent}) {
             </div>
 
             <button
-                onClick={() => {console.log("Create course")}}
+                onClick={() => handleSubmit()}
                 disabled={!result.ok}
                 className={`rounded-xl px-4 py-2 text-sm font-semibold inline-flex items-center gap-2 ${result.ok
                 ? "bg-blue-600 hover:bg-blue-700 text-white"

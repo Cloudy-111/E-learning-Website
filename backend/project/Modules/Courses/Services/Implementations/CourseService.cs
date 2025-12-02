@@ -4,23 +4,36 @@ public class CourseService : ICourseService
 {
     private readonly ICourseRepository _courseRepository;
     private readonly ICourseContentRepository _courseContentRepository;
+    private readonly ICategoryRepository _categoryRepository;
     private readonly IUserRepository _userRepository;
     private readonly ITeacherRepository _teacherRepository;
     private readonly IStudentRepository _studentRepository;
+    private readonly ILessonRepository _lessonRepository;
+    private readonly DBContext _dbContext;
 
     public CourseService(
         ICourseRepository courseRepository,
         ICourseContentRepository courseContentRepository,
+        ICategoryRepository categoryRepository,
         IUserRepository userRepository,
         ITeacherRepository teacherRepository,
-        IStudentRepository studentRepository)
+        IStudentRepository studentRepository,
+        ILessonRepository lessonRepository,
+        DBContext dbContext)
     {
         _courseRepository = courseRepository;
         _courseContentRepository = courseContentRepository;
+        _categoryRepository = categoryRepository;
         _userRepository = userRepository;
         _teacherRepository = teacherRepository;
         _studentRepository = studentRepository;
+        _lessonRepository = lessonRepository;
+        _dbContext = dbContext;
     }
+
+    const string DRAFT_STATUS = "draft";
+    const string PENDING_STATUS = "pending";
+    const string PUBLISHED_STATUS = "published";
 
     public async Task<IEnumerable<CourseInformationDTO>> GetAllCoursesAsync()
     {
@@ -130,7 +143,7 @@ public class CourseService : ICourseService
             Price = courseDto.Price,
             DiscountPrice = courseDto.DiscountPrice,
             ThumbnailUrl = courseDto.ThumbnailUrl,
-            Status = "draft",
+            Status = DRAFT_STATUS,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
@@ -142,7 +155,7 @@ public class CourseService : ICourseService
     {
         var courseExist = await _courseRepository.GetCourseByIdAsync(courseId) ??
             throw new KeyNotFoundException("Course not found");
-        if (!courseExist.Status.Equals("draft", StringComparison.InvariantCultureIgnoreCase))
+        if (!courseExist.Status.Equals(DRAFT_STATUS, StringComparison.InvariantCultureIgnoreCase))
         {
             throw new InvalidOperationException("Only draft courses can be updated");
         }
@@ -163,9 +176,9 @@ public class CourseService : ICourseService
 
     public async Task RequestPublishCourseAsync(string teacherId, string courseId)
     {
-        var courseExist = await _courseRepository.GetCourseByStatusAsync(courseId, "draft") ??
+        var courseExist = await _courseRepository.GetCourseByStatusAsync(courseId, DRAFT_STATUS) ??
             throw new KeyNotFoundException("Course not found");
-        if (!courseExist.Status.Equals("draft", StringComparison.InvariantCultureIgnoreCase))
+        if (!courseExist.Status.Equals(DRAFT_STATUS, StringComparison.InvariantCultureIgnoreCase))
         {
             throw new InvalidOperationException("Only draft courses can request publish");
         }
@@ -254,6 +267,72 @@ public class CourseService : ICourseService
         {
             throw new Exception("Error when retriev enrolled courses: ", ex);
 
+        }
+    }
+
+    public async Task AddFullCourseAsync(string userId, FullCourseCreateDTO fullCourseDto)
+    {
+        if (!await _teacherRepository.IsTeacherExistsAsync(userId))
+        {
+            throw new KeyNotFoundException("Teacher not found");
+        }
+
+        var category = await _categoryRepository.GetCategoryByIdAsync(fullCourseDto.CategoryId)
+            ?? throw new KeyNotFoundException($"Category with id {fullCourseDto.CategoryId} not found.");
+
+
+        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+        try
+        {
+            var course = new Course
+            {
+                Title = fullCourseDto.Title,
+                Description = fullCourseDto.Description,
+                CategoryId = fullCourseDto.CategoryId,
+                TeacherId = userId,
+                Price = (decimal)fullCourseDto.Price,
+                DiscountPrice = (decimal?)fullCourseDto.Discount,
+                ThumbnailUrl = fullCourseDto.Thumbnail,
+                Status = DRAFT_STATUS,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            await _courseRepository.AddCourseAsync(course);
+
+            var courseContent = new CourseContent
+            {
+                CourseId = course.Id,
+                Title = fullCourseDto.CourseContent.Title,
+                Description = fullCourseDto.CourseContent.Description,
+                Introduce = fullCourseDto.CourseContent.Introduce,
+            };
+
+            await _courseContentRepository.AddCourseContentAsync(courseContent);
+
+            List<Lesson> lessons = new List<Lesson>();
+            foreach (var lessonDto in fullCourseDto.CourseContent.Lessons)
+            {
+                var lesson = new Lesson
+                {
+                    CourseContentId = courseContent.Id,
+                    Title = lessonDto.Title,
+                    VideoUrl = lessonDto.VideoUrl,
+                    Order = lessonDto.Order,
+                    Duration = lessonDto.Duration,
+                    TextContent = lessonDto.TextContent
+                };
+                lessons.Add(lesson);
+            }
+
+            await _lessonRepository.AddMultiLessonsAsync(lessons);
+            await transaction.CommitAsync();
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync();
+            throw;
         }
     }
 }

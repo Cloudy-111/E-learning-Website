@@ -73,8 +73,8 @@ function DetailContentLesson( {
                             Mô tả chi tiết
                         </span>
                         <textarea
-                            value={courseContent.description}
-                            onChange={(e) => updateCourseContent("description", e.target.value)}
+                            value={courseContent.introduce}
+                            onChange={(e) => updateCourseContent("introduce", e.target.value)}
                             rows={4}
                             placeholder="Giới thiệu tổng quan về nội dung, mục tiêu và cấu trúc khóa học..."
                             className="rounded-xl border border-gray-300 px-4 py-2 outline-none focus:ring-2 focus:ring-blue-200 bg-white"

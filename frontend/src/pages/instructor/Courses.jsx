@@ -85,8 +85,6 @@ export default function InstructorCourses() {
 
   return (
     <div className="min-h-screen w-screen max-w-none bg-white">
-      <Header />
-
       {/* Hero */}
       <section className="w-full bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-b border-gray-200">
         <div className="w-full px-6 lg:px-12 py-6 flex items-center justify-between">
@@ -299,33 +297,6 @@ export default function InstructorCourses() {
         )}
       </main>
 
-      <Footer />
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
