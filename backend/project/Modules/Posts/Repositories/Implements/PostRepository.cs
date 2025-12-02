@@ -24,6 +24,47 @@ public class PostRepository : IPostRepository
             .ToListAsync();
     }
 
+    public async Task<(List<Post> Items, int TotalRecords)> GetPagingAsync(
+    int page,
+    int pageSize,
+    List<string>? tags
+)
+    {
+        if (page <= 0) page = 1;
+        if (pageSize <= 0) pageSize = 10;
+
+        var query = _context.Posts
+            .Where(p => !p.IsDeleted && p.IsPublished)
+            .Include(p => p.Student)
+                .ThenInclude(s => s.User)
+            .AsQueryable();
+
+        // 🔍 Lọc theo tags nếu có
+        if (tags != null && tags.Any())
+        {
+            var normalizedTags = tags
+                .Where(t => !string.IsNullOrWhiteSpace(t))
+                .Select(t => t.Trim())
+                .ToList();
+
+            query = query.Where(p =>
+                p.Tags != null &&
+                normalizedTags.Any(tag => p.Tags.Contains(tag))
+            );
+        }
+
+        int totalRecords = await query.CountAsync();
+
+        var items = await query
+            .OrderByDescending(p => p.CreatedAt)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items, totalRecords);
+    }
+
+
 
     // Lấy bài viết của 1 thành viên ( bài công khai )
 

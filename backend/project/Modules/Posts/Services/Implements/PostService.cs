@@ -50,6 +50,35 @@ public class PostService : IPostService
     }
 
 
+     // ============================
+    //  PHÂN TRANG + LỌC TAGS
+    // ============================
+    public async Task<(List<PostDto> Items, int TotalRecords)> GetPagedPostsByTagsAsync(
+        int page,
+        int pageSize,
+        List<string>? tags
+    )
+    {
+        var (items, totalRecords) = await _postRepository.GetPagingAsync(page, pageSize, tags);
+
+        var mapped = items.Select(p => new PostDto
+        {
+            Id = p.Id,
+            Title = p.Title ?? string.Empty,
+            Tags = p.Tags,
+            LikeCount = p.LikeCount,
+            ViewCount = p.ViewCount,
+            CreatedAt = p.CreatedAt,
+            AuthorId = p.AuthorId,
+            AuthorName = p.Student?.User?.FullName ?? "Ẩn danh",
+            IsDeleted = p.IsDeleted,
+            DeletedAt = p.DeletedAt
+        }).ToList();
+
+        return (mapped, totalRecords);
+    }
+
+
 
 
     // ✅ GET /api/posts/member/{memberId}

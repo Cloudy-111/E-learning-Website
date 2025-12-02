@@ -7,6 +7,11 @@ namespace project.Modules.Posts.Services.Interfaces;
 public interface IPostService
 {
     Task<IEnumerable<PostDto>> GetAllPostsAsync();
+    Task<(List<PostDto> Items, int TotalRecords)> GetPagedPostsByTagsAsync(
+        int page,
+        int pageSize,
+        List<string>? tags
+    );
     Task<PostDetailDto?> GetPostByIdAsync(string id);
     Task<PostDetailDto?> GetAllPostByIdAsync(string id);
     Task<IEnumerable<PostDto>> SearchPostsByTagAsync(string tag);

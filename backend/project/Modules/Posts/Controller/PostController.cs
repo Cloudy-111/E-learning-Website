@@ -29,6 +29,36 @@ namespace project.Modules.Posts.Controller
         }
 
 
+        // ======================= PAGING + FILTER TAGS =======================
+        [HttpGet("paging")]
+        public async Task<ActionResult> GetPagedPosts(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] List<string>? tags = null
+        )
+        {
+            if (page <= 0 || pageSize <= 0)
+                return BadRequest(new { message = "Page và pageSize phải lớn hơn 0." });
+
+            var (items, totalRecords) = await _postService.GetPagedPostsByTagsAsync(page, pageSize, tags);
+
+            var totalPages = (int)Math.Ceiling(totalRecords / (double)pageSize);
+
+            var response = new
+            {
+                page,
+                pageSize,
+                totalRecords,
+                totalPages,
+                tags = tags ?? new List<string>(),
+                items
+            };
+
+            return Ok(response);
+        }
+
+
+
 
         // GET: /api/posts/member/{memberId}
         [HttpGet("member/{memberId}")]

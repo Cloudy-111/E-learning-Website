@@ -10,6 +10,9 @@ export default function BlogList({
     onSelectTag,
     selectedTag,
     allTags,
+    page,
+    totalPages,
+    onPageChange,
 }) {
     return (
         <Section
@@ -65,6 +68,50 @@ export default function BlogList({
                     )}
                 </div>
             )}
+
+            {totalPages > 1 && (
+                <Pagination
+                    page={page}
+                    totalPages={totalPages}
+                    onPageChange={onPageChange}
+                />
+            )}
         </Section>
+    );
+}
+
+function Pagination({ page, totalPages, onPageChange }) {
+    const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
+
+    return (
+        <div className="mt-8 flex justify-center items-center gap-2">
+            <button
+                onClick={() => onPageChange(page - 1)}
+                disabled={page <= 1}
+                className="rounded-full border w-9 h-9 flex items-center justify-center hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Trang trước"
+            >
+                ‹
+            </button>
+            {pages.map((p) => (
+                <button
+                    key={p}
+                    onClick={() => onPageChange(p)}
+                    disabled={p === page}
+                    className={`rounded-full border w-9 h-9 flex items-center justify-center hover:bg-slate-50 disabled:cursor-not-allowed ${p === page ? "bg-slate-900 text-white" : ""
+                        }`}
+                >
+                    {p}
+                </button>
+            ))}
+            <button
+                onClick={() => onPageChange(page + 1)}
+                disabled={page >= totalPages}
+                className="rounded-full border w-9 h-9 flex items-center justify-center hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Trang sau"
+            >
+                ›
+            </button>
+        </div>
     );
 }
