@@ -150,6 +150,7 @@ export default function App() {
                     {/* Teacher */}
                     <Route element={<RequireRole roles={["Teacher"]} />}>
                       <Route path="/i/dashboard" element={<InstructorDashboard title="📊 /i/dashboard — Tổng quan giảng viên" />} />
+                      <Route path="/i/courses/new" element={<CourseNew title="🆕 /i/courses/new — Tạo khoá draft" />} />
                     </Route>
                     
                   </Route>
@@ -214,7 +215,7 @@ export default function App() {
                     <Route element={<RequireRole roles={["Teacher"]} />}>
                       
                       <Route path="/i/courses" element={<InstructorCourses title="📚 /i/courses — Khoá học đã tạo" />} />
-                      <Route path="/i/courses/new" element={<CourseNew title="🆕 /i/courses/new — Tạo khoá draft" />} />
+                      
                       <Route path="/i/courses/:id/edit" element={<CourseEdit title="✏️ /i/courses/:id/edit — Sửa khoá (draft/version)" />} />
                       <Route path="/i/courses/:id/lessons" element={<CourseLessons title="🧱 /i/courses/:id/lessons — CRUD bài học" />} />
                       <Route path="/i/courses/:id/students" element={<CourseStudents title="👥 /i/courses/:id/students — Danh sách học viên" />} />
