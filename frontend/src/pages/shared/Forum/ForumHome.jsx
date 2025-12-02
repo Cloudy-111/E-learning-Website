@@ -7,6 +7,7 @@ import { http } from "../../../utils/http";
 import { API_BASE, BORDER, PRIMARY, PRIMARY_HOVER } from "./utils/constants";
 import { isLoggedIn } from "./utils/helpers";
 import { SearchBar, QuestionCard } from "./components";
+import Pagination from "../Exam/Components/Pagination";
 
 export default function ForumHome() {
     const navigate = useNavigate();
@@ -17,6 +18,8 @@ export default function ForumHome() {
     const [pageSize, setPageSize] = useState(9); // Lấy 9 items để vừa với grid 3 cột
     const [searchTags, setSearchTags] = useState([]); // State để lưu các tags tìm kiếm
     const [totalRecords, setTotalRecords] = useState(0);
+
+    const totalPages = Math.ceil(totalRecords / pageSize);
 
     const fetchList = async (currentPage, tags) => {
         // Xây dựng URL với các tham số
@@ -152,25 +155,12 @@ export default function ForumHome() {
                     )}
 
                     {/* Pagination Controls */}
-                    {!loading && totalRecords > pageSize && (
-                        <div className="mt-8 flex justify-center items-center gap-4">
-                            <button
-                                onClick={() => setPage(p => p - 1)}
-                                disabled={page <= 1}
-                                className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                Trang trước
-                            </button>
-                            <span className="text-sm text-slate-600">
-                                Trang {page} / {Math.ceil(totalRecords / pageSize)}
-                            </span>
-                            <button
-                                onClick={() => setPage(p => p + 1)}
-                                disabled={page >= Math.ceil(totalRecords / pageSize)}
-                                className="px-4 py-2 text-sm font-medium text-slate-700 bg-white border rounded-md hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                Trang sau
-                            </button>
+                    {!loading && totalPages > 1 && (
+                        <div className="mt-8">
+                            <Pagination
+                                currentPage={page}
+                                totalPages={totalPages}
+                                onPageChange={setPage} />
                         </div>
                     )}
                 </section>
