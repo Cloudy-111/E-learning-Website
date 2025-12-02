@@ -66,6 +66,7 @@ public class PostService : IPostService
             Id = p.Id,
             Title = p.Title ?? string.Empty,
             Tags = p.Tags,
+            ThumbnailUrl = p.ThumbnailUrl,
             LikeCount = p.LikeCount,
             ViewCount = p.ViewCount,
             CreatedAt = p.CreatedAt,

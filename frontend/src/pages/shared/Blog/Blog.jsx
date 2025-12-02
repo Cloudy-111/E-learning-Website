@@ -24,6 +24,9 @@ export default function Blog() {
     const [selectedTag, setSelectedTag] = useState("Tất cả");
     const [myReloadKey, setMyReloadKey] = useState(0);
 
+    const [relatedPosts, setRelatedPosts] = useState([]); // New state for related posts
+    const [relatedLoading, setRelatedLoading] = useState(true); // New loading state for related posts
+    const [relatedError, setRelatedError] = useState(null); // New error state for related posts
     // Lấy danh sách post có phân trang
     const fetchPosts = async (currentPage, currentTag) => {
         setLoading(true);
@@ -59,6 +62,32 @@ export default function Blog() {
         fetchPosts(page, selectedTag);
     }, [page, selectedTag]);
 
+    // Fetch related posts once on mount
+    useEffect(() => {
+        const fetchRelated = async () => {
+            setRelatedLoading(true);
+            setRelatedError(null);
+            try {
+                const url = new URL(`${API_BASE}/api/Posts/paging`);
+                url.searchParams.append('page', 1); // Always fetch from the first page
+                url.searchParams.append('pageSize', 8); // Always fetch 8 items
+                // No tags filter for related posts, so don't append 'tags' param
+
+                const res = await http(url.toString(), {
+                    headers: { accept: "*/*" },
+                });
+
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const json = await res.json();
+                setRelatedPosts(json.items.map(normPost));
+            } catch (e) {
+                setRelatedError(e?.message || "Lỗi tải bài viết liên quan");
+            } finally {
+                setRelatedLoading(false);
+            }
+        };
+        fetchRelated();
+    }, []); // Empty dependency array to run only once on mount
     // Suy ra tag list từ dữ liệu (có thể cần API riêng để lấy tất cả tags)
     const allTags = useMemo(() => {
         const tags = new Set(["Tất cả"]);
@@ -72,9 +101,6 @@ export default function Blog() {
         setPage(1);
         setSelectedTag(tag);
     };
-
-    // Bài viết liên quan dùng dữ liệu hiện tại
-    const related = useMemo(() => posts.slice(0, 8), [posts]);
 
     // Khi tạo mới thành công -> fetch lại trang 1 + trigger MyBlog reload
     const onCreated = (created) => {
@@ -115,7 +141,7 @@ export default function Blog() {
                 />
 
                 {/* Related */}
-                <RelatedBlogs posts={related} />
+                <RelatedBlogs posts={relatedPosts} loading={relatedLoading} error={relatedError} />
 
                 {/* (2) My Blog Preview */}
                 <MyBlogPreview refreshKey={myReloadKey} />
