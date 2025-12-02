@@ -26,7 +26,7 @@ export default function PostCard({ post, onSoftDelete, onHardDelete, onRestore }
                     {post.isPublished ? "Đã xuất bản" : "Bản nháp"}
                     {post.isDeleted ? " • ĐÃ XOÁ MỀM" : ""}
                 </div>
-                <h3 className="mt-2 font-semibold text-slate-900 line-clamp-2">{post.title}</h3>
+                <h3 className="mt-2 h-14 font-semibold text-slate-900 line-clamp-2">{post.title}</h3>
 
                 <div className="mt-3 flex flex-wrap gap-2 text-sm">
                     <Link
@@ -50,7 +50,7 @@ export default function PostCard({ post, onSoftDelete, onHardDelete, onRestore }
                             onClick={() => onSoftDelete(post.id)}
                             className="rounded-full border px-3 py-1 hover:bg-slate-50 text-rose-600"
                         >
-                            Xoá mềm
+                            Xoá
                         </button>
                     ) : (
                         <>

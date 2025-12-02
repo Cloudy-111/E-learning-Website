@@ -42,31 +42,37 @@ export function getAuthInfoStrict() {
         if (raw) token = raw.replace(/^"|"$/g, ""); // bỏ quote nếu là JSON string
     }
 
-    // suy ra memberId
-    let memberId = null;
-    const authUser2 = readLocal("auth_user");
-    if (authUser2?.studentId) memberId = authUser2.studentId;
-    else if (authUser2?.teacherId) memberId = authUser2.teacherId;
+    // DEBUG: Kiểm tra token có được tìm thấy không
+    console.log("[helpers.js] getAuthInfoStrict - Found token:", token);
 
-    if (!memberId && token) {
+    // Nếu có token, giải mã nó để lấy thông tin người dùng
+    let memberId = null;
+    if (token) {
         const claims = decodeJwt(token) || {};
+
+        // DEBUG: Log the entire claims object and specific studentId claims
+        console.log("[helpers.js] Decoded claims object:", claims);
+        console.log("[helpers.js] Value of claims.StudentId (uppercase S):", claims.StudentId);
+        console.log("[helpers.js] Value of claims.studentId (lowercase s):", claims.studentId);
+
+        // Ưu tiên lấy studentId từ claims của token
         memberId =
             claims.StudentId ||
             claims.studentId ||
             claims.TeacherId ||
             claims.teacherId ||
             null;
+    } else {
+        // Phương án dự phòng: nếu không có token, thử tìm trong localStorage
+        const authUser = readLocal("auth_user");
+        if (authUser?.studentId) memberId = authUser.studentId;
+        else if (authUser?.teacherId) memberId = authUser.teacherId;
     }
 
     return { token, memberId };
 }
 
 /** Tạo headers có Authorization nếu có token */
-export function withAuthHeaders(base = {}) {
-    const { token } = getAuthInfoStrict();
-    return token ? { ...base, Authorization: `Bearer ${token}` } : base;
-}
-
 function getAuthUser() {
     try {
         return JSON.parse(localStorage.getItem("auth_user") || "null") || null;
@@ -80,9 +86,25 @@ function getAccessToken() {
     return u?.token || null;
 }
 
-export function authHeaders(extra = {}) {
-    const token = getAccessToken();
-    return token ? { ...extra, Authorization: `Bearer ${token}` } : { ...extra };
+/**
+ * Tạo headers có Authorization nếu có token.
+ * @param {boolean} includeContentType - Mặc định là true, có thêm 'Content-Type': 'application/json'.
+ * @returns {object} - Headers object.
+ */
+export function authHeaders(includeContentType = true) {
+    const { token } = getAuthInfoStrict(); // Sử dụng hàm lấy token đáng tin cậy hơn
+    const headers = {};
+
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    if (includeContentType) {
+        headers['Content-Type'] = 'application/json';
+    }
+
+    // DEBUG: Kiểm tra header được tạo ra
+    console.log("[helpers.js] authHeaders - Generated headers:", headers);
+    return headers;
 }
 
 // ===== Normalizer =====

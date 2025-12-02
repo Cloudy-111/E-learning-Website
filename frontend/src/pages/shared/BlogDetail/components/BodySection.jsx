@@ -68,9 +68,7 @@ export default function BodySection({ post }) {
                         )}
                     </div>
 
-                    {/* Like + Share */}
-                    <LikeBar seedCount={post?.likes ?? 0} />
-
+                   
                     {/* Comments */}
                     <Comments />
                 </article>
@@ -121,27 +119,7 @@ export default function BodySection({ post }) {
                             </div>
                         </div>
 
-                        {/* Newsletter */}
-                        <form
-                            onSubmit={(e) => {
-                                e.preventDefault();
-                                alert("Đã đăng ký nhận bản tin (demo)");
-                            }}
-                            className="mt-6 rounded-xl border p-4 grid gap-3"
-                            style={{ borderColor: BORDER }}
-                        >
-                            <div className="text-sm font-medium text-slate-900">
-                                Nhận bản tin
-                            </div>
-                            <input
-                                type="email"
-                                required
-                                placeholder="Email của bạn"
-                                className="rounded-full border px-4 py-2 outline-none focus:ring-2 focus:ring-[#93c5fd]"
-                                style={{ borderColor: BORDER }}
-                            />
-                            <Primary>Đăng ký</Primary>
-                        </form>
+                       
                     </div>
                 </aside>
             </div>

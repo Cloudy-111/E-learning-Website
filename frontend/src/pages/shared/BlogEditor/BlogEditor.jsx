@@ -1,13 +1,14 @@
 // src/pages/shared/BlogEditor/BlogEditor.jsx
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 import { isLoggedIn, requireAuth } from "../../../utils/auth";
 import { fetchPostById, createPost, updatePost } from "../../../api/posts.api";
+import { useToast } from "../../../components/ui/Toast";
 
 import EditorHero from "./Components/EditorHero";
 import EditorForm from "./Components/EditorForm";
@@ -15,6 +16,8 @@ import EditorForm from "./Components/EditorForm";
 function BlogEditor({ mode = "edit" }) {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { toast } = useToast();
+    const queryClient = useQueryClient();
     const isEditMode = mode === "edit" && !!id;
 
     // Guard: require login
@@ -25,8 +28,6 @@ function BlogEditor({ mode = "edit" }) {
     }, [id, navigate, isEditMode]);
 
     // Form state
-    const [saving, setSaving] = useState(false);
-    const [error, setError] = useState("");
     const [title, setTitle] = useState("");
     const [tags, setTags] = useState("");
     const [thumbnailUrl, setThumbnailUrl] = useState("");
@@ -40,10 +41,7 @@ function BlogEditor({ mode = "edit" }) {
         error: fetchError
     } = useQuery({
         queryKey: ['post', id],
-        queryFn: async () => {
-            const post = await fetchPostById(id);
-            return post;
-        },
+        queryFn: () => fetchPostById(id),
         enabled: isEditMode,
         staleTime: 0,
     });
@@ -76,40 +74,59 @@ function BlogEditor({ mode = "edit" }) {
         [title, content]
     );
 
-    const handleSave = async () => {
+    const createPostMutation = useMutation({
+        mutationFn: createPost,
+        onSuccess: (result) => {
+            toast({ title: "Thành công", description: "Bài viết của bạn đã được xuất bản." });
+            queryClient.invalidateQueries({ queryKey: ['my-posts'] });
+            navigate(`/blog/${result.id || result.data?.id}`, { replace: true });
+        },
+        onError: (e) => {
+            toast({ title: "Lỗi", description: e.message || "Không thể tạo bài viết.", variant: "destructive" });
+        }
+    });
+
+    const updatePostMutation = useMutation({
+        mutationFn: ({ id, data }) => updatePost(id, data),
+        onSuccess: () => {
+            toast({ title: "Thành công", description: "Các thay đổi đã được lưu lại." });
+            queryClient.invalidateQueries({ queryKey: ['my-posts'] });
+            queryClient.invalidateQueries({ queryKey: ['post', id] });
+            navigate("/blog/my", { replace: true });
+        },
+        onError: (e) => {
+            toast({ title: "Lỗi", description: e.message || "Không thể lưu thay đổi.", variant: "destructive" });
+        }
+    });
+
+    const saving = createPostMutation.isPending || updatePostMutation.isPending;
+
+    const handleSave = useCallback(() => {
         if (!canSubmit || saving) return;
 
-        try {
-            setSaving(true);
-            setError("");
+        const payload = {
+            title: title.trim(),
+            contentJson: JSON.stringify({ blocks: [{ text: content.trim() }] }),
+            thumbnailUrl: thumbnailUrl.trim() || null,
+            tags: (tags || "").trim(),
+            isPublished,
+        };
 
-            const payload = {
-                title: title.trim(),
-                contentJson: JSON.stringify({ blocks: [{ text: content.trim() }] }),
-                thumbnailUrl: thumbnailUrl.trim() || null,
-                tags: (tags || "").trim(),
-                isPublished,
-            };
-
-            if (isEditMode) {
-                await updatePost(id, payload);
-                navigate("/blog/my?ok=updated", { replace: true });
-            } else {
-                const result = await createPost(payload);
-                navigate(`/blog/${result.id || result.data?.id}`, { replace: true });
-            }
-        } catch (e) {
-            setError(e?.message || "Lưu thất bại");
-        } finally {
-            setSaving(false);
+        if (isEditMode) {
+            updatePostMutation.mutate({ id, data: payload });
+        } else {
+            createPostMutation.mutate(payload);
         }
-    };
+    }, [canSubmit, saving, title, content, thumbnailUrl, tags, isPublished, isEditMode, id, createPostMutation, updatePostMutation, navigate]);
+
+    const error = fetchError?.message || createPostMutation.error?.message || updatePostMutation.error?.message || "";
 
     return (
         <>
             <Header />
             <main className="w-screen overflow-x-hidden">
                 <EditorHero
+                    title={postData?.title}
                     mode={mode}
                     canSubmit={canSubmit}
                     saving={saving}
@@ -135,7 +152,7 @@ function BlogEditor({ mode = "edit" }) {
                             saving={saving}
                             onSave={handleSave}
                             loading={loading && isEditMode}
-                            error={error || (fetchError ? fetchError.message : "")}
+                            error={error}
                         />
                     </div>
                 </section>

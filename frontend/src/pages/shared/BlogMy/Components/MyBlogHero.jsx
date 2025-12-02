@@ -27,7 +27,7 @@ export default function MyBlogHero({ showDeleted, setShowDeleted }) {
                                 checked={showDeleted}
                                 onChange={(e) => setShowDeleted(e.target.checked)}
                             />
-                            Hiện bài đã xoá mềm
+                            Hiện bài đã xoá
                         </label>
                         <button
                             onClick={() => navigate("/blog/new")}

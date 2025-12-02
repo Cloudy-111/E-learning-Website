@@ -10,7 +10,7 @@ import {
 } from "../utils/constants";
 import {
     getAuthInfoStrict,
-    withAuthHeaders,
+    authHeaders,
     isLoggedIn,
 } from "../utils/helpers";
 import { Section } from "./Common";
@@ -29,7 +29,7 @@ export default function MyBlogPreview({ refreshKey }) {
             try {
                 setLoading(true);
                 const res = await http(`${API_BASE}/api/Posts/member/${memberId}`, {
-                    headers: withAuthHeaders({ accept: "*/*" }),
+                    headers: authHeaders({ accept: "*/*" }),
                     signal: ac.signal,
                 });
                 if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -94,7 +94,7 @@ export default function MyBlogPreview({ refreshKey }) {
                             + Viết bài
                         </Link>
                         <Link to="/blog/my" className="text-[#2563eb] hover:underline">
-                            Quản lý tất cả
+                            Bài viết của tôi
                         </Link>
                     </div>
                 ) : (
