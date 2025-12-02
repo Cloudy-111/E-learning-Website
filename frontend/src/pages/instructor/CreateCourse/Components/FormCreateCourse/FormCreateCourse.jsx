@@ -48,6 +48,8 @@ function FormCreateCourse( {
                 <SettingCourse 
                     course={course}
                     courseContent={courseContent} 
+                    outcomes={outcomes}
+                    requirements={requirements}
                 />}
 
             {/* Wizard nav */}

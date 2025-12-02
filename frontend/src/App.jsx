@@ -151,6 +151,7 @@ export default function App() {
                     <Route element={<RequireRole roles={["Teacher"]} />}>
                       <Route path="/i/dashboard" element={<InstructorDashboard title="📊 /i/dashboard — Tổng quan giảng viên" />} />
                       <Route path="/i/courses/new" element={<CourseCreate title="🆕 /i/courses/new — Tạo khoá draft" />} />
+                      <Route path="/i/courses" element={<InstructorCourses title="📚 /i/courses — Khoá học đã tạo" />} />
                     </Route>
                     
                   </Route>

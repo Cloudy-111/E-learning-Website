@@ -94,6 +94,32 @@ public class CourseController : ControllerBase
 
     // Teacher only
     [Authorize(Roles = "Teacher")]
+    [HttpPost("create-full-course")]
+    public async Task<IActionResult> CreateFullCourse([FromBody] FullCourseCreateDTO fullCourseDto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new APIResponse("error", "Invalid input data", ModelState));
+        }
+
+        try
+        {
+            var teacherId = User.FindFirst("teacherId")?.Value;
+            await _courseService.AddFullCourseAsync(teacherId, fullCourseDto);
+            return Ok(new APIResponse("Success", "Create new Full Course successfully"));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            {
+                message = "An error occurred while creating the full course.",
+                detail = ex.Message
+            });
+        }
+    }
+
+    // Teacher only
+    [Authorize(Roles = "Teacher")]
     [HttpPatch("{id}")]
     public async Task<IActionResult> UpdateCourse(string id, [FromBody] CourseUpdateDTO courseDto)
     {
