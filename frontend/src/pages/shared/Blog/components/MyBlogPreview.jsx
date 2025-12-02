@@ -94,7 +94,7 @@ export default function MyBlogPreview({ refreshKey }) {
                             + Viết bài
                         </Link>
                         <Link to="/blog/my" className="text-[#2563eb] hover:underline">
-                            Quản lý tất cả
+                            Bài viết của tôi
                         </Link>
                     </div>
                 ) : (
