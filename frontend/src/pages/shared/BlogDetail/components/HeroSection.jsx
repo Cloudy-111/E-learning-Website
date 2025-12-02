@@ -67,6 +67,46 @@ export default function HeroSection({ post }) {
 
     }, [post?.id]);
 
+    let isViewApiCalled = false; // Cờ để tránh gọi API nhiều lần
+
+    // Tăng view count
+    useEffect(() => {
+        if (!post?.id) return;
+        console.log(`[View Count] useEffect triggered for post: ${post.id}`);
+
+        const now = new Date().getTime();
+        const viewTimestamp = localStorage.getItem(`viewed_post_${post.id}`);
+        const oneHour = 60 * 60 * 1000; // 1 giờ tính bằng mili giây
+
+        // Chỉ tăng view nếu chưa từng xem, hoặc lần xem cuối đã hơn 1 giờ trước
+        if ((!viewTimestamp || now - parseInt(viewTimestamp, 10) > oneHour) && !isViewApiCalled) {
+            // Đặt cờ thành true ngay lập tức để ngăn các lần gọi tiếp theo
+            // trong cùng một chu kỳ render (do StrictMode)
+            isViewApiCalled = true;
+
+            console.log(`[View Count] Condition met. Calling API for post: ${post.id}`);
+            fetch(`http://localhost:5102/api/Posts/${post.id}/view`, {
+                method: 'POST',
+            })
+            .then(res => {
+                if (res.ok) {
+                    // Ghi lại thời điểm đã xem vào localStorage
+                    localStorage.setItem(`viewed_post_${post.id}`, now.toString());
+                    console.log(`[View Count] API call successful. Timestamp saved for post: ${post.id}`);
+                } else if (res.status === 404) {
+                    // Nếu bài viết không tồn tại, không cần thử lại
+                    console.error(`[View Count] Post with id ${post.id} not found.`);
+                } else {
+                    console.error("Failed to increase view count. Status:", res.status);
+                }
+            })
+            .catch(err => console.error("Error increasing view count:", err));
+        } else {
+            console.log(`[View Count] Condition NOT met. API call skipped for post: ${post.id}. Last view was less than an hour ago.`);
+        }
+
+    }, [post?.id]);
+
     // Hàm xử lý like/unlike
     const handleLike = async () => {
         if (!post?.id) return;
