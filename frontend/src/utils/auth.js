@@ -105,6 +105,8 @@ export function clearAllAuth() {
     localStorage.removeItem(AT_KEY);
     localStorage.removeItem(RT_KEY);
     localStorage.removeItem(USER_KEY);
+    localStorage.removeItem("auth_user");
+    localStorage.removeItem("app_header_mode");
   } catch {}
 }
 
