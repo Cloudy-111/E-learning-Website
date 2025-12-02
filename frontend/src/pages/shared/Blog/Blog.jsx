@@ -124,6 +124,9 @@ export default function Blog() {
             <main className="w-screen overflow-x-hidden">
                 <HeroSection />
 
+                {/* (2) My Blog Preview */}
+                <MyBlogPreview refreshKey={myReloadKey} />
+
                 {/* (1) Search */}
                 <SearchBar />
 
@@ -142,9 +145,6 @@ export default function Blog() {
 
                 {/* Related */}
                 <RelatedBlogs posts={relatedPosts} loading={relatedLoading} error={relatedError} />
-
-                {/* (2) My Blog Preview */}
-                <MyBlogPreview refreshKey={myReloadKey} />
 
                 {/* Composer: đăng bài có token + thông báo thành công */}
                 <Composer onCreated={onCreated} />
