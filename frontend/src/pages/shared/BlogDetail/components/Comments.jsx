@@ -1,6 +1,7 @@
 // src/pages/shared/BlogDetail/components/Comments.jsx
 import { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
+import { useToast } from "../../../../components/ui/Toast";
 import { jwtDecode } from "jwt-decode";
 import { ls, fmtTime } from "../utils/helpers";
 import { authHeaders } from "../../Blog/utils/helpers";
@@ -35,12 +36,47 @@ const Section = ({ id, title, children }) => (
     </section>
 );
 
+// Component Modal xác nhận, học theo QuestionDetail.jsx
+const ConfirmationDialog = ({ isOpen, onClose, onConfirm, title, description, confirmText, isConfirming }) => {
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
+            <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+                <h3 className="text-lg font-bold text-slate-900">{title}</h3>
+                <p className="text-sm text-slate-600 mt-2 mb-6">{description}</p>
+                <div className="flex justify-end gap-3">
+                    <button onClick={onClose} disabled={isConfirming} className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-md hover:bg-slate-200 disabled:opacity-50">Huỷ</button>
+                    <button onClick={onConfirm} disabled={isConfirming} className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50 disabled:bg-red-400">{confirmText}</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const CommentActions = ({ isOwner, onEdit, onDelete, onReport }) => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    return (
+        <div className="relative">
+            <button onClick={() => setIsOpen(!isOpen)} className="p-2 rounded-full hover:bg-slate-100">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg>
+            </button>
+            {isOpen && <div className="absolute top-full right-0 mt-1 bg-white border rounded-lg shadow-lg z-10 w-28 text-sm">
+                {isOwner ? <> <button onClick={() => { onEdit(); setIsOpen(false); }} className="block w-full text-left px-3 py-2 hover:bg-slate-100">Sửa</button> <button onClick={() => { onDelete(); setIsOpen(false); }} className="block w-full text-left px-3 py-2 text-red-600 hover:bg-red-50">Xoá</button> </> : <button onClick={() => { onReport(); setIsOpen(false); }} className="block w-full text-left px-3 py-2 hover:bg-slate-100">Báo cáo</button>}
+            </div>}
+        </div>
+    );
+};
+
 export default function Comments() {
     const { id: postId = "default" } = useParams();
     const KEY = `blog_comments_${postId}`;
+    const { toast } = useToast();
 
     const getUserNameFromToken = () => {
-        const token = localStorage.getItem("token");
+        // Học theo QuestionDetail.jsx: sử dụng key 'app_access_token'
+        const token = localStorage.getItem("app_access_token");
         if (!token) return "Khách";
         try {
             // Giả sử claim trong token chứa studentId
@@ -52,11 +88,33 @@ export default function Comments() {
         }
     };
 
+    const getUserIdFromToken = () => {
+        // Học theo QuestionDetail.jsx: sử dụng key 'app_access_token'
+        const token = localStorage.getItem("app_access_token");
+        if (!token) return null;
+        try {
+            const decoded = jwtDecode(token);
+            // Lấy studentId từ claim, ưu tiên 'StudentId' (viết hoa) như trong QuestionDetail.jsx
+            const studentId = decoded.StudentId || decoded.studentId;
+            return studentId;
+        } catch (error) {
+            console.error("Failed to decode token for user ID:", error);
+            return null;
+        }
+    };
+
     const [items, setItems] = useState([]);
     const [content, setContent] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [editingCommentId, setEditingCommentId] = useState(null);
+    const [editingContent, setEditingContent] = useState("");
 
+    // State cho modal xác nhận xoá, học theo QuestionDetail.jsx
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+    const [deletingCommentId, setDeletingCommentId] = useState(null); // ID của comment đang chờ xoá
+    const [isDeleting, setIsDeleting] = useState(false);
+    
     const fetchComments = useCallback(async () => {
         setIsLoading(true);
         setError(null);
@@ -113,32 +171,73 @@ export default function Comments() {
         }
     };
 
-    const removeComment = async (commentId) => {
-        // Xác nhận trước khi xóa
-        if (!window.confirm("Bạn có chắc chắn muốn xóa bình luận này không?")) {
-            return;
-        }
+    // Hàm mở dialog xác nhận xoá
+    const handleDeleteClick = (commentId) => {
+        setDeletingCommentId(commentId);
+        setIsDeleteConfirmOpen(true);
+    };
 
+    const removeComment = async (commentId) => {
+        if (!commentId) return;
+        setIsDeleting(true);
         try {
             const requestHeaders = authHeaders(false);
-            // DEBUG: Kiểm tra headers trước khi gửi yêu cầu xóa
-            console.log(`[Comments.jsx] removeComment (ID: ${commentId}) - Sending request with headers:`, requestHeaders);
-
             const response = await fetch(`${API_BASE}/api/Discussion/${commentId}`, {
                 method: 'DELETE',
-                headers: requestHeaders, // Không cần Content-Type cho DELETE
+                headers: requestHeaders,
             });
 
             if (!response.ok) {
                 throw new Error("Failed to delete comment.");
             }
 
-            // Xóa bình luận khỏi state để cập nhật UI ngay lập tức
+            // Cập nhật UI
             setItems(items.filter((c) => c.id !== commentId));
+            toast({ title: "Thành công", description: "Đã xóa bình luận thành công." });
         } catch (err) {
             setError(err.message);
             console.error(err);
+            toast({ title: "Lỗi", description: err.message, variant: "destructive" });
+        } finally {
+            // Đóng modal và reset state
+            setIsDeleteConfirmOpen(false);
+            setIsDeleting(false);
+            setDeletingCommentId(null);
         }
+    };
+
+    const updateComment = async (commentId) => {
+        const trimmed = editingContent.trim();
+        if (!trimmed) return;
+
+        try {
+            const response = await fetch(`${API_BASE}/api/Discussion/${commentId}`, {
+                method: 'PUT',
+                headers: authHeaders(), // authHeaders đã bao gồm Content-Type
+                body: JSON.stringify({ content: trimmed }),
+            });
+            if (!response.ok) throw new Error("Failed to update comment.");
+            
+            toast({ title: "Thành công", description: "Đã cập nhật bình luận." });
+            // Tải lại danh sách bình luận để đảm bảo dữ liệu nhất quán
+            await fetchComments(); 
+        } catch (err) {
+            setError(err.message);
+            toast({ title: "Lỗi", description: err.message, variant: "destructive" });
+        } finally {
+            setEditingCommentId(null);
+            setEditingContent("");
+        }
+    };
+
+    const handleEditClick = (comment) => {
+        setEditingCommentId(comment.id);
+        setEditingContent(comment.content);
+    };
+
+    const reportComment = (commentId) => {
+        console.log(`Reporting comment ${commentId}`);
+        alert("Báo cáo của bạn đã được gửi đi. Cảm ơn bạn đã góp phần xây dựng cộng đồng!");
     };
 
     return (
@@ -191,38 +290,63 @@ export default function Comments() {
                         Chưa có bình luận nào. Hãy là người đầu tiên!
                     </div>
                 )}
-                {items.map((c) => (
-                    <div
-                        // Giả sử API trả về `id` cho mỗi bình luận
-                        key={c.id} 
-                        className="rounded-2xl border bg-white p-4"
-                        style={{ borderColor: BORDER }}
-                    >
-                        <div className="flex items-start justify-between gap-3">
-                            <div>
-                                <div className="text-sm font-medium text-slate-900">
-                                    {/* API trả về `studentName` cho mỗi bình luận */}
-                                    {c.studentName || "Khách"}
-                                </div>
-                                <div className="text-xs text-slate-500">
-                                    {fmtTime(c.createdAt)}
-                                </div>
-                            </div>
-                            <button
-                                onClick={() => removeComment(c.id)} // Sử dụng id từ API
-                                className="text-xs text-red-500 rounded-full border px-2 py-1 hover:bg-red-50 hover:border-red-400"
-                                title="Xoá bình luận này"
-                                style={{ borderColor: BORDER }}
-                            >
-                                Xoá
-                            </button>
+                {items.map((c) => {
+                    const isOwner = getUserIdFromToken() === c.studentId;
+                    const isEditing = editingCommentId === c.id;
+                    return (
+                        <div key={c.id} className="rounded-2xl border bg-white p-4" style={{ borderColor: BORDER }}>
+                            {isEditing ? (
+                                <form onSubmit={(e) => { e.preventDefault(); updateComment(c.id); }}>
+                                    <textarea
+                                        value={editingContent}
+                                        onChange={(e) => setEditingContent(e.target.value)}
+                                        rows={3}
+                                        className="w-full rounded-lg border px-3 py-2 outline-none focus:ring-2 focus:ring-[#93c5fd]"
+                                        style={{ borderColor: BORDER }}
+                                    />
+                                    <div className="mt-2 flex items-center justify-end gap-2">
+                                        <button type="button" onClick={() => setEditingCommentId(null)} className="text-sm px-3 py-1 rounded-md hover:bg-slate-100">Huỷ</button>
+                                        <button type="submit" className="text-sm bg-[#2563eb] text-white px-3 py-1 rounded-md hover:bg-[#1d4ed8]">Lưu</button>
+                                    </div>
+                                </form>
+                            ) : (
+                                <>
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div>
+                                            <div className="text-sm font-medium text-slate-900">
+                                                {c.studentName || "Khách"}
+                                            </div>
+                                            <div className="text-xs text-slate-500">
+                                                {fmtTime(c.createdAt)}
+                                            </div>
+                                        </div>
+                                        <CommentActions
+                                            isOwner={isOwner}
+                                            onEdit={() => handleEditClick(c)}
+                                            onDelete={() => handleDeleteClick(c.id)}
+                                            onReport={() => reportComment(c.id)}
+                                        />
+                                    </div>
+                                    <p className="mt-2 text-slate-800 whitespace-pre-wrap">
+                                        {c.content}
+                                    </p>
+                                </>
+                            )}
                         </div>
-                        <p className="mt-2 text-slate-800 whitespace-pre-wrap">
-                            {c.content}
-                        </p>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
+
+            {/* Modal xác nhận xoá */}
+            <ConfirmationDialog
+                isOpen={isDeleteConfirmOpen}
+                onClose={() => setIsDeleteConfirmOpen(false)}
+                onConfirm={() => removeComment(deletingCommentId)}
+                title="Xác nhận xoá bình luận"
+                description="Bạn có chắc muốn xoá bình luận này không? Hành động này không thể hoàn tác."
+                confirmText={isDeleting ? "Đang xoá..." : "Xoá"}
+                isConfirming={isDeleting}
+            />
         </Section>
     );
 }
