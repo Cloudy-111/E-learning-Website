@@ -9,6 +9,12 @@ public interface IForumQuestionRepository
     // Lấy tất cả các câu thảo luận
     Task<IEnumerable<ForumQuestion>> GetAllAsync();
 
+    Task<(List<ForumQuestion> Items, int TotalRecords)> GetPagingAsync(
+    int page,
+    int pageSize,
+    List<string>? tags = null
+);
+
     // Lấy tất cả các câu thảo luận của 1 người
     Task<IEnumerable<ForumQuestion>> GetByStudentPublicAsync(string studentId);
 
@@ -26,5 +32,7 @@ public interface IForumQuestionRepository
     // Lấy danh sách forum question đã xóa của 1 người 
 
     Task<IEnumerable<ForumQuestion>> GetDeletedByStudentAsync(string studentId);
+
+    Task<bool> IncreaseViewCountAsync(string id);
 
 }

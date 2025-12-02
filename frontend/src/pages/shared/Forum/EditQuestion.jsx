@@ -1,5 +1,6 @@
 // src/pages/shared/Forum/EditQuestion.jsx
 import { useEffect, useState } from "react";
+import { useToast } from "../../../components/ui/Toast";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
@@ -27,11 +28,10 @@ export default function EditQuestion() {
     const { id } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
+    const { toast } = useToast();
 
     const [loading, setLoading] = useState(true);
-    const [err, setErr] = useState(null);
-    const [ok, setOk] = useState("");
-
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
 
@@ -47,7 +47,6 @@ export default function EditQuestion() {
         (async () => {
             try {
                 setLoading(true);
-                setErr(null);
                 const res = await http(`${API_BASE}/api/ForumQuestion/${id}`, {
                     headers: { accept: "*/*" },
                     signal: ac.signal,
@@ -59,7 +58,11 @@ export default function EditQuestion() {
                 setContent(parseBlocks(q?.contentJson, q?.content || ""));
             } catch (e) {
                 if (e.name === "AbortError") return;
-                setErr(e?.message || "Fetch error");
+                toast({
+                    title: "Lỗi tải dữ liệu",
+                    description: e.message || "Không thể tải nội dung câu hỏi.",
+                    variant: "destructive",
+                });
             } finally {
                 setLoading(false);
             }
@@ -67,20 +70,19 @@ export default function EditQuestion() {
         return () => ac.abort();
     }, [id]);
 
-    const canSubmit = title.trim().length >= 6 && content.trim().length >= 10;
+    const canSubmit = !isSubmitting && title.trim().length >= 6 && content.trim().length >= 10;
 
     const onSubmit = async (e) => {
         e?.preventDefault?.();
         if (!canSubmit) return;
         try {
-            setErr(null);
-            setOk("");
+            setIsSubmitting(true);
             const body = {
                 title: title.trim(),
                 contentJson: JSON.stringify({ blocks: [{ text: content.trim() }] }),
             };
             const res = await http(`${API_BASE}/api/ForumQuestion/${id}`, {
-                method: "PATCH",
+                method: "PUT",
                 headers: authHeaders({
                     "Content-Type": "application/json",
                     accept: "*/*",
@@ -95,10 +97,14 @@ export default function EditQuestion() {
                 } catch { }
                 throw new Error(msg);
             }
-            setOk("✅ Cập nhật thành công! Chuyển về chi tiết…");
-            navigate(`/forum/${id}`, { replace: true });
+            toast({
+                title: "Thành công",
+                description: "Câu hỏi của bạn đã được cập nhật.",
+            });
+            setTimeout(() => navigate(`/forum/my`, { replace: true }), 1000);
         } catch (e) {
-            setErr(e?.message || "Cập nhật thất bại");
+            toast({ title: "Cập nhật thất bại", description: e.message, variant: "destructive" });
+            setIsSubmitting(false);
         }
     };
 
@@ -112,8 +118,8 @@ export default function EditQuestion() {
                             Hỏi – Đáp
                         </Link>{" "}
                         /{" "}
-                        <Link to={`/forum/${id}`} className="hover:text-blue-600">
-                            Chi tiết
+                        <Link to={`/forum/my`} className="hover:text-blue-600">
+                            Câu hỏi của tôi
                         </Link>{" "}
                         / <span>Sửa</span>
                     </div>
@@ -131,17 +137,6 @@ export default function EditQuestion() {
                             className="mt-6 rounded-2xl border bg-white p-5 grid gap-4"
                             style={{ borderColor: BORDER }}
                         >
-                            {ok && (
-                                <div className="rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 px-4 py-3">
-                                    {ok}
-                                </div>
-                            )}
-                            {err && (
-                                <div className="rounded-lg border border-red-200 bg-red-50 text-red-700 px-4 py-3">
-                                    {err}
-                                </div>
-                            )}
-
                             <div>
                                 <label className="text-sm font-medium">Tiêu đề</label>
                                 <input
@@ -175,7 +170,7 @@ export default function EditQuestion() {
                                         (e.currentTarget.style.background = PRIMARY)
                                     }
                                 >
-                                    Lưu thay đổi
+                                    {isSubmitting ? "Đang lưu..." : "Lưu thay đổi"}
                                 </button>
                             </div>
                         </form>
