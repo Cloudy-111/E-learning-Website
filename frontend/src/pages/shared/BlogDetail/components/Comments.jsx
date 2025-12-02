@@ -201,8 +201,8 @@ export default function Comments() {
                         <div className="flex items-start justify-between gap-3">
                             <div>
                                 <div className="text-sm font-medium text-slate-900">
-                                    {/* Giả sử API trả về `authorName` cho mỗi bình luận */}
-                                    {c.authorName || "Khách"}
+                                    {/* API trả về `studentName` cho mỗi bình luận */}
+                                    {c.studentName || "Khách"}
                                 </div>
                                 <div className="text-xs text-slate-500">
                                     {fmtTime(c.createdAt)}
