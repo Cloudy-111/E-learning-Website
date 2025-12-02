@@ -142,11 +142,14 @@ export default function HeroSection({ post }) {
         <section className="w-screen overflow-x-hidden pt-8">
             <div className="w-screen px-6 lg:px-12">
                 {/* breadcrumb */}
-                <div className="text-sm text-slate-500">
-                    <Link to="/blog" className="hover:text-[#2563eb]">
-                        Blog
-                    </Link>{" "}
-                    / <span>Chi tiết</span>
+                <div className="text-sm text-slate-500 flex items-center gap-2">
+                    <Link to="/blog" className="text-blue-600 hover:underline">
+                        Danh sách bài viết
+                    </Link>
+                    <span className="text-slate-300">|</span>
+                    <Link to="/blog/my" className="text-blue-600 hover:underline">
+                        Bài viết của tôi
+                    </Link>
                 </div>
 
                 <h1 className="mt-3 text-3xl sm:text-4xl lg:text-5xl font-extrabold leading-tight max-w-screen-xl text-slate-900">
