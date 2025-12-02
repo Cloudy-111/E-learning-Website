@@ -70,11 +70,20 @@ function BlogMy() {
         queryKey: ['my-posts', memberId],
         queryFn: async () => {
             if (!memberId) throw new Error("Không xác định được memberId từ tài khoản. Hãy đăng xuất và đăng nhập lại.");
-            const res = await fetchPostsByMember(memberId);
-            const list = res.data || [];
-            // Sort by newest first
-            list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-            return list;
+            try {
+                const res = await fetchPostsByMember(memberId);
+                const list = res.data || [];
+                // Sort by newest first
+                list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+                return list;
+            } catch (error) {
+                // Nếu API trả về 404, coi như không có bài viết nào và trả về mảng rỗng.
+                // Điều này giúp UI hiển thị "Chưa có bài viết nào" thay vì báo lỗi.
+                if (error.response && error.response.status === 404) {
+                    return []; // Trả về mảng rỗng, không phải là lỗi
+                }
+                throw error; // Ném lại các lỗi khác (500, network error, etc.)
+            }
         },
         enabled: !!memberId,
         staleTime: 1000 * 60 * 5, // 5 minutes
@@ -129,13 +138,16 @@ function BlogMy() {
                     <div className="w-screen px-6 lg:px-12">
                         {loading && <Loading />}
                         {error && !loading && <Error error={error} onRetry={refetch} />}
-                        {!loading && !error && (
+                        {!loading && !error && filtered.length > 0 && (
                             <PostList
                                 posts={filtered}
                                 onSoftDelete={handleSoftDelete}
                                 onHardDelete={handleHardDelete}
                                 onRestore={handleRestore}
                             />
+                        )}
+                        {!loading && !error && filtered.length === 0 && (
+                            <div className="text-center text-slate-500 py-10">Thành viên chưa có bài viết nào.</div>
                         )}
                     </div>
                 </section>

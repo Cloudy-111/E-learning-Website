@@ -66,9 +66,7 @@ namespace project.Modules.Posts.Controller
         {
             var posts = await _postService.GetPostsByMemberIdAsync(memberId);
 
-            if (!posts.Any())
-                return NotFound(new { message = "Thành viên này chưa có bài viết nào." });
-
+           
             return Ok(posts);
         }
 
