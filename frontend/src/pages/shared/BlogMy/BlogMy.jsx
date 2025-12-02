@@ -129,7 +129,9 @@ function BlogMy() {
         try {
             await softDeletePost(id);
             toast({ title: "Thành công", description: "Đã chuyển bài viết vào thùng rác." });
+            // Vô hiệu hóa cả hai query để cập nhật số lượng và danh sách
             queryClient.invalidateQueries({ queryKey: ['my-posts'] });
+            queryClient.invalidateQueries({ queryKey: ['my-deleted-posts'] });
         } catch (e) {
             toast({ title: "Lỗi", description: e.message || "Không thể xoá bài viết.", variant: "destructive" });
         } finally {
@@ -144,6 +146,7 @@ function BlogMy() {
         try {
             await hardDeletePost(id);
             toast({ title: "Thành công", description: "Đã xoá vĩnh viễn bài viết." });
+            // Chỉ cần vô hiệu hóa query này vì bài viết đã bị xóa khỏi đây
             queryClient.invalidateQueries({ queryKey: ['my-deleted-posts'] });
         } catch (e) {
             toast({ title: "Lỗi", description: e.message || "Không thể xoá vĩnh viễn.", variant: "destructive" });
