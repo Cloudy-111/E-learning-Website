@@ -1,8 +1,13 @@
 // src/pages/shared/BlogDetail/components/Comments.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 import { ls, fmtTime } from "../utils/helpers";
+import { authHeaders } from "../../Blog/utils/helpers";
 import { BORDER } from "../utils/constants";
+
+// TODO: Move this to a constants file
+const API_BASE = "http://localhost:5102";
 
 const Primary = ({ children, className = "", ...props }) => (
     <button
@@ -34,39 +39,106 @@ export default function Comments() {
     const { id: postId = "default" } = useParams();
     const KEY = `blog_comments_${postId}`;
 
-    const [items, setItems] = useState(ls.get(KEY, []));
-    const [name, setName] = useState(ls.get("blog_comment_name", ""));
-    const [content, setContent] = useState("");
-
-    useEffect(() => {
-        ls.set(KEY, items);
-    }, [items, KEY]);
-
-    useEffect(() => {
-        if (name) ls.set("blog_comment_name", name);
-    }, [name]);
-
-    const addComment = (e) => {
-        e.preventDefault();
-        const trimmed = content.trim();
-        const trimmedName = (name || "Khách").trim();
-        if (!trimmed) return;
-
-        const next = [
-            ...items,
-            {
-                id: crypto.randomUUID(),
-                name: trimmedName,
-                content: trimmed,
-                createdAt: Date.now(),
-            },
-        ];
-        setItems(next);
-        setContent("");
+    const getUserNameFromToken = () => {
+        const token = localStorage.getItem("token");
+        if (!token) return "Khách";
+        try {
+            // Giả sử claim trong token chứa studentId
+            const decoded = jwtDecode(token);
+            return decoded.StudentId || decoded.studentId || "Người dùng";
+        } catch (error) {
+            console.error("Failed to decode token:", error);
+            return "Khách";
+        }
     };
 
-    const removeComment = (id) => {
-        setItems(items.filter((c) => c.id !== id));
+    const [items, setItems] = useState([]);
+    const [content, setContent] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+
+    const fetchComments = useCallback(async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            // Thay đổi endpoint để lấy chi tiết bài viết, bao gồm cả bình luận
+            const response = await fetch(`${API_BASE}/api/Posts/${postId}`);
+            if (!response.ok) {
+                throw new Error("Failed to fetch comments.");
+            }
+            const data = await response.json();
+            // Giả sử danh sách bình luận nằm trong thuộc tính 'discussions' của đối tượng post trả về
+            const comments = data.discussions || [];
+            // Sắp xếp bình luận theo thời gian tạo
+            setItems(comments.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)));
+        } catch (err) {
+            setError(err.message);
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [postId]);
+
+    useEffect(() => {
+        fetchComments();
+    }, [fetchComments]);
+
+    const addComment = async (e) => {
+        e.preventDefault();
+        const trimmed = content.trim();
+        if (!trimmed) return;
+
+        try {
+            const requestHeaders = authHeaders();
+            // DEBUG: Kiểm tra headers trước khi gửi yêu cầu tạo bình luận
+            console.log("[Comments.jsx] addComment - Sending request with headers:", requestHeaders);
+
+            // Endpoint chính xác như user đã xác nhận
+            const response = await fetch(`${API_BASE}/api/Discussion/Post/${postId}`, {
+                method: 'POST',
+                headers: requestHeaders,
+                body: JSON.stringify({ content: trimmed }),
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to post comment.");
+            }
+
+            setContent("");
+            // Tải lại danh sách bình luận để hiển thị bình luận mới
+            await fetchComments();
+        } catch (err) {
+            setError(err.message);
+            console.error(err);
+        }
+    };
+
+    const removeComment = async (commentId) => {
+        // Xác nhận trước khi xóa
+        if (!window.confirm("Bạn có chắc chắn muốn xóa bình luận này không?")) {
+            return;
+        }
+
+        try {
+            const requestHeaders = authHeaders(false);
+            // DEBUG: Kiểm tra headers trước khi gửi yêu cầu xóa
+            console.log(`[Comments.jsx] removeComment (ID: ${commentId}) - Sending request with headers:`, requestHeaders);
+
+            const response = await fetch(`${API_BASE}/api/Discussion/${commentId}`, {
+                method: 'DELETE',
+                headers: requestHeaders, // Không cần Content-Type cho DELETE
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to delete comment.");
+            }
+
+            // Xóa bình luận khỏi state để cập nhật UI ngay lập tức
+            setItems(items.filter((c) => c.id !== commentId));
+        } catch (err) {
+            setError(err.message);
+            console.error(err);
+        }
     };
 
     return (
@@ -77,25 +149,21 @@ export default function Comments() {
                 className="rounded-2xl border bg-white p-5 grid gap-3"
                 style={{ borderColor: BORDER }}
             >
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <input
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="Tên hiển thị (tuỳ chọn)"
-                        className="rounded-full border px-4 py-2 outline-none focus:ring-2 focus:ring-[#93c5fd]"
+                {error && (
+                    <div className="text-sm text-red-600 bg-red-100 border border-red-400 rounded-lg p-2">
+                        Lỗi: {error}
+                    </div>
+                )}
+                <div>
+                    <textarea
+                        required
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                        rows={3}
+                        placeholder={`Viết bình luận với tư cách ${getUserNameFromToken()}…`}
+                        className="w-full rounded-2xl border px-4 py-3 outline-none focus:ring-2 focus:ring-[#93c5fd]"
                         style={{ borderColor: BORDER }}
                     />
-                    <div className="sm:col-span-2">
-                        <textarea
-                            required
-                            value={content}
-                            onChange={(e) => setContent(e.target.value)}
-                            rows={3}
-                            placeholder="Viết bình luận của bạn…"
-                            className="w-full rounded-2xl border px-4 py-3 outline-none focus:ring-2 focus:ring-[#93c5fd]"
-                            style={{ borderColor: BORDER }}
-                        />
-                    </div>
                 </div>
                 <div className="flex items-center justify-between">
                     <div className="text-xs text-slate-500">
@@ -114,30 +182,33 @@ export default function Comments() {
 
             {/* list */}
             <div className="mt-6 grid gap-4">
-                {items.length === 0 && (
+                {isLoading && <div className="text-sm text-slate-500">Đang tải bình luận...</div>}
+                {!isLoading && items.length === 0 && (
                     <div className="text-sm text-slate-500">
                         Chưa có bình luận nào. Hãy là người đầu tiên!
                     </div>
                 )}
                 {items.map((c) => (
                     <div
-                        key={c.id}
+                        // Giả sử API trả về `id` cho mỗi bình luận
+                        key={c.id} 
                         className="rounded-2xl border bg-white p-4"
                         style={{ borderColor: BORDER }}
                     >
                         <div className="flex items-start justify-between gap-3">
                             <div>
                                 <div className="text-sm font-medium text-slate-900">
-                                    {c.name || "Khách"}
+                                    {/* Giả sử API trả về `authorName` cho mỗi bình luận */}
+                                    {c.authorName || "Khách"}
                                 </div>
                                 <div className="text-xs text-slate-500">
                                     {fmtTime(c.createdAt)}
                                 </div>
                             </div>
                             <button
-                                onClick={() => removeComment(c.id)}
-                                className="text-xs text-slate-500 rounded-full border px-2 py-1 hover:bg-slate-50"
-                                title="Xoá bình luận này (cục bộ)"
+                                onClick={() => removeComment(c.id)} // Sử dụng id từ API
+                                className="text-xs text-red-500 rounded-full border px-2 py-1 hover:bg-red-50 hover:border-red-400"
+                                title="Xoá bình luận này"
                                 style={{ borderColor: BORDER }}
                             >
                                 Xoá
