@@ -157,7 +157,7 @@ export default function QuestionCard({ q }) {
         >
             {/* Gắn onClick handler vào Link */}
             <Link to={`/forum/${q.id}`} className="block" onClick={handleCardClick}>
-                <h3 className="font-semibold text-slate-900 line-clamp-2">
+                <h3 className="font-semibold text-slate-900 line-clamp-2 min-h-[3rem]">
                     {q.title || "Câu hỏi"}
                 </h3>
             </Link>
