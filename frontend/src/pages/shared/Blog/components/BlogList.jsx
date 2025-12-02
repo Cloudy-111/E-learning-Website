@@ -1,6 +1,7 @@
 // src/pages/shared/Blog/components/BlogList.jsx
 import { useRef } from "react";
 import { BORDER } from "../utils/constants";
+import Pagination from "../../Exam/Components/Pagination";
 import { Section, Tag } from "./Common";
 import PostCard from "./PostCard";
 
@@ -85,13 +86,14 @@ export default function BlogList({
                 </div>
             )}
 
-            {totalPages > 1 && (
+            {/* Thêm div bọc ngoài và class mt-8 để giữ khoảng cách */}
+            <div className="mt-8">
                 <Pagination
-                    page={page}
+                    currentPage={page}
                     totalPages={totalPages}
                     onPageChange={onPageChange}
                 />
-            )}
+            </div>
         </Section>
     );
 }
@@ -110,40 +112,4 @@ function TagFilter({ allTags, selectedTag, onSelectTag }) {
             ))}
         </div>
     )
-}
-
-function Pagination({ page, totalPages, onPageChange }) {
-    const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
-
-    return (
-        <div className="mt-8 flex justify-center items-center gap-2">
-            <button
-                onClick={() => onPageChange(page - 1)}
-                disabled={page <= 1}
-                className="rounded-full border w-9 h-9 flex items-center justify-center hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Trang trước"
-            >
-                ‹
-            </button>
-            {pages.map((p) => (
-                <button
-                    key={p}
-                    onClick={() => onPageChange(p)}
-                    disabled={p === page}
-                    className={`rounded-full border w-9 h-9 flex items-center justify-center hover:bg-slate-50 disabled:cursor-not-allowed ${p === page ? "bg-slate-900 text-white" : ""
-                        }`}
-                >
-                    {p}
-                </button>
-            ))}
-            <button
-                onClick={() => onPageChange(page + 1)}
-                disabled={page >= totalPages}
-                className="rounded-full border w-9 h-9 flex items-center justify-center hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Trang sau"
-            >
-                ›
-            </button>
-        </div>
-    );
 }
