@@ -23,7 +23,7 @@ public class LessonController : ControllerBase
         try
         {
             var lessons = await _lessonService.GetLessonsByCourseContentIdAsync(courseContentId);
-            return Ok(lessons);
+            return Ok(new APIResponse("success", "Lessons retrieved successfully", lessons));
         }
         catch (Exception ex)
         {
@@ -41,13 +41,14 @@ public class LessonController : ControllerBase
     {
         try
         {
-            var lesson = await _lessonService.GetLessonByIdAsync(courseContentId, lessonId);
-            return Ok(lesson);
+            var studentId = User.FindFirst("studentId")?.Value;
+            var lesson = await _lessonService.GetLessonByIdAsync(studentId, courseContentId, lessonId);
+            return Ok(new APIResponse("success", "Lesson retrieved successfully", lesson));
         }
         catch (Exception ex)
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new
-            APIResponse("error", "An error occurred while retrieving the lesson", ex.Message));
+            APIResponse("error", ex.Message));
         }
     }
 

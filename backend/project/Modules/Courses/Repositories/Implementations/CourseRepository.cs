@@ -26,7 +26,7 @@ public class CourseRepository : ICourseRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<Course>> GetCoursesAsync(string? keyword, string? category, int page, int pageSize)
+    public async Task<(IEnumerable<Course>, int)> SearchItemsAsync(string? keyword, string? category, int page, int pageSize)
     {
         var query = _dbContext.Courses
             .Include(c => c.Category)
@@ -39,11 +39,15 @@ public class CourseRepository : ICourseRepository
         {
             query = query.Where(c => c.Title.Contains(keyword));
         }
+        if (!string.IsNullOrEmpty(category))
+        {
+            query = query.Where(c => c.Category.Id == category);
+        }
 
         var totalItems = await query.CountAsync();
         var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
 
-        return items;
+        return (items, totalItems);
     }
 
     public async Task<Course?> GetCourseByIdAsync(string id)
@@ -75,13 +79,58 @@ public class CourseRepository : ICourseRepository
     //         .ToListAsync();
     // }
 
-    public async Task<IEnumerable<Course>> GetCoursesByTeacherAsync(string teacherId)
+    public async Task<IEnumerable<Course>> GetCoursesByTeacherIdAsync(string teacherId)
     {
         return await _dbContext.Courses
             .Where(c => c.TeacherId == teacherId)
             .Include(c => c.Category)
             .Include(c => c.Teacher)
+                .ThenInclude(t => t.User)
             .ToListAsync();
+    }
+
+    public async Task<(IEnumerable<Enrollment_course>, int)> GetEnrolledCoursesByStudentIdAsync(
+        string studentId,
+        string? keyword,
+        string? status,
+        string? sort,
+        int page,
+        int pageSize
+    )
+    {
+        var query = _dbContext.Enrollments
+            .Where(e => e.StudentId == studentId && (string.IsNullOrEmpty(status) || e.Status == status))
+            .Include(e => e.Course)
+                .ThenInclude(c => c.Category)
+            .Include(e => e.Course)
+                .ThenInclude(c => c.Teacher)
+                    .ThenInclude(t => t.User)
+            .Include(e => e.Course)
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(keyword))
+        {
+            query = query.Where(e => e.Course.Title.Contains(keyword));
+        }
+
+        if (!string.IsNullOrEmpty(sort))
+        {
+            query = sort switch
+            {
+                "progress-desc" => query.OrderByDescending(e => e.Progress),
+                "progress-asc" => query.OrderBy(e => e.Progress),
+                _ => query.OrderByDescending(e => e.Progress)
+            };
+        }
+        else
+        {
+            query = query.OrderByDescending(e => e.Progress);
+        }
+
+        var totalItems = await query.CountAsync();
+        var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+        return (items, totalItems);
     }
 
     public async Task AddCourseAsync(Course course)

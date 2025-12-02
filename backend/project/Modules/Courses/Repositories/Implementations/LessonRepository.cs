@@ -17,6 +17,8 @@ public class LessonRepository : ILessonRepository
     public async Task<Lesson?> GetLessonByIdAsync(string id)
     {
         return await _dbContext.Lessons
+            .Include(l => l.CourseContent)
+                .ThenInclude(cc => cc.Course)
             .FirstOrDefaultAsync(l => l.Id == id);
     }
 
@@ -30,6 +32,12 @@ public class LessonRepository : ILessonRepository
     public async Task AddLessonAsync(Lesson lesson)
     {
         await _dbContext.Lessons.AddAsync(lesson);
+        await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task AddMultiLessonsAsync(List<Lesson> lessons)
+    {
+        await _dbContext.Lessons.AddRangeAsync(lessons);
         await _dbContext.SaveChangesAsync();
     }
 

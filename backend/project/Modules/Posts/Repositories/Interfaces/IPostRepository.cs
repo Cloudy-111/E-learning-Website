@@ -10,6 +10,12 @@ public interface IPostRepository
     // Lấy danh sách tất cả bài đăng 
     Task<IEnumerable<Post>> GetAllPostsAsync();
 
+    Task<(List<Post> Items, int TotalRecords)> GetPagingAsync(
+    int page,
+    int pageSize,
+    List<string>? tags
+);
+
     // Lấy danh sách bài đăng của 1 thành viên ( bài công khai )
     Task<IEnumerable<Post>> GetPostsByMemberIdAsync(string memberId);
 
@@ -37,6 +43,7 @@ public interface IPostRepository
 
     // Xem posst bị xóa mềm
     Task<IEnumerable<Post>> GetPostsByAuthorDeletedAsync(string authorId);
+    Task<bool> IncreaseViewCountAsync(string id);
 
 
 

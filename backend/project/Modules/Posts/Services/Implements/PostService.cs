@@ -50,6 +50,36 @@ public class PostService : IPostService
     }
 
 
+    // ============================
+    //  PHÂN TRANG + LỌC TAGS
+    // ============================
+    public async Task<(List<PostDto> Items, int TotalRecords)> GetPagedPostsByTagsAsync(
+        int page,
+        int pageSize,
+        List<string>? tags
+    )
+    {
+        var (items, totalRecords) = await _postRepository.GetPagingAsync(page, pageSize, tags);
+
+        var mapped = items.Select(p => new PostDto
+        {
+            Id = p.Id,
+            Title = p.Title ?? string.Empty,
+            Tags = p.Tags,
+            ThumbnailUrl = p.ThumbnailUrl,
+            LikeCount = p.LikeCount,
+            ViewCount = p.ViewCount,
+            CreatedAt = p.CreatedAt,
+            AuthorId = p.AuthorId,
+            AuthorName = p.Student?.User?.FullName ?? "Ẩn danh",
+            IsDeleted = p.IsDeleted,
+            DeletedAt = p.DeletedAt
+        }).ToList();
+
+        return (mapped, totalRecords);
+    }
+
+
 
 
     // ✅ GET /api/posts/member/{memberId}
@@ -228,6 +258,12 @@ public class PostService : IPostService
         var posts = await _postRepository.GetPostsByAuthorDeletedAsync(authorId);
         return posts.Select(MapToListDto);
     }
+
+    public async Task<bool> IncreaseViewCountAsync(string id)
+    {
+        return await _postRepository.IncreaseViewCountAsync(id);
+    }
+
 
 
 }

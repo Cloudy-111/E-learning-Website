@@ -29,6 +29,36 @@ namespace project.Modules.Posts.Controller
         }
 
 
+        // ======================= PAGING + FILTER TAGS =======================
+        [HttpGet("paging")]
+        public async Task<ActionResult> GetPagedPosts(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] List<string>? tags = null
+        )
+        {
+            if (page <= 0 || pageSize <= 0)
+                return BadRequest(new { message = "Page và pageSize phải lớn hơn 0." });
+
+            var (items, totalRecords) = await _postService.GetPagedPostsByTagsAsync(page, pageSize, tags);
+
+            var totalPages = (int)Math.Ceiling(totalRecords / (double)pageSize);
+
+            var response = new
+            {
+                page,
+                pageSize,
+                totalRecords,
+                totalPages,
+                tags = tags ?? new List<string>(),
+                items
+            };
+
+            return Ok(response);
+        }
+
+
+
 
         // GET: /api/posts/member/{memberId}
         [HttpGet("member/{memberId}")]
@@ -36,9 +66,7 @@ namespace project.Modules.Posts.Controller
         {
             var posts = await _postService.GetPostsByMemberIdAsync(memberId);
 
-            if (!posts.Any())
-                return NotFound(new { message = "Thành viên này chưa có bài viết nào." });
-
+           
             return Ok(posts);
         }
 
@@ -191,6 +219,24 @@ namespace project.Modules.Posts.Controller
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+
+        /// <summary>
+        /// Tăng view count cho bài viết
+        /// POST /api/Discussion/{id}/view
+        /// </summary>
+        [HttpPost("{id}/view")]
+        public async Task<IActionResult> IncreaseView(string id)
+        {
+            var ok = await _postService.IncreaseViewCountAsync(id);
+
+            if (!ok)
+                return NotFound(new { message = "Post not found" });
+
+            return Ok(new { message = "View count increased" });
+        }
+
+
 
 
     }

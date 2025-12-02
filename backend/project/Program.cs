@@ -13,6 +13,12 @@ using System.Text;
 using project.Modules.UserManagement.Services;
 using Microsoft.OpenApi.Models;
 using project.Modules.UserManagement.Services.Interfaces;
+using project.Modules.Payment.Service.Interfaces;
+using project.Modules.Payments.Repositories.Interfaces;
+using project.Modules.Payment.Repositories.Implements;
+using project.Modules.Payments.Repositories.Interfaces;
+using project.Modules.Payments.Service.Interfaces;
+using project.Modules.Payments.Service.Implements;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,7 +29,7 @@ builder.Services.AddDbContext<DBContext>(options => options.UseSqlServer(connect
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<DBContext>()
     .AddDefaultTokenProviders();
-    
+
 builder.Services.AddAuthentication(options =>
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -58,12 +64,13 @@ builder.Services.AddScoped<IDiscussionService, DiscussionService>();
 builder.Services.AddScoped<IForumQuestionService, ForumQuestionService>();
 builder.Services.AddScoped<ILikesService, LikesService>();
 builder.Services.AddScoped<IReportService, ReportService>();
-builder.Services.AddScoped< IAuthService,AuthService>();
-
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddScoped<ICourseReviewService, CourseReviewService>();
 builder.Services.AddScoped<IEnrollmentCourseService, EnrollmentCourseService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IExamAttempService, ExamAttempService>();
 // builder.Services.AddScoped<IStudentService, StudentService>();
 
 // Add repository to the container.
@@ -89,8 +96,14 @@ builder.Services.AddScoped<IEnrollmentCourseRepository, EnrollmentCourseReposito
 builder.Services.AddScoped<ILessonProgressRepository, LessonProgressRepository>();
 builder.Services.AddScoped<IRequestRefundCourseRepository, RequestRefundCourseRepository>();
 builder.Services.AddScoped<IAdminRepository, AdminRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IExamAttempRepository, ExamAttempRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-builder.Services.AddScoped<IUserRepository, userRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 builder.Services.AddControllers();
 
@@ -177,11 +190,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors("AllowReactApp");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseCors("AllowReactApp");
 
 app.MapControllers();
 
