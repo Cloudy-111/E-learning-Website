@@ -24,6 +24,7 @@ public interface IPostService
     Task<IEnumerable<PostDto>> GetPostsByMemberIdAsync(string memberId);
 
     Task<IEnumerable<PostDto>> GetDeletedPostsByAuthorAsync(string authorId);
+    Task<bool> IncreaseViewCountAsync(string id);
 
 
 

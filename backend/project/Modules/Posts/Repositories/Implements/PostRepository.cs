@@ -141,4 +141,15 @@ public class PostRepository : IPostRepository
         await _context.SaveChangesAsync();
     }
 
+    public async Task<bool> IncreaseViewCountAsync(string id)
+    {
+        var affected = await _context.Posts
+            .Where(p => p.Id == id && !p.IsDeleted && p.IsPublished)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(p => p.ViewCount, p => p.ViewCount + 1)
+            );
+
+        return affected > 0;
+    }
+
 }

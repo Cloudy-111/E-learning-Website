@@ -9,7 +9,7 @@ using project.Modules.Posts.Services.Interfaces;
 namespace project.Modules.Posts.Controller
 {
     [ApiController]
-    [Route("api/Discussion")]
+    [Route("api/[controller]")]
     public class PostsController : ControllerBase
     {
         private readonly IPostService _postService;
@@ -223,28 +223,24 @@ namespace project.Modules.Posts.Controller
         }
 
 
-        // ======================= DISCUSSION (COMMENTS) =======================
-
-        [Authorize]
-        [HttpPost("Post/{postId}")]
-        public async Task<ActionResult> CreateDiscussion(string postId, [FromBody] DiscussionCreateDto dto)
+        /// <summary>
+        /// Tăng view count cho bài viết
+        /// POST /api/Discussion/{id}/view
+        /// </summary>
+        [HttpPost("{id}/view")]
+        public async Task<IActionResult> IncreaseView(string id)
         {
-            var authorId = User.FindFirst("StudentId")?.Value;
-            if (string.IsNullOrEmpty(authorId))
-            {
-                return Unauthorized("User info not found in token");
-            }
+            var ok = await _postService.IncreaseViewCountAsync(id);
 
-            try
-            {
-                var discussion = await _discussionService.CreateDiscussionAsync(postId, authorId, dto.Content);
-                return Ok(discussion);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            if (!ok)
+                return NotFound(new { message = "Post not found" });
+
+            return Ok(new { message = "View count increased" });
         }
+
+
+
+
     }
 
 

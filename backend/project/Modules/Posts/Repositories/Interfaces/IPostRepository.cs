@@ -43,6 +43,7 @@ public interface IPostRepository
 
     // Xem posst bị xóa mềm
     Task<IEnumerable<Post>> GetPostsByAuthorDeletedAsync(string authorId);
+    Task<bool> IncreaseViewCountAsync(string id);
 
 
 

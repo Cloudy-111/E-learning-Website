@@ -50,7 +50,7 @@ public class PostService : IPostService
     }
 
 
-     // ============================
+    // ============================
     //  PHÂN TRANG + LỌC TAGS
     // ============================
     public async Task<(List<PostDto> Items, int TotalRecords)> GetPagedPostsByTagsAsync(
@@ -258,6 +258,12 @@ public class PostService : IPostService
         var posts = await _postRepository.GetPostsByAuthorDeletedAsync(authorId);
         return posts.Select(MapToListDto);
     }
+
+    public async Task<bool> IncreaseViewCountAsync(string id)
+    {
+        return await _postRepository.IncreaseViewCountAsync(id);
+    }
+
 
 
 }
