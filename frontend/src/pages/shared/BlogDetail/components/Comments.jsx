@@ -61,16 +61,16 @@ export default function Comments() {
         setIsLoading(true);
         setError(null);
         try {
-            // Thay đổi endpoint để lấy chi tiết bài viết, bao gồm cả bình luận
-            const response = await fetch(`${API_BASE}/api/Posts/${postId}`);
+            // Endpoint để lấy danh sách bình luận cho một bài viết
+            const response = await fetch(`${API_BASE}/api/Discussion/Post/${postId}`);
             if (!response.ok) {
                 throw new Error("Failed to fetch comments.");
             }
             const data = await response.json();
-            // Giả sử danh sách bình luận nằm trong thuộc tính 'discussions' của đối tượng post trả về
-            const comments = data.discussions || [];
-            // Sắp xếp bình luận theo thời gian tạo
-            setItems(comments.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)));
+            // API trả về trực tiếp một mảng các bình luận
+            const comments = data || [];
+            // Sắp xếp bình luận theo thời gian gần nhất
+            setItems(comments.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
         } catch (err) {
             setError(err.message);
             console.error(err);
@@ -181,7 +181,10 @@ export default function Comments() {
             </form>
 
             {/* list */}
-            <div className="mt-6 grid gap-4">
+            <div
+                className="mt-6 grid gap-4 max-h-[70vh] overflow-y-auto pr-2"
+                style={{ scrollbarWidth: "thin" }}
+            >
                 {isLoading && <div className="text-sm text-slate-500">Đang tải bình luận...</div>}
                 {!isLoading && items.length === 0 && (
                     <div className="text-sm text-slate-500">
