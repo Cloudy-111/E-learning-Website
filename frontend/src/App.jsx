@@ -43,6 +43,8 @@ const BlogSearch = lazy(() => import("./pages/shared/BlogSearch/BlogSearch.jsx")
 const BlogAuthor = lazy(() => import("./pages/shared/BlogAuthor/BlogAuthor.jsx"));
 const BlogMy = lazy(() => import("./pages/shared/BlogMy/BlogMy.jsx"));
 const BlogEditor = lazy(() => import("./pages/shared/BlogEditor/BlogEditor.jsx"));
+const Rankings = lazy(() => import("./pages/shared/Rankings"));
+const PublicProfile = lazy(() => import("./pages/shared/PublicProfile"));
 
 // Exam pages
 const Study4TestLibrary = lazy(() => import("./pages/shared/Exam/Exam.jsx"));
@@ -133,10 +135,12 @@ export default function App() {
                 <Routes>
                   {/* ========== PUBLIC ROUTES ========== */}
                   <Route element={<Layout />}>
-                  
+
                     <Route index element={<Home />} />
                     <Route path="/courses" element={<Courses />} />
                     <Route path="/courses/:id" element={<CourseDetail />} />
+                    <Route path="/rankings" element={<Rankings />} />
+                    <Route path="/u/:id" element={<PublicProfile />} />
 
                     {/* Student */}
                     <Route element={<RequireRole roles={["Student"]} />}>
@@ -146,14 +150,14 @@ export default function App() {
                       <Route path="/s/exam/:id/take-exam" element={<QuizTest />} />
                       <Route path="/s/results/:attemptId" element={<ResultAttempt title="📈 /s/results/:attemptId — Kết quả bài thi" />} />
                     </Route>
-                    
+
                     {/* Teacher */}
                     <Route element={<RequireRole roles={["Teacher"]} />}>
                       <Route path="/i/dashboard" element={<InstructorDashboard title="📊 /i/dashboard — Tổng quan giảng viên" />} />
                       <Route path="/i/courses/new" element={<CourseCreate title="🆕 /i/courses/new — Tạo khoá draft" />} />
                       <Route path="/i/courses" element={<InstructorCourses title="📚 /i/courses — Khoá học đã tạo" />} />
                     </Route>
-                    
+
                   </Route>
 
                   {/* <Route index element={<Home />} /> */}
@@ -168,6 +172,7 @@ export default function App() {
                   <Route path="/register" element={<Register />} />
 
                   <Route path="/forum" element={<ForumHome />} />
+
                   <Route path="/forum/:id" element={<QuestionDetail />} />
 
                   <Route path="/blog" element={<Blog />} />
@@ -202,7 +207,7 @@ export default function App() {
                   <Route element={<PrivateRoute />}>
                     <Route element={<RequireRole roles={["Student"]} />}>
                       <Route path="/s/dashboard" element={<Dashboard />} />
-                      
+
                       <Route path="/s/resultstest" element={<IELTSResultsPage />} />
                       <Route path="/s/historytest" element={<HistoryTest />} />
                       <Route path="/s/profile" element={<ProfilePage title="👤 /s/profile — Hồ sơ & cài đặt" />} />
@@ -214,9 +219,9 @@ export default function App() {
                   {/* ========== PROTECTED: INSTRUCTOR ROUTES (/i/*) ========== */}
                   <Route element={<PrivateRoute />}>
                     <Route element={<RequireRole roles={["Teacher"]} />}>
-                      
+
                       <Route path="/i/courses" element={<InstructorCourses title="📚 /i/courses — Khoá học đã tạo" />} />
-                      
+
                       <Route path="/i/courses/:id/edit" element={<CourseEdit title="✏️ /i/courses/:id/edit — Sửa khoá (draft/version)" />} />
                       <Route path="/i/courses/:id/lessons" element={<CourseLessons title="🧱 /i/courses/:id/lessons — CRUD bài học" />} />
                       <Route path="/i/courses/:id/students" element={<CourseStudents title="👥 /i/courses/:id/students — Danh sách học viên" />} />
