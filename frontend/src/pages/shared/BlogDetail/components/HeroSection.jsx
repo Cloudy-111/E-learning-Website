@@ -6,12 +6,12 @@ import { fmtTime } from "../utils/helpers";
 
 // Icons, học theo các component khác
 const ThumbsUpIcon = ({ isLiked }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" 
-         fill={isLiked ? "currentColor" : "none"} 
-         stroke="currentColor" 
-         strokeWidth="2" 
-         strokeLinecap="round" 
-         strokeLinejoin="round">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+        fill={isLiked ? "currentColor" : "none"}
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round">
         <path d="M7 10v12" />
         <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2h0a3.13 3.13 0 0 1 3 3.88Z" />
     </svg>
@@ -23,7 +23,7 @@ const CommentIcon = () => (
 
 const EditIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+        <path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
     </svg>
 );
 
@@ -111,19 +111,19 @@ export default function HeroSection({ post }) {
             fetch(`http://localhost:5102/api/Posts/${post.id}/view`, {
                 method: 'POST',
             })
-            .then(res => {
-                if (res.ok) {
-                    // Ghi lại thời điểm đã xem vào localStorage
-                    localStorage.setItem(`viewed_post_${post.id}`, now.toString());
-                    console.log(`[View Count] API call successful. Timestamp saved for post: ${post.id}`);
-                } else if (res.status === 404) {
-                    // Nếu bài viết không tồn tại, không cần thử lại
-                    console.error(`[View Count] Post with id ${post.id} not found.`);
-                } else {
-                    console.error("Failed to increase view count. Status:", res.status);
-                }
-            })
-            .catch(err => console.error("Error increasing view count:", err));
+                .then(res => {
+                    if (res.ok) {
+                        // Ghi lại thời điểm đã xem vào localStorage
+                        localStorage.setItem(`viewed_post_${post.id}`, now.toString());
+                        console.log(`[View Count] API call successful. Timestamp saved for post: ${post.id}`);
+                    } else if (res.status === 404) {
+                        // Nếu bài viết không tồn tại, không cần thử lại
+                        console.error(`[View Count] Post with id ${post.id} not found.`);
+                    } else {
+                        console.error("Failed to increase view count. Status:", res.status);
+                    }
+                })
+                .catch(err => console.error("Error increasing view count:", err));
         } else {
             console.log(`[View Count] Condition NOT met. API call skipped for post: ${post.id}. Last view was less than an hour ago.`);
         }
@@ -187,7 +187,7 @@ export default function HeroSection({ post }) {
                         <div>
                             {post?.authorId ? (
                                 <Link
-                                    to={`/blog/author/${post.authorId}`}
+                                    to={`/u/${post.authorId}`}
                                     className="font-medium leading-tight text-slate-900 hover:underline"
                                 >
                                     {post?.authorName || "Tác giả"}
