@@ -1,5 +1,6 @@
 // src/pages/shared/Forum/components/AnswerItem.jsx
 import { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { BORDER } from "../utils/constants";
 import { deleteAnswerApi, updateAnswerApi } from "../../../../api/dicussion.api";
 
@@ -82,9 +83,9 @@ export default function AnswerItem({ a, currentUser, onAnswerUpdated }) {
         >
             <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                    <div className="font-semibold text-slate-900">
+                    <Link to={`/u/${a.studentId}`} className="font-semibold text-slate-900 hover:text-blue-600 hover:underline transition-colors">
                         {a.studentName || "Người trả lời"}
-                    </div>
+                    </Link>
                     {a.isAccepted && (
                         <span className="text-[10px] uppercase font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">
                             Accepted
@@ -108,7 +109,7 @@ export default function AnswerItem({ a, currentUser, onAnswerUpdated }) {
                                     {isMyAnswer ? (
                                         <>
                                             <li>
-                                                <button 
+                                                <button
                                                     onClick={() => {
                                                         setIsEditing(true);
                                                         setIsMenuOpen(false);

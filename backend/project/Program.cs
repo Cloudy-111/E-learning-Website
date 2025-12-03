@@ -175,12 +175,13 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<DBContext>();
-    DBSeeder.Seed(context);
-}
+// Temporarily commented to debug database connection
+// using (var scope = app.Services.CreateScope())
+// {
+//     var services = scope.ServiceProvider;
+//     var context = services.GetRequiredService<DBContext>();
+//     DBSeeder.Seed(context);
+// }
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
