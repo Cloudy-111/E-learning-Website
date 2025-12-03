@@ -76,7 +76,6 @@ function Enrollments() {
                 enrollmentList={enrollments} 
               />
 
-              {/* pagination */}
               <Pagination 
                 currentPage={currentPage} 
                 totalPages={totalPages} 
