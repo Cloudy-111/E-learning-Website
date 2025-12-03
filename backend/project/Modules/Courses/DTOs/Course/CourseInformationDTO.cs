@@ -17,4 +17,5 @@ public class CourseInformationDTO
 
     public string? TeacherId { get; set; }
     public string? TeacherName { get; set; }
+    public int EnrollmentCount { get; set; }
 }

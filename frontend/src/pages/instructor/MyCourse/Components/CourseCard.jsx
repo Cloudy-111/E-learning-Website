@@ -1,0 +1,80 @@
+import { Link } from "react-router-dom";
+import { Users, FileClock, MoreVertical, Eye, Rocket, Undo2, Copy, Edit } from "lucide-react";
+
+const BADGE = (s) =>
+  s === "published"
+    ? "bg-emerald-100 text-emerald-700"
+    : "bg-gray-100 text-gray-700";
+
+const formattedDate = (date) => {
+    return new Date(date).toLocaleString("vi-VN", {
+        dateStyle: "short",
+        timeStyle: "short"
+    });
+} 
+
+function CourseCard({ c }) {
+    return (
+        <article key={c.id} className="rounded-2xl border bg-white p-5 hover:shadow-sm transition relative">
+            {/* header */}
+            <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                    <h3 className="font-bold text-gray-900 truncate">{c.title}</h3>
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                        <span className={`px-2 py-1 rounded-full ${BADGE(c.status)}`}>{c.status}</span>
+                        <span className="inline-flex items-center gap-1 text-gray-600">
+                            <FileClock className="w-4 h-4" /> Thời gian tạo: {formattedDate(c.createdAt)}
+                        </span>
+                        {c.status === "draft" && (
+                            <span className="inline-flex items-center gap-1 text-gray-600">
+                                <Undo2 className="w-4 h-4" /> Lần cuối sửa: {formattedDate(c.updatedAt)}
+                            </span>
+                        )}
+                        {c.status === "published" && (
+                            <span className="inline-flex items-center gap-1 text-gray-600">
+                                <Users className="w-4 h-4" /> {c.enrollmentCount} HV
+                            </span>
+                        )}
+                    </div>
+                </div>
+
+                <div className="relative group shrink-0">
+                    <button className="rounded-lg bg-transparent border p-2 hover:bg-gray-50">
+                        <MoreVertical className="w-4 h-4" />
+                    </button>
+                    <div className="absolute right-0 mt-2 w-44 rounded-lg border bg-white shadow-lg hidden group-hover:block z-10">
+                        <Link to={`/courses/${c.id}`} className="block px-3 py-2 text-sm hover:bg-gray-50 inline-flex items-center gap-2">
+                            <Eye className="w-4 h-4" /> Xem trang public
+                        </Link>
+                    </div>
+                </div>
+            </div>
+
+            <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
+                <Link
+                    to={`/i/courses/${c.id}/edit`}
+                    className="rounded-lg border px-3 py-2 text-center hover:bg-gray-50 inline-flex items-center justify-center gap-2"
+                >
+                    <Edit className="w-4 h-4" /> Sửa
+                </Link>
+
+                {c.status === "draft" && (
+                    <button className="rounded-lg bg-transparent border px-3 py-2 hover:bg-gray-50 inline-flex items-center justify-center gap-2">
+                        <Rocket className="w-4 h-4" /> Yêu cầu Publish
+                    </button>
+                )}
+                {c.status === "published" && (
+                    <Link
+                        to={`/i/courses/${c.id}/lessons`}
+                        className="rounded-lg border px-3 py-2 text-center hover:bg-gray-50"
+                    >
+                        Quản lý bài học
+                    </Link>
+                )}
+            
+            </div>
+        </article>
+    )
+}
+
+export default CourseCard;

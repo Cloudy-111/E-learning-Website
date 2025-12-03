@@ -79,14 +79,49 @@ public class CourseRepository : ICourseRepository
     //         .ToListAsync();
     // }
 
-    public async Task<IEnumerable<Course>> GetCoursesByTeacherIdAsync(string teacherId)
+    public async Task<(IEnumerable<Course>, int)> GetCoursesByTeacherIdAsync(
+        string teacherId,
+        string? keyword,
+        string? status,
+        string? sort,
+        int page,
+        int pageSize)
     {
-        return await _dbContext.Courses
-            .Where(c => c.TeacherId == teacherId)
+        var query = _dbContext.Courses
+            .Where(c => c.TeacherId == teacherId && (string.IsNullOrEmpty(status) || c.Status == status))
+            .Include(c => c.Enrollments)
             .Include(c => c.Category)
             .Include(c => c.Teacher)
                 .ThenInclude(t => t.User)
-            .ToListAsync();
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(keyword))
+        {
+            query = query.Where(e => e.Title.Contains(keyword));
+        }
+
+        if (!string.IsNullOrEmpty(sort))
+        {
+            query = sort switch
+            {
+                "alphabet-desc" => query.OrderByDescending(e => e.Title),
+                "alphabet-asc" => query.OrderBy(e => e.Title),
+                "time-desc" => query.OrderByDescending(e => e.CreatedAt),
+                "time-asc" => query.OrderBy(e => e.CreatedAt),
+                "popular-desc" => query.OrderByDescending(e => e.Enrollments.Count()),
+                "popular-asc" => query.OrderBy(e => e.Enrollments.Count()),
+                _ => query.OrderByDescending(e => e.CreatedAt)
+            };
+        }
+        else
+        {
+            query = query.OrderByDescending(e => e.CreatedAt);
+        }
+
+        var totalItems = await query.CountAsync();
+        var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+        return (items, totalItems);
     }
 
     public async Task<(IEnumerable<Enrollment_course>, int)> GetEnrolledCoursesByStudentIdAsync(

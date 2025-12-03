@@ -34,6 +34,7 @@ public class CourseService : ICourseService
     const string DRAFT_STATUS = "draft";
     const string PENDING_STATUS = "pending";
     const string PUBLISHED_STATUS = "published";
+    const string REJECTED_STATUS = "rejected";
 
     public async Task<IEnumerable<CourseInformationDTO>> GetAllCoursesAsync()
     {
@@ -187,41 +188,65 @@ public class CourseService : ICourseService
         {
             throw new UnauthorizedAccessException("You are not the teacher of this course");
         }
-        courseExist.Status = "pending";
+        courseExist.Status = PENDING_STATUS;
 
         await _courseRepository.UpdateCourseAsync(courseExist);
     }
 
-    public async Task<IEnumerable<CourseInformationDTO>> GetCoursesByTeacherIdAsync(string teacherId)
+    public async Task<PageResultInstructorCoursesDTO> GetCoursesByTeacherIdAsync(string teacherId, string? keyword, string? status, string? sort, int page, int pageSize)
     {
-        var teacherGuid = GuidHelper.ParseOrThrow(teacherId, nameof(teacherId));
-        if (!await _teacherRepository.IsTeacherExistsAsync(teacherId))
+        try
         {
-            throw new KeyNotFoundException("Teacher not found");
+            var teacherGuid = GuidHelper.ParseOrThrow(teacherId, nameof(teacherId));
+            if (!await _teacherRepository.IsTeacherExistsAsync(teacherId))
+            {
+                throw new KeyNotFoundException("Teacher not found");
+            }
+            var (courses, totalCourses) = await _courseRepository.GetCoursesByTeacherIdAsync(teacherId, keyword, status, sort, page, pageSize);
+            var courseResult = courses.Select(c => new CourseInformationDTO
+            {
+                Id = c.Id,
+                Title = c.Title,
+                Description = c.Description,
+                Price = c.Price,
+                DiscountPrice = c.DiscountPrice,
+                Status = c.Status,
+                ThumbnailUrl = c.ThumbnailUrl,
+                CreatedAt = c.CreatedAt,
+                UpdatedAt = c.UpdatedAt,
+                AverageRating = c.AverageRating,
+                ReviewCount = c.ReviewCount,
+                CategoryId = c.CategoryId,
+                CategoryName = c.Category.Name,
+                TeacherId = c.TeacherId,
+                TeacherName = c.Teacher.User.FullName,
+                EnrollmentCount = c.Enrollments.Count
+            });
+
+            var CourseStatisticDTO = new CourseStatisticDTO
+            {
+                TotalCourses = totalCourses,
+                TotalPublishedCourses = courses.Count(c => c.Status == PUBLISHED_STATUS),
+                TotalDraftCourses = courses.Count(c => c.Status == DRAFT_STATUS),
+                TotalPendingCourses = courses.Count(c => c.Status == PENDING_STATUS),
+                TotalRejectedCourses = courses.Count(c => c.Status == REJECTED_STATUS),
+                TotalEnrollments = courses.Sum(c => c.Enrollments.Count)
+            };
+
+            return new PageResultInstructorCoursesDTO
+            {
+                Courses = courseResult,
+                Statistics = CourseStatisticDTO,
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalCount = totalCourses,
+                TotalPages = (int)Math.Ceiling((double)totalCourses / pageSize)
+            };
         }
-        var courses = await _courseRepository.GetCoursesByTeacherIdAsync(teacherId);
-        if (courses == null || !courses.Any())
+        catch (Exception ex)
         {
-            return [];
+            throw new Exception("Error when retriev course: ", ex);
         }
-        return courses.Select(c => new CourseInformationDTO
-        {
-            Id = c.Id,
-            Title = c.Title,
-            Description = c.Description,
-            Price = c.Price,
-            DiscountPrice = c.DiscountPrice,
-            Status = c.Status,
-            ThumbnailUrl = c.ThumbnailUrl,
-            CreatedAt = c.CreatedAt,
-            UpdatedAt = c.UpdatedAt,
-            AverageRating = c.AverageRating,
-            ReviewCount = c.ReviewCount,
-            CategoryId = c.CategoryId,
-            CategoryName = c.Category.Name,
-            TeacherId = c.TeacherId,
-            TeacherName = c.Teacher.User.FullName
-        });
     }
 
     public async Task<PageResultCourseEnrollmentDTO> GetEnrolledCoursesByStudentIdAsync(string studentId, string? keyword, string? status, string? sort, int page, int pageSize)
