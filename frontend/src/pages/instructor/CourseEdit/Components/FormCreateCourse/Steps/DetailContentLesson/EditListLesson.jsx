@@ -100,7 +100,13 @@ function EditListLesson( { lessons, addLesson, removeLesson, updateLesson, moveL
                 </button>
             </div>
 
-            <EditLesson lesson={lessons[lessonIndex]} openPopupDetailLesson={openPopupDetailLesson} setOpenPopupDetailLesson={setOpenPopupDetailLesson} />
+            <EditLesson 
+                lesson={lessons[lessonIndex]} 
+                index={lessonIndex} 
+                updateLesson={updateLesson}
+                openPopupDetailLesson={openPopupDetailLesson} 
+                setOpenPopupDetailLesson={setOpenPopupDetailLesson} 
+            />
         
         </div>
     )

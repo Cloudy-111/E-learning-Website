@@ -34,7 +34,10 @@ function useCourseContent() {
   const updateLesson = (lessonIndex, field, value) => {
     setCourseContent((prev) => {
       const updatedLessons = [...prev.lessons];
-      updatedLessons[lessonIndex][field] = value;
+      updatedLessons[lessonIndex] = {
+        ...updatedLessons[lessonIndex],
+        [field]: value,
+      };
 
       return {
         ...prev,

@@ -1,11 +1,14 @@
 import { X } from "lucide-react";
+import FormEditLesson from "./FormEditLesson";
+import PreviewEditLesson from "./PreviewEditLesson";
 
-function EditLesson({lesson, openPopupDetailLesson, setOpenPopupDetailLesson}){
+
+function EditLesson({lesson, index, updateLesson, openPopupDetailLesson, setOpenPopupDetailLesson}){
     if (!openPopupDetailLesson) return null;
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className="bg-white rounded-lg shadow-lg max-w-7xl w-full mx-4 max-h-[90vh] h-full overflow-y-auto">
                 <div className="flex justify-between items-center p-6 border-b">
                     <h2 className="text-lg font-semibold">Chi tiết bài học</h2>
                     <button
@@ -16,9 +19,9 @@ function EditLesson({lesson, openPopupDetailLesson, setOpenPopupDetailLesson}){
                     </button>
                 </div>
 
-                <div className="p-6">
-                    {/* Add your lesson details form here */}
-                    <p className="text-gray-600">{lesson ? lesson.title : "Lesson details content goes here"}</p>
+                <div className="flex flex-row h-full">
+                    <FormEditLesson lesson={lesson} updateLesson={updateLesson} index={index} />
+                    <PreviewEditLesson lesson={lesson}/>
                 </div>
 
                 <div className="flex justify-end gap-2 p-6 border-t">
@@ -27,9 +30,6 @@ function EditLesson({lesson, openPopupDetailLesson, setOpenPopupDetailLesson}){
                         className="px-4 py-2 bg-transparent text-sm rounded-lg border hover:bg-gray-50"
                     >
                         Đóng
-                    </button>
-                    <button className="px-4 py-2 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700">
-                        Lưu
                     </button>
                 </div>
             </div>
