@@ -265,4 +265,29 @@ public class CourseController : ControllerBase
             APIResponse("error", "An error occurred while retrieving the courses", ex.Message));
         }
     }
+
+    [Authorize(Roles = "Teacher")]
+    [HttpGet("{courseId}/full-data-edit")]
+    public async Task<IActionResult> GetFullCourseDataForEdit(string courseId)
+    {
+        try
+        {
+            var teacherId = User.FindFirst("teacherId")?.Value;
+            var fullCourseData = await _courseService.GetFullCourseDataForEditAsync(teacherId, courseId);
+            return Ok(new APIResponse("Success", "Retrieve Full Course Data for Edit Successfully", fullCourseData));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new APIResponse("error", ex.Message));
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while retrieving the full course data", ex.Message));
+        }
+    }
 }

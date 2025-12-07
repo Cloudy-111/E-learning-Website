@@ -360,4 +360,51 @@ public class CourseService : ICourseService
             throw;
         }
     }
+
+    public async Task<FullCourseCreateDTO> GetFullCourseDataForEditAsync(string userId, string courseId)
+    {
+        if (!await _teacherRepository.IsTeacherExistsAsync(userId))
+        {
+            throw new KeyNotFoundException("Teacher not found");
+        }
+
+        var course = await _courseRepository.GetCourseByIdByTeacherAsync(courseId, userId)
+            ?? throw new KeyNotFoundException("Course not found");
+
+        if (course.TeacherId != userId)
+        {
+            throw new UnauthorizedAccessException("You are not the teacher of this course");
+        }
+
+        var courseContent = await _courseContentRepository.GetCourseContentByCourseIdAsync(courseId)
+            ?? throw new KeyNotFoundException("Course content not found");
+
+        var lessons = await _lessonRepository.GetLessonsByCourseContentIdAsync(courseContent.Id);
+
+        var fullCourseDto = new FullCourseCreateDTO
+        {
+            Title = course.Title,
+            Description = course.Description,
+            CategoryId = course.CategoryId,
+            Price = (double)course.Price,
+            Discount = (double?)course.DiscountPrice,
+            Thumbnail = course.ThumbnailUrl,
+            CourseContent = new FullCourseContentCreateDTO
+            {
+                Title = courseContent.Title,
+                Description = courseContent.Description,
+                Introduce = courseContent.Introduce,
+                Lessons = lessons.Select(l => new LessonCreateDTO
+                {
+                    Title = l.Title,
+                    VideoUrl = l.VideoUrl,
+                    Order = l.Order,
+                    Duration = l.Duration,
+                    TextContent = l.TextContent
+                }).ToList()
+            }
+        };
+
+        return fullCourseDto;
+    }
 }

@@ -9,4 +9,5 @@ public interface ICourseService
     Task<PageResultInstructorCoursesDTO> GetCoursesByTeacherIdAsync(string teacherId, string? keyword, string? status, string? sort, int page, int pageSize);
     Task<PageResultCourseEnrollmentDTO> GetEnrolledCoursesByStudentIdAsync(string studentId, string? keyword, string? status, string? sort, int page, int pageSize);
     Task AddFullCourseAsync(string userId, FullCourseCreateDTO fullCourseDto);
+    Task<FullCourseCreateDTO> GetFullCourseDataForEditAsync(string userId, string courseId);
 }
