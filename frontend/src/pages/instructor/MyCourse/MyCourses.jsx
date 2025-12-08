@@ -4,8 +4,10 @@ import CommonStats from "./Components/CommonStats";
 import SearchBar from "./Components/SearchBar";
 import CourseCard from "./Components/CourseCard";
 import Pagination from "../../../components/Pagination";
+import PopupAlertConfirm from "../../../components/PopupAlertConfirm";
 
 import { fetchInstructorCourses } from "../../../api/courses.api";
+import { requestPublishCourse } from "../../../api/courses.api";
 
 function MyCourses(){
     const [courses, setCourses] = useState([]);
@@ -18,6 +20,28 @@ function MyCourses(){
 
     const [totalPages, setTotalPages] = useState(1);
     const [currentPage, setCurrentPage] = useState(1);
+
+    const [openPopup, setOpenPopup] = useState(false);
+    const [selectedCourseId, setSelectedCourseId] = useState(null);
+    const [selectedCourseTitle, setSelectedCourseTitle] = useState("");
+
+    const handleOpenConfirm  = (courseId, courseTitle) => {
+        setSelectedCourseId(courseId);
+        setSelectedCourseTitle(courseTitle);
+        setOpenPopup(true);
+    }
+
+    const handleConfirmPublish = async () => {
+        try{
+            const res = await requestPublishCourse(selectedCourseId);
+            alert(res.message || "Gửi yêu cầu publish khoá học thành công!");
+            window.location.reload();
+        } catch (e) {
+            alert("Gửi yêu cầu publish khoá học thất bại: " + e.message);
+        } finally {
+            setOpenPopup(false);
+        }
+    }
 
     async function loadCourses(params = {}) {
         try {
@@ -100,7 +124,7 @@ function MyCourses(){
                     )}
 
                     {courses.map((c) => (
-                        <CourseCard key={c.id} c={c} />
+                        <CourseCard key={c.id} c={c} onRequestPublish={() => handleOpenConfirm(c.id, c.title)}/>
                     ))}
                 </div>
 
@@ -110,6 +134,16 @@ function MyCourses(){
                     onPageChange={(page) => {
                         loadCourses({keyword: query, status: status, sort: sort, page})
                     }}/>
+
+                <PopupAlertConfirm 
+                    open={openPopup}
+                    title="Xác nhận yêu cầu publish khoá học"
+                    message={`Bạn có chắc chắn muốn gửi yêu cầu publish khoá học ${selectedCourseTitle} không? Sau khi gửi, khoá học sẽ được xem xét để phê duyệt.`}
+                    confirmText="Gửi yêu cầu"
+                    cancelText="Hủy"
+                    onConfirm={handleConfirmPublish}
+                    onCancel={() => {setOpenPopup(false)}}
+                />
             </main>
         </div>
     )

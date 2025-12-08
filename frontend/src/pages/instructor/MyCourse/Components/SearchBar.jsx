@@ -24,6 +24,8 @@ function SearchBar({ q, setQ, status, setStatus, sort, setsort, handleSearch }) 
                     <option value="">Trạng thái: Tất cả</option>
                     <option value="published">Published</option>
                     <option value="draft">Draft</option>
+                    <option value="pending">Pending</option>
+                    <option value="rejected">Rejected</option>
                 </select>
             </div>
 

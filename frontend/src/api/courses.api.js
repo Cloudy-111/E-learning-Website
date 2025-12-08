@@ -105,6 +105,28 @@ async function updateFullCourse(courseId, payload) {
   }
 }
 
+async function requestPublishCourse(courseId) {
+  try {
+    const response = await baseFetch(
+      `/api/courses/${courseId}/request-publish`,
+      {
+        method: "PATCH",
+        headers: {
+          ...authHeader(),
+        },
+      }
+    );
+
+    if (response.status === "error") {
+      throw new Error(response.message || "Lỗi không xác định");
+    }
+    return response;
+  } catch (e) {
+    console.error("Request publish course error:", e);
+    throw new Error(e);
+  }
+}
+
 export {
   fetchCourses,
   fetchCourseDetail,
@@ -112,4 +134,5 @@ export {
   fetchInstructorCourses,
   fetchCourseDataAPI,
   updateFullCourse,
+  requestPublishCourse,
 };
