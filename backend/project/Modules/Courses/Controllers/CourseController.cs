@@ -120,6 +120,44 @@ public class CourseController : ControllerBase
 
     // Teacher only
     [Authorize(Roles = "Teacher")]
+    [HttpPut("{courseId}/update-full-course")]
+    public async Task<IActionResult> UpdateFullCourse(string courseId, [FromBody] FullCourseUpdateDTO fullCourseDto)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new APIResponse("error", "Invalid input data", ModelState));
+        }
+
+        try
+        {
+            var teacherId = User.FindFirst("teacherId")?.Value;
+            await _courseService.UpdateFullCourseAsync(teacherId, courseId, fullCourseDto);
+            return Ok(new APIResponse("Success", "Update Full Course successfully"));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new APIResponse("error", ex.Message));
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new APIResponse("error", ex.Message));
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            {
+                message = "An error occurred while updating the full course.",
+                detail = ex.Message
+            });
+        }
+    }
+
+    // Teacher only
+    [Authorize(Roles = "Teacher")]
     [HttpPatch("{id}")]
     public async Task<IActionResult> UpdateCourse(string id, [FromBody] CourseUpdateDTO courseDto)
     {
@@ -263,6 +301,31 @@ public class CourseController : ControllerBase
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new
             APIResponse("error", "An error occurred while retrieving the courses", ex.Message));
+        }
+    }
+
+    [Authorize(Roles = "Teacher")]
+    [HttpGet("{courseId}/full-data-edit")]
+    public async Task<IActionResult> GetFullCourseDataForEdit(string courseId)
+    {
+        try
+        {
+            var teacherId = User.FindFirst("teacherId")?.Value;
+            var fullCourseData = await _courseService.GetFullCourseDataForEditAsync(teacherId, courseId);
+            return Ok(new APIResponse("Success", "Retrieve Full Course Data for Edit Successfully", fullCourseData));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new APIResponse("error", ex.Message));
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return Forbid(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while retrieving the full course data", ex.Message));
         }
     }
 }

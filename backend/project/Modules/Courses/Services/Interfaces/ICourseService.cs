@@ -5,8 +5,10 @@ public interface ICourseService
     Task<CourseInformationDTO> GetCourseByIdAsync(string id);
     Task AddCourseAsync(string userId, CourseCreateDTO courseDto);
     Task UpdateCourseAsync(string userId, string courseId, CourseUpdateDTO courseDto);
+    Task UpdateFullCourseAsync(string userId, string courseId, FullCourseUpdateDTO fullCourseDto);
     Task RequestPublishCourseAsync(string userId, string courseId);
     Task<PageResultInstructorCoursesDTO> GetCoursesByTeacherIdAsync(string teacherId, string? keyword, string? status, string? sort, int page, int pageSize);
     Task<PageResultCourseEnrollmentDTO> GetEnrolledCoursesByStudentIdAsync(string studentId, string? keyword, string? status, string? sort, int page, int pageSize);
     Task AddFullCourseAsync(string userId, FullCourseCreateDTO fullCourseDto);
+    Task<FullCourseUpdateDTO> GetFullCourseDataForEditAsync(string userId, string courseId);
 }

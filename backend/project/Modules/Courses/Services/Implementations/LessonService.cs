@@ -114,7 +114,7 @@ public class LessonService : ILessonService
         existingLesson.Title = lessonDto.Title ?? existingLesson.Title;
         existingLesson.VideoUrl = lessonDto.VideoUrl ?? existingLesson.VideoUrl;
         existingLesson.Duration = lessonDto.Duration ?? existingLesson.Duration;
-        existingLesson.TextContent = lessonDto.Content ?? existingLesson.TextContent;
+        existingLesson.TextContent = lessonDto.TextContent ?? existingLesson.TextContent;
 
         await _lessonRepository.UpdateLessonAsync(existingLesson);
     }

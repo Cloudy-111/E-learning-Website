@@ -15,6 +15,27 @@ async function fetchCourses(params = {}) {
   );
 }
 
+async function fetchCourseDataAPI(courseId) {
+  try {
+    const response = await baseFetch(
+      `/api/courses/${courseId}/full-data-edit`,
+      {
+        method: "GET",
+        headers: {
+          ...authHeader(),
+        },
+      }
+    );
+    if (response.status === "error") {
+      throw new Error(response.message || "Lỗi không xác định");
+    }
+    return response.data;
+  } catch (e) {
+    console.error("Fetch course data error:", e);
+    throw new Error(e);
+  }
+}
+
 async function fetchCourseDetail(id) {
   return baseFetch(`/api/courses/${id}`);
 }
@@ -60,9 +81,35 @@ async function fetchInstructorCourses(params = {}) {
   );
 }
 
+async function updateFullCourse(courseId, payload) {
+  try {
+    const response = await baseFetch(
+      `/api/courses/${courseId}/update-full-course`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          ...authHeader(),
+        },
+        body: JSON.stringify(payload),
+      }
+    );
+    if (response.status === "error") {
+      throw new Error(response.message || "Lỗi không xác định");
+    }
+
+    return response;
+  } catch (e) {
+    console.error("Update course error:", e);
+    throw new Error(e);
+  }
+}
+
 export {
   fetchCourses,
   fetchCourseDetail,
   createCourseAPI,
   fetchInstructorCourses,
+  fetchCourseDataAPI,
+  updateFullCourse,
 };
