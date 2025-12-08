@@ -2,6 +2,7 @@ import { useState } from "react";
 
 function useCourseContent() {
   const [courseContent, setCourseContent] = useState({
+    id: "",
     title: "",
     description: "",
     introduce: "",
@@ -21,6 +22,7 @@ function useCourseContent() {
       lessons: [
         ...prev.lessons,
         {
+          id: "",
           title: "",
           videoUrl: "",
           duration: 0,
@@ -38,6 +40,9 @@ function useCourseContent() {
         ...updatedLessons[lessonIndex],
         [field]: value,
       };
+      // const updatedLessons = prev.lessons.map((l) =>
+      //   l.id === lessonId ? { ...l, [field]: value } : l
+      // );
 
       return {
         ...prev,

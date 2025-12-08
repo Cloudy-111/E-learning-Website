@@ -1,10 +1,10 @@
 import { AlertTriangle, CheckCircle, Rocket } from "lucide-react";
 import checkCourseCreate from "../CheckCourseCreate";
-// import { updateCourseAPI } from "../../../../../../api/courses.api";
-// import { useNavigate } from "react-router-dom";
+import { updateFullCourse } from "../../../../../../api/courses.api";
+import { useNavigate } from "react-router-dom";
 
 function SettingCourse({course, courseContent, outcomes, requirements}) {
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
     const result = checkCourseCreate(course, courseContent);
     const handleSubmit = async () => {
         const mergedDescription =
@@ -33,13 +33,13 @@ function SettingCourse({course, courseContent, outcomes, requirements}) {
 
         console.log("Submitting course:", payload);
         
-        // try{
-        //     await updateCourseAPI(payload);
-        //     alert("Cập nhật khoá học thành công!");
-        //     navigate("/i/courses");
-        // } catch (e) {
-        //     alert("Cập nhật khoá học thất bại: " + e.message);
-        // }
+        try{
+            await updateFullCourse(course.id, payload);
+            alert("Cập nhật khoá học thành công!");
+            navigate("/i/courses");
+        } catch (e) {
+            alert("Cập nhật khoá học thất bại: " + e.message);
+        }
     }
 
     return (
@@ -55,7 +55,7 @@ function SettingCourse({course, courseContent, outcomes, requirements}) {
                     <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 inline-flex items-start gap-2">
                         <AlertTriangle className="w-4 h-4 mt-0.5" />
                         <div>
-                            Cần kiểm tra lại thông tin bắt buộc trước khi tạo mới:
+                            Cần kiểm tra lại thông tin bắt buộc trước khi cập nhật:
                             <ul>
                                 {result.reason}
                             </ul>
@@ -67,7 +67,7 @@ function SettingCourse({course, courseContent, outcomes, requirements}) {
                     <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-800 inline-flex items-start gap-2">
                         <CheckCircle className="w-4 h-4 mt-0.5" />
                         <div>
-                            Mọi thông tin bắt buộc đã được điền đầy đủ. Bạn có thể tạo mới khoá học.
+                            Mọi thông tin bắt buộc đã được điền đầy đủ. Bạn có thể cập nhật khoá học.
                         </div>
                     </div>
                 )}

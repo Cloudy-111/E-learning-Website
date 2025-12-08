@@ -16,22 +16,29 @@ function GeneralInformation( {
 
     useEffect(() => {
         const loadCategories = async () => {
-          try {
-            setLoadingCategories(true);
-            setCatError("");
-            const res = await getCategories();
-            const list = Array.isArray(res?.data) ? res.data : [];
-            setCategories(list);
-    
-          } catch (err) {
-            console.error("Load categories failed:", err);
-            setCatError("Không tải được danh mục khoá học.");
-          } finally {
-            setLoadingCategories(false);
-          }
+            try {
+                setLoadingCategories(true);
+                setCatError("");
+                const res = await getCategories();
+                const list = Array.isArray(res?.data) ? res.data : [];
+                
+                setCategories(list);
+                const selected = list.find(c => c.id === course.categoryId);
+                if (selected?.name && selected.name !== course.categoryName) {
+                    updateCourse("categoryName", selected.name);
+                }
+        
+            } catch (err) {
+                console.error("Load categories failed:", err);
+                setCatError("Không tải được danh mục khoá học.");
+            } finally {
+                setLoadingCategories(false);
+            }
         };
-        loadCategories();
-    }, []);
+        if (course.categoryId) {
+            loadCategories();
+        }
+    }, [course.categoryId]);
 
 
     return (

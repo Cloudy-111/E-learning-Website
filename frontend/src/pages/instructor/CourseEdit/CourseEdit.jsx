@@ -37,6 +37,7 @@ function CourseEdit(){
             const parsed = parseCourseDescription(res.description);
 
             setAllCourse({
+                id: res.id,
                 title: res.title,
                 description: parsed.description || res.description,
                 categoryId: res.categoryId,

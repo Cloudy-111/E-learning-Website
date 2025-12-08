@@ -2,6 +2,7 @@ import { useState } from "react";
 
 function useCourseInfo() {
   const [course, setCourse] = useState({
+    id: "",
     title: "",
     categoryId: "",
     categoryName: "",

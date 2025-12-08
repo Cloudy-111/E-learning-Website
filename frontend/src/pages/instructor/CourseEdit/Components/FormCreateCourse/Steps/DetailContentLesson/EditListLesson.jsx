@@ -37,8 +37,8 @@ function EditListLesson( { lessons, addLesson, removeLesson, updateLesson, moveL
                             >
                                 {lessons.map((l, index) => (
                                     <Draggable
-                                        key={index}
-                                        draggableId={`lesson-${index}`}
+                                        key={l.id}
+                                        draggableId={`lesson-${l.id}`}
                                         index={index}
                                     >
                                         {(provided, snapshot) => (
@@ -52,7 +52,7 @@ function EditListLesson( { lessons, addLesson, removeLesson, updateLesson, moveL
 
                                                 <input
                                                     value={l.title}
-                                                    onChange={(e) => updateLesson(index, "title", e.target.value)}
+                                                    onChange={(e) => updateLesson(l.id, "title", e.target.value)}
                                                     placeholder="Tiêu đề bài học"
                                                     className="rounded-lg border px-3 py-2 text-sm"
                                                 />
@@ -61,7 +61,7 @@ function EditListLesson( { lessons, addLesson, removeLesson, updateLesson, moveL
                                                     min="0"
                                                     pattern="^[0-9]*$"
                                                     value={l.duration}
-                                                    onChange={(e) => updateLesson(index, "duration", e.target.value)}
+                                                    onChange={(e) => updateLesson(l.id, "duration", e.target.value)}
                                                     placeholder="minutes"
                                                     className="rounded-lg border px-3 py-2 text-sm"
                                                 />

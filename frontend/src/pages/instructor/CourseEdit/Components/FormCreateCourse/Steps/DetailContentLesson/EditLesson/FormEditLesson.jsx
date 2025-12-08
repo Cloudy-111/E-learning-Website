@@ -27,7 +27,7 @@ function FormEditLesson( {lesson, updateLesson, index }){
             <label className="block grow">
                 <span className="text-sm font-medium text-gray-700">Nội dung bài học</span>
                 <div className="border rounded-lg p-2 mt-2 shadow-inner bg-gray-50">
-                    <TextEditor updateLesson={updateLesson} index={index} />
+                    <TextEditor key={lesson.id} lesson={lesson} updateLesson={updateLesson} index={index} />
                 </div>
             </label>
         </div>

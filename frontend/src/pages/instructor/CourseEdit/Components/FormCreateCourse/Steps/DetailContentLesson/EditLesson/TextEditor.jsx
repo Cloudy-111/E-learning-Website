@@ -1,9 +1,13 @@
 import ReactQuill from 'react-quill-new';
 import "react-quill-new/dist/quill.snow.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-function TextEditor({updateLesson, index}) {
-    const [content, setContent] = useState('')
+function TextEditor({lesson, updateLesson, index}) {
+    const [content, setContent] = useState(lesson?.textContent || '')
+    useEffect(() => {
+        setContent(lesson?.textContent || "");
+    }, [lesson]);
+    
     const handleContentChange = (value) => {
         setContent(value);
         updateLesson(index, 'textContent', value);

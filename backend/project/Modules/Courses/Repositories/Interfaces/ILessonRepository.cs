@@ -9,4 +9,5 @@ public interface ILessonRepository
     Task AddLessonAsync(Lesson lesson);
     Task UpdateLessonAsync(Lesson lesson);
     Task UpdateOrderLessonsAsync(List<Lesson> lessons);
+    Task UpdateMultiLessonsAsync(List<Lesson> lessons);
 }
