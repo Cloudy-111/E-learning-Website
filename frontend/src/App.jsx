@@ -63,7 +63,7 @@ const SchedulePage = lazy(() => import("./pages/student/SchedulePage.jsx"));
 const PaymentHistory = lazy(() => import("./pages/student/PaymentHistory.jsx"));
 
 const InstructorDashboard = lazy(() => import("./pages/instructor/Dashboard.jsx"));
-const InstructorCourses = lazy(() => import("./pages/instructor/Courses.jsx"));
+const InstructorCourses = lazy(() => import("./pages/instructor/MyCourse/MyCourses.jsx"));
 const CourseLessons = lazy(() => import("./pages/instructor/CourseLessons.jsx"));
 const Exams = lazy(() => import("./pages/instructor/Exams.jsx"));
 const CourseCreate = lazy(() => import("./pages/instructor/CreateCourse/CreateCourse.jsx"));

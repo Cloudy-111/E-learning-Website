@@ -40,4 +40,29 @@ async function createCourseAPI(payload) {
   }
 }
 
-export { fetchCourses, fetchCourseDetail, createCourseAPI };
+async function fetchInstructorCourses(params = {}) {
+  const searchParams = new URLSearchParams();
+  if (params.keyword) searchParams.append("keyword", params.keyword);
+  if (params.status) searchParams.append("status", params.status);
+  if (params.sort) searchParams.append("sort", params.sort);
+
+  if (params.page) searchParams.append("page", params.page);
+  if (params.pageSize) searchParams.append("pageSize", params.pageSize);
+  const queryString = searchParams.toString();
+  return baseFetch(
+    `/api/courses/instructor${queryString ? `?${queryString}` : ""}`,
+    {
+      method: "GET",
+      headers: {
+        ...authHeader(),
+      },
+    }
+  );
+}
+
+export {
+  fetchCourses,
+  fetchCourseDetail,
+  createCourseAPI,
+  fetchInstructorCourses,
+};

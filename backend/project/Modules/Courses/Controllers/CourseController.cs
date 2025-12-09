@@ -200,13 +200,19 @@ public class CourseController : ControllerBase
     }
 
     [Authorize(Roles = "Teacher")]
-    [HttpGet("teacher/my-courses")]
-    public async Task<IActionResult> GetMyCourses()
+    [HttpGet("instructor")]
+    public async Task<IActionResult> GetInstructorCourses(
+        [FromQuery] string? keyword,
+        [FromQuery] string? status,
+        [FromQuery] string? sort,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10
+    )
     {
         try
         {
             var teacherId = User.FindFirst("teacherId")?.Value;
-            var courses = await _courseService.GetCoursesByTeacherIdAsync(teacherId);
+            var courses = await _courseService.GetCoursesByTeacherIdAsync(teacherId, keyword, status, sort, page, pageSize);
             return Ok(new APIResponse("Success", "Retrieve My Courses Successfully", courses));
         }
         catch (Exception ex)
@@ -217,11 +223,17 @@ public class CourseController : ControllerBase
     }
 
     [HttpGet("teacher/{teacherId}/courses")]
-    public async Task<IActionResult> GetCoursesByTeacherId(string teacherId)
+    public async Task<IActionResult> GetCoursesByTeacherId(
+        string teacherId,
+        [FromQuery] string? keyword,
+        [FromQuery] string? status,
+        [FromQuery] string? sort,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10)
     {
         try
         {
-            var courses = await _courseService.GetCoursesByTeacherIdAsync(teacherId);
+            var courses = await _courseService.GetCoursesByTeacherIdAsync(teacherId, keyword, status, sort, page, pageSize);
             return Ok(new APIResponse("Success", "Retrieve Courses by TeacherId Successfully", courses));
         }
         catch (Exception ex)
