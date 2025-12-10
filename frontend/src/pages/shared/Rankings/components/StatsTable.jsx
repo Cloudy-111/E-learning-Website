@@ -11,6 +11,20 @@ export default function StatsTable({ stats, currentMonth }) {
         );
     }
 
+    // Calculate contribution score for each student and sort them
+    const sortedStats = [...stats] // Create a shallow copy to avoid direct mutation of props
+        .map(student => {
+            const posts = isMonthView ? student.monthPosts : student.totalPosts;
+            const questions = isMonthView ? student.monthForumQuestions : student.totalForumQuestions;
+            const discussions = isMonthView ? student.monthDiscussions : student.totalDiscussions;
+
+            // Calculate score: 1 post = 20, 1 question = 5, 1 discussion = 1
+            const contributionScore = (posts * 20) + (questions * 5) + (discussions * 1);
+            return { ...student, contributionScore }; // Add score to student object
+        })
+        .sort((a, b) => b.contributionScore - a.contributionScore); // Sort by score descending
+
+
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="overflow-x-auto">
@@ -18,23 +32,25 @@ export default function StatsTable({ stats, currentMonth }) {
                     <thead>
                         <tr className="bg-gray-50 border-b border-gray-200">
                             <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Sinh viên</th>
+                            <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Điểm đóng góp</th> {/* New column for score */}
                             {isMonthView ? (
                                 <>
                                     <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Bài viết đóng góp</th>
-                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Bình luận đóng góp</th>
                                     <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Câu hỏi đóng góp</th>
+                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Bình luận đóng góp</th>
                                 </>
                             ) : (
                                 <>
+                                    {/* Changed headers to reflect "Tổng" for consistency */}
                                     <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Tổng bài viết đóng góp</th>
-                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Tổng bình luận đóng góp</th>
                                     <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Tổng câu hỏi đóng góp</th>
+                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Tổng bình luận đóng góp</th>
                                 </>
                             )}
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
-                        {stats.map((student) => (
+                    <tbody className="divide-y divide-gray-100"> {/* Use sortedStats here */}
+                        {sortedStats.map((student) => (
                             <tr key={student.studentId} className="hover:bg-gray-50 transition-colors">
                                 <td className="px-6 py-4">
                                     <Link to={`/u/${student.studentId}`} className="font-medium text-gray-900 hover:text-blue-600 transition-colors">
@@ -43,15 +59,21 @@ export default function StatsTable({ stats, currentMonth }) {
                                 </td>
                                 {isMonthView ? (
                                     <>
+                                        <td className="px-6 py-4 text-center text-gray-700 font-bold">
+                                            {student.contributionScore.toLocaleString()}
+                                        </td>
                                         <td className="px-6 py-4 text-center text-gray-700">{student.monthPosts}</td>
-                                        <td className="px-6 py-4 text-center text-gray-700">{student.monthDiscussions}</td>
                                         <td className="px-6 py-4 text-center text-gray-700">{student.monthForumQuestions}</td>
+                                        <td className="px-6 py-4 text-center text-gray-700">{student.monthDiscussions}</td>
                                     </>
                                 ) : (
                                     <>
+                                        <td className="px-6 py-4 text-center text-gray-700 font-bold">
+                                            {student.contributionScore.toLocaleString()}
+                                        </td>
                                         <td className="px-6 py-4 text-center text-gray-700">{student.totalPosts}</td>
-                                        <td className="px-6 py-4 text-center text-gray-700">{student.totalDiscussions}</td>
                                         <td className="px-6 py-4 text-center text-gray-700">{student.totalForumQuestions}</td>
+                                        <td className="px-6 py-4 text-center text-gray-700">{student.totalDiscussions}</td>
                                     </>
                                 )}
                             </tr>
