@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import StatsTable from "./components/StatsTable";
+import TopThreePodium from "./components/TopThreePodium";
 import { getStats } from "./forumService";
 
 const TABS = {
@@ -51,6 +52,27 @@ export default function Rankings() {
         });
     };
 
+    const processedStats = useMemo(() => {
+        if (!statsData) return { topThree: [], others: [] };
+
+        const isMonthView = currentMonth !== undefined;
+
+        const sorted = [...statsData]
+            .map(student => {
+                const posts = isMonthView ? student.monthPosts : student.totalPosts;
+                const questions = isMonthView ? student.monthForumQuestions : student.totalForumQuestions;
+                const discussions = isMonthView ? student.monthDiscussions : student.totalDiscussions;
+                const contributionScore = (posts * 20) + (questions * 5) + (discussions * 1);
+                return { ...student, contributionScore };
+            })
+            .sort((a, b) => b.contributionScore - a.contributionScore);
+
+        return {
+            topThree: sorted.slice(0, 3),
+            others: sorted.slice(3),
+        };
+    }, [statsData, currentMonth]);
+
     const isLoading = isLoadingStats;
     const error = statsError;
 
@@ -58,6 +80,8 @@ export default function Rankings() {
         <div className="bg-slate-50 min-h-screen">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div className="max-w-5xl mx-auto mb-8">
+                    <TopThreePodium topThree={processedStats.topThree} />
+
                     {/* Page Header */}
                     <div className="relative border-b border-gray-200 pb-5 sm:pb-0">
                         <div className="md:flex md:items-center md:justify-between">
@@ -80,8 +104,8 @@ export default function Rankings() {
 
                     {!isLoading && !error && (
                         <>
-                            {statsData && (
-                                <StatsTable stats={statsData} currentMonth={currentMonth} />
+                            {processedStats.others.length > 0 && (
+                                <StatsTable stats={processedStats.others} currentMonth={currentMonth} />
                             )}
                         </>
                     )}

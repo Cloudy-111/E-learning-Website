@@ -11,20 +11,6 @@ export default function StatsTable({ stats, currentMonth }) {
         );
     }
 
-    // Calculate contribution score for each student and sort them
-    const sortedStats = [...stats] // Create a shallow copy to avoid direct mutation of props
-        .map(student => {
-            const posts = isMonthView ? student.monthPosts : student.totalPosts;
-            const questions = isMonthView ? student.monthForumQuestions : student.totalForumQuestions;
-            const discussions = isMonthView ? student.monthDiscussions : student.totalDiscussions;
-
-            // Calculate score: 1 post = 20, 1 question = 5, 1 discussion = 1
-            const contributionScore = (posts * 20) + (questions * 5) + (discussions * 1);
-            return { ...student, contributionScore }; // Add score to student object
-        })
-        .sort((a, b) => b.contributionScore - a.contributionScore); // Sort by score descending
-
-
     return (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="overflow-x-auto">
@@ -50,11 +36,11 @@ export default function StatsTable({ stats, currentMonth }) {
                             )}
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100"> {/* Use sortedStats here */}
-                        {sortedStats.map((student, index) => (
+                    <tbody className="divide-y divide-gray-100">
+                        {stats.map((student, index) => (
                             <tr key={student.studentId} className="hover:bg-gray-50 transition-colors">
                                 <td className="px-6 py-4 text-sm font-medium text-gray-500">
-                                    {index + 1}
+                                    {index + 4} {/* Start ranking from #4 */}
                                 </td>
                                 <td className="px-6 py-4">
                                     <Link to={`/u/${student.studentId}`} className="font-medium text-gray-900 hover:text-blue-600 transition-colors">
