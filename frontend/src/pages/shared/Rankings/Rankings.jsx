@@ -30,8 +30,9 @@ export default function Rankings() {
     const [searchParams, setSearchParams] = useSearchParams();
     
     // Lấy giá trị tháng từ URL, nếu là "" (Tất cả) thì là undefined, nếu không có thì mặc định là tháng hiện tại
-    const monthParam = searchParams.get("month");
-    const currentMonth = monthParam === "" ? undefined : (monthParam ? parseInt(monthParam, 10) : (new Date().getMonth() + 1));
+    const monthParam = searchParams.get("month"); // Sẽ là null nếu không có hoặc là một chuỗi số
+    // Nếu monthParam là null (không có trên URL), đó là chế độ "Tất cả" -> currentMonth là undefined.
+    const currentMonth = monthParam ? parseInt(monthParam, 10) : undefined;
 
     const { data: statsData, isLoading: isLoadingStats, error: statsError } = useQuery({
         queryKey: ['stats', { month: currentMonth }],
@@ -42,7 +43,7 @@ export default function Rankings() {
         const selectedValue = event.target.value;
         setSearchParams(prev => {
             if (selectedValue === "") {
-                prev.delete('month'); // Xóa tham số 'month' khỏi URL khi chọn "Tất cả"
+                prev.delete('month');
             } else {
                 prev.set('month', selectedValue);
             }
@@ -65,7 +66,7 @@ export default function Rankings() {
                             </button>
                         </div>
                         {/* Month Filter */}
-                            <select onChange={handleMonthChange} value={monthParam || ''} className="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <select onChange={handleMonthChange} value={monthParam ?? ''} className="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                                 <option value="">Tất cả</option>
                                 {Array.from({ length: 12 }, (_, i) => (
                                     <option key={i + 1} value={i + 1}>Tháng {i + 1}</option>

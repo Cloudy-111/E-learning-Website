@@ -20,9 +20,9 @@ export default function StatsTable({ stats, currentMonth }) {
                             <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Sinh viên</th>
                             {isMonthView ? (
                                 <>
-                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Bài viết (Tháng)</th>
-                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Thảo luận (Tháng)</th>
-                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Câu hỏi (Tháng)</th>
+                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Bài viết</th>
+                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Thảo luận</th>
+                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Câu hỏi</th>
                                 </>
                             ) : (
                                 <>
