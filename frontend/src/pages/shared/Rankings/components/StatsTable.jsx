@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 
-export default function StatsTable({ stats }) {
+export default function StatsTable({ stats, currentMonth }) {
+    const isMonthView = currentMonth !== undefined;
+
     if (!stats || stats.length === 0) {
         return (
             <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-8 text-center text-gray-500">
@@ -16,12 +18,19 @@ export default function StatsTable({ stats }) {
                     <thead>
                         <tr className="bg-gray-50 border-b border-gray-200">
                             <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Sinh viên</th>
-                            <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Bài viết (Tháng)</th>
-                            <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Thảo luận (Tháng)</th>
-                            <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Câu hỏi (Tháng)</th>
-                            <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Tổng bài viết</th>
-                            <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Tổng thảo luận</th>
-                            <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Tổng câu hỏi</th>
+                            {isMonthView ? (
+                                <>
+                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Bài viết (Tháng)</th>
+                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Thảo luận (Tháng)</th>
+                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Câu hỏi (Tháng)</th>
+                                </>
+                            ) : (
+                                <>
+                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Tổng bài viết</th>
+                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Tổng thảo luận</th>
+                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Tổng câu hỏi</th>
+                                </>
+                            )}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -32,12 +41,19 @@ export default function StatsTable({ stats }) {
                                         {student.fullName}
                                     </Link>
                                 </td>
-                                <td className="px-6 py-4 text-center text-gray-700">{student.monthPosts}</td>
-                                <td className="px-6 py-4 text-center text-gray-700">{student.monthDiscussions}</td>
-                                <td className="px-6 py-4 text-center text-gray-700">{student.monthForumQuestions}</td>
-                                <td className="px-6 py-4 text-center text-gray-500">{student.totalPosts}</td>
-                                <td className="px-6 py-4 text-center text-gray-500">{student.totalDiscussions}</td>
-                                <td className="px-6 py-4 text-center text-gray-500">{student.totalForumQuestions}</td>
+                                {isMonthView ? (
+                                    <>
+                                        <td className="px-6 py-4 text-center text-gray-700">{student.monthPosts}</td>
+                                        <td className="px-6 py-4 text-center text-gray-700">{student.monthDiscussions}</td>
+                                        <td className="px-6 py-4 text-center text-gray-700">{student.monthForumQuestions}</td>
+                                    </>
+                                ) : (
+                                    <>
+                                        <td className="px-6 py-4 text-center text-gray-700">{student.totalPosts}</td>
+                                        <td className="px-6 py-4 text-center text-gray-700">{student.totalDiscussions}</td>
+                                        <td className="px-6 py-4 text-center text-gray-700">{student.totalForumQuestions}</td>
+                                    </>
+                                )}
                             </tr>
                         ))}
                     </tbody>

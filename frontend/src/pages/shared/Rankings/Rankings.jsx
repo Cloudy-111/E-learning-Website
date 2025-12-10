@@ -1,11 +1,8 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
-import TopThreePodium from "./components/TopThreePodium";
-import RankingsTable from "./components/RankingsTable";
 import StatsTable from "./components/StatsTable";
-import { getRankings, getStats } from "./forumService";
-
+import { getStats } from "./forumService";
 
 const TABS = {
     CONTRIBUTORS: 'contributors',
@@ -31,62 +28,45 @@ function ErrorDisplay({ message }) {
 
 export default function Rankings() {
     const [searchParams, setSearchParams] = useSearchParams();
-    const [activeTab, setActiveTab] = useState(TABS.CONTRIBUTORS);
-
-    const currentPage = parseInt(searchParams.get("page") || "1", 10);
-    const currentMonth = parseInt(searchParams.get("month") || new Date().getMonth() + 1, 10);
-
-    const { data: rankingsData, isLoading: isLoadingRankings, error: rankingsError } = useQuery({
-        queryKey: ['rankings', { page: currentPage }],
-        queryFn: () => getRankings({ page: currentPage, pageSize: 10 }),
-        enabled: activeTab === TABS.CONTRIBUTORS,
-        keepPreviousData: true,
-    });
+    
+    // Lấy giá trị tháng từ URL, nếu là "" (Tất cả) thì là undefined, nếu không có thì mặc định là tháng hiện tại
+    const monthParam = searchParams.get("month");
+    const currentMonth = monthParam === "" ? undefined : (monthParam ? parseInt(monthParam, 10) : (new Date().getMonth() + 1));
 
     const { data: statsData, isLoading: isLoadingStats, error: statsError } = useQuery({
         queryKey: ['stats', { month: currentMonth }],
         queryFn: () => getStats(currentMonth),
-        enabled: activeTab === TABS.STATS,
     });
 
-    const handlePageChange = (page) => {
-        setSearchParams(prev => {
-            prev.set('page', page);
-            return prev;
-        });
-    };
-
     const handleMonthChange = (event) => {
+        const selectedValue = event.target.value;
         setSearchParams(prev => {
-            prev.set('month', event.target.value);
+            if (selectedValue === "") {
+                prev.delete('month'); // Xóa tham số 'month' khỏi URL khi chọn "Tất cả"
+            } else {
+                prev.set('month', selectedValue);
+            }
             return prev;
         });
     };
 
-    const topThree = useMemo(() => rankingsData?.items?.slice(0, 3) || [], [rankingsData]);
-    const otherContributors = useMemo(() => rankingsData?.items?.slice(3) || [], [rankingsData]);
-
-    const isLoading = isLoadingRankings || isLoadingStats;
-    const error = rankingsError || statsError;
+    const isLoading = isLoadingStats;
+    const error = statsError;
 
     return (
         <div className="bg-slate-50 min-h-screen">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <TopThreePodium topThree={topThree} />
-
-                <div className="max-w-5xl mx-auto mt-12">
+                <div className="max-w-5xl mx-auto">
                     {/* Tabs and Filters */}
                     <div className="mb-6 flex justify-between items-center">
                         <div className="flex border-b border-gray-200">
-                            <button onClick={() => setActiveTab(TABS.CONTRIBUTORS)} className={`px-4 py-2 text-sm font-medium ${activeTab === TABS.CONTRIBUTORS ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}>
+                            <button className="px-4 py-2 text-sm font-medium border-b-2 border-blue-500 text-blue-600">
                                 Bảng xếp hạng
                             </button>
-                            <button onClick={() => setActiveTab(TABS.STATS)} className={`px-4 py-2 text-sm font-medium ${activeTab === TABS.STATS ? 'border-b-2 border-blue-500 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`}>
-                                Thống kê
-                            </button>
                         </div>
-                        {activeTab === TABS.STATS && (
-                            <select onChange={handleMonthChange} value={currentMonth} className="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                        {/* Month Filter */}
+                            <select onChange={handleMonthChange} value={monthParam || ''} className="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                                <option value="">Tất cả</option>
                                 {Array.from({ length: 12 }, (_, i) => (
                                     <option key={i + 1} value={i + 1}>Tháng {i + 1}</option>
                                 ))}
@@ -99,17 +79,8 @@ export default function Rankings() {
 
                     {!isLoading && !error && (
                         <>
-                            {activeTab === TABS.CONTRIBUTORS && rankingsData && (
-                                <RankingsTable
-                                    contributors={otherContributors}
-                                    startRank={(currentPage - 1) * 10 + 4}
-                                    currentPage={currentPage}
-                                    totalPages={rankingsData.totalPages}
-                                    onPageChange={handlePageChange}
-                                />
-                            )}
-                            {activeTab === TABS.STATS && statsData && (
-                                <StatsTable stats={statsData} />
+                            {statsData && (
+                                <StatsTable stats={statsData} currentMonth={currentMonth} />
                             )}
                         </>
                     )}
