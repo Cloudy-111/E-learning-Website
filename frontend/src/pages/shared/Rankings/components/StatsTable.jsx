@@ -31,6 +31,7 @@ export default function StatsTable({ stats, currentMonth }) {
                 <table className="w-full">
                     <thead>
                         <tr className="bg-gray-50 border-b border-gray-200">
+                            <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600 w-16">#</th>
                             <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Sinh viên</th>
                             <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Điểm đóng góp</th> {/* New column for score */}
                             {isMonthView ? (
@@ -50,8 +51,11 @@ export default function StatsTable({ stats, currentMonth }) {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100"> {/* Use sortedStats here */}
-                        {sortedStats.map((student) => (
+                        {sortedStats.map((student, index) => (
                             <tr key={student.studentId} className="hover:bg-gray-50 transition-colors">
+                                <td className="px-6 py-4 text-sm font-medium text-gray-500">
+                                    {index + 1}
+                                </td>
                                 <td className="px-6 py-4">
                                     <Link to={`/u/${student.studentId}`} className="font-medium text-gray-900 hover:text-blue-600 transition-colors">
                                         {student.fullName}
