@@ -20,15 +20,15 @@ export default function StatsTable({ stats, currentMonth }) {
                             <th className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Sinh viên</th>
                             {isMonthView ? (
                                 <>
-                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Bài viết</th>
-                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Thảo luận</th>
-                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Câu hỏi</th>
+                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Bài viết đóng góp</th>
+                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Bình luận đóng góp</th>
+                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Câu hỏi đóng góp</th>
                                 </>
                             ) : (
                                 <>
-                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Tổng bài viết</th>
-                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Tổng thảo luận</th>
-                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Tổng câu hỏi</th>
+                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Tổng bài viết đóng góp</th>
+                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Tổng bình luận đóng góp</th>
+                                    <th className="px-6 py-4 text-center text-sm font-semibold text-gray-600">Tổng câu hỏi đóng góp</th>
                                 </>
                             )}
                         </tr>

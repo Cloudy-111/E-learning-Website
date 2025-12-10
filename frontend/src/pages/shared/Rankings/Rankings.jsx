@@ -57,22 +57,22 @@ export default function Rankings() {
     return (
         <div className="bg-slate-50 min-h-screen">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="max-w-5xl mx-auto">
-                    {/* Tabs and Filters */}
-                    <div className="mb-6 flex justify-between items-center">
-                        <div className="flex border-b border-gray-200">
-                            <button className="px-4 py-2 text-sm font-medium border-b-2 border-blue-500 text-blue-600">
-                                Bảng xếp hạng
-                            </button>
+                <div className="max-w-5xl mx-auto mb-8">
+                    {/* Page Header */}
+                    <div className="relative border-b border-gray-200 pb-5 sm:pb-0">
+                        <div className="md:flex md:items-center md:justify-between">
+                            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+                                Bảng thống kê
+                            </h2>
+                            <div className="mt-4 flex md:absolute md:right-0 md:top-0 md:mt-0">
+                                <select onChange={handleMonthChange} value={monthParam ?? ''} className="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm">
+                                    <option value="">Tất cả</option>
+                                    {Array.from({ length: 12 }, (_, i) => (
+                                        <option key={i + 1} value={i + 1}>Tháng {i + 1}</option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
-                        {/* Month Filter */}
-                            <select onChange={handleMonthChange} value={monthParam ?? ''} className="rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                                <option value="">Tất cả</option>
-                                {Array.from({ length: 12 }, (_, i) => (
-                                    <option key={i + 1} value={i + 1}>Tháng {i + 1}</option>
-                                ))}
-                            </select>
-                        )}
                     </div>
 
                     {isLoading && <LoadingSpinner />}
