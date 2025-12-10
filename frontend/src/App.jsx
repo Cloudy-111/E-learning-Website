@@ -141,6 +141,7 @@ export default function App() {
                     <Route path="/courses/:id" element={<CourseDetail />} />
                     <Route path="/rankings" element={<Rankings />} />
                     <Route path="/u/:id" element={<PublicProfile />} />
+                    <Route path="/forum" element={<ForumHome />} />
 
                     {/* Student */}
                     <Route element={<RequireRole roles={["Student"]} />}>
@@ -157,7 +158,8 @@ export default function App() {
                       <Route path="/i/courses/new" element={<CourseCreate title="🆕 /i/courses/new — Tạo khoá draft" />} />
                       <Route path="/i/courses" element={<InstructorCourses title="📚 /i/courses — Khoá học đã tạo" />} />
                       <Route path="/i/courses/:id/edit" element={<CourseEdit title="✏️ /i/courses/:id/edit — Sửa khoá (draft/version)" />} />
-                    
+                      <Route path="/i/courses/:courseId/exams/create" element={<ExamNew title="🆕 /i/courses/:courseId/exams/create — Tạo đề thi" />} />
+
                     </Route>
 
                   </Route>
@@ -173,7 +175,7 @@ export default function App() {
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
 
-                  <Route path="/forum" element={<ForumHome />} />
+                  
 
                   <Route path="/forum/:id" element={<QuestionDetail />} />
 
@@ -230,7 +232,7 @@ export default function App() {
                       <Route path="/i/courses/:id/students/:userId" element={<StudentProgress title="👤 /i/courses/:id/students/:userId — Tiến độ 1 học viên" />} />
                       <Route path="/i/courses/:id/reviews" element={<CourseReviews title="⭐ /i/courses/:id/reviews — Quản lý đánh giá" />} />
                       <Route path="/i/exams" element={<Exams title="🧠 /i/exams — Đề thi do GV tạo" />} />
-                      <Route path="/i/exams/new" element={<ExamNew title="🆕 /i/exams/new — Tạo đề thi (builder + ngân hàng câu hỏi)" />} />
+                      
                       <Route path="/i/exams/:id/edit" element={<ExamEdit title="✏️ /i/exams/:id/edit — Chỉnh sửa đề (draft)" />} />
                       <Route path="/i/exams/:id/stats" element={<ExamStats title="📈 /i/exams/:id/stats — Thống kê đề thi (Item analysis)" />} />
                       <Route path="/i/exams/:id/attempts" element={<ExamAttempts title="🧾 /i/exams/:id/attempts — Lượt làm & chi tiết" />} />

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Users, FileClock, MoreVertical, Eye, Rocket, Undo2, Copy, Edit } from "lucide-react";
+import { Users, FileClock, MoreVertical, Eye, Rocket, Undo2, Copy, Edit, Plus } from "lucide-react";
 
 const BADGE = (s) => {
     if (s === "draft") {
@@ -20,7 +20,7 @@ const formattedDate = (date) => {
     });
 } 
 
-function CourseCard({ c, onRequestPublish }) {
+function CourseCard({ c, onRequestPublish, onAddExam }) {
     return (
         <article key={c.id} className="rounded-2xl border bg-white p-5 hover:shadow-sm transition relative">
             {/* header */}
@@ -49,16 +49,16 @@ function CourseCard({ c, onRequestPublish }) {
                     <button className="rounded-lg bg-transparent border p-2 hover:bg-gray-50">
                         <MoreVertical className="w-4 h-4" />
                     </button>
-                    <div className="absolute right-0 mt-2 w-44 rounded-lg border bg-white shadow-lg hidden group-hover:block z-10">
-                        <Link to={`/courses/${c.id}`} className="block px-3 py-2 text-sm hover:bg-gray-50 inline-flex items-center gap-2">
+                    {/* <div className="absolute right-0 mt-2 w-44 rounded-lg border bg-white shadow-lg hidden group-hover:block z-10">
+                        <Link className="block px-3 py-2 text-sm hover:bg-gray-50 inline-flex items-center gap-2">
                             <Eye className="w-4 h-4" /> Xem trang public
                         </Link>
-                    </div>
+                    </div> */}
                 </div>
             </div>
 
             {c.status === "draft" && (
-                <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
+                <div className="mt-4 grid grid-cols-3 gap-2 text-sm">
                     <Link
                         to={`/i/courses/${c.id}/edit`}
                         className="rounded-lg border px-3 py-2 text-center hover:bg-gray-50 inline-flex items-center justify-center gap-2"
@@ -70,6 +70,13 @@ function CourseCard({ c, onRequestPublish }) {
                         onClick={onRequestPublish}
                     >
                         <Rocket className="w-4 h-4" /> Yêu cầu Publish
+                    </button>
+                    <button
+                        // to={`/i/courses/${c.id}/edit`}
+                        onClick={onAddExam}
+                        className="rounded-lg border px-3 py-2 text-center bg-transparent hover:bg-gray-50 inline-flex items-center justify-center gap-2"
+                    >
+                        <Plus className="w-4 h-4" /> Thêm bài kiểm tra
                     </button>
                 </div>
             )}
@@ -94,8 +101,9 @@ function CourseCard({ c, onRequestPublish }) {
                 </div>
             )}
             
+            
         </article>
-    )
+    )   
 }
 
 export default CourseCard;
