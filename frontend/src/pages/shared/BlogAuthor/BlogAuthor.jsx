@@ -52,7 +52,6 @@ function BlogAuthor() {
 
     return (
         <>
-            <Header />
             <main className="w-screen overflow-x-hidden">
                 <AuthorHero authorName={authorName} postCount={posts.length} loading={loading} />
 
@@ -68,7 +67,6 @@ function BlogAuthor() {
                     </div>
                 </section>
             </main>
-            <Footer />
         </>
     );
 }
