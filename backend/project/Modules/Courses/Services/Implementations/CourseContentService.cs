@@ -75,13 +75,17 @@ public class CourseContentService : ICourseContentService
         await _courseContentRepository.UpdateCourseContentAsync(existingContent);
     }
 
-    public async Task<CourseContentInformationDTO> GetCourseContentInformationDTOAsync(string courseId)
+    public async Task<CourseContentInformationDTO> GetCourseContentInformationDTOAsync(string teacherId, string courseId)
     {
         var courseExist = await _courseRepository.CourseExistsAsync(courseId);
         if (!courseExist)
         {
             throw new KeyNotFoundException("Course not found");
         }
+
+        // check enrollment or teacher
+        // ...
+
         var courseContent = await _courseContentRepository.GetCourseContentByCourseIdAsync(courseId) ?? throw new KeyNotFoundException("Course content not found");
 
         return new CourseContentInformationDTO
@@ -89,6 +93,31 @@ public class CourseContentService : ICourseContentService
             Id = courseContent.Id,
             Title = courseContent.Title,
             Introduce = courseContent.Introduce,
+        };
+    }
+
+    public async Task<CourseContentOverview> GetCourseContentOverviewDTOAsync(string teacherId, string courseId)
+    {
+        var courseExist = await _courseRepository.GetCourseByIdByTeacherAsync(courseId, teacherId)
+            ?? throw new KeyNotFoundException("Course not found");
+
+        if (courseExist.TeacherId != teacherId)
+        {
+            throw new UnauthorizedAccessException("You are not the teacher of this course");
+        }
+
+        var courseContent = await _courseContentRepository.GetCourseContentOverviewByCourseIdAsync(courseId) ?? throw new KeyNotFoundException("Course content not found");
+
+        var lessonIds = courseContent.Lessons.Select(lesson => new LessonOverviewDTO
+        {
+            Id = lesson.Id,
+            Title = lesson.Title,
+        }).ToList();
+
+        return new CourseContentOverview
+        {
+            Id = courseContent.Id,
+            Lessons = lessonIds,
         };
     }
 }

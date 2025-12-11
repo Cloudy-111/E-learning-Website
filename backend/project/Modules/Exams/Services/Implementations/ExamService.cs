@@ -15,6 +15,7 @@ public class ExamService : IExamService
     private readonly IStudentRepository _studentRepository;
     private readonly ICourseContentRepository _courseContentRepository;
     private readonly IEnrollmentCourseRepository _enrollmentCourseRepository;
+    private readonly DBContext _dbContext;
 
     public ExamService(
         IExamRepository examRepository,
@@ -24,7 +25,8 @@ public class ExamService : IExamService
         IQuestionExamRepository questionExamRepository,
         IStudentRepository studentRepository,
         ICourseContentRepository courseContentRepository,
-        IEnrollmentCourseRepository enrollmentCourseRepository)
+        IEnrollmentCourseRepository enrollmentCourseRepository,
+        DBContext dbContext)
     {
         _examRepository = examRepository;
         _questionExamService = questionExamService;
@@ -34,6 +36,7 @@ public class ExamService : IExamService
         _studentRepository = studentRepository;
         _courseContentRepository = courseContentRepository;
         _enrollmentCourseRepository = enrollmentCourseRepository;
+        _dbContext = dbContext;
     }
 
     public async Task<IEnumerable<InformationExamDTO>> GetAllExamsAsync()
@@ -189,6 +192,77 @@ public class ExamService : IExamService
         await _examRepository.AddExamAsync(newExam);
     }
 
+    public async Task AddFullExamAsync(string userId, CreateFullExamDTO fullExamDto)
+    {
+        if (fullExamDto.CourseContentId == null && fullExamDto.LessonId == null)
+        {
+            throw new ArgumentException("Either CourseContentId or LessonId must be provided.");
+        }
+        if (fullExamDto.CourseContentId != null && fullExamDto.LessonId != null)
+        {
+            throw new ArgumentException("Only one of CourseContentId or LessonId should be provided.");
+        }
+
+        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+        try
+        {
+            var newExam = new Exam
+            {
+                Title = fullExamDto.Title,
+                Description = fullExamDto.Description,
+                DurationMinutes = fullExamDto.DurationMinutes,
+                TotalCompleted = 0,
+                IsOpened = false,
+                CourseContentId = fullExamDto.CourseContentId,
+                LessonId = fullExamDto.LessonId
+            };
+
+            await _examRepository.AddExamAsync(newExam);
+
+            List<QuestionExam> questions = new List<QuestionExam>();
+            foreach (var questionDto in fullExamDto.Questions)
+            {
+                var newQuestion = new QuestionExam
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    ExamId = newExam.Id,
+                    Content = questionDto.Content,
+                    Type = questionDto.Type,
+                    Exaplanation = questionDto.Explanation,
+                    ImageUrl = questionDto.ImageUrl,
+                    Score = questionDto.Score,
+                    IsRequired = questionDto.IsRequired,
+                    Order = questionDto.Order,
+                    IsNewest = true
+                };
+
+                foreach (var choiceDto in questionDto.Answers)
+                {
+                    var newChoice = new Choice
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Content = choiceDto.Content,
+                        IsCorrect = choiceDto.IsCorrect,
+                        QuestionExamId = newQuestion.Id
+                    };
+                    newQuestion.Choices.Add(newChoice);
+                }
+
+                questions.Add(newQuestion);
+            }
+
+            await _questionExamRepository.UploadBulkQuestionsAsync(questions);
+            await transaction.CommitAsync();
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+
+    }
+
     public async Task UpdateExamAsync(string userId, string examId, UpdateExamDTO examUpdate)
     {
         var exam = await _examRepository.GetExamByIdAsync(examId) ?? throw new KeyNotFoundException($"Exam with id {examId} not found.");
@@ -331,6 +405,7 @@ public class ExamService : IExamService
 
                     currentQuestion = new QuestionExam
                     {
+                        Id = Guid.NewGuid().ToString(),
                         ExamId = examId,
                         Content = content,
                         ImageUrl = string.IsNullOrWhiteSpace(imageUrl) ? null : imageUrl,
@@ -358,6 +433,7 @@ public class ExamService : IExamService
             {
                 currentQuestion!.Choices.Add(new Choice
                 {
+                    Id = Guid.NewGuid().ToString(),
                     Content = choiceText,
                     IsCorrect = ParseNullableBool(isCorrectRaw)
                 });

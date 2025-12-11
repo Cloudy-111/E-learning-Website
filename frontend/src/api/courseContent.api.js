@@ -2,7 +2,21 @@ import { baseFetch } from "./baseApi";
 import { authHeader } from "../utils/auth";
 
 async function fetchCourseContent(courseId) {
-  return baseFetch(`/api/courses/${courseId}/content`);
+  return baseFetch(`/api/courses/${courseId}/content`, {
+    method: "GET",
+    headers: {
+      ...authHeader(),
+    },
+  });
+}
+
+async function fetchCourseContentOverview(courseId) {
+  return baseFetch(`/api/courses/${courseId}/content/overview`, {
+    method: "GET",
+    headers: {
+      ...authHeader(),
+    },
+  });
 }
 
 async function createCourseContent(courseId, payload) {
@@ -16,4 +30,4 @@ async function createCourseContent(courseId, payload) {
   });
 }
 
-export { fetchCourseContent, createCourseContent };
+export { fetchCourseContent, createCourseContent, fetchCourseContentOverview };

@@ -49,7 +49,8 @@ public class CourseContentController : ControllerBase
     {
         try
         {
-            var contentDto = await _courseContentService.GetCourseContentInformationDTOAsync(courseId);
+            var teacherId = User.FindFirst("teacherId")?.Value;
+            var contentDto = await _courseContentService.GetCourseContentInformationDTOAsync(teacherId, courseId);
             return Ok(new APIResponse("success", "Course content retrieved successfully", contentDto));
         }
         catch (KeyNotFoundException knfEx)
@@ -60,6 +61,28 @@ public class CourseContentController : ControllerBase
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new
             APIResponse("error", "An error occurred while retrieving course content", ex.Message));
+        }
+    }
+
+    [Authorize(Roles = "Teacher")]
+    [HttpGet("overview")]
+    public async Task<IActionResult> GetCourseContentOverview(string courseId)
+    {
+        try
+        {
+            var teacherId = User.FindFirst("teacherId")?.Value;
+            var contentDto = await _courseContentService.GetCourseContentOverviewDTOAsync(teacherId, courseId);
+
+            return Ok(new APIResponse("success", "Course content overview retrieved successfully", contentDto));
+        }
+        catch (KeyNotFoundException knfEx)
+        {
+            return NotFound(new APIResponse("error", knfEx.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while retrieving course content overview", ex.Message));
         }
     }
 
