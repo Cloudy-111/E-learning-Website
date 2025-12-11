@@ -29,6 +29,7 @@ public class ChoiceService : IChoiceService
         {
             var choice = new Choice
             {
+                Id = Guid.NewGuid().ToString(),
                 QuestionExamId = questionExamId,
                 Content = addChoiceDTO.Content,
                 IsCorrect = addChoiceDTO.IsCorrect

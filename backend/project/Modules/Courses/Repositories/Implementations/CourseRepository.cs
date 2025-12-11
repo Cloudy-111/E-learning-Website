@@ -180,6 +180,16 @@ public class CourseRepository : ICourseRepository
         await _dbContext.SaveChangesAsync();
     }
 
+    public async Task<Course?> GetCourseByIdByTeacherAsync(string courseId, string teacherId)
+    {
+        return await _dbContext.Courses
+            .Where(c => c.Id == courseId && c.TeacherId == teacherId)
+            .Include(c => c.Category)
+            .Include(c => c.Teacher)
+            .ThenInclude(t => t.User)
+            .FirstOrDefaultAsync();
+    }
+
     // public async Task DeleteCourseAsync(string id)
     // {
 

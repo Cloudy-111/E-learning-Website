@@ -32,7 +32,7 @@ public class AuthController : ControllerBase
         return Ok(result);
     }
 
-    [Authorize(Roles ="Teacher")]
+    [Authorize(Roles = "Teacher")]
     [HttpGet("test")]
     public ActionResult<string> Test()
     {
@@ -94,6 +94,51 @@ public class AuthController : ControllerBase
             return Unauthorized(new { message = ex.Message });
         }
     }
-    
-    
+
+    [HttpPost("refresh-admin-token")]
+    public async Task<ActionResult<AuthAdminResponseDTO>> RefreshAdminToken([FromBody] RefreshTokenDto dto)
+    {
+        try
+        {
+            // Chú ý: service sẽ kiểm tra hash token, hết hạn, và sinh token mới
+            var result = await _authService.RefreshAdminTokenAsync(dto.RefreshToken);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("register-admin")]
+    public async Task<ActionResult> RegisterAdmin([FromBody] AdminRegisterDTO dto)
+    {
+        try
+        {
+            var admin = await _authService.RegisterAdminAsync(dto);
+            return Ok(new
+            {
+                admin.AdminId,
+                admin.UserId,
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    [HttpPost("admin-login")]
+    public async Task<ActionResult<AuthAdminResponseDTO>> AdminLogin([FromBody] LoginAdminDTO dto)
+    {
+        try
+        {
+            var result = await _authService.AdminLoginAsync(dto);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return Unauthorized(new { message = ex.Message });
+        }
+    }
 }

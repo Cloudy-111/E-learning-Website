@@ -1,3 +1,5 @@
+using project.Modules.UserManagement.DTOs;
+
 public interface IAdminService
 {
     // Admin methods for managing courses

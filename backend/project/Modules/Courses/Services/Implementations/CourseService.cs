@@ -100,13 +100,8 @@ public class CourseService : ICourseService
 
     }
 
-    public async Task<CourseInformationDTO> GetCourseByIdAsync(string id)
+    public async Task<CourseInformationDTO> GetCourseByIdAsync(string teacherId, string id)
     {
-        var courseExist = await _courseRepository.CourseExistsAsync(id);
-        if (!courseExist)
-        {
-            throw new KeyNotFoundException("Course not found");
-        }
         var course = await _courseRepository.GetCourseByIdAsync(id) ?? throw new KeyNotFoundException("Course not found");
         return new CourseInformationDTO
         {
@@ -173,6 +168,96 @@ public class CourseService : ICourseService
         courseExist.ThumbnailUrl = courseDto.ThumbnailUrl;
 
         await _courseRepository.UpdateCourseAsync(courseExist);
+    }
+
+    public async Task UpdateFullCourseAsync(string teacherId, string courseId, FullCourseUpdateDTO fullCourseDto)
+    {
+        var courseExist = await _courseRepository.GetCourseByStatusAsync(courseId, DRAFT_STATUS) ??
+            throw new KeyNotFoundException("Course not found");
+        if (!courseExist.Status.Equals(DRAFT_STATUS, StringComparison.InvariantCultureIgnoreCase))
+        {
+            throw new InvalidOperationException("Only draft courses can be updated");
+        }
+        var teacherGuid = GuidHelper.ParseOrThrow(teacherId, nameof(teacherId));
+        if (courseExist.TeacherId != teacherId)
+        {
+            throw new UnauthorizedAccessException("You are not the teacher of this course");
+        }
+
+        using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+        try
+        {
+            courseExist.Title = fullCourseDto.Title;
+            courseExist.Description = fullCourseDto.Description;
+            courseExist.CategoryId = fullCourseDto.CategoryId;
+            courseExist.Price = (decimal)fullCourseDto.Price;
+            courseExist.DiscountPrice = (decimal?)fullCourseDto.Discount;
+            courseExist.ThumbnailUrl = fullCourseDto.Thumbnail;
+            courseExist.UpdatedAt = DateTime.UtcNow;
+
+            await _courseRepository.UpdateCourseAsync(courseExist);
+
+            // Update Course Content and Lessons logic goes here
+
+            var courseContentExist = await _courseContentRepository.GetCourseContentByCourseIdAsync(courseId) ??
+                throw new KeyNotFoundException("Course content not found");
+            courseContentExist.Title = fullCourseDto.CourseContent.Title;
+            courseContentExist.Description = fullCourseDto.CourseContent.Description;
+            courseContentExist.Introduce = fullCourseDto.CourseContent.Introduce;
+
+            await _courseContentRepository.UpdateCourseContentAsync(courseContentExist);
+
+            var existingLessons = await _lessonRepository.GetLessonsByCourseContentIdAsync(courseContentExist.Id);
+
+            var lessonsToUpdate = new List<Lesson>();
+            var lessonsToAdd = new List<Lesson>();
+            foreach (var lessonDto in fullCourseDto.CourseContent.Lessons)
+            {
+                if (lessonDto.Id == null || string.IsNullOrEmpty(lessonDto.Id))
+                {
+                    var newLesson = new Lesson
+                    {
+                        CourseContentId = courseContentExist.Id,
+                        Title = lessonDto.Title,
+                        VideoUrl = lessonDto.VideoUrl,
+                        Order = lessonDto.Order,
+                        Duration = lessonDto.Duration,
+                        TextContent = lessonDto.TextContent
+                    };
+                    lessonsToAdd.Add(newLesson);
+                }
+                else
+                {
+                    var existingLesson = existingLessons.FirstOrDefault(l => l.Id == lessonDto.Id);
+                    if (existingLesson != null)
+                    {
+                        existingLesson.Title = lessonDto.Title;
+                        existingLesson.VideoUrl = lessonDto.VideoUrl;
+                        existingLesson.Order = lessonDto.Order;
+                        existingLesson.Duration = lessonDto.Duration;
+                        existingLesson.TextContent = lessonDto.TextContent;
+
+                        lessonsToUpdate.Add(existingLesson);
+                    }
+                }
+            }
+            if (lessonsToAdd.Count > 0)
+            {
+                await _lessonRepository.AddMultiLessonsAsync(lessonsToAdd);
+            }
+            if (lessonsToUpdate.Count > 0)
+            {
+                await _lessonRepository.UpdateMultiLessonsAsync(lessonsToUpdate);
+            }
+
+            await transaction.CommitAsync();
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
     }
 
     public async Task RequestPublishCourseAsync(string teacherId, string courseId)
@@ -359,5 +444,55 @@ public class CourseService : ICourseService
             await transaction.RollbackAsync();
             throw;
         }
+    }
+
+    public async Task<FullCourseUpdateDTO> GetFullCourseDataForEditAsync(string userId, string courseId)
+    {
+        if (!await _teacherRepository.IsTeacherExistsAsync(userId))
+        {
+            throw new KeyNotFoundException("Teacher not found");
+        }
+
+        var course = await _courseRepository.GetCourseByIdByTeacherAsync(courseId, userId)
+            ?? throw new KeyNotFoundException("Course not found");
+
+        if (course.TeacherId != userId)
+        {
+            throw new UnauthorizedAccessException("You are not the teacher of this course");
+        }
+
+        var courseContent = await _courseContentRepository.GetCourseContentByCourseIdAsync(courseId)
+            ?? throw new KeyNotFoundException("Course content not found");
+
+        var lessons = await _lessonRepository.GetLessonsByCourseContentIdAsync(courseContent.Id);
+
+        var fullCourseDto = new FullCourseUpdateDTO
+        {
+            Id = course.Id,
+            Title = course.Title,
+            Description = course.Description,
+            CategoryId = course.CategoryId,
+            Price = (double)course.Price,
+            Discount = (double?)course.DiscountPrice,
+            Thumbnail = course.ThumbnailUrl,
+            CourseContent = new FullCourseContentUpdateDTO
+            {
+                Id = courseContent.Id,
+                Title = courseContent.Title,
+                Description = courseContent.Description,
+                Introduce = courseContent.Introduce,
+                Lessons = lessons.Select(l => new LessonUpdateDTO
+                {
+                    Id = l.Id,
+                    Title = l.Title,
+                    VideoUrl = l.VideoUrl,
+                    Order = l.Order,
+                    Duration = l.Duration,
+                    TextContent = l.TextContent
+                }).ToList().OrderBy(l => l.Order).ToList()
+            }
+        };
+
+        return fullCourseDto;
     }
 }

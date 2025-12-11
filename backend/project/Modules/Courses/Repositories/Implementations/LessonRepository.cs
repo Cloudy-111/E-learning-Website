@@ -51,4 +51,10 @@ public class LessonRepository : ILessonRepository
     {
 
     }
+
+    public async Task UpdateMultiLessonsAsync(List<Lesson> lessons)
+    {
+        _dbContext.Lessons.UpdateRange(lessons);
+        await _dbContext.SaveChangesAsync();
+    }
 }

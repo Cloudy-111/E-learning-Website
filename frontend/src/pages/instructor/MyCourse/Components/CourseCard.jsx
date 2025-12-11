@@ -1,10 +1,17 @@
 import { Link } from "react-router-dom";
-import { Users, FileClock, MoreVertical, Eye, Rocket, Undo2, Copy, Edit } from "lucide-react";
+import { Users, FileClock, MoreVertical, Eye, Rocket, Undo2, Copy, Edit, Plus } from "lucide-react";
 
-const BADGE = (s) =>
-  s === "published"
-    ? "bg-emerald-100 text-emerald-700"
-    : "bg-gray-100 text-gray-700";
+const BADGE = (s) => {
+    if (s === "draft") {
+        return "bg-gray-100 text-gray-700";
+    } else if (s === "pending") {
+        return "bg-yellow-100 text-yellow-700";
+    } else if (s === "rejected") {
+        return "bg-red-100 text-red-700";
+    } else if (s === "published") {
+        return "bg-emerald-100 text-emerald-700";
+    }
+}
 
 const formattedDate = (date) => {
     return new Date(date).toLocaleString("vi-VN", {
@@ -13,7 +20,7 @@ const formattedDate = (date) => {
     });
 } 
 
-function CourseCard({ c }) {
+function CourseCard({ c, onRequestPublish, onAddExam }) {
     return (
         <article key={c.id} className="rounded-2xl border bg-white p-5 hover:shadow-sm transition relative">
             {/* header */}
@@ -42,39 +49,61 @@ function CourseCard({ c }) {
                     <button className="rounded-lg bg-transparent border p-2 hover:bg-gray-50">
                         <MoreVertical className="w-4 h-4" />
                     </button>
-                    <div className="absolute right-0 mt-2 w-44 rounded-lg border bg-white shadow-lg hidden group-hover:block z-10">
-                        <Link to={`/courses/${c.id}`} className="block px-3 py-2 text-sm hover:bg-gray-50 inline-flex items-center gap-2">
+                    {/* <div className="absolute right-0 mt-2 w-44 rounded-lg border bg-white shadow-lg hidden group-hover:block z-10">
+                        <Link className="block px-3 py-2 text-sm hover:bg-gray-50 inline-flex items-center gap-2">
                             <Eye className="w-4 h-4" /> Xem trang public
                         </Link>
-                    </div>
+                    </div> */}
                 </div>
             </div>
 
-            <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
-                <Link
-                    to={`/i/courses/${c.id}/edit`}
-                    className="rounded-lg border px-3 py-2 text-center hover:bg-gray-50 inline-flex items-center justify-center gap-2"
-                >
-                    <Edit className="w-4 h-4" /> Sửa
-                </Link>
-
-                {c.status === "draft" && (
-                    <button className="rounded-lg bg-transparent border px-3 py-2 hover:bg-gray-50 inline-flex items-center justify-center gap-2">
+            {c.status === "draft" && (
+                <div className="mt-4 grid grid-cols-3 gap-2 text-sm">
+                    <Link
+                        to={`/i/courses/${c.id}/edit`}
+                        className="rounded-lg border px-3 py-2 text-center hover:bg-gray-50 inline-flex items-center justify-center gap-2"
+                    >
+                        <Edit className="w-4 h-4" /> Sửa
+                    </Link>
+                    <button
+                        className="rounded-lg bg-transparent border px-3 py-2 hover:bg-gray-50 inline-flex items-center justify-center gap-2"
+                        onClick={onRequestPublish}
+                    >
                         <Rocket className="w-4 h-4" /> Yêu cầu Publish
                     </button>
-                )}
-                {c.status === "published" && (
+                    <button
+                        // to={`/i/courses/${c.id}/edit`}
+                        onClick={onAddExam}
+                        className="rounded-lg border px-3 py-2 text-center bg-transparent hover:bg-gray-50 inline-flex items-center justify-center gap-2"
+                    >
+                        <Plus className="w-4 h-4" /> Thêm bài kiểm tra
+                    </button>
+                </div>
+            )}
+            {c.status === "pending" && (
+                <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
+
+                </div>
+            )}
+            {c.status === "rejected" && (
+                <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
+
+                </div>
+            )}
+            {c.status === "published" && (
+                <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
                     <Link
                         to={`/i/courses/${c.id}/lessons`}
                         className="rounded-lg border px-3 py-2 text-center hover:bg-gray-50"
                     >
                         Quản lý bài học
                     </Link>
-                )}
+                </div>
+            )}
             
-            </div>
+            
         </article>
-    )
+    )   
 }
 
 export default CourseCard;

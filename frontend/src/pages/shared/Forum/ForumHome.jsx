@@ -1,8 +1,6 @@
 // src/pages/shared/Forum/ForumHome.jsx
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Header from "../../../components/Header";
-import Footer from "../../../components/Footer";
 import { http } from "../../../utils/http";
 import { API_BASE, BORDER, PRIMARY, PRIMARY_HOVER } from "./utils/constants";
 import { isLoggedIn } from "./utils/helpers";
@@ -80,7 +78,6 @@ export default function ForumHome() {
 
     return (
         <>
-            <Header />
             <main className="w-screen overflow-x-hidden">
                 <section className="w-screen px-6 lg:px-12 pt-8">
                     <div className="flex items-center justify-between gap-3">
@@ -165,7 +162,6 @@ export default function ForumHome() {
                     )}
                 </section>
             </main>
-            <Footer />
         </>
     );
 }
