@@ -1,15 +1,27 @@
 import { Settings2, Timer } from "lucide-react";
 
+import CheckExamCreate from "../CheckExamCreate.jsx";
+import CourseLinkExam from "./CourseLinkExam.jsx";
+
 function ExamInformation( { 
+    courseId,
+    courseContentInfor,
     shuffleQuestions, 
     setShuffleQuestions, 
     shuffleOptions, 
     setShuffleOptions,
-    examInfor, updateExamInfor
+    examInfor, updateExamInfor,
+    questions
 } ) {
     return (
         <section className="space-y-6">
             <div className="rounded-2xl border bg-white p-5">
+                {courseContentInfor && 
+                    <CourseLinkExam 
+                    examInfor={examInfor} 
+                    updateExamInfor={updateExamInfor} 
+                    courseContentInfor={courseContentInfor} 
+                />}
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label className="text-xs text-gray-600">Tên đề thi</label>
@@ -22,7 +34,7 @@ function ExamInformation( {
                     <div>
                         <label className="text-xs text-gray-600">Thời gian (phút)</label>
                         <input
-                            type="number" min={5} step={5}
+                            type="number" min={5} step={5} max={300}
                             value={examInfor.durationMinutes} onChange={(e) => updateExamInfor("durationMinutes", parseInt(e.target.value))}
                             className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-2"
                         />
@@ -52,7 +64,8 @@ function ExamInformation( {
                     </div>
                 </div>
             </div>
-            
+
+            <CheckExamCreate examInfor={examInfor} questions={questions} courseId={courseId}/>
         </section>
     )
 }

@@ -37,7 +37,12 @@ async function fetchCourseDataAPI(courseId) {
 }
 
 async function fetchCourseDetail(id) {
-  return baseFetch(`/api/courses/${id}`);
+  return baseFetch(`/api/courses/${id}`, {
+    method: "GET",
+    headers: {
+      ...authHeader(),
+    },
+  });
 }
 
 async function createCourseAPI(payload) {

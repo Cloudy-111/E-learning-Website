@@ -71,7 +71,7 @@ const CourseEdit = lazy(() => import("./pages/instructor/CourseEdit/CourseEdit.j
 const CourseStudents = lazy(() => import("./pages/instructor/CourseStudents.jsx"));
 const StudentProgress = lazy(() => import("./pages/instructor/StudentProgress.jsx"));
 const CourseReviews = lazy(() => import("./pages/instructor/CourseReviews.jsx"));
-const ExamNew = lazy(() => import("./pages/instructor/ExamNew.jsx"));
+const ExamCreate = lazy(() => import("./pages/instructor/CreateExam/CreateExam.jsx"));
 const ExamEdit = lazy(() => import("./pages/instructor/ExamEdit.jsx"));
 const ExamStats = lazy(() => import("./pages/instructor/ExamStats.jsx"));
 const ExamAttempts = lazy(() => import("./pages/instructor/ExamAttempts.jsx"));
@@ -158,7 +158,7 @@ export default function App() {
                       <Route path="/i/courses/new" element={<CourseCreate title="🆕 /i/courses/new — Tạo khoá draft" />} />
                       <Route path="/i/courses" element={<InstructorCourses title="📚 /i/courses — Khoá học đã tạo" />} />
                       <Route path="/i/courses/:id/edit" element={<CourseEdit title="✏️ /i/courses/:id/edit — Sửa khoá (draft/version)" />} />
-                      <Route path="/i/courses/:courseId/exams/create" element={<ExamNew title="🆕 /i/courses/:courseId/exams/create — Tạo đề thi" />} />
+                      <Route path="/i/courses/:courseId/exams/create" element={<ExamCreate title="🆕 /i/courses/:courseId/exams/create — Tạo đề thi" />} />
 
                     </Route>
 

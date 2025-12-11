@@ -31,7 +31,8 @@ public class CourseController : ControllerBase
     {
         try
         {
-            var course = await _courseService.GetCourseByIdAsync(id);
+            var teacherId = User.FindFirst("teacherId")?.Value;
+            var course = await _courseService.GetCourseByIdAsync(teacherId, id);
             return Ok(new APIResponse("Success", "Retrieve Course Successfully", course));
         }
         catch (KeyNotFoundException ex)

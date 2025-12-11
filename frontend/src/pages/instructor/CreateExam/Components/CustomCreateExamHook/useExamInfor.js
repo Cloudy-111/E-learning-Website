@@ -2,7 +2,6 @@ import { useState } from "react";
 
 function useExamInfor() {
   const [examInfor, setExamInfor] = useState({
-    id: "",
     title: "",
     description: "",
     durationMinutes: 0,

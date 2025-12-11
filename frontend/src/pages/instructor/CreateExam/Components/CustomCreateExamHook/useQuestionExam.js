@@ -1,7 +1,6 @@
 import { useState } from "react";
 
 const newQuestion = {
-  id: "",
   content: "",
   imageUrl: "",
   type: "MultipleChoice",
