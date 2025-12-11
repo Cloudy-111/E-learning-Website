@@ -15,5 +15,5 @@ public class CreateFullQuestionExamDTO
     [Required]
     public string Type { get; set; } = null!;
     [Required]
-    public List<AddChoiceDTO> Choices { get; set; } = [];
+    public List<AddChoiceDTO> Answers { get; set; } = [];
 }

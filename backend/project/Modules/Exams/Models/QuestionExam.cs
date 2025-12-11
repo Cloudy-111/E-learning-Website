@@ -5,7 +5,7 @@ using project.Models;
 public class QuestionExam
 {
     [Key]
-    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public string Id { get; set; } = null!;
 
     public string ExamId { get; set; } = null!;
     [Required]

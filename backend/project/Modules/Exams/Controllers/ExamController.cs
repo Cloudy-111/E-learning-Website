@@ -72,27 +72,27 @@ public class ExamController : ControllerBase
         }
     }
 
-    // [Authorize(Roles = "Teacher")]
-    // [HttpPost("create-full-exam")]
-    // public async Task<IActionResult> CreateFullExam([FromBody] CreateFullExamDTO exam)
-    // {
-    //     if (!ModelState.IsValid)
-    //     {
-    //         return BadRequest(new APIResponse("error", "Invalid input data", ModelState));
-    //     }
+    [Authorize(Roles = "Teacher")]
+    [HttpPost("create-full-exam")]
+    public async Task<IActionResult> CreateFullExam([FromBody] CreateFullExamDTO exam)
+    {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(new APIResponse("error", "Invalid input data", ModelState));
+        }
 
-    //     try
-    //     {
-    //         var teacherId = User.FindFirst("teacherId")?.Value;
-    //         await _examService.AddFullExamAsync(teacherId, exam);
-    //         return Ok(new APIResponse("Success", "Create full Exam successfully"));
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         return StatusCode(StatusCodes.Status500InternalServerError, new
-    //         APIResponse("error", "An error occurred while creating the full exam", ex.Message));
-    //     }
-    // }
+        try
+        {
+            var teacherId = User.FindFirst("teacherId")?.Value;
+            await _examService.AddFullExamAsync(teacherId, exam);
+            return Ok(new APIResponse("Success", "Create full Exam successfully"));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while creating the full exam", ex.Message));
+        }
+    }
 
     [Authorize(Roles = "Teacher")]
     [HttpPatch("{id}")]

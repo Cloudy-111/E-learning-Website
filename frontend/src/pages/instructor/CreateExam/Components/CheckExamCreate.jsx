@@ -1,16 +1,27 @@
 import { AlertTriangle, CheckCircle, Rocket } from "lucide-react";
 
 import checkExamCreate from "./CheckExamCreate";
+import { createFullExam } from "../../../../api/exams.api";
+import { useNavigate } from "react-router-dom";
 
 function CheckExamCreate({examInfor, questions, courseId}){
+    const navigate = useNavigate();
     const result = checkExamCreate(examInfor, questions, courseId);
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         const examData = {
             ...examInfor,
             questions: questions,
         }
 
         console.log("Submitting exam:", examData);
+
+        try{
+            await createFullExam(examData);
+            alert("Tạo đề thi thành công!");
+            navigate("/i/courses");
+        } catch (e) {
+            alert("Tạo đề thi thất bại: " + e.message);
+        }
     }
     return (
         <div className="rounded-2xl border bg-white p-5">

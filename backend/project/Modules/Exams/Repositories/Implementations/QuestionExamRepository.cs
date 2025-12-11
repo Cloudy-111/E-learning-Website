@@ -56,7 +56,20 @@ public class QuestionExamRepository : IQuestionExamRepository
 
     public async Task UploadBulkQuestionsAsync(IEnumerable<QuestionExam> questionExams)
     {
+        if (questionExams == null || !questionExams.Any())
+        {
+            throw new ArgumentException("No questions provided.");
+        }
+
         await _dbContext.QuestionExams.AddRangeAsync(questionExams);
+
+        var allChoices = questionExams.SelectMany(q => q.Choices);
+        if (!allChoices.Any())
+        {
+            throw new InvalidOperationException("No choices found for the provided questions.");
+        }
+
+        await _dbContext.Choices.AddRangeAsync(allChoices);
         await _dbContext.SaveChangesAsync();
     }
 }

@@ -8,7 +8,7 @@ public class CreateFullExamDTO
     public string Title { get; set; } = null!;
     public string? Description { get; set; }
     [Required, Range(1, 300)]
-    public int DurationInMinutes { get; set; }
+    public int DurationMinutes { get; set; }
     [Required]
     public List<CreateFullQuestionExamDTO> Questions { get; set; } = [];
 }

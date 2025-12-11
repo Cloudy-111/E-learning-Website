@@ -18,10 +18,11 @@ function ExamInformation( {
             <div className="rounded-2xl border bg-white p-5">
                 {courseContentInfor && 
                     <CourseLinkExam 
-                    examInfor={examInfor} 
-                    updateExamInfor={updateExamInfor} 
-                    courseContentInfor={courseContentInfor} 
-                />}
+                        examInfor={examInfor} 
+                        updateExamInfor={updateExamInfor} 
+                        courseContentInfor={courseContentInfor} 
+                    />
+                }
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label className="text-xs text-gray-600">Tên đề thi</label>
