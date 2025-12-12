@@ -50,7 +50,6 @@ export default function BlogDetail() {
 
     return (
         <>
-            <Header />
             <main className="w-screen overflow-x-hidden">
                 {loading && (
                     <Section>
@@ -79,7 +78,6 @@ export default function BlogDetail() {
                     </>
                 )}
             </main>
-            <Footer />
         </>
     );
 }
