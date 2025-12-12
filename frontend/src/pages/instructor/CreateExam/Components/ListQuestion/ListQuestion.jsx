@@ -5,10 +5,12 @@ import { useState } from "react";
 
 import CreateQuestion from "./CreateQuestion.jsx";
 import QuestionItem from "./QuestionItem.jsx";
+import ToolBarCreateExam from "./ToolBarCreateExam.jsx";
 
 function ListQuestion( {
     moveQuestionExam, 
     questions,
+    setAllQuestions,
     addQuestionExam,
     updateQuestionExam,
     removeQuestionExam,
@@ -34,17 +36,7 @@ function ListQuestion( {
     return (
         <aside className="space-y-6 xl:sticky xl:top-24 h-fit">
             {/* Toolbar */}
-            <div className="rounded-2xl border bg-white p-4">
-                <div className="mt-3 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                    <button 
-                        onClick={() => addQuestionExam()} 
-                        className="rounded-lg border px-3 py-2 text-sm bg-transparent hover:bg-gray-50 inline-flex items-center gap-2">
-                        <Plus className="w-4 h-4" /> Tạo câu hỏi
-                    </button>
-                    </div>
-                </div>
-            </div>
+            <ToolBarCreateExam addQuestionExam={addQuestionExam} setAllQuestions={setAllQuestions}/>
 
             {/* List */}
             <div className="rounded-2xl border bg-white overflow-hidden">
