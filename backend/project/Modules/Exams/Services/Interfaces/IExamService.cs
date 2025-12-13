@@ -10,4 +10,5 @@ public interface IExamService
     Task UpdateOrderQuestionInExamAsync(string userId, string examId, List<QuestionExamOrderDTO> questionOrders);
     Task UploadExamExcelAsync(string userId, UploadExamExcelRequest request);
     Task AddFullExamAsync(string userId, CreateFullExamDTO fullExamDto);
+    Task<PageResultExamTeacherDTO> GetExamsByCourseIdAsync(string teacherId, string courseId, string? keyword, string? status, string? sort, int page, int pageSize);
 }

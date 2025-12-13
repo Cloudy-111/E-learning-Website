@@ -35,6 +35,60 @@ public class ExamRepository : IExamRepository
         return await _dbContext.Exams.ToListAsync();
     }
 
+    public async Task<(IEnumerable<Exam>, int)> GetExamsByCourseIdAsync(string teacherId, string courseId, string? keyword, string? status, string? sort, int page, int pageSize)
+    {
+        var query = _dbContext.Exams
+            .Include(e => e.CourseContent)
+                .ThenInclude(cc => cc.Course)
+            .Include(e => e.Lesson)
+                .ThenInclude(e => e.CourseContent)
+                    .ThenInclude(cc => cc.Course)
+            .Where(e => (e.CourseContent != null && e.CourseContent.CourseId == courseId) ||
+                        (e.Lesson != null && e.Lesson.CourseContent.CourseId == courseId))
+            .Where(e => (e.CourseContent != null && e.CourseContent.Course.TeacherId == teacherId) ||
+                        (e.Lesson != null && e.Lesson.CourseContent.Course.TeacherId == teacherId))
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(keyword))
+        {
+            query = query.Where(e => e.Title.Contains(keyword));
+        }
+        if (!string.IsNullOrEmpty(status))
+        {
+            if (status == "opened")
+            {
+                query = query.Where(e => e.IsOpened);
+            }
+            else if (status == "closed")
+            {
+                query = query.Where(e => !e.IsOpened);
+            }
+        }
+
+        if (!string.IsNullOrEmpty(sort))
+        {
+            query = sort switch
+            {
+                "alphabet-desc" => query.OrderByDescending(e => e.Title),
+                "alphabet-asc" => query.OrderBy(e => e.Title),
+                "time-duration-desc" => query.OrderByDescending(e => e.DurationMinutes),
+                "time-duration-asc" => query.OrderBy(e => e.DurationMinutes),
+                "total-completed-desc" => query.OrderByDescending(e => e.TotalCompleted),
+                "total-completed-asc" => query.OrderBy(e => e.TotalCompleted),
+                _ => query.OrderByDescending(e => e.Title)
+            };
+        }
+        else
+        {
+            query = query.OrderByDescending(e => e.Title);
+        }
+
+        var totalItems = await query.CountAsync();
+        var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+
+        return (items, totalItems);
+    }
+
     public async Task<IEnumerable<Exam>> GetExamsInCourseAsync(string courseId)
     {
         return await _dbContext.Exams
