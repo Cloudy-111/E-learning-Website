@@ -52,4 +52,11 @@ public class CourseContentRepository : ICourseContentRepository
         return await _dbContext.CourseContents
             .FirstOrDefaultAsync(cc => cc.CourseId == courseId);
     }
+
+    public async Task<CourseContent?> GetCourseContentOverviewByCourseIdAsync(string courseId)
+    {
+        return await _dbContext.CourseContents
+            .Include(cc => cc.Lessons)
+            .FirstOrDefaultAsync(cc => cc.CourseId == courseId);
+    }
 }

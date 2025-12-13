@@ -62,7 +62,7 @@ export default function TopThreePodium({ topThree }) {
 
                     return (
                         <div
-                            key={contributor.id}
+                            key={contributor.studentId}
                             className={`flex flex-col items-center transition-all duration-300 hover:scale-105 ${index === 1 ? 'w-80' : 'w-72'
                                 }`}
                         >
@@ -71,8 +71,8 @@ export default function TopThreePodium({ topThree }) {
                                 <div className={`w-24 h-24 rounded-full bg-gradient-to-br ${config.bgGradient} p-1 shadow-xl group-hover:ring-4 ring-white/50 transition-all`}>
                                     <div className="w-full h-full rounded-full bg-white p-1">
                                         <img
-                                            src={contributor.avatar}
-                                            alt={contributor.username}
+                                            src={contributor.avatar || `https://ui-avatars.com/api/?name=${contributor.fullName}&background=random`}
+                                            alt={contributor.fullName}
                                             className="w-full h-full rounded-full object-cover"
                                         />
                                     </div>
@@ -90,7 +90,7 @@ export default function TopThreePodium({ topThree }) {
                             {/* Username Badge */}
                             <Link to={`/u/${contributor.id}`} className={`px-4 py-1.5 rounded-full ${config.badgeBg} text-white text-sm font-semibold mb-4 shadow-md flex items-center gap-2 hover:scale-105 transition-transform`}>
                                 <Icon className={`w-4 h-4 ${config.iconColor === 'text-yellow-600' ? 'text-yellow-200' : 'text-white'}`} />
-                                <span>{contributor.username}</span>
+                                <span>{contributor.fullName}</span>
                                 <Icon className={`w-4 h-4 ${config.iconColor === 'text-yellow-600' ? 'text-yellow-200' : 'text-white'}`} />
                             </Link>
 
@@ -99,23 +99,23 @@ export default function TopThreePodium({ topThree }) {
                                 <div className="bg-white rounded-xl p-4 space-y-3">
                                     <div className="text-center">
                                         <div className={`text-sm font-medium ${config.accentColor} mb-1`}>Điểm đóng góp:</div>
-                                        <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                                            {contributor.contributionPoints.toLocaleString()}
+                                        <div className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent" title="1 bài viết = 20, 1 câu hỏi = 5, 1 bình luận = 1">
+                                            {contributor.contributionScore.toLocaleString()}
                                         </div>
                                     </div>
 
                                     <div className="border-t border-gray-200 pt-3 space-y-2">
                                         <div className="flex justify-between items-center text-sm">
-                                            <span className="text-gray-600">Câu hỏi được chấp nhận:</span>
-                                            <span className="font-semibold text-gray-900">{contributor.acceptedQuestions}</span>
+                                            <span className="text-gray-600">Tổng bài viết:</span>
+                                            <span className="font-semibold text-gray-900">{contributor.totalPosts}</span>
                                         </div>
                                         <div className="flex justify-between items-center text-sm">
-                                            <span className="text-gray-600">Câu hỏi công khai:</span>
-                                            <span className="font-semibold text-gray-900">{contributor.publicQuestions.toLocaleString()}</span>
+                                            <span className="text-gray-600">Tổng câu hỏi:</span>
+                                            <span className="font-semibold text-gray-900">{contributor.totalForumQuestions}</span>
                                         </div>
                                         <div className="flex justify-between items-center text-sm">
-                                            <span className="text-gray-600">Nội dung đóng góp:</span>
-                                            <span className="font-semibold text-gray-900">{contributor.totalContributions.toLocaleString()}</span>
+                                            <span className="text-gray-600">Tổng bình luận:</span>
+                                            <span className="font-semibold text-gray-900">{contributor.totalDiscussions}</span>
                                         </div>
                                     </div>
                                 </div>

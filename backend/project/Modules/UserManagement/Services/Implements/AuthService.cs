@@ -157,6 +157,133 @@ public class AuthService : IAuthService
         return teacher;
     }
 
+    public async Task<Admin> RegisterAdminAsync(AdminRegisterDTO dto)
+    {
+        // Kiểm tra nếu email đã tồn tại
+        var existingUser = await _userManager.FindByEmailAsync(dto.Email);
+        if (existingUser != null)
+            throw new Exception("Email is already registered");
+
+        var user = new User
+        {
+            UserName = dto.Email,
+            Email = dto.Email,
+            FullName = dto.FullName,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+        };
+
+        var result = await _userManager.CreateAsync(user, dto.Password);
+        if (!result.Succeeded)
+            throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
+
+        await _userManager.AddToRoleAsync(user, "Admin");
+
+        var admin = new Admin
+        {
+            UserId = user.Id,
+            AdminId = Guid.NewGuid().ToString(),
+        };
+
+        _context.Admins.Add(admin);
+        await _context.SaveChangesAsync();
+
+        return admin;
+    }
+
+    // Login Admin
+    public async Task<AuthAdminResponseDTO> AdminLoginAsync(LoginAdminDTO dto)
+    {
+        var user = await _userManager.FindByEmailAsync(dto.Email);
+        if (user == null)
+            throw new Exception("Email hoặc mật khẩu không đúng");
+
+        var valid = await _userManager.CheckPasswordAsync(user, dto.Password);
+        if (!valid)
+            throw new Exception("Email hoặc mật khẩu không đúng");
+
+        var admin = await _context.Admins.FirstOrDefaultAsync(a => a.UserId == user.Id) ?? throw new Exception("Admin not found");
+
+        var token = GenerateAdminJwtToken(user, admin.AdminId);
+        var refreshToken = GenerateRefreshToken();
+        user.RefreshTokenHash = HashToken(refreshToken);
+        user.RefreshTokenTimeExpire = DateTime.UtcNow.AddDays(7);
+        await _userManager.UpdateAsync(user);
+
+        return new AuthAdminResponseDTO
+        {
+            Token = token,
+            UserId = user.Id,
+            FullName = user.FullName,
+            RefreshToken = refreshToken,
+            AdminId = admin.AdminId
+        };
+    }
+
+    private string GenerateAdminJwtToken(User user, string adminId)
+    {
+        // Lấy roles của user
+        var roles = _userManager.GetRolesAsync(user).Result;
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id),
+            new Claim(ClaimTypes.Name, user.FullName),
+            new Claim("AdminId", adminId)
+        };
+
+        //Thêm claim role
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+        claims.AddRange(roles.Select(r =>
+            new Claim("role", r) // frontend decode
+        ));
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken(
+            _configuration["Jwt:Issuer"],
+            _configuration["Jwt:Audience"],
+            claims,
+            expires: DateTime.UtcNow.AddHours(6),
+            signingCredentials: creds
+        );
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    public async Task<AuthAdminResponseDTO> RefreshAdminTokenAsync(string refreshToken)
+    {
+        var hashedToken = HashToken(refreshToken);
+        var user = await _userManager.Users.FirstOrDefaultAsync(u =>
+            u.RefreshTokenHash == hashedToken &&
+            u.RefreshTokenTimeExpire != null &&
+            u.RefreshTokenTimeExpire > DateTime.UtcNow);
+
+        if (user == null)
+            throw new Exception("Invalid or expired refresh token");
+
+        var admin = await _context.Admins.FirstOrDefaultAsync(a => a.UserId == user.Id);
+        if (admin == null)
+            throw new Exception("Admin not found");
+
+        // Tạo access token mới
+        var newToken = GenerateAdminJwtToken(user, admin.AdminId);
+        // Tạo refresh token mới
+        var newRefreshToken = GenerateRefreshToken();
+        user.RefreshTokenHash = HashToken(newRefreshToken);
+        user.RefreshTokenTimeExpire = DateTime.UtcNow.AddDays(7);
+        await _userManager.UpdateAsync(user);
+
+        return new AuthAdminResponseDTO
+        {
+            Token = newToken,
+            UserId = user.Id,
+            FullName = user.FullName,
+            RefreshToken = newRefreshToken,
+            AdminId = admin.AdminId
+        };
+    }
+
     // ========================= Refresh Token =========================
     public async Task<AuthResponseDto> RefreshTokenAsync(string refreshToken)
     {
@@ -204,8 +331,6 @@ public class AuthService : IAuthService
             new Claim(ClaimTypes.Name, user.FullName),
             new Claim("StudentId", studentId)
         };
-
-
 
         if (!string.IsNullOrEmpty(teacherId))
             claims.Add(new Claim("TeacherId", teacherId));

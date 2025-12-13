@@ -73,7 +73,6 @@ function BlogSearch() {
 
     return (
         <>
-            <Header />
             <main className="w-screen overflow-x-hidden">
                 <Hero query={query} resultCount={posts.length} loading={loading} />
 
@@ -89,7 +88,6 @@ function BlogSearch() {
                     </div>
                 </section>
             </main>
-            <Footer />
         </>
     );
 }

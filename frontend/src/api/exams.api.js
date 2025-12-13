@@ -61,7 +61,9 @@ async function submitExamAPI(attemptId, currentAnswers) {
       },
       body: JSON.stringify(currentAnswers),
     });
-
+    if (response.status === "error") {
+      throw new Error(response.message || "Lỗi không xác định");
+    }
     return response;
   } catch (e) {
     console.error("Submit exam error:", e);
@@ -78,7 +80,9 @@ async function fetchExamResults(examId) {
         ...authHeader(),
       },
     });
-
+    if (response.status === "error") {
+      throw new Error(response.message || "Lỗi không xác định");
+    }
     return response;
   } catch (e) {
     console.error("Fetch exam results error:", e);
@@ -98,6 +102,9 @@ async function fetchSubmissionExamByAttemmptId(attemptId) {
         },
       }
     );
+    if (response.status === "error") {
+      throw new Error(response.message || "Lỗi không xác định");
+    }
     return response;
   } catch (e) {
     console.error("Fetch submission exam by attempt id error:", e);
@@ -117,9 +124,32 @@ async function fetchUserSubmissionBySubmissionexamId(submissionExamId) {
         },
       }
     );
+    if (response.status === "error") {
+      throw new Error(response.message || "Lỗi không xác định");
+    }
     return response;
   } catch (e) {
     console.error("Fetch user submission by submission exam id error:", e);
+    throw new Error(e);
+  }
+}
+
+async function createFullExam(examData) {
+  try {
+    const response = await baseFetch(`/api/exams/create-full-exam`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...authHeader(),
+      },
+      body: JSON.stringify(examData),
+    });
+    if (response.status === "error") {
+      throw new Error(response.message || "Lỗi không xác định");
+    }
+    return response;
+  } catch (e) {
+    console.error("Create full exam error:", e);
     throw new Error(e);
   }
 }
@@ -131,4 +161,5 @@ export {
   fetchExamResults,
   fetchSubmissionExamByAttemmptId,
   fetchUserSubmissionBySubmissionexamId,
+  createFullExam,
 };

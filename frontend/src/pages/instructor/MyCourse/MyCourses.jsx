@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Hero from "./Components/Hero";
 import CommonStats from "./Components/CommonStats";
 import SearchBar from "./Components/SearchBar";
@@ -10,6 +11,8 @@ import { fetchInstructorCourses } from "../../../api/courses.api";
 import { requestPublishCourse } from "../../../api/courses.api";
 
 function MyCourses(){
+    const navigate = useNavigate();
+
     const [courses, setCourses] = useState([]);
     const [statistics, setStatistics] = useState({});
     const [loading, setLoading] = useState(true);
@@ -21,14 +24,27 @@ function MyCourses(){
     const [totalPages, setTotalPages] = useState(1);
     const [currentPage, setCurrentPage] = useState(1);
 
-    const [openPopup, setOpenPopup] = useState(false);
+    const [openPopupPublish, setopenPopupPublish] = useState(false);
     const [selectedCourseId, setSelectedCourseId] = useState(null);
     const [selectedCourseTitle, setSelectedCourseTitle] = useState("");
 
-    const handleOpenConfirm  = (courseId, courseTitle) => {
+    const [openPopupAddExam, setopenPopupAddExam] = useState(false);
+
+    const handleOpenConfirmPublish  = (courseId, courseTitle) => {
         setSelectedCourseId(courseId);
         setSelectedCourseTitle(courseTitle);
-        setOpenPopup(true);
+        setopenPopupPublish(true);
+    }
+
+    const handleOpenConfirmAddExam = (courseId, courseTitle) => {
+        setSelectedCourseId(courseId);
+        setSelectedCourseTitle(courseTitle);
+        setopenPopupAddExam(true);
+    }
+
+    const handleConfirmAddExam = () => {
+        navigate(`/i/courses/${selectedCourseId}/exams/create`);
+        setopenPopupAddExam(false);
     }
 
     const handleConfirmPublish = async () => {
@@ -39,7 +55,7 @@ function MyCourses(){
         } catch (e) {
             alert("Gửi yêu cầu publish khoá học thất bại: " + e.message);
         } finally {
-            setOpenPopup(false);
+            setopenPopupPublish(false);
         }
     }
 
@@ -124,7 +140,12 @@ function MyCourses(){
                     )}
 
                     {courses.map((c) => (
-                        <CourseCard key={c.id} c={c} onRequestPublish={() => handleOpenConfirm(c.id, c.title)}/>
+                        <CourseCard 
+                            key={c.id} 
+                            c={c} 
+                            onRequestPublish={() => handleOpenConfirmPublish(c.id, c.title)}
+                            onAddExam={() => handleOpenConfirmAddExam(c.id, c.title)}
+                        />
                     ))}
                 </div>
 
@@ -136,13 +157,23 @@ function MyCourses(){
                     }}/>
 
                 <PopupAlertConfirm 
-                    open={openPopup}
+                    open={openPopupPublish}
                     title="Xác nhận yêu cầu publish khoá học"
                     message={`Bạn có chắc chắn muốn gửi yêu cầu publish khoá học ${selectedCourseTitle} không? Sau khi gửi, khoá học sẽ được xem xét để phê duyệt.`}
                     confirmText="Gửi yêu cầu"
                     cancelText="Hủy"
                     onConfirm={handleConfirmPublish}
-                    onCancel={() => {setOpenPopup(false)}}
+                    onCancel={() => {setopenPopupPublish(false)}}
+                />
+
+                <PopupAlertConfirm 
+                    open={openPopupAddExam}
+                    title="Xác nhận thêm bài kiểm tra"
+                    message={`Thêm bài kiểm tra cho khoá học ${selectedCourseTitle}?`}
+                    confirmText="Thêm bài kiểm tra"
+                    cancelText="Hủy"
+                    onConfirm={handleConfirmAddExam}
+                    onCancel={() => {setopenPopupAddExam(false)}}
                 />
             </main>
         </div>

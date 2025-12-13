@@ -120,7 +120,6 @@ export default function Blog() {
 
     return (
         <>
-            <Header />
             <main className="w-screen overflow-x-hidden">
                 <HeroSection />
 
@@ -149,7 +148,6 @@ export default function Blog() {
                 {/* Composer: đăng bài có token + thông báo thành công */}
                 <Composer onCreated={onCreated} />
             </main>
-            <Footer />
         </>
     );
 }

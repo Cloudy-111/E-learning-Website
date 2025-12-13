@@ -42,6 +42,7 @@
     "react-quill-new": "^3.6.0",
     "react-router-dom": "^7.9.3",
     "tailwind-merge": "^3.4.0",
+    "xlsx": "^0.18.5",
     "zod": "^4.1.11",
     "zustand": "^5.0.8"
   },
