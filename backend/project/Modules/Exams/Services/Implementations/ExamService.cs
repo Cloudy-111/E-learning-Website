@@ -55,6 +55,38 @@ public class ExamService : IExamService
         });
     }
 
+    public async Task<PageResultExamTeacherDTO> GetExamsByCourseIdAsync(string teacherId, string courseId, string? keyword, string? status, string? sort, int page, int pageSize)
+    {
+        var teacherGuid = GuidHelper.ParseOrThrow(teacherId, nameof(teacherId));
+        var courseGuid = GuidHelper.ParseOrThrow(courseId, nameof(courseId));
+
+        var courseExist = await _courseRepository.GetCourseByIdByTeacherAsync(teacherId, courseId) ?? throw new KeyNotFoundException($"Course with id: {courseId} not found for teacher with id: {teacherId}.");
+        var (exams, totalCount) = await _examRepository.GetExamsByCourseIdAsync(teacherId, courseId, keyword, status, sort, page, pageSize);
+
+        var examResult = exams.Select(exam => new InformationExamDTO
+        {
+            Id = exam.Id,
+            Title = exam.Title,
+            Description = exam.Description,
+            DurationMinutes = exam.DurationMinutes,
+            TotalCompleted = exam.TotalCompleted,
+            IsOpened = exam.IsOpened,
+            CourseContentId = exam.CourseContentId,
+            LessonId = exam.LessonId,
+            CourseTitle = exam.CourseContent?.Course.Title,
+            LessonTitle = exam.Lesson?.Title
+        });
+        var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+        return new PageResultExamTeacherDTO
+        {
+            Items = examResult,
+            CurrentPage = page,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+            TotalPages = totalPages
+        };
+    }
+
     public async Task<IEnumerable<InformationExamDTO>> GetExamsInCourseAsync(string courseId)
     {
         var courseGuid = GuidHelper.ParseOrThrow(courseId, nameof(courseId));
