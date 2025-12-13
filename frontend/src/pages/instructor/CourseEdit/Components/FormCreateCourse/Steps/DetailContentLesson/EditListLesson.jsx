@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { DollarSign, Layers, Plus, Trash2 } from "lucide-react";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { CustomDroppable } from "../../../../../../../components/CustomDroppable.jsx";
 import EditLesson from "./EditLesson/EditLesson.jsx";
 

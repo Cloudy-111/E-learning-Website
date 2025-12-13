@@ -1,5 +1,5 @@
 import { DollarSign, Layers, Plus, Trash2 } from "lucide-react";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { CustomDroppable } from "../../../../../../../components/CustomDroppable.jsx";
 
 function EditListLesson( { lessons, addLesson, removeLesson, updateLesson, moveLesson } ) {

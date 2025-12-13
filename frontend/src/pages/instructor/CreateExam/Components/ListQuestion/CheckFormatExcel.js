@@ -7,7 +7,7 @@ class response {
   }
 }
 
-function checkFormatExcel({ sheet, event }) {
+function checkFormatExcel({ sheet }) {
   const sheetData = XLSX.utils.sheet_to_json(sheet, { header: 1 });
   const requiredHeaders = [
     "Index",
@@ -26,7 +26,6 @@ function checkFormatExcel({ sheet, event }) {
 
   const missingHeaders = requiredHeaders.filter((h) => !headerRow.includes(h));
   if (missingHeaders.length > 0) {
-    event.target.value = "";
     return new response(false, "Thiếu các cột: " + missingHeaders.join(", "));
   }
 
@@ -58,7 +57,6 @@ function checkFormatExcel({ sheet, event }) {
   });
 
   if (errors.length > 0) {
-    event.target.value = "";
     return new response(false, "File Excel sai format:\n" + errors.join("\n"));
   }
 
