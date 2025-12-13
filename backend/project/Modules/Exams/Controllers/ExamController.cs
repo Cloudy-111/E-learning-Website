@@ -50,6 +50,30 @@ public class ExamController : ControllerBase
         }
     }
 
+    // [Authorize(Roles = "Teacher")]
+    [HttpGet("get-all")]
+    public async Task<IActionResult> GetAllExamsForTeacher(
+        string courseId,
+        [FromQuery] string? keyword,
+        [FromQuery] string? status,
+        [FromQuery] string? sort,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10
+    )
+    {
+        try
+        {
+            var teacherId = User.FindFirst("teacherId")?.Value;
+            var exams = await _examService.GetExamsByCourseIdAsync(teacherId, courseId, keyword, status, sort, page, pageSize);
+            return Ok(new APIResponse("success", "Retrieve All Exams for Teacher Successfully", exams));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while retrieving all Exams for Teacher", ex.Message));
+        }
+    }
+
     [Authorize(Roles = "Teacher")]
     [HttpPost]
     public async Task<IActionResult> CreateNewExam([FromBody] CreateExamDTO exam)

@@ -9,4 +9,6 @@ public class InformationExamDTO
     public string? CourseContentId { get; set; }
     public string? LessonId { get; set; }
     public string? CourseId { get; set; }
+    public string? LessonTitle { get; set; }
+    public string? CourseTitle { get; set; }
 }
