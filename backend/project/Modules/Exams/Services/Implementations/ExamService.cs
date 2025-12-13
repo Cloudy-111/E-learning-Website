@@ -60,7 +60,7 @@ public class ExamService : IExamService
         var teacherGuid = GuidHelper.ParseOrThrow(teacherId, nameof(teacherId));
         var courseGuid = GuidHelper.ParseOrThrow(courseId, nameof(courseId));
 
-        var courseExist = await _courseRepository.GetCourseByIdByTeacherAsync(teacherId, courseId) ?? throw new KeyNotFoundException($"Course with id: {courseId} not found for teacher with id: {teacherId}.");
+        var courseExist = await _courseRepository.GetCourseByIdByTeacherAsync(courseId,teacherId) ?? throw new KeyNotFoundException($"Course with id: {courseId} not found for teacher with id: {teacherId}.");
         var (exams, totalCount) = await _examRepository.GetExamsByCourseIdAsync(teacherId, courseId, keyword, status, sort, page, pageSize);
 
         var examResult = exams.Select(exam => new InformationExamDTO

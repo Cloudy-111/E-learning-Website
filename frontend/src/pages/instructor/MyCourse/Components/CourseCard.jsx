@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
 import { Users, FileClock, MoreVertical, Eye, Rocket, Undo2, Copy, Edit, Plus } from "lucide-react";
 
 const BADGE = (s) => {
@@ -18,9 +19,29 @@ const formattedDate = (date) => {
         dateStyle: "short",
         timeStyle: "short"
     });
-} 
+}
 
 function CourseCard({ c, onRequestPublish, onAddExam }) {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const menuRef = useRef(null);
+
+    // Close menu when clicking outside
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setIsMenuOpen(false);
+            }
+        }
+
+        if (isMenuOpen) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [isMenuOpen]);
+
     return (
         <article key={c.id} className="rounded-2xl border bg-white p-5 hover:shadow-sm transition relative">
             {/* header */}
@@ -45,15 +66,24 @@ function CourseCard({ c, onRequestPublish, onAddExam }) {
                     </div>
                 </div>
 
-                <div className="relative group shrink-0">
-                    <button className="rounded-lg bg-transparent border p-2 hover:bg-gray-50">
+                <div className="relative shrink-0" ref={menuRef}>
+                    <button
+                        className="rounded-lg bg-transparent border p-2 hover:bg-gray-50"
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    >
                         <MoreVertical className="w-4 h-4" />
                     </button>
-                    {/* <div className="absolute right-0 mt-2 w-44 rounded-lg border bg-white shadow-lg hidden group-hover:block z-10">
-                        <Link className="block px-3 py-2 text-sm hover:bg-gray-50 inline-flex items-center gap-2">
-                            <Eye className="w-4 h-4" /> Xem trang public
-                        </Link>
-                    </div> */}
+                    {isMenuOpen && (
+                        <div className="absolute right-0 mt-2 w-52 rounded-lg border bg-white shadow-lg z-10">
+                            <Link
+                                to={`/i/courses/${c.id}/exams`}
+                                className="block px-3 py-2 text-sm hover:bg-gray-50 inline-flex items-center gap-2"
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                <Eye className="w-4 h-4" /> Xem bài kiểm tra
+                            </Link>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -100,10 +130,10 @@ function CourseCard({ c, onRequestPublish, onAddExam }) {
                     </Link>
                 </div>
             )}
-            
-            
+
+
         </article>
-    )   
+    )
 }
 
 export default CourseCard;

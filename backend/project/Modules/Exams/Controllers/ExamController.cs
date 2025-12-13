@@ -63,9 +63,13 @@ public class ExamController : ControllerBase
     {
         try
         {
-            var teacherId = User.FindFirst("teacherId")?.Value;
+            var teacherId = User.FindFirst("TeacherId")?.Value;
             var exams = await _examService.GetExamsByCourseIdAsync(teacherId, courseId, keyword, status, sort, page, pageSize);
             return Ok(new APIResponse("success", "Retrieve All Exams for Teacher Successfully", exams));
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new APIResponse("error", ex.Message));
         }
         catch (Exception ex)
         {
@@ -107,7 +111,7 @@ public class ExamController : ControllerBase
 
         try
         {
-            var teacherId = User.FindFirst("teacherId")?.Value;
+            var teacherId = User.FindFirst("TeacherId")?.Value;
             await _examService.AddFullExamAsync(teacherId, exam);
             return Ok(new APIResponse("Success", "Create full Exam successfully"));
         }
