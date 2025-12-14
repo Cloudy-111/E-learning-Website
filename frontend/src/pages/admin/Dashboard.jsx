@@ -1,65 +1,65 @@
 import { useEffect, useState } from "react";
 import { GraduationCap, Users, DollarSign, TrendingUp } from "lucide-react";
-import { getCoursesByStatus } from "../../api/admin.api";
+// import { getCoursesByStatus } from "../../api/admin.api";
 
 /**
  * AdminDashboard - Overview statistics for admin
  */
 export default function AdminDashboard() {
-    const [stats, setStats] = useState({
-        pendingCourses: 0,
-        approvedCourses: 0,
-        totalUsers: 0, // Placeholder until backend API exists
-        revenue: 0, // Placeholder
-    });
+    // const [stats, setStats] = useState({
+    //     pendingCourses: 0,
+    //     approvedCourses: 0,
+    //     totalUsers: 0, // Placeholder until backend API exists
+    //     revenue: 0, // Placeholder
+    // });
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        loadStats();
-    }, []);
+    // useEffect(() => {
+    //     loadStats();
+    // }, []);
 
-    const loadStats = async () => {
-        try {
-            // Load pending courses count
-            const pendingData = await getCoursesByStatus("pending");
-            const approvedData = await getCoursesByStatus("approved");
+    // const loadStats = async () => {
+    //     try {
+    //         // Load pending courses count
+    //         const pendingData = await getCoursesByStatus("pending");
+    //         const approvedData = await getCoursesByStatus("approved");
 
-            setStats({
-                pendingCourses: pendingData?.data?.length || 0,
-                approvedCourses: approvedData?.data?.length || 0,
-                totalUsers: 0, // TODO: Add API when backend ready
-                revenue: 0, // TODO: Add API when backend ready
-            });
-        } catch (error) {
-            console.error("Load stats error:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    //         setStats({
+    //             pendingCourses: pendingData?.data?.length || 0,
+    //             approvedCourses: approvedData?.data?.length || 0,
+    //             totalUsers: 0, // TODO: Add API when backend ready
+    //             revenue: 0, // TODO: Add API when backend ready
+    //         });
+    //     } catch (error) {
+    //         console.error("Load stats error:", error);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // };
 
     const statCards = [
         {
             title: "Khóa học chờ duyệt",
-            value: stats.pendingCourses,
+            // value: stats.pendingCourses,
             icon: GraduationCap,
             color: "bg-yellow-500",
             link: "/admin/courses"
         },
         {
             title: "Khóa học đã duyệt",
-            value: stats.approvedCourses,
+            // value: stats.approvedCourses,
             icon: GraduationCap,
             color: "bg-green-500",
         },
         {
             title: "Tổng người dùng",
-            value: stats.totalUsers,
+            // value: stats.totalUsers,
             icon: Users,
             color: "bg-blue-500",
         },
         {
             title: "Doanh thu",
-            value: `${stats.revenue.toLocaleString("vi-VN")}đ`,
+            // value: `${stats.revenue.toLocaleString("vi-VN")}đ`,
             icon: TrendingUp,
             color: "bg-purple-500",
         },

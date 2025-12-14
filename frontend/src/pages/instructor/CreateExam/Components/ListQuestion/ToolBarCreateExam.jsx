@@ -43,6 +43,7 @@ function ToolBarCreateExam({ addQuestionExam, setAllQuestions }) {
             const resultCheck = checkFormatExcel({ sheet: workbook.Sheets[firstSheet], event: e });
 
             if (!resultCheck.ok) {
+                event.target.value = "";
                 setPopupMessage(resultCheck.reason);
                 setPopupOpen(true);
                 return;
@@ -79,6 +80,7 @@ function ToolBarCreateExam({ addQuestionExam, setAllQuestions }) {
             }
             
             setAllQuestions(prevQuestions => [...prevQuestions, ...questions]);
+            event.target.value = "";
         }
     }
     return (

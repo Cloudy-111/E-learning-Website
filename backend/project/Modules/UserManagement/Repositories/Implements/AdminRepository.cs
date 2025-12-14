@@ -11,14 +11,26 @@ public class AdminRepository : IAdminRepository
     }
 
     // Admin methods for managing courses
-    public async Task<IEnumerable<Course>> GetCoursesByStatusAsync(string status)
+    public async Task<(IEnumerable<Course>, int)> GetCoursesByAdminAsync(string? status, int page, int pageSize)
     {
-        return await _dbContext.Courses
-            .Where(c => c.Status == status)
+        var query = _dbContext.Courses
             .Include(c => c.Category)
             .Include(c => c.Teacher)
             .ThenInclude(t => t.User)
-            .ToListAsync();
+            .AsQueryable();
+
+        if (!string.IsNullOrEmpty(status))
+        {
+            query = query.Where(c => c.Status == status);
+        }
+        else
+        {
+            query = query.Where(c => c.Status == "pending");
+        }
+
+        var totalCount = await query.CountAsync();
+        var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+        return (items, totalCount);
     }
 
     public async Task<IEnumerable<UpdateRequestCourse>> GetUpdateRequestsByStatusAsync(string status)

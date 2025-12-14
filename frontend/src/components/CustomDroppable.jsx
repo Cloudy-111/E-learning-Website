@@ -3,7 +3,7 @@
 // Retrieved 2025-12-02, License - CC BY-SA 4.0
 
 import { useEffect, useState } from "react";
-import { Droppable } from "react-beautiful-dnd";
+import { Droppable } from "@hello-pangea/dnd";
 
 const StrictModeDroppable = ({ children, ...props }) => {
     const [enabled, setEnabled] = useState(false);

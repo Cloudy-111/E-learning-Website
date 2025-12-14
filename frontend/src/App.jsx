@@ -83,6 +83,8 @@ const AskQuestion = lazy(() => import("./pages/shared/Forum").then(m => ({ defau
 const EditQuestion = lazy(() => import("./pages/shared/Forum").then(m => ({ default: m.EditQuestion })));
 const MyQuestions = lazy(() => import("./pages/shared/Forum").then(m => ({ default: m.MyQuestions })));
 
+// Admin pages
+const AdminLogin = lazy(() => import("./pages/admin/AdminLogin/AdminLogin.jsx"));
 
 const BecomeInstructor = lazy(() => import("./pages/shared/BecomInstructor/index.js"));
 
@@ -93,7 +95,7 @@ import CategoryCreate from "./pages/instructor/CategoryCreate.jsx";
 // Admin pages
 import AdminLayout from "./pages/admin/AdminLayout.jsx";
 import AdminDashboard from "./pages/admin/Dashboard.jsx";
-import CourseApprovals from "./pages/admin/CourseApprovals.jsx";
+import CourseApprovals from "./pages/admin/CourseApprovals/CourseApprovals.jsx";
 
 // Test page
 import TestComponents from "./pages/TestComponents.jsx";
@@ -167,6 +169,16 @@ export default function App() {
                     </Route>
 
                   </Route>
+
+                  <Route element={<RequireRole roles={["Admin"]} />}>
+                    <Route path="/admin" element={<AdminLayout />}>
+                      <Route path="dashboard" element={<AdminDashboard />} />
+                      <Route path="courses" element={<CourseApprovals />} />
+                    </Route>
+                  </Route>
+
+                  
+                  <Route path="/admin/login" element={<AdminLogin />} />
 
                   {/* <Route index element={<Home />} /> */}
                   <Route path="/menut" element={<Menut />} />
@@ -244,14 +256,14 @@ export default function App() {
                   </Route>
 
                   {/* ========== PROTECTED: ADMIN ROUTES (/admin/*) ========== */}
-                  <Route element={<PrivateRoute />}>
+                  {/* <Route element={<PrivateRoute />}>
                     <Route element={<RequireRole roles={["Admin"]} />}>
                       <Route path="/admin" element={<AdminLayout />}>
                         <Route path="dashboard" element={<AdminDashboard />} />
-                        <Route path="courses" element={<CourseApprovals />} />
+                        
                       </Route>
                     </Route>
-                  </Route>
+                  </Route> */}
 
                   {/* ========== LEGACY ROUTES ========== */}
                   <Route path="/exam/:id/start/:attemptId" element={<QuizTest />} />

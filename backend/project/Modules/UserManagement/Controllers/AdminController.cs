@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,12 +13,20 @@ public class AdminController : ControllerBase
         _adminService = adminService;
     }
 
-    [HttpGet("courses/status/{status}")]
-    public async Task<IActionResult> GetCourseByStatusAsync(string status)
+    [HttpGet("courses")]
+    public async Task<IActionResult> GetCourseByStatusAsync(
+        [FromQuery] string? status,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10)
     {
         try
         {
-            var courses = await _adminService.GetCoursesByStatusAsync(status);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new APIResponse("error", "User ID not found in token"));
+            }
+            var courses = await _adminService.GetCoursesByAdminAsync(userId, status, page, pageSize);
             return Ok(new APIResponse("success", "Courses retrieved successfully", courses));
         }
         catch (Exception ex)
