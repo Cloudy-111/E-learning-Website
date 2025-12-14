@@ -10,9 +10,6 @@ import {
     LogOut
 } from "lucide-react";
 
-/**
- * AdminLayout - Layout for admin pages with sidebar navigation
- */
 export default function AdminLayout() {
     const location = useLocation();
 
@@ -29,15 +26,12 @@ export default function AdminLayout() {
 
     return (
         <div className="min-h-screen bg-gray-100 flex">
-            {/* Sidebar */}
             <aside className="w-64 bg-white shadow-lg flex flex-col">
-                {/* Header */}
                 <div className="p-6 border-b">
                     <h1 className="text-2xl font-bold text-gray-800">Admin Panel</h1>
                     <p className="text-sm text-gray-500 mt-1">Quản trị hệ thống</p>
                 </div>
 
-                {/* Navigation */}
                 <nav className="flex-1 p-4 space-y-2">
                     {navItems.map((item) => {
                         const Icon = item.icon;
@@ -59,13 +53,11 @@ export default function AdminLayout() {
                     })}
                 </nav>
 
-                {/* Footer */}
                 <div className="p-4 border-t">
                     <button
                         onClick={() => {
-                            // Logout logic here
                             localStorage.clear();
-                            window.location.href = "/login";
+                            window.location.href = "/admin/login";
                         }}
                         className="flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 w-full transition-colors"
                     >
@@ -75,7 +67,6 @@ export default function AdminLayout() {
                 </div>
             </aside>
 
-            {/* Main Content */}
             <main className="flex-1 overflow-auto">
                 <Outlet />
             </main>

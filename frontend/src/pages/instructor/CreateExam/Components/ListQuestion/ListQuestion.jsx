@@ -1,5 +1,4 @@
-import { Plus, Upload } from "lucide-react";
-import { DragDropContext, Draggable } from "react-beautiful-dnd";
+import { DragDropContext, Draggable } from "@hello-pangea/dnd";
 import { CustomDroppable } from "../../../../../components/CustomDroppable.jsx";
 import { useState } from "react";
 

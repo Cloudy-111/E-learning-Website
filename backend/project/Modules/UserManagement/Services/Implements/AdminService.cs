@@ -14,10 +14,16 @@ public class AdminService : IAdminService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<IEnumerable<CourseInformationDTO>> GetCoursesByStatusAsync(string status)
+    public async Task<PageResultCoursesDTO> GetCoursesByAdminAsync(string userId, string? status, int page, int pageSize)
     {
-        var courses = await _adminRepository.GetCoursesByStatusAsync(status);
-        return courses.Select(c => new CourseInformationDTO
+        var adminExist = await _adminRepository.IsAdminExistAsync(userId);
+        if (adminExist == false)
+        {
+            throw new UnauthorizedAccessException("Admin not found");
+        }
+
+        var (courses, totalCount) = await _adminRepository.GetCoursesByAdminAsync(status, page, pageSize);
+        var courseResult = courses.Select(c => new CourseInformationDTO
         {
             Id = c.Id,
             Title = c.Title,
@@ -35,6 +41,15 @@ public class AdminService : IAdminService
             TeacherId = c.TeacherId,
             TeacherName = c.Teacher?.User?.FullName ?? "Unknown"
         });
+
+        return new PageResultCoursesDTO
+        {
+            Courses = courseResult,
+            CurrentPage = page,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+            TotalPages = (int)Math.Ceiling((double)totalCount / pageSize)
+        };
     }
 
     public async Task AdminApproveCourseAsync(string courseId)
