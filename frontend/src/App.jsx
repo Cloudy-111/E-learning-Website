@@ -74,6 +74,7 @@ const ExamCreate = lazy(() => import("./pages/instructor/CreateExam/CreateExam.j
 const ExamEdit = lazy(() => import("./pages/instructor/ExamEdit.jsx"));
 const ExamStats = lazy(() => import("./pages/instructor/ExamStats.jsx"));
 const ExamAttempts = lazy(() => import("./pages/instructor/ExamAttempts.jsx"));
+const CourseExams = lazy(() => import("./pages/instructor/CourseExams/CourseExams.jsx"));
 
 // Forum pages
 const ForumHome = lazy(() => import("./pages/shared/Forum").then(m => ({ default: m.ForumHome })));
@@ -162,6 +163,7 @@ export default function App() {
                       <Route path="/i/courses/new" element={<CourseCreate title="🆕 /i/courses/new — Tạo khoá draft" />} />
                       <Route path="/i/courses" element={<InstructorCourses title="📚 /i/courses — Khoá học đã tạo" />} />
                       <Route path="/i/courses/:id/edit" element={<CourseEdit title="✏️ /i/courses/:id/edit — Sửa khoá (draft/version)" />} />
+                      <Route path="/i/courses/:courseId/exams" element={<CourseExams title="🧠 /i/courses/:courseId/exams — Quản lý bài kiểm tra" />} />
                       <Route path="/i/courses/:courseId/exams/create" element={<ExamCreate title="🆕 /i/courses/:courseId/exams/create — Tạo đề thi" />} />
 
                     </Route>
@@ -189,11 +191,11 @@ export default function App() {
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
 
-                  
+
 
                   <Route path="/forum/:id" element={<QuestionDetail />} />
 
-                  
+
 
                   <Route path="/about" element={<About />} />
                   <Route path="/membership" element={<Membership />} />
@@ -236,13 +238,13 @@ export default function App() {
 
                       <Route path="/i/courses" element={<InstructorCourses title="📚 /i/courses — Khoá học đã tạo" />} />
 
-                      
+
                       <Route path="/i/courses/:id/lessons" element={<CourseLessons title="🧱 /i/courses/:id/lessons — CRUD bài học" />} />
                       <Route path="/i/courses/:id/students" element={<CourseStudents title="👥 /i/courses/:id/students — Danh sách học viên" />} />
                       <Route path="/i/courses/:id/students/:userId" element={<StudentProgress title="👤 /i/courses/:id/students/:userId — Tiến độ 1 học viên" />} />
                       <Route path="/i/courses/:id/reviews" element={<CourseReviews title="⭐ /i/courses/:id/reviews — Quản lý đánh giá" />} />
                       <Route path="/i/exams" element={<Exams title="🧠 /i/exams — Đề thi do GV tạo" />} />
-                      
+
                       <Route path="/i/exams/:id/edit" element={<ExamEdit title="✏️ /i/exams/:id/edit — Chỉnh sửa đề (draft)" />} />
                       <Route path="/i/exams/:id/stats" element={<ExamStats title="📈 /i/exams/:id/stats — Thống kê đề thi (Item analysis)" />} />
                       <Route path="/i/exams/:id/attempts" element={<ExamAttempts title="🧾 /i/exams/:id/attempts — Lượt làm & chi tiết" />} />

@@ -154,6 +154,34 @@ async function createFullExam(examData) {
   }
 }
 
+async function fetchAllExamsForCourse(courseId, params = {}) {
+  try {
+    // Filter out empty values to avoid sending empty strings to the API
+    const filteredParams = Object.entries({ courseId, ...params })
+      .filter(([_, value]) => value !== "" && value !== null && value !== undefined)
+      .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
+
+    const queryParams = new URLSearchParams(filteredParams).toString();
+
+    const response = await baseFetch(`/api/exams/get-all?${queryParams}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        ...authHeader(),
+      },
+    });
+
+    if (response.status === "error") {
+      throw new Error(response.message || "Lỗi không xác định");
+    }
+
+    return response;
+  } catch (e) {
+    console.error("Fetch all exams for course error:", e);
+    throw new Error(e);
+  }
+}
+
 export {
   fetchExamsByLesson,
   fetchExamById,
@@ -162,4 +190,5 @@ export {
   fetchSubmissionExamByAttemmptId,
   fetchUserSubmissionBySubmissionexamId,
   createFullExam,
+  fetchAllExamsForCourse,
 };

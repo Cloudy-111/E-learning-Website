@@ -31,7 +31,7 @@ public class CourseController : ControllerBase
     {
         try
         {
-            var teacherId = User.FindFirst("teacherId")?.Value;
+            var teacherId = User.FindFirst("TeacherId")?.Value;
             var course = await _courseService.GetCourseByIdAsync(teacherId, id);
             return Ok(new APIResponse("Success", "Retrieve Course Successfully", course));
         }
@@ -79,7 +79,7 @@ public class CourseController : ControllerBase
 
         try
         {
-            var teacherId = User.FindFirst("teacherId")?.Value;
+            var teacherId = User.FindFirst("TeacherId")?.Value;
             await _courseService.AddCourseAsync(teacherId, courseDto);
             return Ok(new APIResponse("Success", "Create new Course successfully"));
         }
@@ -105,7 +105,7 @@ public class CourseController : ControllerBase
 
         try
         {
-            var teacherId = User.FindFirst("teacherId")?.Value;
+            var teacherId = User.FindFirst("TeacherId")?.Value;
             await _courseService.AddFullCourseAsync(teacherId, fullCourseDto);
             return Ok(new APIResponse("Success", "Create new Full Course successfully"));
         }
@@ -131,7 +131,7 @@ public class CourseController : ControllerBase
 
         try
         {
-            var teacherId = User.FindFirst("teacherId")?.Value;
+            var teacherId = User.FindFirst("TeacherId")?.Value;
             await _courseService.UpdateFullCourseAsync(teacherId, courseId, fullCourseDto);
             return Ok(new APIResponse("Success", "Update Full Course successfully"));
         }
@@ -169,7 +169,7 @@ public class CourseController : ControllerBase
 
         try
         {
-            var teacherId = User.FindFirst("teacherId")?.Value;
+            var teacherId = User.FindFirst("TeacherId")?.Value;
             await _courseService.UpdateCourseAsync(teacherId, id, courseDto);
             return Ok(new APIResponse("success", "Update course successfully"));
         }
@@ -194,7 +194,7 @@ public class CourseController : ControllerBase
     {
         try
         {
-            var teacherId = User.FindFirst("teacherId")?.Value;
+            var teacherId = User.FindFirst("TeacherId")?.Value;
             await _courseService.RequestPublishCourseAsync(teacherId, id);
             return Ok(new APIResponse("success", "Course requested publish successfully"));
         }
@@ -224,7 +224,7 @@ public class CourseController : ControllerBase
 
         try
         {
-            var teacherId = User.FindFirst("teacherId")?.Value;
+            var teacherId = User.FindFirst("TeacherId")?.Value;
             await _requestUpdateService.CreateRequestUpdateAsync(teacherId, requestDto);
             return Ok(new APIResponse("success", "Course update request created successfully"));
         }
@@ -250,7 +250,7 @@ public class CourseController : ControllerBase
     {
         try
         {
-            var teacherId = User.FindFirst("teacherId")?.Value;
+            var teacherId = User.FindFirst("TeacherId")?.Value;
             var courses = await _courseService.GetCoursesByTeacherIdAsync(teacherId, keyword, status, sort, page, pageSize);
             return Ok(new APIResponse("Success", "Retrieve My Courses Successfully", courses));
         }
@@ -311,7 +311,7 @@ public class CourseController : ControllerBase
     {
         try
         {
-            var teacherId = User.FindFirst("teacherId")?.Value;
+            var teacherId = User.FindFirst("TeacherId")?.Value;
             var fullCourseData = await _courseService.GetFullCourseDataForEditAsync(teacherId, courseId);
             return Ok(new APIResponse("Success", "Retrieve Full Course Data for Edit Successfully", fullCourseData));
         }
