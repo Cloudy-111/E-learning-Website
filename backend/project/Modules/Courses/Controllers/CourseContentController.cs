@@ -49,7 +49,7 @@ public class CourseContentController : ControllerBase
     {
         try
         {
-            var teacherId = User.FindFirst("teacherId")?.Value;
+            var teacherId = User.FindFirst("TeacherId")?.Value;
             var contentDto = await _courseContentService.GetCourseContentInformationDTOAsync(teacherId, courseId);
             return Ok(new APIResponse("success", "Course content retrieved successfully", contentDto));
         }
@@ -70,7 +70,7 @@ public class CourseContentController : ControllerBase
     {
         try
         {
-            var teacherId = User.FindFirst("teacherId")?.Value;
+            var teacherId = User.FindFirst("TeacherId")?.Value;
             var contentDto = await _courseContentService.GetCourseContentOverviewDTOAsync(teacherId, courseId);
 
             return Ok(new APIResponse("success", "Course content overview retrieved successfully", contentDto));
