@@ -1,9 +1,9 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { jwtDecode } from "jwt-decode";
 import StatsTable from "./components/StatsTable";
 import TopThreePodium from "./components/TopThreePodium";
 import { getStats } from "./forumService";
-import { useSearchParams } from "react-router-dom";
 
 const TABS = {
     CONTRIBUTORS: 'contributors',
@@ -55,11 +55,57 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
     );
 }
 
+function CurrentUserStatCard({ userStat }) {
+    if (!userStat) {
+        return (
+            <div className="p-4 bg-white rounded-lg shadow-md sticky top-24">
+                <h3 className="font-bold text-lg text-gray-800 mb-2">Thống kê của bạn</h3>
+                <p className="text-gray-600">Bạn chưa có điểm trong bảng xếp hạng.</p>
+            </div>
+        );
+    }
+
+    const { rank, fullName, contributionScore } = userStat;
+
+    return (
+        <div className="p-4 bg-white rounded-lg shadow-md">
+            <h3 className="font-bold text-lg text-gray-800 mb-4">Thống kê của bạn</h3>
+            <div className="flex items-center space-x-4">
+                <div className="text-2xl font-bold text-gray-500 w-10 text-center">{rank}</div>
+                <div className="flex-1">
+                    <p className="font-semibold text-gray-900 truncate" title={fullName}>{fullName}</p>
+                    <p className="text-sm text-gray-500">
+                        <span className="font-bold text-blue-600">{contributionScore}</span> điểm
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// Helper function to get studentId from token
+const getStudentIdFromToken = () => {
+    const token = localStorage.getItem("app_access_token");
+    if (!token) {
+        return null;
+    }
+    try {
+        const decoded = jwtDecode(token);
+        // Prefer 'StudentId' (uppercase) then 'studentId' (lowercase)
+        return decoded.StudentId || decoded.studentId || null;
+    } catch (error) {
+        console.error("Failed to decode token:", error);
+        return null;
+    }
+};
+
 export default function Rankings() {
     const [currentMonth, setCurrentMonth] = useState(undefined); // Mặc định là "Tất cả"
     const [currentPage, setCurrentPage] = useState(1);
     const ITEMS_PER_PAGE = 20;
 
+    const studentId = useMemo(() => getStudentIdFromToken(), []);
+    
     const { data: statsData, isLoading: isLoadingStats, error: statsError } = useQuery({
         queryKey: ['stats', { month: currentMonth }],
         queryFn: () => getStats(currentMonth),
@@ -72,7 +118,11 @@ export default function Rankings() {
     };
 
     const processedStats = useMemo(() => {
-        if (!statsData) return { topThree: [], others: [] };
+        if (!statsData) {
+            return { topThree: [], others: [], currentUserStat: null };
+        }
+
+
 
         const isMonthView = currentMonth !== undefined;
 
@@ -86,11 +136,18 @@ export default function Rankings() {
             })
             .sort((a, b) => b.contributionScore - a.contributionScore);
 
-        return {
+        // 3. Tìm thông tin và thứ hạng của người dùng hiện tại
+        // Đã sửa: Tìm kiếm theo 'studentId' thay vì '_id'
+        const currentUserIndex = studentId ? sorted.findIndex(stat => stat.studentId === studentId) : -1;
+
+        const currentUserStat = currentUserIndex !== -1 ? { ...sorted[currentUserIndex], rank: currentUserIndex + 1 } : null;
+
+        return { 
             topThree: sorted.slice(0, 3),
             others: sorted.slice(3),
+            currentUserStat,
         };
-    }, [statsData, currentMonth]);
+    }, [statsData, currentMonth, studentId]);
 
     const isLoading = isLoadingStats;
     const error = statsError;
@@ -105,41 +162,48 @@ export default function Rankings() {
     return (
         <div className="bg-slate-50 min-h-screen">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="max-w-5xl mx-auto mb-8">
-                    <TopThreePodium topThree={processedStats.topThree} />
+                {/* Thẻ thống kê người dùng - Cố định ở góc trên bên phải */}
+                <div className="hidden lg:block fixed top-28 right-8 w-64 xl:w-72 z-10">
+                    {studentId && processedStats.currentUserStat && <CurrentUserStatCard userStat={processedStats.currentUserStat} />}
+                </div>
 
-                    {/* Page Header */}
-                    <div className="relative border-b border-gray-200 pb-5 sm:pb-0">
-                        <div className="md:flex md:items-center md:justify-between">
-                            <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
-                                Bảng thống kê
-                            </h2>
-                            <div className="mt-4 flex md:absolute md:right-0 md:top-0 md:mt-0">
-                                <select onChange={handleMonthChange} value={currentMonth ?? ''} className="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm">
-                                    <option value="">Tất cả</option>
-                                    {Array.from({ length: 12 }, (_, i) => (
-                                        <option key={i + 1} value={i + 1}>Tháng {i + 1}</option>
-                                    ))}
-                                </select>
+                <TopThreePodium topThree={processedStats.topThree} />
+                
+                <div className="mt-12">
+                    <div className="lg:w-[48rem] min-w-0 mx-auto">
+                        {/* Header của bảng */}
+                        <div className="relative border-b border-gray-200 pb-5 sm:pb-0">
+                            <div className="md:flex md:items-center md:justify-between">
+                                <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
+                                    Bảng thống kê
+                                </h2>
+                                <div className="mt-4 flex md:absolute md:right-0 md:top-0 md:mt-0">
+                                    <select onChange={handleMonthChange} value={currentMonth ?? ''} className="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm">
+                                        <option value="">Tất cả</option>
+                                        {Array.from({ length: 12 }, (_, i) => (
+                                            <option key={i + 1} value={i + 1}>Tháng {i + 1}</option>
+                                        ))}
+                                    </select>
+                                </div>
                             </div>
                         </div>
+
+                        {isLoading && <LoadingSpinner />}
+                        {error && <ErrorDisplay message={error.message} />}
+
+                        {!isLoading && !error && (
+                            <>
+                                {paginatedOthers.length > 0 ? (
+                                    <>
+                                        <StatsTable stats={paginatedOthers} currentMonth={currentMonth} />
+                                        <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+                                    </>
+                                ) : (
+                                    <div className="text-center py-10 text-gray-500">Không có dữ liệu để hiển thị.</div>
+                                )}
+                            </>
+                        )}
                     </div>
-
-                    {isLoading && <LoadingSpinner />}
-                    {error && <ErrorDisplay message={error.message} />}
-
-                    {!isLoading && !error && (
-                        <>
-                            {paginatedOthers.length > 0 ? (
-                                <>
-                                    <StatsTable stats={paginatedOthers} currentMonth={currentMonth} />
-                                    <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
-                                </>
-                            ) : (
-                                <div className="text-center py-10 text-gray-500">Không có dữ liệu để hiển thị.</div>
-                            )}
-                        </>
-                    )}
                 </div>
             </div>
         </div>
