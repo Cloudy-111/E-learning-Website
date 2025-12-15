@@ -1,9 +1,9 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useSearchParams } from "react-router-dom";
 import StatsTable from "./components/StatsTable";
 import TopThreePodium from "./components/TopThreePodium";
 import { getStats } from "./forumService";
+import { useSearchParams } from "react-router-dom";
 
 const TABS = {
     CONTRIBUTORS: 'contributors',
@@ -27,13 +27,38 @@ function ErrorDisplay({ message }) {
     );
 }
 
+function Pagination({ currentPage, totalPages, onPageChange }) {
+    if (totalPages <= 1) {
+        return null;
+    }
+
+    return (
+        <div className="mt-6 flex items-center justify-end gap-x-2">
+            <button
+                onClick={() => onPageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                Trang trước
+            </button>
+            <div className="text-sm text-gray-700">
+                Trang <span className="font-semibold">{currentPage}</span> / <span className="font-semibold">{totalPages}</span>
+            </div>
+            <button
+                onClick={() => onPageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="rounded-md bg-white px-3.5 py-2.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+                Trang sau
+            </button>
+        </div>
+    );
+}
+
 export default function Rankings() {
-    const [searchParams, setSearchParams] = useSearchParams();
-    
-    // Lấy giá trị tháng từ URL, nếu là "" (Tất cả) thì là undefined, nếu không có thì mặc định là tháng hiện tại
-    const monthParam = searchParams.get("month"); // Sẽ là null nếu không có hoặc là một chuỗi số
-    // Nếu monthParam là null (không có trên URL), đó là chế độ "Tất cả" -> currentMonth là undefined.
-    const currentMonth = monthParam ? parseInt(monthParam, 10) : undefined;
+    const [currentMonth, setCurrentMonth] = useState(undefined); // Mặc định là "Tất cả"
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 20;
 
     const { data: statsData, isLoading: isLoadingStats, error: statsError } = useQuery({
         queryKey: ['stats', { month: currentMonth }],
@@ -41,15 +66,9 @@ export default function Rankings() {
     });
 
     const handleMonthChange = (event) => {
-        const selectedValue = event.target.value;
-        setSearchParams(prev => {
-            if (selectedValue === "") {
-                prev.delete('month');
-            } else {
-                prev.set('month', selectedValue);
-            }
-            return prev;
-        });
+        const value = event.target.value;
+        setCurrentMonth(value === "" ? undefined : parseInt(value, 10));
+        setCurrentPage(1); // Reset về trang đầu khi đổi tháng
     };
 
     const processedStats = useMemo(() => {
@@ -76,6 +95,13 @@ export default function Rankings() {
     const isLoading = isLoadingStats;
     const error = statsError;
 
+    const totalPages = Math.ceil(processedStats.others.length / ITEMS_PER_PAGE);
+    const paginatedOthers = processedStats.others.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
+
+
     return (
         <div className="bg-slate-50 min-h-screen">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -89,7 +115,7 @@ export default function Rankings() {
                                 Bảng thống kê
                             </h2>
                             <div className="mt-4 flex md:absolute md:right-0 md:top-0 md:mt-0">
-                                <select onChange={handleMonthChange} value={monthParam ?? ''} className="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm">
+                                <select onChange={handleMonthChange} value={currentMonth ?? ''} className="block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-blue-500 focus:outline-none focus:ring-blue-500 sm:text-sm">
                                     <option value="">Tất cả</option>
                                     {Array.from({ length: 12 }, (_, i) => (
                                         <option key={i + 1} value={i + 1}>Tháng {i + 1}</option>
@@ -104,8 +130,13 @@ export default function Rankings() {
 
                     {!isLoading && !error && (
                         <>
-                            {processedStats.others.length > 0 && (
-                                <StatsTable stats={processedStats.others} currentMonth={currentMonth} />
+                            {paginatedOthers.length > 0 ? (
+                                <>
+                                    <StatsTable stats={paginatedOthers} currentMonth={currentMonth} />
+                                    <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+                                </>
+                            ) : (
+                                <div className="text-center py-10 text-gray-500">Không có dữ liệu để hiển thị.</div>
                             )}
                         </>
                     )}
@@ -113,4 +144,5 @@ export default function Rankings() {
             </div>
         </div>
     );
+
 }
