@@ -55,17 +55,17 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
     );
 }
 
-function CurrentUserStatCard({ userStat }) {
+function CurrentUserStatCard({ userStat, eligibility }) {
     if (!userStat) {
         return (
-            <div className="p-4 bg-white rounded-lg shadow-md sticky top-24">
+            <div className="p-4 bg-white rounded-lg shadow-md">
                 <h3 className="font-bold text-lg text-gray-800 mb-2">Thống kê của bạn</h3>
                 <p className="text-gray-600">Bạn chưa có điểm trong bảng xếp hạng.</p>
             </div>
         );
     }
 
-    const { rank, fullName, contributionScore } = userStat;
+    const { rank, fullName, contributionScore, totalContributionScore } = userStat;
 
     return (
         <div className="p-4 bg-white rounded-lg shadow-md">
@@ -75,10 +75,23 @@ function CurrentUserStatCard({ userStat }) {
                 <div className="flex-1">
                     <p className="font-semibold text-gray-900 truncate" title={fullName}>{fullName}</p>
                     <p className="text-sm text-gray-500">
-                        <span className="font-bold text-blue-600">{contributionScore}</span> điểm
+                        Điểm xếp hạng: <span className="font-bold text-blue-600">{contributionScore}</span>
+                    </p>
+                    <p className="text-sm text-gray-500">
+                        Tổng điểm: <span className="font-bold text-blue-600">{totalContributionScore}</span>
                     </p>
                 </div>
             </div>
+            {eligibility.isEligible && (
+                <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <p className="text-sm font-semibold text-green-800">
+                        Bạn đủ điều kiện đăng ký làm giảng viên
+                    </p>
+                    <p className="text-xs text-green-700 mt-1">
+                        {eligibility.reason}
+                    </p>
+                </div>
+            )}
         </div>
     );
 }
@@ -119,7 +132,7 @@ export default function Rankings() {
 
     const processedStats = useMemo(() => {
         if (!statsData) {
-            return { topThree: [], others: [], currentUserStat: null };
+            return { topThree: [], others: [], currentUserStat: null, eligibility: { isEligible: false } };
         }
 
 
@@ -132,20 +145,44 @@ export default function Rankings() {
                 const questions = isMonthView ? student.monthForumQuestions : student.totalForumQuestions;
                 const discussions = isMonthView ? student.monthDiscussions : student.totalDiscussions;
                 const contributionScore = (posts * 20) + (questions * 5) + (discussions * 1);
-                return { ...student, contributionScore };
+                
+                const totalContributionScore = (student.totalPosts * 20) + (student.totalForumQuestions * 5) + (student.totalDiscussions * 1);
+
+                return { ...student, contributionScore, totalContributionScore };
             })
             .sort((a, b) => b.contributionScore - a.contributionScore);
 
         // 3. Tìm thông tin và thứ hạng của người dùng hiện tại
         // Đã sửa: Tìm kiếm theo 'studentId' thay vì '_id'
         const currentUserIndex = studentId ? sorted.findIndex(stat => stat.studentId === studentId) : -1;
-
         const currentUserStat = currentUserIndex !== -1 ? { ...sorted[currentUserIndex], rank: currentUserIndex + 1 } : null;
+
+        // 4. Kiểm tra điều kiện làm giảng viên cho người dùng hiện tại
+        let eligibility = { isEligible: false, reason: '' };
+        if (currentUserStat) {
+            const { totalContributionScore, monthPosts, monthForumQuestions, monthDiscussions } = currentUserStat;
+            
+            // Điểm của tháng hiện tại, luôn được API trả về trong các trường `month...`
+            const currentMonthScore = (monthPosts * 20) + (monthForumQuestions * 5) + (monthDiscussions * 1);
+
+            // DEBUG: In ra các giá trị được sử dụng để kiểm tra điều kiện
+            console.log(`[DEBUG] Kiểm tra điều kiện cho studentId: ${currentUserStat.studentId}`);
+            console.log(`[DEBUG] totalContributionScore: ${totalContributionScore} (Điều kiện: > 200)`);
+            console.log(`[DEBUG] currentMonthScore: ${currentMonthScore} (Điều kiện: > 50)`);
+
+            if (totalContributionScore > 200) {
+                eligibility = { isEligible: true, reason: 'Do tổng điểm của bạn đã vượt qua 200.' };
+            } else if (currentMonthScore > 50) {
+                // Giả định API trả về điểm tháng hiện tại hoặc tháng trước nếu có
+                eligibility = { isEligible: true, reason: `Do điểm tháng gần đây của bạn đã vượt qua 50.` };
+            }
+        }
 
         return { 
             topThree: sorted.slice(0, 3),
             others: sorted.slice(3),
             currentUserStat,
+            eligibility,
         };
     }, [statsData, currentMonth, studentId]);
 
@@ -164,7 +201,7 @@ export default function Rankings() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 {/* Thẻ thống kê người dùng - Cố định ở góc trên bên phải */}
                 <div className="hidden lg:block fixed top-28 right-8 w-64 xl:w-72 z-10">
-                    {studentId && processedStats.currentUserStat && <CurrentUserStatCard userStat={processedStats.currentUserStat} />}
+                    {studentId && <CurrentUserStatCard userStat={processedStats.currentUserStat} eligibility={processedStats.eligibility} />}
                 </div>
 
                 <TopThreePodium topThree={processedStats.topThree} />

@@ -18,4 +18,8 @@ public class StudentStatsService : IStudentStatsService
     {
         return await _repo.GetStudentStatsAsync(month);
     }
+    public async Task<bool> IsTeacherAsync(string studentId)
+        {
+            return await _repo.IsTeacherAsync(studentId);
+        }
 }

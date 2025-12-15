@@ -22,5 +22,20 @@ namespace project.Modules.Posts.Controller
         var result = await _service.GetStatsAsync(month);
         return Ok(result);
     }
+     // GET api/StudentStats/ifTeacher
+        [HttpGet("ifTeacher")]
+        public async Task<IActionResult> IfTeacher()
+        {
+            var studentId = User.Claims
+                .FirstOrDefault(c => c.Type == "StudentId")
+                ?.Value;
+
+            if (string.IsNullOrEmpty(studentId))
+                return Unauthorized("StudentId not found in token");
+
+            var result = await _service.IsTeacherAsync(studentId);
+
+            return Ok(result); // true / false
+        }
     }
 }

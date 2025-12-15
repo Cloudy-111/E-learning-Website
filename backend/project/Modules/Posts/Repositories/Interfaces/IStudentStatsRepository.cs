@@ -6,4 +6,5 @@ namespace project.Modules.Posts.Repositories.Interfaces;
 public interface IStudentStatsRepository
 {
     Task<List<StudentStatsDto>> GetStudentStatsAsync(int? month);
+    Task<bool> IsTeacherAsync(string studentId);
 }  

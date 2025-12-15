@@ -49,5 +49,66 @@ public class StudentStatsRepository : IStudentStatsRepository
             .ToListAsync();
     }
 
+     public async Task<bool> IsTeacherAsync(string studentId)
+        {
+            var now = DateTime.Now;
+
+            int currentMonth = now.Month;
+            int currentYear = now.Year;
+
+            var prev = now.AddMonths(-1);
+            int prevMonth = prev.Month;
+            int prevYear = prev.Year;
+
+            var data = await _db.Students
+                .Where(s => s.StudentId == studentId)
+                .Select(s => new
+                {
+                    // ===== TOTAL SCORE =====
+                    TotalScore =
+                        s.Discussions.Count() * 1
+                        + s.Posts.Count() * 20
+                        + s.ForumQuestions.Count(f => !f.IsDeleted) * 5,
+
+                    // ===== CURRENT MONTH SCORE =====
+                    CurrentMonthScore =
+                        s.Discussions.Count(d =>
+                            d.CreatedAt.Month == currentMonth &&
+                            d.CreatedAt.Year == currentYear) * 1
+                        +
+                        s.Posts.Count(p =>
+                            p.CreatedAt.Month == currentMonth &&
+                            p.CreatedAt.Year == currentYear) * 20
+                        +
+                        s.ForumQuestions.Count(f =>
+                            !f.IsDeleted &&
+                            f.CreatedAt.Month == currentMonth &&
+                            f.CreatedAt.Year == currentYear) * 5,
+
+                    // ===== PREVIOUS MONTH SCORE =====
+                    PreviousMonthScore =
+                        s.Discussions.Count(d =>
+                            d.CreatedAt.Month == prevMonth &&
+                            d.CreatedAt.Year == prevYear) * 1
+                        +
+                        s.Posts.Count(p =>
+                            p.CreatedAt.Month == prevMonth &&
+                            p.CreatedAt.Year == prevYear) * 20
+                        +
+                        s.ForumQuestions.Count(f =>
+                            !f.IsDeleted &&
+                            f.CreatedAt.Month == prevMonth &&
+                            f.CreatedAt.Year == prevYear) * 5
+                })
+                .FirstOrDefaultAsync();
+
+            if (data == null)
+                return false;
+
+            return data.TotalScore > 100
+                || data.CurrentMonthScore > 50
+                || data.PreviousMonthScore > 50;
+        }
+
     
 }
