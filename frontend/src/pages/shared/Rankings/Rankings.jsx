@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { jwtDecode } from "jwt-decode";
 import StatsTable from "./components/StatsTable";
 import TopThreePodium from "./components/TopThreePodium";
-import { getStats } from "./forumService";
+import { getStats, checkTeacherEligibility } from "./forumService";
 
 const TABS = {
     CONTRIBUTORS: 'contributors',
@@ -124,6 +124,13 @@ export default function Rankings() {
         queryFn: () => getStats(currentMonth),
     });
 
+    // Sử dụng useQuery để gọi API kiểm tra điều kiện làm giảng viên
+    const { data: isEligibleForTeacher } = useQuery({
+        queryKey: ['teacherEligibility', studentId],
+        queryFn: () => checkTeacherEligibility(),
+        enabled: !!studentId, // Chỉ chạy query khi có studentId
+    });
+
     const handleMonthChange = (event) => {
         const value = event.target.value;
         setCurrentMonth(value === "" ? undefined : parseInt(value, 10));
@@ -132,7 +139,7 @@ export default function Rankings() {
 
     const processedStats = useMemo(() => {
         if (!statsData) {
-            return { topThree: [], others: [], currentUserStat: null, eligibility: { isEligible: false } };
+            return { topThree: [], others: [], currentUserStat: null };
         }
 
 
@@ -157,32 +164,10 @@ export default function Rankings() {
         const currentUserIndex = studentId ? sorted.findIndex(stat => stat.studentId === studentId) : -1;
         const currentUserStat = currentUserIndex !== -1 ? { ...sorted[currentUserIndex], rank: currentUserIndex + 1 } : null;
 
-        // 4. Kiểm tra điều kiện làm giảng viên cho người dùng hiện tại
-        let eligibility = { isEligible: false, reason: '' };
-        if (currentUserStat) {
-            const { totalContributionScore, monthPosts, monthForumQuestions, monthDiscussions } = currentUserStat;
-            
-            // Điểm của tháng hiện tại, luôn được API trả về trong các trường `month...`
-            const currentMonthScore = (monthPosts * 20) + (monthForumQuestions * 5) + (monthDiscussions * 1);
-
-            // DEBUG: In ra các giá trị được sử dụng để kiểm tra điều kiện
-            console.log(`[DEBUG] Kiểm tra điều kiện cho studentId: ${currentUserStat.studentId}`);
-            console.log(`[DEBUG] totalContributionScore: ${totalContributionScore} (Điều kiện: > 200)`);
-            console.log(`[DEBUG] currentMonthScore: ${currentMonthScore} (Điều kiện: > 50)`);
-
-            if (totalContributionScore > 200) {
-                eligibility = { isEligible: true, reason: 'Do tổng điểm của bạn đã vượt qua 200.' };
-            } else if (currentMonthScore > 50) {
-                // Giả định API trả về điểm tháng hiện tại hoặc tháng trước nếu có
-                eligibility = { isEligible: true, reason: `Do điểm tháng gần đây của bạn đã vượt qua 50.` };
-            }
-        }
-
         return { 
             topThree: sorted.slice(0, 3),
             others: sorted.slice(3),
             currentUserStat,
-            eligibility,
         };
     }, [statsData, currentMonth, studentId]);
 
@@ -201,7 +186,12 @@ export default function Rankings() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 {/* Thẻ thống kê người dùng - Cố định ở góc trên bên phải */}
                 <div className="hidden lg:block fixed top-28 right-8 w-64 xl:w-72 z-10">
-                    {studentId && <CurrentUserStatCard userStat={processedStats.currentUserStat} eligibility={processedStats.eligibility} />}
+                    {studentId && (
+                        <CurrentUserStatCard 
+                            userStat={processedStats.currentUserStat} 
+                            eligibility={{ isEligible: isEligibleForTeacher, reason: 'Đủ điều kiện theo quy định của hệ thống.' }} 
+                        />
+                    )}
                 </div>
 
                 <TopThreePodium topThree={processedStats.topThree} />
