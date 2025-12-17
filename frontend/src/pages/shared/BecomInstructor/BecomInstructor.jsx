@@ -1,6 +1,7 @@
 // src/pages/shared/BecomInstructor/BecomInstructor.jsx
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { AlertTriangle, Loader2 } from "lucide-react";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 import {
@@ -18,14 +19,36 @@ export default function BecomInstructor() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // ===== Guard: chỉ cho phép truy cập khi đã đăng nhập =====
+    const [isEligible, setIsEligible] = useState(null);
+    const [eligibilityLoading, setEligibilityLoading] = useState(true);
+
+    // ===== Guard: chỉ cho phép truy cập khi đã đăng nhập & đủ điều kiện =====
     useEffect(() => {
         if (!isLoggedIn()) {
             const redirect = encodeURIComponent(location.pathname + location.search);
             navigate(`/login?redirect=${redirect}`, { replace: true });
+            return;
         }
-    }, [location.pathname, location.search, navigate]);
 
+        const checkEligibility = async () => {
+            try {
+                const res = await fetch(`${API_BASE}/StudentStats/ifTeacher`, {
+                    headers: authHeader(),
+                });
+                if (res.status === 401) return handleUnauthorized();
+                if (!res.ok) throw new Error("API check eligibility failed");
+                const data = await res.json();
+                setIsEligible(data === true);
+            } catch (error) {
+                console.error("Failed to check eligibility:", error);
+                setIsEligible(false); // Giả sử không đủ điều kiện nếu có lỗi
+            } finally {
+                setEligibilityLoading(false);
+            }
+        };
+
+        checkEligibility();
+    }, [navigate, location.pathname, location.search]);
     const [employeeCode, setEmployeeCode] = useState("");
     const [instruction, setInstruction] = useState("");
 
@@ -157,23 +180,42 @@ export default function BecomInstructor() {
             <Header />
             <HeroSection />
             <main className="w-full max-w-3xl mx-auto px-6 lg:px-0 py-8 space-y-8">
-                <UpgradeForm
-                    employeeCode={employeeCode}
-                    setEmployeeCode={setEmployeeCode}
-                    instruction={instruction}
-                    setInstruction={setInstruction}
-                    loading={loading}
-                    canSubmit={canSubmit}
-                    runFlow={runFlow}
-                    resetAll={resetAll}
-                    error={error}
-                    step={step}
-                />
-                <UpgradeResult
-                    result={result}
-                    completedAt={completedAt}
-                    loginData={loginData}
-                />
+                {eligibilityLoading ? (
+                    <div className="flex items-center justify-center gap-2 text-gray-600 p-8">
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <span>Đang kiểm tra điều kiện...</span>
+                    </div>
+                ) : isEligible ? (
+                    <>
+                        <UpgradeForm
+                            employeeCode={employeeCode}
+                            setEmployeeCode={setEmployeeCode}
+                            instruction={instruction}
+                            setInstruction={setInstruction}
+                            loading={loading}
+                            canSubmit={canSubmit}
+                            runFlow={runFlow}
+                            resetAll={resetAll}
+                            error={error}
+                            step={step}
+                        />
+                        <UpgradeResult
+                            result={result}
+                            completedAt={completedAt}
+                            loginData={loginData}
+                        />
+                    </>
+                ) : (
+                    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 space-y-4">
+                        <div className="flex items-start gap-3">
+                            <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                            <div>
+                                <h3 className="font-bold text-gray-900">Không đủ điều kiện</h3>
+                                <p className="text-sm text-gray-700 mt-1">Bạn chưa đáp ứng các điều kiện cần thiết để trở thành giảng viên. Vui lòng liên hệ với quản trị viên để biết thêm chi tiết.</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </main>
             <Footer />
         </div>
