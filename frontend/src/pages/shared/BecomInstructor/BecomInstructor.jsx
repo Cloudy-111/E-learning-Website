@@ -1,9 +1,7 @@
 // src/pages/shared/BecomInstructor/BecomInstructor.jsx
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { AlertTriangle, Loader2 } from "lucide-react";
-import Header from "../../../components/Header";
-import Footer from "../../../components/Footer";
+import { AlertTriangle, Loader2 } from "lucide-react"; 
 import {
     isLoggedIn,
     authHeader,
@@ -11,7 +9,7 @@ import {
     getRefreshToken,
     setTokens,
 } from "../../../utils/auth";
-import { API_BASE } from "./utils/constants";
+import { API_BASE_URL, checkTeacherEligibility as checkEligibilityApi } from "../Rankings/forumService";
 import { safeErr } from "./utils/helpers";
 import { HeroSection, UpgradeForm, UpgradeResult } from "./components";
 
@@ -32,13 +30,8 @@ export default function BecomInstructor() {
 
         const checkEligibility = async () => {
             try {
-                const res = await fetch(`${API_BASE}/StudentStats/ifTeacher`, {
-                    headers: authHeader(),
-                });
-                if (res.status === 401) return handleUnauthorized();
-                if (!res.ok) throw new Error("API check eligibility failed");
-                const data = await res.json();
-                setIsEligible(data === true);
+                const isEligible = await checkEligibilityApi();
+                setIsEligible(isEligible);
             } catch (error) {
                 console.error("Failed to check eligibility:", error);
                 setIsEligible(false); // Giả sử không đủ điều kiện nếu có lỗi
@@ -92,7 +85,7 @@ export default function BecomInstructor() {
         try {
             // ===== B1: register-teacher (cần Authorization) =====
             setStep(1);
-            const regRes = await fetch(`${API_BASE}/Auth/register-teacher`, {
+            const regRes = await fetch(`${API_BASE_URL}/api/Auth/register-teacher`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -121,7 +114,7 @@ export default function BecomInstructor() {
             }
 
             setStep(2);
-            const refRes = await fetch(`${API_BASE}/Auth/refresh-token`, {
+            const refRes = await fetch(`${API_BASE_URL}/api/Auth/refresh-token`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ refreshToken: storedRefresh }),
@@ -176,8 +169,7 @@ export default function BecomInstructor() {
     };
 
     return (
-        <div className="min-h-screen bg-white">
-            <Header />
+        <>
             <HeroSection />
             <main className="w-full max-w-3xl mx-auto px-6 lg:px-0 py-8 space-y-8">
                 {eligibilityLoading ? (
@@ -217,7 +209,6 @@ export default function BecomInstructor() {
                     </div>
                 )}
             </main>
-            <Footer />
-        </div>
+        </>
     );
 }

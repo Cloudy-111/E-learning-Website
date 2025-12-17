@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import StatsTable from "./components/StatsTable";
 import TopThreePodium from "./components/TopThreePodium";
@@ -83,14 +84,16 @@ function CurrentUserStatCard({ userStat, eligibility }) {
                 </div>
             </div>
             {eligibility.isEligible && (
-                <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <p className="text-sm font-semibold text-green-800">
-                        Bạn đủ điều kiện đăng ký làm giảng viên
-                    </p>
-                    <p className="text-xs text-green-700 mt-1">
-                        {eligibility.reason}
-                    </p>
-                </div>
+                <Link to="/i/become-instructor" className="block mt-4">
+                    <div className="p-3 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 hover:border-green-300 transition-colors duration-200">
+                        <p className="text-sm font-semibold text-green-800">
+                            Bạn đủ điều kiện nâng cấp làm giảng viên
+                        </p>
+                        <p className="text-xs text-green-700 mt-1">
+                            Nhấn vào đây để bắt đầu quá trình nâng cấp.
+                        </p>
+                    </div>
+                </Link>
             )}
         </div>
     );

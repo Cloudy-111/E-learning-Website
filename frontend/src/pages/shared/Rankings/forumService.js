@@ -1,9 +1,10 @@
 import axios from 'axios';
+import { authHeader } from '../../../utils/auth';
 
 // Cấu hình base URL cho API của bạn.
 // Bạn nên đặt nó trong biến môi trường (ví dụ: .env) để dễ quản lý.
 // Ví dụ: VITE_API_BASE_URL=http://localhost:5000
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5102';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5102';
 
 const api = axios.create({
     baseURL: API_BASE_URL,
@@ -23,6 +24,21 @@ export const getRankings = async ({ page = 1, pageSize = 10 }) => {
     } catch (error) {
         console.error("Error fetching rankings:", error);
         throw error;
+    }
+};
+
+// Hàm để kiểm tra điều kiện làm giảng viên
+export const checkTeacherEligibility = async () => {
+    try {
+        // Sử dụng instance `api` đã có baseURL và thêm header xác thực
+        const response = await api.get(`/api/StudentStats/ifTeacher`, {
+            headers: authHeader()
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error checking teacher eligibility:", error);
+        // Trả về false nếu có lỗi (ví dụ: 401 Unauthorized, 404 Not Found, ...)
+        return false;
     }
 };
 
