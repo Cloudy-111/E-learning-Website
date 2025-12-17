@@ -198,13 +198,21 @@ export default function BecomInstructor() {
                         />
                     </>
                 ) : (
-                    <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 space-y-4">
-                        <div className="flex items-start gap-3">
-                            <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
-                            <div>
-                                <h3 className="font-bold text-gray-900">Không đủ điều kiện</h3>
-                                <p className="text-sm text-gray-700 mt-1">Bạn chưa đáp ứng các điều kiện cần thiết để trở thành giảng viên. Vui lòng liên hệ với quản trị viên để biết thêm chi tiết.</p>
-                            </div>
+                    <div className="rounded-2xl border border-gray-200 bg-white p-6 space-y-4 shadow-sm">
+                        <div>
+                            <h3 className="font-bold text-lg text-gray-900">
+                                🎓 Điều kiện nâng cấp lên Giảng viên
+                            </h3>
+                            <p className="text-sm text-gray-600 mt-2">
+                                Bạn sẽ đủ điều kiện đăng ký trở thành Giảng viên khi đáp ứng ít nhất một trong các tiêu chí sau:
+                            </p>
+                            <ul className="list-disc list-inside text-sm text-gray-600 space-y-1 mt-3">
+                                <li>Tổng số điểm tích lũy của bạn vượt quá <strong>200 điểm</strong>, hoặc</li>
+                                <li>Số điểm bạn đạt được trong tháng trước hoặc tháng hiện tại từ <strong>50 điểm</strong> trở lên.</li>
+                            </ul>
+                            <p className="text-sm text-gray-600 mt-3">
+                                Khi đáp ứng điều kiện trên, hệ thống sẽ cho phép bạn truy cập chức năng này để nâng cấp vai trò, tạo khóa học, chia sẻ kiến thức và đồng hành cùng cộng đồng học tập.
+                            </p>
                         </div>
                     </div>
                 )}
