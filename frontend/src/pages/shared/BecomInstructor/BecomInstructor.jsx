@@ -5,13 +5,39 @@ import { AlertTriangle, Loader2 } from "lucide-react";
 import {
     isLoggedIn,
     authHeader,
-    clearAllAuth,
+    clearAllAuth, 
     getRefreshToken,
     setTokens,
 } from "../../../utils/auth";
 import { API_BASE_URL, checkTeacherEligibility as checkEligibilityApi } from "../Rankings/forumService";
 import { safeErr } from "./utils/helpers";
 import { HeroSection, UpgradeForm, UpgradeResult } from "./components";
+
+/**
+ * Lấy thông tin người dùng đã đăng nhập từ localStorage.
+ * @returns {object|null} Đối tượng người dùng hoặc null nếu không có.
+ */
+const getLoggedInUser = () => {
+    try {
+        return JSON.parse(localStorage.getItem("app_user") || "null");
+    } catch {
+        return null;
+    }
+};
+
+/**
+ * Tạo một mã định danh ngẫu nhiên.
+ * @param {number} length Độ dài của mã.
+ * @returns {string} Mã ngẫu nhiên.
+ */
+const generateRandomCode = (length = 8) => {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return `GV-${result}`;
+};
 
 export default function BecomInstructor() {
     const navigate = useNavigate();
@@ -42,7 +68,10 @@ export default function BecomInstructor() {
 
         checkEligibility();
     }, [navigate, location.pathname, location.search]);
-    const [employeeCode, setEmployeeCode] = useState("");
+
+    // Tự động điền employeeCode bằng một mã ngẫu nhiên
+    const [employeeCode, setEmployeeCode] = useState(() => generateRandomCode());
+
     const [instruction, setInstruction] = useState("");
 
     const [loading, setLoading] = useState(false);
@@ -54,12 +83,12 @@ export default function BecomInstructor() {
     const [loginData, setLoginData] = useState(null); // Added missing state
 
     const canSubmit = useMemo(
-        () => !!employeeCode.trim() && !!instruction.trim() && !loading,
+        () => !!instruction.trim() && !loading,
         [employeeCode, instruction, loading]
     );
 
     const resetAll = () => {
-        setEmployeeCode("");
+        setEmployeeCode(generateRandomCode());
         setInstruction("");
         setLoading(false);
         setStep(0);
@@ -181,7 +210,6 @@ export default function BecomInstructor() {
                     <>
                         <UpgradeForm
                             employeeCode={employeeCode}
-                            setEmployeeCode={setEmployeeCode}
                             instruction={instruction}
                             setInstruction={setInstruction}
                             loading={loading}

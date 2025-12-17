@@ -8,7 +8,6 @@ import {
 
 export default function UpgradeForm({
     employeeCode,
-    setEmployeeCode,
     instruction,
     setInstruction,
     loading,
@@ -30,21 +29,22 @@ export default function UpgradeForm({
             </div>
 
             <label className="grid gap-1">
-                <span className="text-sm font-medium text-gray-800">employeeCode</span>
+                <span className="text-sm font-medium text-gray-800">Mã định danh</span>
                 <input
                     value={employeeCode}
-                    onChange={(e) => setEmployeeCode(e.target.value)}
-                    placeholder="CODE1"
-                    className="rounded-xl border px-4 py-2 outline-none focus:ring-2 focus:ring-blue-200"
+                    readOnly
+                    className="rounded-xl border border-gray-300 bg-white text-gray-800 px-4 py-2 outline-none"
+                    title="Mã này được điền tự động bởi hệ thống và không thể thay đổi."
                 />
             </label>
 
             <label className="grid gap-1">
-                <span className="text-sm font-medium text-gray-800">instruction</span>
-                <input
+                <span className="text-sm font-medium text-gray-800">Giới thiệu bản thân</span>
+                <textarea
                     value={instruction}
                     onChange={(e) => setInstruction(e.target.value)}
-                    placeholder="CODE2"
+                    placeholder="Hãy chia sẻ một chút về kinh nghiệm và mong muốn của bạn khi trở thành giảng viên..."
+                    rows="4"
                     className="rounded-xl border px-4 py-2 outline-none focus:ring-2 focus:ring-blue-200"
                 />
             </label>
