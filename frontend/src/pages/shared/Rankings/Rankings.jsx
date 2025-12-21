@@ -1,9 +1,10 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import StatsTable from "./components/StatsTable";
 import TopThreePodium from "./components/TopThreePodium";
-import { getStats } from "./forumService";
+import { getStats, checkTeacherEligibility } from "./forumService";
 
 const TABS = {
     CONTRIBUTORS: 'contributors',
@@ -55,17 +56,17 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
     );
 }
 
-function CurrentUserStatCard({ userStat }) {
+function CurrentUserStatCard({ userStat, eligibility }) {
     if (!userStat) {
         return (
-            <div className="p-4 bg-white rounded-lg shadow-md sticky top-24">
+            <div className="p-4 bg-white rounded-lg shadow-md">
                 <h3 className="font-bold text-lg text-gray-800 mb-2">Thống kê của bạn</h3>
                 <p className="text-gray-600">Bạn chưa có điểm trong bảng xếp hạng.</p>
             </div>
         );
     }
 
-    const { rank, fullName, contributionScore } = userStat;
+    const { rank, fullName, contributionScore, totalContributionScore } = userStat;
 
     return (
         <div className="p-4 bg-white rounded-lg shadow-md">
@@ -75,10 +76,25 @@ function CurrentUserStatCard({ userStat }) {
                 <div className="flex-1">
                     <p className="font-semibold text-gray-900 truncate" title={fullName}>{fullName}</p>
                     <p className="text-sm text-gray-500">
-                        <span className="font-bold text-blue-600">{contributionScore}</span> điểm
+                        Điểm tháng này: <span className="font-bold text-blue-600">{contributionScore}</span>
+                    </p>
+                    <p className="text-sm text-gray-500">
+                        Tổng điểm: <span className="font-bold text-blue-600">{totalContributionScore}</span>
                     </p>
                 </div>
             </div>
+            {eligibility.isEligible && (
+                <Link to="/i/become-instructor" className="block mt-4">
+                    <div className="p-3 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 hover:border-green-300 transition-colors duration-200">
+                        <p className="text-sm font-semibold text-green-800">
+                            Bạn đủ điều kiện nâng cấp làm giảng viên
+                        </p>
+                        <p className="text-xs text-green-700 mt-1">
+                            Nhấn vào đây để bắt đầu quá trình nâng cấp.
+                        </p>
+                    </div>
+                </Link>
+            )}
         </div>
     );
 }
@@ -111,6 +127,13 @@ export default function Rankings() {
         queryFn: () => getStats(currentMonth),
     });
 
+    // Sử dụng useQuery để gọi API kiểm tra điều kiện làm giảng viên
+    const { data: isEligibleForTeacher } = useQuery({
+        queryKey: ['teacherEligibility', studentId],
+        queryFn: () => checkTeacherEligibility(),
+        enabled: !!studentId, // Chỉ chạy query khi có studentId
+    });
+
     const handleMonthChange = (event) => {
         const value = event.target.value;
         setCurrentMonth(value === "" ? undefined : parseInt(value, 10));
@@ -132,14 +155,16 @@ export default function Rankings() {
                 const questions = isMonthView ? student.monthForumQuestions : student.totalForumQuestions;
                 const discussions = isMonthView ? student.monthDiscussions : student.totalDiscussions;
                 const contributionScore = (posts * 20) + (questions * 5) + (discussions * 1);
-                return { ...student, contributionScore };
+                
+                const totalContributionScore = (student.totalPosts * 20) + (student.totalForumQuestions * 5) + (student.totalDiscussions * 1);
+
+                return { ...student, contributionScore, totalContributionScore };
             })
             .sort((a, b) => b.contributionScore - a.contributionScore);
 
         // 3. Tìm thông tin và thứ hạng của người dùng hiện tại
         // Đã sửa: Tìm kiếm theo 'studentId' thay vì '_id'
         const currentUserIndex = studentId ? sorted.findIndex(stat => stat.studentId === studentId) : -1;
-
         const currentUserStat = currentUserIndex !== -1 ? { ...sorted[currentUserIndex], rank: currentUserIndex + 1 } : null;
 
         return { 
@@ -164,7 +189,12 @@ export default function Rankings() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 {/* Thẻ thống kê người dùng - Cố định ở góc trên bên phải */}
                 <div className="hidden lg:block fixed top-28 right-8 w-64 xl:w-72 z-10">
-                    {studentId && processedStats.currentUserStat && <CurrentUserStatCard userStat={processedStats.currentUserStat} />}
+                    {studentId && (
+                        <CurrentUserStatCard 
+                            userStat={processedStats.currentUserStat} 
+                            eligibility={{ isEligible: isEligibleForTeacher, reason: 'Đủ điều kiện theo quy định của hệ thống.' }} 
+                        />
+                    )}
                 </div>
 
                 <TopThreePodium topThree={processedStats.topThree} />

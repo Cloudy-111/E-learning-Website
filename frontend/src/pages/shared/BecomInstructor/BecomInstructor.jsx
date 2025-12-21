@@ -1,32 +1,80 @@
 // src/pages/shared/BecomInstructor/BecomInstructor.jsx
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import Header from "../../../components/Header";
-import Footer from "../../../components/Footer";
+import { AlertTriangle, Loader2 } from "lucide-react"; 
 import {
     isLoggedIn,
     authHeader,
-    clearAllAuth,
+    clearAllAuth, 
     getRefreshToken,
     setTokens,
 } from "../../../utils/auth";
-import { API_BASE } from "./utils/constants";
+import { API_BASE_URL, checkTeacherEligibility as checkEligibilityApi } from "../Rankings/forumService";
 import { safeErr } from "./utils/helpers";
 import { HeroSection, UpgradeForm, UpgradeResult } from "./components";
+
+/**
+ * Lấy thông tin người dùng đã đăng nhập từ localStorage.
+ * @returns {object|null} Đối tượng người dùng hoặc null nếu không có.
+ */
+const getLoggedInUser = () => {
+    try {
+        const user = JSON.parse(localStorage.getItem("app_user") || "null");
+        console.log("Thông tin người dùng đã đăng nhập:", user); // Thêm dòng này để ghi vào console
+        return user;
+    } catch {
+        return null;
+    }
+};
+
+/**
+ * Tạo một mã định danh ngẫu nhiên.
+ * @param {number} length Độ dài của mã.
+ * @returns {string} Mã ngẫu nhiên.
+ */
+const generateRandomCode = (length = 8) => {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return `GV-${result}`;
+};
 
 export default function BecomInstructor() {
     const navigate = useNavigate();
     const location = useLocation();
 
-    // ===== Guard: chỉ cho phép truy cập khi đã đăng nhập =====
+    const [isEligible, setIsEligible] = useState(null);
+    const [eligibilityLoading, setEligibilityLoading] = useState(true);
+
+    // ===== Guard: chỉ cho phép truy cập khi đã đăng nhập & đủ điều kiện =====
     useEffect(() => {
+        getLoggedInUser();
         if (!isLoggedIn()) {
             const redirect = encodeURIComponent(location.pathname + location.search);
             navigate(`/login?redirect=${redirect}`, { replace: true });
+            return;
         }
-    }, [location.pathname, location.search, navigate]);
 
-    const [employeeCode, setEmployeeCode] = useState("");
+        const checkEligibility = async () => {
+            try {
+                const isEligible = await checkEligibilityApi();
+                setIsEligible(isEligible);
+            } catch (error) {
+                console.error("Failed to check eligibility:", error);
+                setIsEligible(false); // Giả sử không đủ điều kiện nếu có lỗi
+            } finally {
+                setEligibilityLoading(false);
+            }
+        };
+
+        checkEligibility();
+    }, [navigate, location.pathname, location.search]);
+
+    // Tự động điền employeeCode bằng một mã ngẫu nhiên
+    const [employeeCode, setEmployeeCode] = useState(() => generateRandomCode());
+
     const [instruction, setInstruction] = useState("");
 
     const [loading, setLoading] = useState(false);
@@ -38,12 +86,12 @@ export default function BecomInstructor() {
     const [loginData, setLoginData] = useState(null); // Added missing state
 
     const canSubmit = useMemo(
-        () => !!employeeCode.trim() && !!instruction.trim() && !loading,
+        () => !!instruction.trim() && !loading,
         [employeeCode, instruction, loading]
     );
 
     const resetAll = () => {
-        setEmployeeCode("");
+        setEmployeeCode(generateRandomCode());
         setInstruction("");
         setLoading(false);
         setStep(0);
@@ -69,7 +117,7 @@ export default function BecomInstructor() {
         try {
             // ===== B1: register-teacher (cần Authorization) =====
             setStep(1);
-            const regRes = await fetch(`${API_BASE}/Auth/register-teacher`, {
+            const regRes = await fetch(`${API_BASE_URL}/api/Auth/register-teacher`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -98,7 +146,7 @@ export default function BecomInstructor() {
             }
 
             setStep(2);
-            const refRes = await fetch(`${API_BASE}/Auth/refresh-token`, {
+            const refRes = await fetch(`${API_BASE_URL}/api/Auth/refresh-token`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ refreshToken: storedRefresh }),
@@ -153,29 +201,53 @@ export default function BecomInstructor() {
     };
 
     return (
-        <div className="min-h-screen bg-white">
-            <Header />
+        <>
             <HeroSection />
             <main className="w-full max-w-3xl mx-auto px-6 lg:px-0 py-8 space-y-8">
-                <UpgradeForm
-                    employeeCode={employeeCode}
-                    setEmployeeCode={setEmployeeCode}
-                    instruction={instruction}
-                    setInstruction={setInstruction}
-                    loading={loading}
-                    canSubmit={canSubmit}
-                    runFlow={runFlow}
-                    resetAll={resetAll}
-                    error={error}
-                    step={step}
-                />
-                <UpgradeResult
-                    result={result}
-                    completedAt={completedAt}
-                    loginData={loginData}
-                />
+                {eligibilityLoading ? (
+                    <div className="flex items-center justify-center gap-2 text-gray-600 p-8">
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        <span>Đang kiểm tra điều kiện...</span>
+                    </div>
+                ) : isEligible ? (
+                    <>
+                        <UpgradeForm
+                            employeeCode={employeeCode}
+                            instruction={instruction}
+                            setInstruction={setInstruction}
+                            loading={loading}
+                            canSubmit={canSubmit}
+                            runFlow={runFlow}
+                            resetAll={resetAll}
+                            error={error}
+                            step={step}
+                        />
+                        <UpgradeResult
+                            result={result}
+                            completedAt={completedAt}
+                            loginData={loginData}
+                        />
+                    </>
+                ) : (
+                    <div className="rounded-2xl border border-gray-200 bg-white p-6 space-y-4 shadow-sm">
+                        <div>
+                            <h3 className="font-bold text-lg text-gray-900">
+                                🎓 Điều kiện nâng cấp lên Giảng viên
+                            </h3>
+                            <p className="text-sm text-gray-600 mt-2">
+                                Bạn sẽ đủ điều kiện đăng ký trở thành Giảng viên khi đáp ứng ít nhất một trong các tiêu chí sau:
+                            </p>
+                            <ul className="list-disc list-inside text-sm text-gray-600 space-y-1 mt-3">
+                                <li>Tổng số điểm tích lũy của bạn vượt quá <strong>200 điểm</strong>, hoặc</li>
+                                <li>Số điểm bạn đạt được trong tháng trước hoặc tháng hiện tại từ <strong>50 điểm</strong> trở lên.</li>
+                            </ul>
+                            <p className="text-sm text-gray-600 mt-3">
+                                Khi đáp ứng điều kiện trên, hệ thống sẽ cho phép bạn truy cập chức năng này để nâng cấp vai trò, tạo khóa học, chia sẻ kiến thức và đồng hành cùng cộng đồng học tập.
+                            </p>
+                        </div>
+                    </div>
+                )}
             </main>
-            <Footer />
-        </div>
+        </>
     );
 }

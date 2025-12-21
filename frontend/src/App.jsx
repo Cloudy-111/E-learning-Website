@@ -142,6 +142,7 @@ export default function App() {
                     <Route path="/rankings" element={<Rankings />} />
                     <Route path="/u/:id" element={<PublicProfile />} />
                     <Route path="/forum" element={<ForumHome />} />
+                     <Route path="/i/become-instructor" element={<BecomeInstructor title="🧾 /i/become-instructor — Đăng ký giảng viên" />} />
 
                     <Route path="/blog" element={<Blog />} />
                     <Route path="/blog/search" element={<BlogSearch />} />
@@ -217,7 +218,7 @@ export default function App() {
                     <Route path="/forum/new" element={<AskQuestion />} />
                     <Route path="/forum/:id/edit" element={<EditQuestion />} />
                     <Route path="/forum/my" element={<MyQuestions />} />
-                    <Route path="/i/become-instructor" element={<BecomeInstructor title="🧾 /i/become-instructor — Đăng ký giảng viên" />} />
+                   
                   </Route>
 
                   {/* ========== PROTECTED: STUDENT ROUTES (/s/*) ========== */}
