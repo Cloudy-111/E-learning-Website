@@ -22,4 +22,10 @@ public class StudentStatsService : IStudentStatsService
         {
             return await _repo.IsTeacherAsync(studentId);
         }
+
+        
+    public async Task<int[]?> GetStudentScoresAsync(string studentId)
+    {
+        return await _repo.GetStudentScoresAsync(studentId);
+    }
 }

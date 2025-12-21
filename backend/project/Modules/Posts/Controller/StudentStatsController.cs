@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using project.Modules.Posts.Services.Interfaces;
@@ -37,5 +38,33 @@ namespace project.Modules.Posts.Controller
 
             return Ok(result); // true / false
         }
+
+         /// <summary>
+    /// Lấy thống kê điểm của chính mình (từ JWT)
+    /// </summary>
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMyScores()
+    {
+        var studentId = User.Claims
+            .FirstOrDefault(c => c.Type == "StudentId")?.Value;
+
+        if (string.IsNullOrEmpty(studentId))
+            return Unauthorized();
+
+        var scores = await _service.GetStudentScoresAsync(studentId);
+
+        if (scores == null)
+            return NotFound();
+
+        return Ok(new
+        {
+            totalScore = scores[0],
+            currentMonthScore = scores[1],
+            previousMonthScore = scores[2]
+        });
     }
+    }
+
+    
 }

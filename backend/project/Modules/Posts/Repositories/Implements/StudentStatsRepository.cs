@@ -110,5 +110,57 @@ public class StudentStatsRepository : IStudentStatsRepository
                 || data.PreviousMonthScore > 50;
         }
 
+
+         public async Task<int[]?> GetStudentScoresAsync(string studentId)
+    {
+        var now = DateTime.Now;
+
+        int currentMonth = now.Month;
+        int currentYear = now.Year;
+
+        var prev = now.AddMonths(-1);
+        int prevMonth = prev.Month;
+        int prevYear = prev.Year;
+
+        return await _db.Students
+            .Where(s => s.StudentId == studentId)
+            .Select(s => new int[]
+            {
+                // [0] TOTAL SCORE
+                s.Discussions.Count() * 1
+                + s.Posts.Count() * 20
+                + s.ForumQuestions.Count(f => !f.IsDeleted) * 5,
+
+                // [1] CURRENT MONTH SCORE
+                s.Discussions.Count(d =>
+                    d.CreatedAt.Month == currentMonth &&
+                    d.CreatedAt.Year == currentYear) * 1
+                +
+                s.Posts.Count(p =>
+                    p.CreatedAt.Month == currentMonth &&
+                    p.CreatedAt.Year == currentYear) * 20
+                +
+                s.ForumQuestions.Count(f =>
+                    !f.IsDeleted &&
+                    f.CreatedAt.Month == currentMonth &&
+                    f.CreatedAt.Year == currentYear) * 5,
+
+                // [2] PREVIOUS MONTH SCORE
+                s.Discussions.Count(d =>
+                    d.CreatedAt.Month == prevMonth &&
+                    d.CreatedAt.Year == prevYear) * 1
+                +
+                s.Posts.Count(p =>
+                    p.CreatedAt.Month == prevMonth &&
+                    p.CreatedAt.Year == prevYear) * 20
+                +
+                s.ForumQuestions.Count(f =>
+                    !f.IsDeleted &&
+                    f.CreatedAt.Month == prevMonth &&
+                    f.CreatedAt.Year == prevYear) * 5
+            })
+            .FirstOrDefaultAsync();
+    }
+
     
 }

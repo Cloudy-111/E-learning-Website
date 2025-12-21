@@ -76,7 +76,7 @@ function CurrentUserStatCard({ userStat, eligibility }) {
                 <div className="flex-1">
                     <p className="font-semibold text-gray-900 truncate" title={fullName}>{fullName}</p>
                     <p className="text-sm text-gray-500">
-                        Điểm xếp hạng: <span className="font-bold text-blue-600">{contributionScore}</span>
+                        Điểm tháng này: <span className="font-bold text-blue-600">{contributionScore}</span>
                     </p>
                     <p className="text-sm text-gray-500">
                         Tổng điểm: <span className="font-bold text-blue-600">{totalContributionScore}</span>

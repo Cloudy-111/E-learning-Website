@@ -19,7 +19,9 @@ import { HeroSection, UpgradeForm, UpgradeResult } from "./components";
  */
 const getLoggedInUser = () => {
     try {
-        return JSON.parse(localStorage.getItem("app_user") || "null");
+        const user = JSON.parse(localStorage.getItem("app_user") || "null");
+        console.log("Thông tin người dùng đã đăng nhập:", user); // Thêm dòng này để ghi vào console
+        return user;
     } catch {
         return null;
     }
@@ -48,6 +50,7 @@ export default function BecomInstructor() {
 
     // ===== Guard: chỉ cho phép truy cập khi đã đăng nhập & đủ điều kiện =====
     useEffect(() => {
+        getLoggedInUser();
         if (!isLoggedIn()) {
             const redirect = encodeURIComponent(location.pathname + location.search);
             navigate(`/login?redirect=${redirect}`, { replace: true });
