@@ -6,12 +6,10 @@ public class ReportDto
 {
     public string Id { get; set; } = null!;
     public string ReporterId { get; set; } = null!;
-    public string ReporterName { get; set; } = null!;
-    public string? TargetType { get; set; }
-    public string? TargetTypeId { get; set; }
+    public string TargetType { get; set; } = null!;
+    public string TargetTypeId { get; set; } = null!;
     public string? Reason { get; set; }
     public string? Description { get; set; }
-    public string Status { get; set; } = "Pending";
+    public string Status { get; set; } = null!;
     public DateTime CreatedAt { get; set; }
-
 }
