@@ -1,18 +1,17 @@
 import axios from "axios";
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL, // <-- đọc từ ENV (5102)
+  baseURL: import.meta.env.VITE_API_URL,
   headers: {
     "Content-Type": "application/json",
-    // backend đôi khi trả text/plain nên Accept thêm text/plain
     Accept: "application/json, text/plain;q=0.9,*/*;q=0.8",
   },
-  withCredentials: false, // để true nếu BE dùng cookie
+  withCredentials: false,
 });
 
 // Gắn token nếu có
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("access_token");
+  const token = localStorage.getItem("app_access_token");
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
@@ -58,12 +57,12 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
-      const refreshToken = localStorage.getItem("refresh_token");
+      const refreshToken = localStorage.getItem("app_refresh_token");
 
       if (!refreshToken) {
         // No refresh token available, logout user
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
+        localStorage.removeItem("app_access_token");
+        localStorage.removeItem("app_refresh_token");
         localStorage.removeItem("auth_state");
         window.location.href = "/login";
         return Promise.reject(err);
@@ -80,9 +79,9 @@ api.interceptors.response.use(
         const { token: newAccessToken, refreshToken: newRefreshToken } = response.data;
 
         // Update tokens
-        localStorage.setItem("access_token", newAccessToken);
+        localStorage.setItem("app_access_token", newAccessToken);
         if (newRefreshToken) {
-          localStorage.setItem("refresh_token", newRefreshToken);
+          localStorage.setItem("app_refresh_token", newRefreshToken);
         }
 
         // Update auth_state if exists
@@ -107,8 +106,8 @@ api.interceptors.response.use(
         processQueue(refreshError, null);
         isRefreshing = false;
 
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
+        localStorage.removeItem("app_access_token");
+        localStorage.removeItem("app_refresh_token");
         localStorage.removeItem("auth_state");
 
         // Redirect to login
