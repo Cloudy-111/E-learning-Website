@@ -30,21 +30,36 @@ export default function FAQSection() {
 
                 <div className="bg-white border rounded-2xl p-2" style={{ borderColor: BORDER }}>
                     {faqs.map((f, idx) => (
-                        <div key={idx} className="border-b last:border-none" style={{ borderColor: BORDER }}>
+                        <div
+                            key={idx}
+                            className="border-b last:border-none"
+                            style={{ borderColor: BORDER }}
+                        >
                             <button
-                                className="w-full flex items-center justify-between text-left px-4 py-4"
+                                className="w-full flex items-center justify-between text-left px-4 py-4 rounded-xl
+                                bg-white hover:bg-slate-50 transition"
                                 onClick={() => toggleFAQ(idx)}
                                 type="button"
                             >
-                                <span className="font-medium text-[#1a1a1a]">{f.q}</span>
-                                <ChevronDown className={`w-5 h-5 transition ${f.open ? "rotate-180" : ""}`} />
+                                <span className="font-semibold text-slate-900/90 hover:text-indigo-600 transition">
+                                    {f.q}
+                                </span>
+
+                                <ChevronDown
+                                    className={`w-5 h-5 transition ${f.open ? "rotate-180" : ""
+                                        } text-indigo-500`}
+                                />
                             </button>
+
                             {f.open && (
-                                <div className="px-4 pb-4 text-sm text-[#677788]">{f.a}</div>
+                                <div className="px-4 pb-4 text-sm text-slate-600 leading-relaxed">
+                                    {f.a}
+                                </div>
                             )}
                         </div>
                     ))}
                 </div>
+
             </div>
         </section>
     );

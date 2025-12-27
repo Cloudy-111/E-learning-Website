@@ -58,7 +58,7 @@ export default function HeroSection({ query, setQuery, onSearch }) {
                 {/* Visual */}
                 <div className="rounded-2xl overflow-hidden border shadow-sm">
                     <img
-                        src="/hero-ielts.jpg"
+                        src="../../../public/banner.jpg"
                         alt="Elearning Hero"
                         className="w-full h-[280px] lg:h-[360px] object-cover"
                     />

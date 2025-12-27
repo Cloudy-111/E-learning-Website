@@ -156,9 +156,25 @@ export default function PostCard({ post }) {
                             <EyeIcon />
                             {Number(post.views ?? 0).toLocaleString("vi-VN")}
                         </span>
-                        <button onClick={handleLike} className={`flex items-center gap-1 hover:text-slate-800 focus:outline-none ${isLiked ? 'text-blue-600' : ''}`}>
+                        {/* <button onClick={handleLike} className={`flex items-center gap-1 hover:text-slate-800 focus:outline-none ${isLiked ? 'text-blue-600' : ''}`}>
                             <ThumbsUpIcon isLiked={isLiked} />
                             {likeCount}
+                        </button> */}
+                        <button
+                            type="button"
+                            onClick={handleLike}
+                            className={[
+                                "inline-flex items-center gap-1",
+                                "bg-transparent border-0 shadow-none",          // ✅ chặn nền đen
+                                "rounded-md px-2 py-1",                         // ✅ vùng bấm dễ hơn
+                                "text-slate-500 hover:text-slate-700",           // ✅ màu chữ mặc định
+                                "hover:bg-slate-100",                           // ✅ hover nhẹ
+                                "focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300",
+                                isLiked ? "text-blue-600 hover:text-blue-700" : ""
+                            ].join(" ")}
+                        >
+                            <ThumbsUpIcon isLiked={isLiked} />
+                            <span className="text-sm font-medium">{likeCount}</span>
                         </button>
                         <span className="flex items-center gap-1">
                             <MessageSquareIcon />

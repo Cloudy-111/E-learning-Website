@@ -180,11 +180,27 @@ export default function QuestionCard({ q }) {
                     <EyeIcon />
                     {viewCount} {/* Hiển thị viewCount từ state */}
                 </span>
-                <button onClick={handleLike} className={`flex items-center gap-1 hover:text-slate-800 focus:outline-none ${isLiked ? 'text-blue-600' : ''}`}>
+                {/* <button onClick={handleLike} className={`flex items-center gap-1 hover:text-slate-800 focus:outline-none ${isLiked ? 'text-blue-600' : ''}`}>
                     <span className="flex items-center gap-1">
                         <ThumbsUpIcon isLiked={isLiked} />
                         {likeCount}
                     </span>
+                </button> */}
+                <button
+                    type="button"
+                    onClick={handleLike}
+                    className={[
+                        "inline-flex items-center gap-1",
+                        "bg-transparent border-0 shadow-none",          // ✅ chặn nền đen
+                        "rounded-md px-2 py-1",                         // ✅ vùng bấm dễ hơn
+                        "text-slate-500 hover:text-slate-700",           // ✅ màu chữ mặc định
+                        "hover:bg-slate-100",                           // ✅ hover nhẹ
+                        "focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300",
+                        isLiked ? "text-blue-600 hover:text-blue-700" : ""
+                    ].join(" ")}
+                >
+                    <ThumbsUpIcon isLiked={isLiked} />
+                    <span className="text-sm font-medium">{likeCount}</span>
                 </button>
                 <span className="flex items-center gap-1">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>

@@ -1,20 +1,37 @@
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import HistoryCard from "./HistoryCard";
-
-const HISTORY = [
-  { id: "h1", title: "Lập trình ReactJS cơ bản", teacher: "Nguyễn Minh Khoa", progress: "Hoàn thành 5/7 bài học" },
-  { id: "h2", title: "Phân tích Dữ liệu với Python", teacher: "Lê Thu Trang", progress: "Hoàn thành 2/10 bài học" },
-  { id: "h3", title: "Thiết kế Web hiện đại với TailwindCSS", teacher: "Phạm Anh Tuấn", progress: "Hoàn thành 3/6 bài học" },
-];
+import { fetchEnrollmentsByStudentId } from "../../../../api/enrollments.api";
+import { useAuth } from "../../../../store/auth";
 
 function Hero() {
+  const { user } = useAuth();
+
+  // Fetch student enrollments
+  const { data: enrollmentData } = useQuery({
+    queryKey: ["student-enrollments-hero", user?.id],
+    queryFn: () => fetchEnrollmentsByStudentId({ pageSize: 5, page: 1 }),
+    enabled: !!user, // only fetch if user is logged in
+  });
+
+  // The API response structure usually contains a list in data.data or similar. 
+  // We need to adapt it to the format HistoryCard expects: { id, title, teacher, progress }
+  // Assuming the API returns: { items: [...] } or just [...]
+  // You might need to adjust 'enrolledCourses' based on actual API response debug.
+  // Common pattern in this project seems to be response.data
+  const recentCourses = enrollmentData?.data?.items || [];
+
   return (
     <section className="w-screen overflow-x-hidden pt-8">
       <div className="w-screen px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 items-start gap-10 lg:gap-14">
         {/* LEFT illustration */}
         <div className="order-2 lg:order-1">
-          <div className="w-full aspect-[4/3] rounded-2xl bg-gradient-to-tr from-blue-100 via-indigo-100 to-sky-100 border grid place-items-center">
-            <span className="text-sm text-blue-500">Ảnh minh họa khóa học</span>
+          <div className="w-full aspect-[4/3] rounded-2xl overflow-hidden border">
+            <img
+              src="../../../public/banner2.jpg"
+              alt="Ảnh minh họa khóa học"
+              className="w-full h-full object-cover"
+            />
           </div>
         </div>
 
@@ -32,14 +49,28 @@ function Hero() {
 
           <div className="mt-5 flex items-center justify-between">
             <div className="text-sm font-medium text-slate-700">Lịch sử học gần đây</div>
-            <Link to="#" className="text-sm text-[#2563eb] hover:underline">
+            <Link to="/s/enrollments" className="text-sm text-[#2563eb] hover:underline">
               Xem tất cả
             </Link>
           </div>
+
           <div className="mt-3 flex gap-3 overflow-x-auto pb-2">
-            {HISTORY.map((h) => (
-              <HistoryCard key={h.id} item={h} />
-            ))}
+            {recentCourses.length > 0 ? (
+              recentCourses.map((enrollment) => {
+                // Adapt API data to HistoryCard props
+                // Note: Check if 'enrollment' has course details nested or flat
+                // Assuming structure: enrollment.courseName, enrollment.instructorName, enrollment.progress
+                const item = {
+                  id: enrollment.courseId || enrollment.id,
+                  title: enrollment.courseTitle || enrollment.courseName || "Khóa học",
+                  teacher: enrollment.instructorName || "Giảng viên",
+                  progress: `Hoàn thành ${enrollment.progress || 0}%`
+                };
+                return <HistoryCard key={item.id} item={item} />;
+              })
+            ) : (
+              <div className="text-sm text-slate-500 italic">Bạn chưa đăng ký khóa học nào.</div>
+            )}
           </div>
         </div>
       </div>
