@@ -8,11 +8,22 @@ export default function HeroSection() {
             <div className="w-screen px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 items-center gap-10 lg:gap-14">
                 {/* Trái: minh hoạ */}
                 <div className="order-2 lg:order-1">
-                    <div
+                    {/* <div
                         className="w-full aspect-[4/3] rounded-2xl bg-gradient-to-tr from-blue-100 via-sky-100 to-indigo-100 border grid place-items-center"
                         style={{ borderColor: BORDER }}
                     >
                         <span className="text-sm text-blue-500">Ảnh hero (thay sau)</span>
+                    </div> */}
+                    <div
+                        className="w-full aspect-[4/3] rounded-2xl overflow-hidden border"
+                        style={{ borderColor: BORDER }}
+                    >
+                        <img
+                            src="../../../banner3.jpg"
+                            alt="Hero"
+                            className="w-full h-full object-cover"
+                            loading="lazy"
+                        />
                     </div>
                 </div>
 

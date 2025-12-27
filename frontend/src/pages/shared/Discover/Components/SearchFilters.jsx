@@ -18,12 +18,17 @@ export default function SearchFilters({ search, setSearch, topic, setTopic, topi
                     </div>
                     <div className="flex gap-2 overflow-auto">
                         {topics.map((t) => (
+
                             <button
                                 key={t.id}
+                                type="button"
                                 onClick={() => setTopic(t.id)}
-                                className={`px-3 py-2 rounded-lg text-sm font-medium border transition ${topic === t.id
-                                        ? "bg-blue-600 text-white border-blue-600"
-                                        : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"
+                                className={`px-3 py-2 rounded-lg text-sm font-medium border transition
+                            bg-transparent shadow-none
+                            focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-300
+                            ${topic === t.id
+                                        ? "bg-blue-600 text-white border-blue-600 hover:bg-blue-700"
+                                        : "bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:bg-blue-50"
                                     }`}
                             >
                                 {t.label}

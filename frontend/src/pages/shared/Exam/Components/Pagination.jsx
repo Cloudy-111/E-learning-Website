@@ -6,16 +6,26 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
 
     return (
         <div className="flex items-center justify-center gap-2">
+
             <button
+                type="button"
                 onClick={() => onPageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="px-3 py-2 rounded-lg text-sm font-medium border"
+                className="px-3 py-2 rounded-lg text-sm font-medium border shadow-none"
                 style={{
                     borderColor: "#e0e0e0",
+                    backgroundColor: "#ffffff",          // ✅ chặn nền đen
+                    boxShadow: "none",                    // ✅ chặn shadow lạ
                     color: currentPage === 1 ? "#a8b0bc" : "#677788",
                     cursor: currentPage === 1 ? "not-allowed" : "pointer",
+                    opacity: currentPage === 1 ? 0.7 : 1, // nhìn disabled tự nhiên
                 }}
-                type="button"
+                onMouseEnter={(e) => {
+                    if (currentPage !== 1) e.currentTarget.style.backgroundColor = "#f8fafc";
+                }}
+                onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "#ffffff";
+                }}
             >
                 ‹
             </button>
@@ -33,39 +43,57 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
                     return (
                         <span key={`p-${p}`} className="inline-flex">
                             {showEllipsis && <span className="px-2 text-[#a8b0bc]">…</span>}
+
                             <button
+                                type="button"
                                 onClick={() => onPageChange(p)}
-                                className="px-3 py-2 rounded-lg text-sm font-medium border"
+                                className="px-3 py-2 rounded-lg text-sm font-medium border shadow-none appearance-none"
                                 style={
                                     isActive
                                         ? {
                                             backgroundColor: PRIMARY,
                                             color: "#fff",
                                             borderColor: PRIMARY,
+                                            boxShadow: "none",
                                         }
-                                        : { borderColor: "#e0e0e0", color: "#677788" }
+                                        : {
+                                            backgroundColor: "#fff", // ✅ chặn nền đen
+                                            color: "#677788",
+                                            borderColor: "#e0e0e0",
+                                            boxShadow: "none",
+                                        }
                                 }
-                                type="button"
                             >
                                 {p}
                             </button>
+
                         </span>
                     );
                 })}
 
             <button
+                type="button"
                 onClick={() => onPageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="px-3 py-2 rounded-lg text-sm font-medium border"
+                className="px-3 py-2 rounded-lg text-sm font-medium border shadow-none appearance-none"
                 style={{
                     borderColor: "#e0e0e0",
+                    backgroundColor: "#fff",
+                    boxShadow: "none",
                     color: currentPage === totalPages ? "#a8b0bc" : "#677788",
                     cursor: currentPage === totalPages ? "not-allowed" : "pointer",
+                    opacity: currentPage === totalPages ? 0.7 : 1,
                 }}
-                type="button"
+                onMouseEnter={(e) => {
+                    if (currentPage !== totalPages) e.currentTarget.style.backgroundColor = "#f8fafc";
+                }}
+                onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "#fff";
+                }}
             >
                 ›
             </button>
+
         </div>
     );
 }
