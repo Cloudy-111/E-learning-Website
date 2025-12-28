@@ -110,7 +110,7 @@ function StudentAction( {user} ) {
                             type="button"
                             role="menuitem"
                         >
-                            Teacher Layout
+                            Trang chủ giảng viên
                         </button>
                     )}
                     <Link

@@ -19,7 +19,7 @@ export default function HeroSection() {
                     </div>
                 </div>
                 <Link
-                    to="/s/enrollments"
+                    to="/courses"
                     className="text-blue-600 hover:text-blue-700 text-sm inline-flex items-center gap-1"
                 >
                     <ArrowLeft className="w-4 h-4" /> Về trang học tập

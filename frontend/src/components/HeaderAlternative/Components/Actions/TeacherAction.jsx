@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { setHeaderMode } from "../../../../utils/auth";
+import { useNavigate, Link } from "react-router-dom";
+import { setHeaderMode, clearAllAuth } from "../../../../utils/auth";
 import avatarFallback from "../../../../assets/logo-ptit-logo-1.png";
 
 function TeacherAction({ user }) {
@@ -10,6 +10,19 @@ function TeacherAction({ user }) {
     const handleSwitchBack = () => {
         setHeaderMode("student");
         setOpen(false);
+    };
+
+    const handleLogout = () => {
+        clearAllAuth();
+        try {
+            localStorage.removeItem("app_user");
+        } catch {
+            // Ignore
+        }
+        setOpen(false);
+
+        const redirect = encodeURIComponent(location.pathname + location.search);
+        navigate(`/login?redirect=${redirect}`, { replace: true });
     };
 
     return (
@@ -33,6 +46,14 @@ function TeacherAction({ user }) {
 
             {open && (
                 <div className="absolute right-0 top-12 w-52 rounded-xl border bg-white shadow-md overflow-hidden z-[200] pointer-events-auto" role="menu">
+                    <Link
+                        to="/s/profile"
+                        className="block px-4 py-2 hover:bg-slate-50"
+                        role="menuitem"
+                        onClick={() => setOpen(false)}
+                    >
+                        Hồ sơ cá nhân
+                    </Link>
                     <button
                         onClick={() => {
                             handleSwitchBack();
@@ -42,7 +63,15 @@ function TeacherAction({ user }) {
                         type="button"
                         role="menuitem"
                     >
-                        Student Layout
+                        Trang chủ của tôi
+                    </button>
+                    <button
+                        onClick={handleLogout}
+                        className="w-full text-left px-4 py-2 bg-transparent hover:bg-slate-50"
+                        type="button"
+                        role="menuitem"
+                    >
+                        Đăng xuất
                     </button>
                 </div>
             )}
