@@ -7,7 +7,8 @@ import {
     FileText,
     BarChart,
     Settings,
-    LogOut
+    LogOut,
+    Flag
 } from "lucide-react";
 
 export default function AdminLayout() {
@@ -17,6 +18,7 @@ export default function AdminLayout() {
         { path: "/admin/dashboard", icon: LayoutDashboard, label: "Tổng quan" },
         { path: "/admin/courses", icon: GraduationCap, label: "Quản lý khóa học" },
         { path: "/admin/users", icon: Users, label: "Quản lý người dùng" },
+        { path: "/admin/reports", icon: Flag, label: "Báo cáo vi phạm" },
         { path: "/admin/refunds", icon: DollarSign, label: "Hoàn tiền" },
         { path: "/admin/payouts", icon: FileText, label: "Thanh toán GV" },
         { path: "/admin/analytics", icon: BarChart, label: "Thống kê" },

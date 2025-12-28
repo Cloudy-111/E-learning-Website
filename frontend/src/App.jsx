@@ -85,6 +85,8 @@ const MyQuestions = lazy(() => import("./pages/shared/Forum").then(m => ({ defau
 
 // Admin pages
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin/AdminLogin.jsx"));
+const Reports = lazy(() => import("./pages/admin/Reports/Reports.jsx"));
+
 
 const BecomeInstructor = lazy(() => import("./pages/shared/BecomInstructor/index.js"));
 
@@ -175,6 +177,7 @@ export default function App() {
                     <Route path="/admin" element={<AdminLayout />}>
                       <Route path="dashboard" element={<AdminDashboard />} />
                       <Route path="courses" element={<CourseApprovals />} />
+                      <Route path="reports" element={<Reports />} />
                     </Route>
                   </Route>
 
@@ -257,14 +260,14 @@ export default function App() {
                   </Route>
 
                   {/* ========== PROTECTED: ADMIN ROUTES (/admin/*) ========== */}
-                  {/* <Route element={<PrivateRoute />}>
+                  <Route element={<PrivateRoute />}>
                     <Route element={<RequireRole roles={["Admin"]} />}>
                       <Route path="/admin" element={<AdminLayout />}>
                         <Route path="dashboard" element={<AdminDashboard />} />
                         
                       </Route>
                     </Route>
-                  </Route> */}
+                  </Route>
 
                   {/* ========== LEGACY ROUTES ========== */}
                   <Route path="/exam/:id/start/:attemptId" element={<QuizTest />} />
