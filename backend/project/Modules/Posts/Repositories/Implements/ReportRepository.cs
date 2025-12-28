@@ -7,28 +7,34 @@ namespace project.Modules.Posts.Repositories.Implements;
 
 public class ReportRepository : IReportRepository
 {
-
-     private readonly DBContext _context;
+private readonly DBContext _context;
 
     public ReportRepository(DBContext context)
     {
         _context = context;
     }
 
-    public async Task<IEnumerable<Reports>> GetAllAsync()
+    public async Task AddAsync(Reports report)
     {
-        return await _context.Reports
-            .Include(r => r.Student)
-            .ThenInclude(s => s.User)
-            .ToListAsync();
+        await _context.Reports.AddAsync(report);
     }
 
     public async Task<Reports?> GetByIdAsync(string id)
     {
         return await _context.Reports
             .Include(r => r.Student)
-            .ThenInclude(s => s.User)
             .FirstOrDefaultAsync(r => r.Id == id);
     }
 
+    public async Task<List<Reports>> GetAllAsync()
+    {
+        return await _context.Reports
+            .OrderByDescending(r => r.CreatedAt)
+            .ToListAsync();
+    }
+
+    public async Task SaveChangesAsync()
+    {
+        await _context.SaveChangesAsync();
+    }
 }
