@@ -17,9 +17,9 @@ const getStatusBadge = (status) => {
         );
     };
 
-function CourseItem({ course, statusFilter, actionLoading, handleRejectClick }) {
+function CourseItem({ course, statusFilter, actionLoading, handleRejectClick, setCourseReview }) {
     return (
-        <div key={course.id} className="bg-white rounded-lg shadow-sm border p-6">
+        <div key={course.id} className="bg-white rounded-lg shadow-sm border p-6" onClick={() => setCourseReview(course)}>
             <div className="flex items-start justify-between">
                 <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">

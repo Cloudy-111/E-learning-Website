@@ -142,6 +142,7 @@ export default function App() {
                     <Route path="/rankings" element={<Rankings />} />
                     <Route path="/u/:id" element={<PublicProfile />} />
                     <Route path="/forum" element={<ForumHome />} />
+                    <Route path="/forum/:id" element={<QuestionDetail />} />
                      <Route path="/i/become-instructor" element={<BecomeInstructor title="🧾 /i/become-instructor — Đăng ký giảng viên" />} />
 
                     <Route path="/blog" element={<Blog />} />
@@ -196,7 +197,6 @@ export default function App() {
 
 
 
-                  <Route path="/forum/:id" element={<QuestionDetail />} />
 
 
 

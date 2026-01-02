@@ -28,9 +28,9 @@ function EnrollmentItem({ item }) {
                 </div>
 
                 <div className="flex-1 min-w-0">
-                    <div className="text-xs text-gray-500">
+                    {/* <div className="text-xs text-gray-500">
                         {item.categoryName} • {item.lessonCount || 0} bài
-                    </div>
+                    </div> */}
 
                     <h3 className="text-sm font-semibold text-gray-900 mt-1 line-clamp-2">
                         {item.title}

@@ -36,6 +36,30 @@ public class AdminController : ControllerBase
         }
     }
 
+    [HttpGet("full-course/{courseId}")]
+    public async Task<IActionResult> GetFullCourseByIdAsync(string courseId)
+    {
+        try
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new APIResponse("error", "User ID not found in token"));
+            }
+            var course = await _adminService.GetFullCourseByIdAsync(userId, courseId);
+            return Ok(new APIResponse("success", "Course details retrieved successfully", course));
+        }
+        catch (KeyNotFoundException knfEx)
+        {
+            return NotFound(new APIResponse("error", knfEx.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while retrieving course details", ex.Message));
+        }
+    }
+
     [HttpPatch("courses/{courseId}/approve")]
     public async Task<IActionResult> AdminApproveCourseAsync(string courseId)
     {

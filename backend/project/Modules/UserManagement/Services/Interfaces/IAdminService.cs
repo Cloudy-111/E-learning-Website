@@ -4,6 +4,7 @@ public interface IAdminService
 {
     // Admin methods for managing courses
     Task<PageResultCoursesDTO> GetCoursesByAdminAsync(string userId, string? status, int page, int pageSize);
+    Task<FullCourseDTO> GetFullCourseByIdAsync(string userId, string courseId);
     Task AdminApproveCourseAsync(string courseId);
     Task AdminRejectCourseAsync(string courseId, RejectCourseRequestDTO rejectDto);
 

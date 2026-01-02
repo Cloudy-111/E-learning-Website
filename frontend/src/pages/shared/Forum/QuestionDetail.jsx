@@ -227,7 +227,6 @@ export default function QuestionDetail() {
 
     return (
         <>
-            <Header />
             <main className="w-screen overflow-x-hidden bg-slate-50 min-h-screen">
                 {/* Breadcrumb */}
                 <div className="w-screen px-6 lg:px-12 py-4 bg-white border-b border-slate-200">
@@ -434,8 +433,6 @@ export default function QuestionDetail() {
                     isConfirming={isDeleting}
                 />
             )}
-
-            <Footer />
         </>
     );
 }

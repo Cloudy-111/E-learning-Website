@@ -21,6 +21,32 @@ namespace project.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("AdminReviewCourse", b =>
+                {
+                    b.Property<string>("CourseId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AdminId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("EndedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ReviewedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("CourseId");
+
+                    b.HasIndex("AdminId");
+
+                    b.ToTable("AdminReviewCourses");
+                });
+
             modelBuilder.Entity("Category", b =>
                 {
                     b.Property<string>("Id")
@@ -1288,6 +1314,25 @@ namespace project.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("AdminReviewCourse", b =>
+                {
+                    b.HasOne("project.Models.Admin", "Admin")
+                        .WithMany("AdminReviewCourses")
+                        .HasForeignKey("AdminId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("project.Models.Course", "Course")
+                        .WithOne()
+                        .HasForeignKey("AdminReviewCourse", "CourseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Admin");
+
+                    b.Navigation("Course");
+                });
+
             modelBuilder.Entity("Choice", b =>
                 {
                     b.HasOne("QuestionExam", "QuestionExam")
@@ -1801,6 +1846,8 @@ namespace project.Migrations
 
             modelBuilder.Entity("project.Models.Admin", b =>
                 {
+                    b.Navigation("AdminReviewCourses");
+
                     b.Navigation("RefundRequestCourses");
 
                     b.Navigation("ReviewedRequests");
@@ -1808,7 +1855,8 @@ namespace project.Migrations
 
             modelBuilder.Entity("project.Models.Course", b =>
                 {
-                    b.Navigation("Content");
+                    b.Navigation("Content")
+                        .IsRequired();
 
                     b.Navigation("CourseStats");
 

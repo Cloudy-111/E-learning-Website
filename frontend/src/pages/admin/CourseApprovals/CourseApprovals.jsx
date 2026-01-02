@@ -11,9 +11,6 @@ import CourseList from "./Components/CourseList/CourseList";
 
 import Pagination from "../../../components/Pagination";
 
-/**
- * CourseApprovals - Admin page to approve/reject course update requests
- */
 export default function CourseApprovals() {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -122,16 +119,13 @@ export default function CourseApprovals() {
 
     return (
         <div className="p-8">
-            {/* Header */}
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-gray-900">Quản lý khóa học</h1>
                 <p className="text-gray-600 mt-2">Duyệt và quản lý các yêu cầu cập nhật khóa học</p>
             </div>
 
-            {/* Filter Tabs */}
             <Actions statusFilter={statusFilter} setStatusFilter={setStatusFilter}/>
 
-            {/* Courses List */}
             {courses.length === 0 ? (
                 <NoCourse />
             ) : (

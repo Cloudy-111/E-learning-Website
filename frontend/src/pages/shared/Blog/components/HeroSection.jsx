@@ -12,7 +12,11 @@ export default function HeroSection() {
                         className="w-full aspect-[4/3] rounded-2xl bg-gradient-to-tr from-blue-100 via-sky-100 to-indigo-100 border grid place-items-center"
                         style={{ borderColor: BORDER }}
                     >
-                        <span className="text-sm text-blue-500">Ảnh hero (thay sau)</span>
+                        <img 
+                            src="https://images.pexels.com/photos/35391833/pexels-photo-35391833.jpeg" 
+                            alt="Learning Illustration" 
+                            className="w-full h-full object-cover rounded-lg shadow-lg"
+                        />
                     </div>
                 </div>
 

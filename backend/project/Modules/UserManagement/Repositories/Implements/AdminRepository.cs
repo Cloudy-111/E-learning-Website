@@ -33,6 +33,17 @@ public class AdminRepository : IAdminRepository
         return (items, totalCount);
     }
 
+    public async Task<Course?> GetFullCourseByIdAsync(string courseId)
+    {
+        return await _dbContext.Courses
+            .Include(c => c.Category)
+            .Include(c => c.Teacher)
+                .ThenInclude(t => t.User)
+            .Include(c => c.Content)
+                .ThenInclude(cc => cc.Lessons)
+            .FirstOrDefaultAsync(c => c.Id == courseId);
+    }
+
     public async Task<IEnumerable<UpdateRequestCourse>> GetUpdateRequestsByStatusAsync(string status)
     {
         return await _dbContext.UpdateRequestCourses

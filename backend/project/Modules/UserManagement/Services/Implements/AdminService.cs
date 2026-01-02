@@ -52,6 +52,48 @@ public class AdminService : IAdminService
         };
     }
 
+    public async Task<FullCourseDTO> GetFullCourseByIdAsync(string userId, string courseId)
+    {
+        var adminExist = await _adminRepository.IsAdminExistAsync(userId);
+        if (adminExist == false)
+        {
+            throw new UnauthorizedAccessException("Admin not found");
+        }
+
+        var course = await _adminRepository.GetFullCourseByIdAsync(courseId) ?? throw new KeyNotFoundException("Course not found");
+
+        return new FullCourseDTO
+        {
+            Id = course.Id,
+            Title = course.Title,
+            Description = course.Description,
+            Price = (double)course.Price,
+            Discount = (double?)course.DiscountPrice,
+            Status = course.Status,
+            ThumbnailUrl = course.ThumbnailUrl,
+            CreatedAt = course.CreatedAt,
+            UpdatedAt = course.UpdatedAt,
+            AverageRating = course.AverageRating,
+            ReviewCount = course.ReviewCount,
+            CategoryId = course.CategoryId,
+            CategoryName = course.Category?.Name ?? "Unknown",
+            TeacherId = course.TeacherId,
+            TeacherName = course.Teacher?.User?.FullName ?? "Unknown",
+            CourseContent = new FullCourseContentDTO
+            {
+                Id = course.Content.Id,
+                Lessons = course.Content.Lessons.Select(l => new LessonCardDTO
+                {
+                    Id = l.Id,
+                    Title = l.Title,
+                    Duration = l.Duration,
+                    Order = l.Order
+                }).ToList()
+            }
+        };
+
+    }
+
     public async Task AdminApproveCourseAsync(string courseId)
     {
         var course = await _courseRepository.GetCourseByStatusAsync(courseId, "pending") ?? throw new KeyNotFoundException("Course not found");
