@@ -1,13 +1,20 @@
 import { useEffect, useState } from "react";
 import { Check, X, AlertCircle, MoreVertical, ChevronLeft, ChevronRight } from "lucide-react";
+import { useToast } from "../../../components/ui/Toast";
 
 export default function Reports() {
+    const { toast } = useToast();
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState("All");
     const [openMenuId, setOpenMenuId] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
+
+    // State cho modal xác nhận xóa
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+    const [reportToDelete, setReportToDelete] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     useEffect(() => {
         const appUser = localStorage.getItem("app_user");
@@ -69,6 +76,100 @@ export default function Reports() {
     const handleStatusUpdate = async (id, newStatus) => {
         // Ví dụ: await fetch(`http://localhost:5102/api/Report/${id}/status`, { method: 'PUT', body: JSON.stringify({ status: newStatus }) });
         setReports(prev => prev.map(r => r.id === id ? { ...r, status: newStatus } : r));
+    };
+
+    const handleDeleteClick = (report) => {
+        setReportToDelete(report);
+        setIsDeleteConfirmOpen(true);
+        setOpenMenuId(null);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!reportToDelete) return;
+        const report = reportToDelete;
+        setIsDeleting(true);
+
+        const appUser = localStorage.getItem("app_user");
+        let token = appUser ? JSON.parse(appUser).token : null;
+        if (!token) token = localStorage.getItem("app_access_token");
+
+        const headers = {
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+        };
+
+        let deleteUrl = "";
+        switch (report.targetType) {
+            case "Discussion":
+                deleteUrl = `http://localhost:5102/api/Discussion/${report.targetTypeId}`;
+                break;
+            case "Post":
+                // Sử dụng deletehard cho Post
+                deleteUrl = `http://localhost:5102/api/Posts/deletehard/${report.targetTypeId}`;
+                break;
+            case "ForumQuestion":
+                deleteUrl = `http://localhost:5102/api/ForumQuestion/${report.targetTypeId}/hard`;
+                break;
+            default:
+                alert("Loại đối tượng không hỗ trợ xóa: " + report.targetType);
+                return;
+        }
+
+        try {
+            // 1. Xóa nội dung
+            const resDel = await fetch(deleteUrl, { method: "DELETE", headers });
+            if (!resDel.ok && resDel.status !== 404) {
+                throw new Error("Không thể xóa nội dung. Mã lỗi: " + resDel.status);
+            }
+
+            // 2. Xóa báo cáo
+            const resReport = await fetch(`http://localhost:5102/api/Report/${report.id}`, {
+                method: "DELETE",
+                headers
+            });
+
+            if (resReport.ok) {
+                setReports(prev => prev.filter(r => r.id !== report.id));
+                toast({ title: "Thành công", description: "Đã xử lý vi phạm" });
+            } else {
+                toast({ title: "Cảnh báo", description: "Xóa nội dung thành công nhưng không thể xóa báo cáo.", variant: "destructive" });
+            }
+        } catch (error) {
+            console.error(error);
+            toast({ title: "Lỗi", description: error.message, variant: "destructive" });
+        } finally {
+            setIsDeleting(false);
+            setIsDeleteConfirmOpen(false);
+            setReportToDelete(null);
+        }
+    };
+
+    const handleRejectReport = async (report) => {
+        const appUser = localStorage.getItem("app_user");
+        let token = appUser ? JSON.parse(appUser).token : null;
+        if (!token) token = localStorage.getItem("app_access_token");
+
+        try {
+            const res = await fetch(`http://localhost:5102/api/Report/${report.id}`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+            });
+
+            if (res.ok) {
+                setReports(prev => prev.filter(r => r.id !== report.id));
+                toast({ title: "Thành công", description: "Thao tác thành công." });
+            } else {
+                toast({ title: "Lỗi", description: "Không thể xóa báo cáo.", variant: "destructive" });
+            }
+        } catch (error) {
+            console.error(error);
+            toast({ title: "Lỗi", description: error.message, variant: "destructive" });
+        } finally {
+            setOpenMenuId(null);
+        }
     };
 
     // Reset trang về 1 khi thay đổi bộ lọc
@@ -171,10 +272,16 @@ export default function Reports() {
                                                 </button>
                                                 {openMenuId === report.id && (
                                                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border z-50 py-1">
-                                                        <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                                        <button 
+                                                            onClick={() => handleRejectReport(report)}
+                                                            className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                                                        >
                                                             Nội dung hợp lệ
                                                         </button>
-                                                        <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                                        <button 
+                                                            onClick={() => handleDeleteClick(report)}
+                                                            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                                                        >
                                                             Xóa vi phạm
                                                         </button>
                                                     </div>
@@ -219,6 +326,33 @@ export default function Reports() {
                     </div>
                 )}
             </div>
+
+            <ConfirmationDialog
+                isOpen={isDeleteConfirmOpen}
+                onClose={() => setIsDeleteConfirmOpen(false)}
+                onConfirm={handleConfirmDelete}
+                title="Xác nhận xóa vi phạm"
+                description="Bạn có chắc chắn muốn xóa nội dung này và chấp nhận báo cáo? Hành động này không thể hoàn tác."
+                confirmText={isDeleting ? "Đang xử lý..." : "Xóa vi phạm"}
+                isConfirming={isDeleting}
+            />
         </div>
     );
 }
+
+const ConfirmationDialog = ({ isOpen, onClose, onConfirm, title, description, confirmText, isConfirming }) => {
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
+            <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+                <h3 className="text-lg font-bold text-gray-900">{title}</h3>
+                <p className="text-sm text-gray-600 mt-2 mb-6">{description}</p>
+                <div className="flex justify-end gap-3">
+                    <button onClick={onClose} disabled={isConfirming} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 disabled:opacity-50">Huỷ</button>
+                    <button onClick={onConfirm} disabled={isConfirming} className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50 disabled:bg-red-400">{confirmText}</button>
+                </div>
+            </div>
+        </div>
+    );
+};

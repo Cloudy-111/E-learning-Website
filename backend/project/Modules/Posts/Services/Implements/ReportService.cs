@@ -65,4 +65,13 @@ public class ReportService : IReportService
         report.Status = "Rejected";
         await _repository.SaveChangesAsync();
     }
+
+    public async Task DeleteReportAsync(string id)
+    {
+        var report = await _repository.GetByIdAsync(id)
+            ?? throw new Exception("Report not found");
+
+        _repository.Delete(report);
+        await _repository.SaveChangesAsync();
+    }
 }

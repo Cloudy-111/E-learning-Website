@@ -33,6 +33,11 @@ private readonly DBContext _context;
             .ToListAsync();
     }
 
+    public void Delete(Reports report)
+    {
+        _context.Reports.Remove(report);
+    }
+
     public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();
