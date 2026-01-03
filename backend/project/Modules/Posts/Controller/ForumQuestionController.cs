@@ -149,12 +149,13 @@ namespace project.Modules.Posts.Controller
         [HttpDelete("{id}/hard")]
         public async Task<IActionResult> HardDelete(string id)
         {
+            var isAdmin = User.IsInRole("Admin");
             var studentId = User.FindFirst("StudentId")?.Value;
-            if (studentId == null) return Unauthorized();
+            if (!isAdmin && studentId == null) return Unauthorized();
 
             try
             {
-                var ok = await _forumService.HardDeleteAsync(id, studentId);
+                var ok = await _forumService.HardDeleteAsync(id, studentId, isAdmin);
                 return ok ? Ok() : NotFound();
             }
             catch (UnauthorizedAccessException ex)

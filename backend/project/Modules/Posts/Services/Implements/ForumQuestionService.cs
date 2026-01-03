@@ -175,12 +175,12 @@ public class ForumQuestionService : IForumQuestionService
         return true;
     }
 
-    public async Task<bool> HardDeleteAsync(string id, string studentId)
+    public async Task<bool> HardDeleteAsync(string id, string? studentId, bool isAdmin = false)
     {
         var q = await _repository.GetByIdAllowDeletedAsync(id);
         if (q == null) return false;
 
-        if (q.StudentId != studentId)
+        if (!isAdmin && q.StudentId != studentId)
             throw new UnauthorizedAccessException("Bạn không có quyền xóa vĩnh viễn câu hỏi này.");
 
         _repository.Delete(q);
@@ -223,4 +223,3 @@ public class ForumQuestionService : IForumQuestionService
 
 
 }
-
