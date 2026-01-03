@@ -110,6 +110,13 @@ export default function Comments() {
     const [editingCommentId, setEditingCommentId] = useState(null);
     const [editingContent, setEditingContent] = useState("");
 
+    // State cho modal báo cáo
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [reportReason, setReportReason] = useState("");
+    const [reportDescription, setReportDescription] = useState("");
+    const [isReporting, setIsReporting] = useState(false);
+    const [reportingCommentId, setReportingCommentId] = useState(null);
+
     // State cho modal xác nhận xoá, học theo QuestionDetail.jsx
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
     const [deletingCommentId, setDeletingCommentId] = useState(null); // ID của comment đang chờ xoá
@@ -235,9 +242,39 @@ export default function Comments() {
         setEditingContent(comment.content);
     };
 
+    const submitReport = async (e) => {
+        e?.preventDefault();
+        if (!reportReason) return;
+
+        setIsReporting(true);
+        try {
+            const body = {
+                targetType: "Discussion",
+                targetTypeId: reportingCommentId,
+                reason: reportReason,
+                description: reportDescription
+            };
+            const res = await fetch(`${API_BASE}/api/Report`, {
+                method: "POST",
+                headers: authHeaders(),
+                body: JSON.stringify(body),
+            });
+            if (!res.ok) throw new Error(`Gửi báo cáo thất bại (HTTP ${res.status})`);
+
+            toast({ title: "Thành công", description: "Cảm ơn bạn đã báo cáo vi phạm." });
+            setIsReportModalOpen(false);
+            setReportReason("");
+            setReportDescription("");
+        } catch (e) {
+            toast({ title: "Lỗi", description: e.message, variant: "destructive" });
+        } finally {
+            setIsReporting(false);
+        }
+    };
+
     const reportComment = (commentId) => {
-        console.log(`Reporting comment ${commentId}`);
-        alert("Báo cáo của bạn đã được gửi đi. Cảm ơn bạn đã góp phần xây dựng cộng đồng!");
+        setReportingCommentId(commentId);
+        setIsReportModalOpen(true);
     };
 
     return (
@@ -346,6 +383,47 @@ export default function Comments() {
                 confirmText={isDeleting ? "Đang xoá..." : "Xoá"}
                 isConfirming={isDeleting}
             />
+
+            {/* Modal báo cáo */}
+            {isReportModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
+                    <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+                        <h3 className="text-lg font-bold text-slate-900 mb-4">Báo cáo vi phạm</h3>
+                        <form onSubmit={submitReport}>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Lý do <span className="text-red-500">*</span></label>
+                                <select 
+                                    value={reportReason}
+                                    onChange={(e) => setReportReason(e.target.value)}
+                                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                                    required
+                                >
+                                    <option value="">-- Chọn lý do --</option>
+                                    <option value="Spam">Spam / Quảng cáo</option>
+                                    <option value="Inappropriate">Nội dung không phù hợp</option>
+                                    <option value="Harassment">Quấy rối / Xúc phạm</option>
+                                    <option value="WrongTopic">Sai chủ đề</option>
+                                    <option value="Other">Khác</option>
+                                </select>
+                            </div>
+                            <div className="mb-6">
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Mô tả thêm</label>
+                                <textarea 
+                                    value={reportDescription}
+                                    onChange={(e) => setReportDescription(e.target.value)}
+                                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                                    rows={3}
+                                    placeholder="Chi tiết về vi phạm..."
+                                />
+                            </div>
+                            <div className="flex justify-end gap-3">
+                                <button type="button" onClick={() => setIsReportModalOpen(false)} disabled={isReporting} className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-md hover:bg-slate-200 disabled:opacity-50">Huỷ</button>
+                                <button type="submit" disabled={!reportReason || isReporting} className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50 disabled:bg-red-400">{isReporting ? "Đang gửi..." : "Gửi báo cáo"}</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </Section>
     );
 }

@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
-import { Check, X, AlertCircle, MoreVertical } from "lucide-react";
+import { Check, X, AlertCircle, MoreVertical, ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function Reports() {
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState("All");
     const [openMenuId, setOpenMenuId] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     useEffect(() => {
         const appUser = localStorage.getItem("app_user");
@@ -69,9 +71,20 @@ export default function Reports() {
         setReports(prev => prev.map(r => r.id === id ? { ...r, status: newStatus } : r));
     };
 
+    // Reset trang về 1 khi thay đổi bộ lọc
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [filter]);
+
     const filteredReports = filter === "All" 
         ? reports 
         : reports.filter(r => r.status === filter);
+
+    const totalPages = Math.ceil(filteredReports.length / itemsPerPage);
+    const paginatedReports = filteredReports.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
 
     if (loading) {
         return <div className="p-8 text-center text-gray-500">Đang tải dữ liệu...</div>;
@@ -101,9 +114,10 @@ export default function Reports() {
                 </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-sm border overflow-visible">
-                <table className="w-full text-left">
-                    <thead className="bg-gray-50 border-b">
+            <div className="bg-white rounded-xl shadow-sm border flex flex-col">
+                <div className="overflow-x-auto overflow-y-auto max-h-[600px]">
+                <table className="w-full text-left relative">
+                    <thead className="bg-gray-50 border-b sticky top-0 z-10 shadow-sm">
                         <tr>
                             <th className="p-4 font-medium text-gray-600 text-sm">Ngày báo cáo</th>
                             <th className="p-4 font-medium text-gray-600 text-sm">Đối tượng</th>
@@ -114,8 +128,8 @@ export default function Reports() {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
-                        {filteredReports.length > 0 ? (
-                            filteredReports.map((report) => (
+                        {paginatedReports.length > 0 ? (
+                            paginatedReports.map((report) => (
                                 <tr key={report.id} className="hover:bg-gray-50 transition-colors">
                                     <td className="p-4 text-sm">
                                         <div className="font-medium text-gray-900">
@@ -175,6 +189,35 @@ export default function Reports() {
                         )}
                     </tbody>
                 </table>
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 0 && (
+                    <div className="p-4 border-t flex justify-between items-center bg-gray-50 rounded-b-xl">
+                        <span className="text-sm text-gray-500">
+                            Hiển thị {filteredReports.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}-{Math.min(currentPage * itemsPerPage, filteredReports.length)} trong số {filteredReports.length} báo cáo
+                        </span>
+                        <div className="flex gap-2 items-center">
+                            <button
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                className="p-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:hover:bg-transparent"
+                            >
+                                <ChevronLeft size={16} />
+                            </button>
+                            <span className="text-sm font-medium text-gray-700 px-2">
+                                Trang {currentPage} / {totalPages || 1}
+                            </span>
+                            <button
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                disabled={currentPage === totalPages || totalPages === 0}
+                                className="p-2 border rounded hover:bg-gray-100 disabled:opacity-50 disabled:hover:bg-transparent"
+                            >
+                                <ChevronRight size={16} />
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

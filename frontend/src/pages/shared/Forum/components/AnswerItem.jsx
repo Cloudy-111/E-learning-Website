@@ -1,8 +1,10 @@
 // src/pages/shared/Forum/components/AnswerItem.jsx
 import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { BORDER } from "../utils/constants";
+import { BORDER, API_BASE } from "../utils/constants";
 import { deleteAnswerApi, updateAnswerApi } from "../../../../api/dicussion.api";
+import { authHeaders } from "../utils/helpers";
+import { useToast } from "../../../../components/ui/Toast";
 
 
 const MoreIcon = () => (
@@ -16,6 +18,7 @@ const MoreIcon = () => (
 // Giả sử bạn có thông tin người dùng hiện tại, ví dụ: { _id: "some_user_id" }
 // Bạn cần truyền currentUser vào component này.
 export default function AnswerItem({ a, currentUser, onAnswerUpdated }) {
+    const { toast } = useToast();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef(null);
 
@@ -24,6 +27,12 @@ export default function AnswerItem({ a, currentUser, onAnswerUpdated }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+
+    // State cho modal báo cáo
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [reportReason, setReportReason] = useState("");
+    const [reportDescription, setReportDescription] = useState("");
+    const [isReporting, setIsReporting] = useState(false);
 
 
     // Giả sử `a.studentId` là ID của người trả lời
@@ -76,6 +85,40 @@ export default function AnswerItem({ a, currentUser, onAnswerUpdated }) {
             setIsDeleteConfirmOpen(false); // Đóng modal khi có lỗi
         }
     };
+
+    const submitReport = async (e) => {
+        e?.preventDefault();
+        if (!reportReason) return;
+
+        setIsReporting(true);
+        try {
+            const body = {
+                targetType: "Discussion",
+                targetTypeId: a.id,
+                reason: reportReason,
+                description: reportDescription
+            };
+            const res = await fetch(`${API_BASE}/api/Report`, {
+                method: "POST",
+                headers: authHeaders({
+                    "Content-Type": "application/json",
+                    accept: "*/*",
+                }),
+                body: JSON.stringify(body),
+            });
+            if (!res.ok) throw new Error(`Gửi báo cáo thất bại (HTTP ${res.status})`);
+
+            toast({ title: "Thành công", description: "Cảm ơn bạn đã báo cáo vi phạm." });
+            setIsReportModalOpen(false);
+            setReportReason("");
+            setReportDescription("");
+        } catch (e) {
+            toast({ title: "Lỗi", description: e.message, variant: "destructive" });
+        } finally {
+            setIsReporting(false);
+        }
+    };
+
     return (
         <div
             className="p-5 border-b last:border-b-0 relative"
@@ -129,7 +172,15 @@ export default function AnswerItem({ a, currentUser, onAnswerUpdated }) {
                                         </>
                                     ) : (
                                         <li>
-                                            <button className="w-full text-left px-4 py-2 hover:bg-slate-100">Báo cáo</button>
+                                            <button 
+                                                onClick={() => {
+                                                    setIsMenuOpen(false);
+                                                    setIsReportModalOpen(true);
+                                                }}
+                                                className="w-full text-left px-4 py-2 hover:bg-slate-100"
+                                            >
+                                                Báo cáo
+                                            </button>
                                         </li>
                                     )}
                                 </ul>
@@ -175,6 +226,46 @@ export default function AnswerItem({ a, currentUser, onAnswerUpdated }) {
                     confirmText={isDeleting ? "Đang xóa..." : "Xóa"}
                     isConfirming={isDeleting}
                 />
+            )}
+
+            {isReportModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
+                    <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+                        <h3 className="text-lg font-bold text-slate-900 mb-4">Báo cáo vi phạm</h3>
+                        <form onSubmit={submitReport}>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Lý do <span className="text-red-500">*</span></label>
+                                <select 
+                                    value={reportReason}
+                                    onChange={(e) => setReportReason(e.target.value)}
+                                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                                    required
+                                >
+                                    <option value="">-- Chọn lý do --</option>
+                                    <option value="Spam">Spam / Quảng cáo</option>
+                                    <option value="Inappropriate">Nội dung không phù hợp</option>
+                                    <option value="Harassment">Quấy rối / Xúc phạm</option>
+                                    <option value="WrongTopic">Sai chủ đề</option>
+                                    <option value="Other">Khác</option>
+                                </select>
+                            </div>
+                            <div className="mb-6">
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Mô tả thêm</label>
+                                <textarea 
+                                    value={reportDescription}
+                                    onChange={(e) => setReportDescription(e.target.value)}
+                                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                                    rows={3}
+                                    placeholder="Chi tiết về vi phạm..."
+                                />
+                            </div>
+                            <div className="flex justify-end gap-3">
+                                <button type="button" onClick={() => setIsReportModalOpen(false)} disabled={isReporting} className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-md hover:bg-slate-200 disabled:opacity-50">Huỷ</button>
+                                <button type="submit" disabled={!reportReason || isReporting} className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50 disabled:bg-red-400">{isReporting ? "Đang gửi..." : "Gửi báo cáo"}</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
             )}
         </div>
     );
