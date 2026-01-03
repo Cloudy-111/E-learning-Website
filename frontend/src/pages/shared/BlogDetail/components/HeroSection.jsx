@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Eye } from "../utils/Icons";
 import { fmtTime } from "../utils/helpers";
+import { useToast } from "../../../../components/ui/Toast";
 
 // Icons, học theo các component khác
 const ThumbsUpIcon = ({ isLiked }) => (
@@ -27,6 +28,13 @@ const EditIcon = () => (
     </svg>
 );
 
+const ReportIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
+        <line x1="4" y1="22" x2="4" y2="15"></line>
+    </svg>
+);
+
 // Helper function, học theo QuestionCard.jsx
 function decodeJwt(token) {
     try {
@@ -37,10 +45,16 @@ function decodeJwt(token) {
 }
 
 export default function HeroSection({ post }) {
+    const { toast } = useToast();
     const [likeCount, setLikeCount] = useState(post?.likeCount ?? 0);
     const [commentCount, setCommentCount] = useState(post?.discussionCount ?? 0);
     const [isLiked, setIsLiked] = useState(false);
     const [isOwner, setIsOwner] = useState(false);
+
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [reportReason, setReportReason] = useState("");
+    const [reportDescription, setReportDescription] = useState("");
+    const [isReporting, setIsReporting] = useState(false);
 
     // Lấy thông tin chi tiết về likes và comments
     useEffect(() => {
@@ -161,6 +175,45 @@ export default function HeroSection({ post }) {
         }
     };
 
+    const submitReport = async (e) => {
+        e?.preventDefault();
+        if (!reportReason) return;
+
+        const token = localStorage.getItem("app_access_token");
+        if (!token) {
+            toast({ title: "Lỗi", description: "Bạn cần đăng nhập để báo cáo.", variant: "destructive" });
+            return;
+        }
+
+        setIsReporting(true);
+        try {
+            const body = {
+                targetType: "Post",
+                targetTypeId: post.id,
+                reason: reportReason,
+                description: reportDescription
+            };
+            const res = await fetch(`http://localhost:5102/api/Report`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(body),
+            });
+            if (!res.ok) throw new Error(`Gửi báo cáo thất bại (HTTP ${res.status})`);
+
+            toast({ title: "Thành công", description: "Cảm ơn bạn đã báo cáo vi phạm." });
+            setIsReportModalOpen(false);
+            setReportReason("");
+            setReportDescription("");
+        } catch (e) {
+            toast({ title: "Lỗi", description: e.message, variant: "destructive" });
+        } finally {
+            setIsReporting(false);
+        }
+    };
+
     return (
         <section className="w-screen overflow-x-hidden pt-8">
             <div className="w-screen px-6 lg:px-12">
@@ -215,16 +268,61 @@ export default function HeroSection({ post }) {
                             <CommentIcon />
                             {commentCount}
                         </span>
-                        {isOwner && (
+                        {isOwner ? (
                             <Link to={`/blog/${post.id}/edit`} title="Chỉnh sửa bài viết" className="inline-flex items-center gap-1.5 text-blue-600 hover:underline">
                                 <EditIcon />
                                 Sửa
                             </Link>
+                        ) : (
+                            <button onClick={() => setIsReportModalOpen(true)} className="inline-flex items-center gap-1.5 text-slate-500 hover:text-red-600 transition-colors" title="Báo cáo vi phạm">
+                                <ReportIcon />
+                                Báo cáo
+                            </button>
                         )}
                     </div>
 
                 </div>
             </div>
+
+            {isReportModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
+                    <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+                        <h3 className="text-lg font-bold text-slate-900 mb-4">Báo cáo vi phạm</h3>
+                        <form onSubmit={submitReport}>
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Lý do <span className="text-red-500">*</span></label>
+                                <select 
+                                    value={reportReason}
+                                    onChange={(e) => setReportReason(e.target.value)}
+                                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                                    required
+                                >
+                                    <option value="">-- Chọn lý do --</option>
+                                    <option value="Spam / Quảng cáo">Spam / Quảng cáo</option>
+                                    <option value="Nội dung không phù hợp">Nội dung không phù hợp</option>
+                                    <option value="Quấy rối / Xúc phạm">Quấy rối / Xúc phạm</option>
+                                    <option value="Sai chủ đề">Sai chủ đề</option>
+                                    <option value="Khác">Khác</option>
+                                </select>
+                            </div>
+                            <div className="mb-6">
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Mô tả thêm</label>
+                                <textarea 
+                                    value={reportDescription}
+                                    onChange={(e) => setReportDescription(e.target.value)}
+                                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+                                    rows={3}
+                                    placeholder="Chi tiết về vi phạm..."
+                                />
+                            </div>
+                            <div className="flex justify-end gap-3">
+                                <button type="button" onClick={() => setIsReportModalOpen(false)} disabled={isReporting} className="px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-md hover:bg-slate-200 disabled:opacity-50">Huỷ</button>
+                                <button type="submit" disabled={!reportReason || isReporting} className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50 disabled:bg-red-400">{isReporting ? "Đang gửi..." : "Gửi báo cáo"}</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </section>
     );
 }

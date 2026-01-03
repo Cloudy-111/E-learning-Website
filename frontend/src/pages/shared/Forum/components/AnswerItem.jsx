@@ -242,11 +242,11 @@ export default function AnswerItem({ a, currentUser, onAnswerUpdated }) {
                                     required
                                 >
                                     <option value="">-- Chọn lý do --</option>
-                                    <option value="Spam">Spam / Quảng cáo</option>
-                                    <option value="Inappropriate">Nội dung không phù hợp</option>
-                                    <option value="Harassment">Quấy rối / Xúc phạm</option>
-                                    <option value="WrongTopic">Sai chủ đề</option>
-                                    <option value="Other">Khác</option>
+                                   <option value="Spam / Quảng cáo">Spam / Quảng cáo</option>
+                                    <option value="Nội dung không phù hợp">Nội dung không phù hợp</option>
+                                    <option value="Quấy rối / Xúc phạm">Quấy rối / Xúc phạm</option>
+                                    <option value="Sai chủ đề">Sai chủ đề</option>
+                                    <option value="Khác">Khác</option>
                                 </select>
                             </div>
                             <div className="mb-6">
