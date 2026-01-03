@@ -1,8 +1,17 @@
 // src/pages/shared/BlogEditor/Components/EditorForm.jsx
 import { Link } from "react-router-dom";
+import { useEffect } from "react";
 
 const BORDER = "#e5e7eb";
 const BRAND = { primary: "#2563eb" };
+
+const DEFAULT_THUMBNAILS = [
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTIbCEXFd9VvAXuTZRJMgGwaz9xOosWHkHJDA&s",
+    "https://t3.ftcdn.net/jpg/03/48/39/74/360_F_348397404_wXuf22GUPNAh67htBZZnaDSx3Bj92yep.jpg",
+    "https://img.freepik.com/free-vector/laptop-with-program-code-isometric-icon-software-development-programming-applications-dark-neon_39422-971.jpg?semt=ais_hybrid&w=740&q=80",
+    "https://images.pexels.com/photos/574071/pexels-photo-574071.jpeg?cs=srgb&dl=pexels-goumbik-574071.jpg&fm=jpg",
+    "https://static.vecteezy.com/system/resources/thumbnails/027/516/603/small/concept-of-web-design-and-mobile-app-programmer-working-and-coding-for-remote-work-development-and-technology-for-online-education-and-learning-concept-flat-illustration-on-a-white-background-vector.jpg"
+];
 
 export default function EditorForm({
     mode,
@@ -23,6 +32,14 @@ export default function EditorForm({
     loading,
     error
 }) {
+    // Tự động chọn ảnh bìa ngẫu nhiên nếu chưa có
+    useEffect(() => {
+        if (!thumbnailUrl) {
+            const randomThumb = DEFAULT_THUMBNAILS[Math.floor(Math.random() * DEFAULT_THUMBNAILS.length)];
+            setThumbnailUrl(randomThumb);
+        }
+    }, []);
+
     if (loading) {
         return (
             <div className="bg-white border rounded-2xl p-5" style={{ borderColor: BORDER }}>
@@ -66,17 +83,6 @@ export default function EditorForm({
                             className="mt-1 w-full rounded-xl border px-4 py-2 outline-none focus:ring-2"
                             style={{ borderColor: BORDER }}
                             placeholder="react, performance, ux…"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="text-sm font-medium">Ảnh bìa (thumbnailUrl)</label>
-                        <input
-                            value={thumbnailUrl}
-                            onChange={(e) => setThumbnailUrl(e.target.value)}
-                            className="mt-1 w-full rounded-xl border px-4 py-2 outline-none focus:ring-2"
-                            style={{ borderColor: BORDER }}
-                            placeholder="https://…"
                         />
                     </div>
                 </div>
