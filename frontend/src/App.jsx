@@ -151,6 +151,8 @@ export default function App() {
                     <Route path="/blog/author/:memberId" element={<BlogAuthor />} />
                     <Route path="/blog/:id" element={<BlogDetail />} />
 
+                    <Route path="/i/become-instructor" element={<BecomeInstructor title="🧾 /i/become-instructor — Đăng ký giảng viên" />} />
+
                     {/* Student */}
                     <Route element={<RequireRole roles={["Student"]} />}>
                       <Route path="/s/enrollments" element={<Enrollments title="📚 /s/enrollments — Khóa học của tôi" />} />
@@ -221,7 +223,7 @@ export default function App() {
                     <Route path="/forum/new" element={<AskQuestion />} />
                     <Route path="/forum/:id/edit" element={<EditQuestion />} />
                     <Route path="/forum/my" element={<MyQuestions />} />
-                   
+                    
                   </Route>
 
                   {/* ========== PROTECTED: STUDENT ROUTES (/s/*) ========== */}
