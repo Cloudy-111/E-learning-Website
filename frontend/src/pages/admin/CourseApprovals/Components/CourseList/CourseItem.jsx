@@ -1,4 +1,4 @@
-import { Check, X, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Check, X, Clock, CheckCircle, XCircle, UserCheck } from "lucide-react";
 
 const getStatusBadge = (status) => {
         const badges = {
@@ -22,9 +22,21 @@ function CourseItem({ course, statusFilter, actionLoading, handleRejectClick, se
         <div key={course.id} className="bg-white rounded-lg shadow-sm border p-6" onClick={() => setCourseReview(course)}>
             <div className="flex items-start justify-between">
                 <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex items-center gap-3 mb-2 flex-wrap">
                         <h3 className="text-xl font-semibold text-gray-900">{course.title || course.name}</h3>
                         {getStatusBadge(course.status)}
+                        {course.reviewStatus === 'InReview' && course.reviewByAdminName && (
+                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                <UserCheck className="w-4 h-4" />
+                                Đang được duyệt bởi {course.reviewByAdminName}
+                            </span>
+                        )}
+                        {course.reviewStatus === 'Reviewed' && course.reviewByAdminName && (
+                            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                <UserCheck className="w-4 h-4" />
+                                Đã được duyệt bởi {course.reviewByAdminName}
+                            </span>
+                        )}
                     </div>
 
                     <p className="text-gray-600 mb-4 line-clamp-2">

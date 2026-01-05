@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace project.Migrations
 {
     [DbContext(typeof(DBContext))]
-    partial class DBContextModelSnapshot : ModelSnapshot
+    [Migration("20260103050926_Course_AdminReviewCourse")]
+    partial class Course_AdminReviewCourse
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,9 +33,6 @@ namespace project.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("AllowedLessonCount")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("EndedAt")
                         .HasColumnType("datetime2");
 
@@ -48,38 +48,6 @@ namespace project.Migrations
                     b.HasIndex("AdminId");
 
                     b.ToTable("AdminReviewCourses");
-                });
-
-            modelBuilder.Entity("AdminReviewLesson", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("AdminId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("CourseId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("LessonId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AdminId");
-
-                    b.HasIndex("CourseId");
-
-                    b.HasIndex("LessonId")
-                        .IsUnique();
-
-                    b.ToTable("AdminReviewLesson");
                 });
 
             modelBuilder.Entity("Category", b =>
@@ -1368,33 +1336,6 @@ namespace project.Migrations
                     b.Navigation("Course");
                 });
 
-            modelBuilder.Entity("AdminReviewLesson", b =>
-                {
-                    b.HasOne("project.Models.Admin", "Admin")
-                        .WithMany("AdminReviewLessons")
-                        .HasForeignKey("AdminId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("project.Models.Course", "Course")
-                        .WithMany("AdminReviewLessons")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("project.Models.Lesson", "Lesson")
-                        .WithOne()
-                        .HasForeignKey("AdminReviewLesson", "LessonId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Admin");
-
-                    b.Navigation("Course");
-
-                    b.Navigation("Lesson");
-                });
-
             modelBuilder.Entity("Choice", b =>
                 {
                     b.HasOne("QuestionExam", "QuestionExam")
@@ -1910,8 +1851,6 @@ namespace project.Migrations
                 {
                     b.Navigation("AdminReviewCourses");
 
-                    b.Navigation("AdminReviewLessons");
-
                     b.Navigation("RefundRequestCourses");
 
                     b.Navigation("ReviewedRequests");
@@ -1920,8 +1859,6 @@ namespace project.Migrations
             modelBuilder.Entity("project.Models.Course", b =>
                 {
                     b.Navigation("AdminReviewCourse");
-
-                    b.Navigation("AdminReviewLessons");
 
                     b.Navigation("Content")
                         .IsRequired();

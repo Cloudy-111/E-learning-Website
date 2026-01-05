@@ -16,7 +16,10 @@ public class AdminRepository : IAdminRepository
         var query = _dbContext.Courses
             .Include(c => c.Category)
             .Include(c => c.Teacher)
-            .ThenInclude(t => t.User)
+                .ThenInclude(t => t.User)
+            .Include(c => c.AdminReviewCourse)
+                .ThenInclude(arc => arc.Admin)
+                .ThenInclude(a => a.User)
             .AsQueryable();
 
         if (!string.IsNullOrEmpty(status))
@@ -74,5 +77,64 @@ public class AdminRepository : IAdminRepository
         return await _dbContext.Admins
             .Include(a => a.User)
             .AnyAsync(a => a.User.Id == userId);
+    }
+
+    public async Task AdminReviewCourseAsync(AdminReviewCourse adminReviewCourse)
+    {
+        try
+        {
+            _dbContext.AdminReviewCourses.Add(adminReviewCourse);
+            await _dbContext.SaveChangesAsync();
+
+        }
+        catch (DbUpdateException)
+        {
+            throw new InvalidOperationException(
+                "Khóa học đã được admin khác nhận review"
+            );
+        }
+    }
+
+    public async Task<string> GetAdminIdAsync(string userId)
+    {
+        var admin = await _dbContext.Admins
+            .Include(a => a.User)
+            .FirstOrDefaultAsync(a => a.User.Id == userId)
+            ?? throw new KeyNotFoundException("Admin not found");
+        return admin.AdminId;
+    }
+
+    public async Task<AdminReviewCourse?> GetAdminReviewCourseRecordAsync(string courseId)
+    {
+        return await _dbContext.AdminReviewCourses
+            .FirstOrDefaultAsync(arc => arc.CourseId == courseId);
+    }
+
+    public async Task<string> GetAdminNameAsync(string adminId)
+    {
+        var admin = await _dbContext.Admins
+            .Include(a => a.User)
+            .FirstOrDefaultAsync(a => a.AdminId == adminId)
+            ?? throw new KeyNotFoundException("Admin not found");
+        return admin.User.FullName;
+    }
+
+    public async Task<bool> IsAdminReviewCourseRecordExistAsync(string courseId)
+    {
+        return await _dbContext.AdminReviewCourses
+            .AnyAsync(arc => arc.CourseId == courseId);
+    }
+
+    public async Task<IEnumerable<AdminReviewLesson>> GetAdminReviewedLessonsAsync(string adminId, string courseId)
+    {
+        return await _dbContext.AdminReviewLesson
+            .Where(arl => arl.AdminId == adminId && arl.CourseId == courseId)
+            .ToListAsync();
+    }
+
+    public async Task AdminReviewLessonAsync(AdminReviewLesson adminReviewLesson)
+    {
+        _dbContext.AdminReviewLesson.Add(adminReviewLesson);
+        await _dbContext.SaveChangesAsync();
     }
 }

@@ -116,4 +116,72 @@ public class AdminController : ControllerBase
     //         APIResponse("error", "An error occurred while retrieving refund requests", ex.Message));
     //     }
     // }
+
+    [HttpPost("{courseId}/admin-review-course")]
+    public async Task<IActionResult> AdminReviewCourse(string courseId)
+    {
+        try
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new APIResponse("error", "User ID not found in token"));
+            }
+
+            await _adminService.AdminReviewCourseAsync(userId, courseId);
+
+            return Ok(new APIResponse("success", "Course reviewed successfully"));
+        }
+        catch (InvalidOperationException invOpEx)
+        {
+            return Conflict(
+                new APIResponse("error", invOpEx.Message)
+            );
+        }
+        catch (KeyNotFoundException knfEx)
+        {
+            return NotFound(new APIResponse("error", knfEx.Message));
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while reviewing the course", ex.Message));
+        }
+    }
+
+    [HttpGet("{courseId}/lessons/{lessonId}/admin-review-lesson")]
+    public async Task<IActionResult> AdminReviewLesson(string courseId, string lessonId)
+    {
+        try
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+            {
+                return Unauthorized(new APIResponse("error", "User ID not found in token"));
+            }
+
+            var lessonData = await _adminService.AdminReviewLessonAsync(userId, courseId, lessonId);
+
+            return Ok(new APIResponse("success", "Lesson reviewed successfully", lessonData));
+        }
+        catch (InvalidOperationException invOpEx)
+        {
+            return Conflict(
+                new APIResponse("error", invOpEx.Message)
+            );
+        }
+        catch (KeyNotFoundException knfEx)
+        {
+            return NotFound(new APIResponse("error", knfEx.Message));
+        }
+        catch (UnauthorizedAccessException uaEx)
+        {
+            return Forbid();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
+            APIResponse("error", "An error occurred while reviewing the lesson", ex.Message));
+        }
+    }
 }

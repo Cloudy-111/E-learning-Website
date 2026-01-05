@@ -1,3 +1,4 @@
+using project.Models;
 using project.Modules.UserManagement.DTOs;
 
 public interface IAdminService
@@ -10,4 +11,6 @@ public interface IAdminService
 
     // Admin methods for managing enrollment
     Task<IEnumerable<RefundRequestCourseDTO>> GetPendingRefundRequestsAsync();
+    Task AdminReviewCourseAsync(string userId, string courseId);
+    Task<Lesson?> AdminReviewLessonAsync(string userId, string courseId, string lessonId);
 }

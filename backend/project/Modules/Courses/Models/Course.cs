@@ -55,10 +55,10 @@ public class Course
     public ICollection<CourseReview> Reviews { get; set; } = new List<CourseReview>();
 
     public ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
+    public ICollection<AdminReviewLesson> AdminReviewLessons { get; set; } = new List<AdminReviewLesson>();
 
     // Thêm liên kết 1–1
     public CourseStats? CourseStats { get; set; }
-
-
+    public AdminReviewCourse? AdminReviewCourse { get; set; }
 
 }

@@ -13,6 +13,9 @@ public class FullCourseDTO
     public string TeacherId { get; set; } = null!;
     public string TeacherName { get; set; } = null!;
     public string Status { get; set; } = null!;
+    public string ReviewStatus { get; set; } = null!;
+    public string? ReviewByAdminId { get; set; }
+    public string? ReviewByAdminName { get; set; }
     [Required, Range(0, double.MaxValue)]
     public double Price { get; set; }
     [Range(1, 99)]

@@ -17,4 +17,5 @@ public class Admin
     public ICollection<UpdateRequestCourse> ReviewedRequests { get; set; } = new List<UpdateRequestCourse>();
     public ICollection<RefundRequestCourse> RefundRequestCourses { get; set; } = new List<RefundRequestCourse>();
     public ICollection<AdminReviewCourse> AdminReviewCourses { get; set; } = new List<AdminReviewCourse>();
+    public ICollection<AdminReviewLesson> AdminReviewLessons { get; set; } = new List<AdminReviewLesson>();
 }

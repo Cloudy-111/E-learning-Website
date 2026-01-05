@@ -14,6 +14,7 @@ public class AdminReviewCourse
     public DateTime ReviewedAt { get; set; }
     [Required]
     public DateTime EndedAt { get; set; }
+    public int AllowedLessonCount { get; set; }
 
     [ForeignKey(nameof(CourseId))]
     public Course Course { get; set; } = null!;

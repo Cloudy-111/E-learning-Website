@@ -1,9 +1,15 @@
 import { useState, useEffect } from "react";
 
-import { Clock, CheckCircle, XCircle } from "lucide-react";
+import { Clock, CheckCircle, XCircle, Swords } from "lucide-react";
 import { Primary } from "../../../../../components/Buttons.jsx";
 
-import { getFullCourseById } from "../../../../../api/admin.api.js";
+import {
+    getFullCourseById,
+    occupyReviewSlot,
+    // getLessonById,
+} from "../../../../../api/admin.api.js";
+import { getUserFromToken } from "../../../../../utils/auth.js";
+import LessonDetailPopup from "./LessonDetailPopup.jsx";
 
 const getStatusBadge = (status) => {
     const badges = {
@@ -24,6 +30,11 @@ const getStatusBadge = (status) => {
 
 function CourseItemReview({ course, statusFilter, actionLoading, handleApproveClick, handleRejectClick }) {
     const [fullCourse, setFullCourse] = useState(null);
+    const [selectedLessonId, setSelectedLessonId] = useState(null);
+
+    const currentAdmin = getUserFromToken();
+    const currentAdminId = currentAdmin?.adminId ?? currentAdmin?.userId;
+    const isReviewer = fullCourse?.reviewByAdminId && fullCourse.reviewByAdminId === currentAdminId;
 
     useEffect(() => {
         if (!course?.id) {
@@ -49,6 +60,14 @@ function CourseItemReview({ course, statusFilter, actionLoading, handleApproveCl
 
         return () => controller.abort();
     }, [course?.id]);
+
+    const handleLessonClick = (lessonId) => {
+        setSelectedLessonId(lessonId);
+    };
+
+    const handleClosePopup = () => {
+        setSelectedLessonId(null);
+    };
 
     if (!course || !course.id) {
         return (
@@ -120,6 +139,12 @@ function CourseItemReview({ course, statusFilter, actionLoading, handleApproveCl
                             {fullCourse.updatedAt ? new Date(fullCourse.updatedAt).toLocaleString("vi-VN") : "Không rõ"}
                         </p>
                     </div>
+                    {fullCourse.reviewByAdminName && (
+                        <div className="col-span-2">
+                            <span className="text-sm text-gray-500">Người duyệt</span>
+                            <p className="font-semibold text-lg text-gray-900">{fullCourse.reviewByAdminName}</p>
+                        </div>
+                    )}
                 </div>
 
                 {fullCourse.courseContent && fullCourse.courseContent.lessons && fullCourse.courseContent.lessons.length > 0 && (
@@ -127,7 +152,17 @@ function CourseItemReview({ course, statusFilter, actionLoading, handleApproveCl
                         <h4 className="text-xl font-semibold text-gray-800 mb-3 border-b pb-2">Nội dung khóa học</h4>
                         <ul className="space-y-3">
                             {fullCourse.courseContent.lessons.sort((a, b) => a.order - b.order).map(lesson => (
-                                <li key={lesson.id} className="p-3 bg-gray-50 rounded-md flex justify-between items-center">
+                                <li 
+                                    key={lesson.id} 
+                                    className={`
+                                        p-3 rounded-md flex justify-between items-center transition-colors
+                                        ${isReviewer
+                                            ? "bg-gray-50 cursor-pointer hover:bg-gray-100"
+                                            : "bg-gray-200 cursor-not-allowed pointer-events-none"
+                                        }
+                                    `}
+                                    onClick={isReviewer ? () => handleLessonClick(lesson.id) : undefined}
+                                >
                                     <span className="font-medium">Bài {lesson.order}: {lesson.title}</span>
                                     <span className="text-sm text-gray-600">{lesson.duration} phút</span>
                                 </li>
@@ -142,24 +177,39 @@ function CourseItemReview({ course, statusFilter, actionLoading, handleApproveCl
                             variant="outline"
                             size="lg"
                             className="flex items-center gap-2"
-                            onClick={() => handleRejectClick(course.id)}
-                            disabled={actionLoading}
+                            onClick={() => { occupyReviewSlot(course.id) }}
+                            disabled={!!fullCourse.reviewByAdminId || actionLoading}
                         >
-                            <XCircle className="w-5 h-5" />
-                            Từ chối
+                            <Swords className="w-5 h-5" />
+                            Review
                         </Primary>
-                        <Primary
-                            size="lg"
-                            className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
-                            onClick={() => handleApproveClick(course.id)}
-                            disabled={actionLoading}
-                        >
-                            <CheckCircle className="w-5 h-5" />
-                            Phê duyệt
-                        </Primary>
+                        {fullCourse.reviewStatus === "InReview" && isReviewer && (
+                            <>
+                                <Primary
+                                    variant="outline"
+                                    size="lg"
+                                    className="flex items-center gap-2"
+                                    onClick={() => handleRejectClick(course.id)}
+                                    disabled={actionLoading}
+                                >
+                                    <XCircle className="w-5 h-5" />
+                                    Từ chối
+                                </Primary>
+                                <Primary
+                                    size="lg"
+                                    className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+                                    onClick={() => handleApproveClick(course.id)}
+                                    disabled={actionLoading}
+                                >
+                                    <CheckCircle className="w-5 h-5" />
+                                    Phê duyệt
+                                </Primary>
+                            </>
+                        )}
                     </div>
                 )}
             </div>
+            <LessonDetailPopup courseId={course.id} lessonId={selectedLessonId} onClose={handleClosePopup} />
         </div>
     );
 }

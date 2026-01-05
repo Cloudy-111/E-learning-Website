@@ -76,4 +76,56 @@ async function getFullCourseById(courseId) {
   }
 }
 
-export { adminLogin, getCoursesByStatusByAdmin, getFullCourseById };
+async function occupyReviewSlot(courseId) {
+  try {
+    const response = await baseFetch(
+      `/api/admin/${courseId}/admin-review-course`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "*/*",
+          ...authHeader(),
+        },
+      }
+    );
+    if (response.status === "error") {
+      throw new Error(response.message);
+    }
+    return response;
+  } catch (error) {
+    console.error("Occupy review slot error:", error);
+    throw new Error(error);
+  }
+}
+
+async function adminGetLessonById(courseId, lessonId) {
+  try {
+    const response = await baseFetch(
+      `/api/admin/${courseId}/lessons/${lessonId}/admin-review-lesson`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "*/*",
+          ...authHeader(),
+        },
+      }
+    );
+    if (response.status === "error") {
+      throw new Error(response.message);
+    }
+    return response;
+  } catch (error) {
+    console.error("Get lesson by ID error:", error);
+    throw new Error(error);
+  }
+}
+
+export {
+  adminLogin,
+  getCoursesByStatusByAdmin,
+  getFullCourseById,
+  occupyReviewSlot,
+  adminGetLessonById,
+};

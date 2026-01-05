@@ -5,10 +5,18 @@ import CourseItem from "./CourseItem";
 import CourseItemReview from "./CourseItemReview";
 
 function CourseList({ courses, statusFilter, actionLoading, handleRejectClick }) {
-    var [course, setCourse] = useState(null);
+    const [course, setCourse] = useState(null);
+    const [courseList, setCourseList] = useState(courses);
+
     useEffect(() => {
+        setCourseList(courses);
         if (courses && courses.length > 0) {
-            setCourse(courses[0]);
+            const currentCourse = courses.find(c => c.id === course?.id);
+            if (currentCourse) {
+                setCourse(currentCourse);
+            } else {
+                setCourse(courses[0]);
+            }
         } else {
             setCourse(null);
         }
@@ -21,10 +29,10 @@ function CourseList({ courses, statusFilter, actionLoading, handleRejectClick })
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
             <div className="lg:col-span-1 space-y-4">
-                {courses.map((course) => (
+                {courseList.map((courseItem) => (
                     <CourseItem
-                        key={course.id}
-                        course={course}
+                        key={courseItem.id}
+                        course={courseItem}
                         statusFilter={statusFilter}
                         actionLoading={actionLoading}
                         handleRejectClick={handleRejectClick}

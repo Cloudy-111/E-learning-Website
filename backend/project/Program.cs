@@ -47,6 +47,23 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
     };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+
+            if (!string.IsNullOrEmpty(accessToken) &&
+                path.StartsWithSegments("/hubs"))
+            {
+                context.Token = accessToken;
+            }
+
+            return Task.CompletedTask;
+        }
+    };
 });
 // Add services to the container.
 builder.Services.AddScoped<IExamService, ExamService>();
@@ -152,12 +169,16 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// Config SignalR
+builder.Services.AddSignalR();
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowReactApp",
-        policy => policy.AllowAnyOrigin()
+    options.AddPolicy("SignalRCors",
+        policy => policy.WithOrigins("http://localhost:5173", "https://localhost:7250")
                         .AllowAnyMethod()
-                        .AllowAnyHeader());
+                        .AllowAnyHeader()
+                        .AllowCredentials());
 });
 
 builder.Services.Configure<ApiBehaviorOptions>(options =>
@@ -195,7 +216,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors("AllowReactApp");
+app.UseCors("SignalRCors");
 
 app.UseAuthentication();
 app.UseAuthorization();
