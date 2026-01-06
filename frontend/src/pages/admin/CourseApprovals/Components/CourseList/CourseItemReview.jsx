@@ -14,7 +14,7 @@ import LessonDetailPopup from "./LessonDetailPopup.jsx";
 const getStatusBadge = (status) => {
     const badges = {
         pending: { label: "Chờ duyệt", className: "bg-yellow-100 text-yellow-800", icon: Clock },
-        approved: { label: "Đã duyệt", className: "bg-green-100 text-green-800", icon: CheckCircle },
+        published: { label: "Đã duyệt", className: "bg-green-100 text-green-800", icon: CheckCircle },
         rejected: { label: "Đã từ chối", className: "bg-red-100 text-red-800", icon: XCircle },
     };
     const badge = badges[status?.toLowerCase()] || badges.pending;
@@ -28,7 +28,7 @@ const getStatusBadge = (status) => {
     );
 };
 
-function CourseItemReview({ course, statusFilter, actionLoading, handleApproveClick, handleRejectClick }) {
+function CourseItemReview({ course, statusFilter, actionLoading, onApproveClick, onRejectClick }) {
     const [fullCourse, setFullCourse] = useState(null);
     const [selectedLessonId, setSelectedLessonId] = useState(null);
 
@@ -189,7 +189,7 @@ function CourseItemReview({ course, statusFilter, actionLoading, handleApproveCl
                                     variant="outline"
                                     size="lg"
                                     className="flex items-center gap-2"
-                                    onClick={() => handleRejectClick(course.id)}
+                                    onClick={() => onRejectClick(course.id, course.title)}
                                     disabled={actionLoading}
                                 >
                                     <XCircle className="w-5 h-5" />
@@ -198,7 +198,7 @@ function CourseItemReview({ course, statusFilter, actionLoading, handleApproveCl
                                 <Primary
                                     size="lg"
                                     className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
-                                    onClick={() => handleApproveClick(course.id)}
+                                    onClick={() => onApproveClick(course.id, course.title)}
                                     disabled={actionLoading}
                                 >
                                     <CheckCircle className="w-5 h-5" />

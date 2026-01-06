@@ -48,7 +48,7 @@ const LessonDetailPopup = ({ courseId, lessonId, onClose }) => {
                     ) : (
                         <h2 className="text-2xl font-bold text-gray-900">{lesson?.title}</h2>
                     )}
-                    <button onClick={onClose} className="text-gray-500 bg-transparent hover:text-gray-800">
+                    <button onClick={onClose} className="text-gray-500 bg-transparent border-none focus:outline-none hover:text-gray-800">
                         <X size={24} />
                     </button>
                 </div>

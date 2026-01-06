@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using project.Models;
 
@@ -12,6 +13,8 @@ public class AdminService : IAdminService
     const string NO_REVIEW_STATUS = "NoReview";
     const string IN_REVIEW_STATUS = "InReview";
     const string REVIEWED_STATUS = "Reviewed";
+    const string APPROVED_STATUS = "Published";
+    const string REJECTED_STATUS = "Rejected";
 
     public AdminService(
         IAdminRepository adminRepository,
@@ -56,7 +59,8 @@ public class AdminService : IAdminService
             CategoryId = c.CategoryId,
             CategoryName = c.Category?.Name ?? "Unknown",
             TeacherId = c.TeacherId,
-            TeacherName = c.Teacher?.User?.FullName ?? "Unknown"
+            TeacherName = c.Teacher?.User?.FullName ?? "Unknown",
+            RejectReason = c.AdminReviewCourse?.Reason
         });
 
         return new PageResultCoursesDTO
@@ -125,19 +129,56 @@ public class AdminService : IAdminService
 
     }
 
-    public async Task AdminApproveCourseAsync(string courseId)
+    public async Task AdminApproveCourseAsync(string userId, string courseId)
     {
-        var course = await _courseRepository.GetCourseByStatusAsync(courseId, "pending") ?? throw new KeyNotFoundException("Course not found");
-        course.Status = "published";
-        await _unitOfWork.SaveChangesAsync();
+        var adminId = await _adminRepository.GetAdminIdAsync(userId);
+        var recordExist = await _adminRepository.GetAdminReviewCourseRecordAsync(courseId);
+        if (recordExist != null)
+        {
+            if (recordExist.AdminId != adminId)
+            {
+                throw new UnauthorizedAccessException("You are not authorized to approve this course.");
+            }
+            if (recordExist.Status == REVIEWED_STATUS && string.IsNullOrEmpty(recordExist.Reason))
+            {
+                throw new InvalidOperationException("This course has already been approved.");
+            }
+        }
+
+        var lessonsReviewed = await _adminRepository.GetAdminReviewedLessonsAsync(adminId, courseId);
+        if (!lessonsReviewed.Any())
+        {
+            throw new InvalidOperationException("You must review at least one lesson before approving the course.");
+        }
+
+        await _adminRepository.UpdateAdminReviewCourseAsync(courseId, REVIEWED_STATUS, null);
+        await _courseRepository.UpdateCourseStatusAsync(courseId, APPROVED_STATUS);
     }
 
-    public async Task AdminRejectCourseAsync(string courseId, RejectCourseRequestDTO rejectDTO)
+    public async Task AdminRejectCourseAsync(string userId, string courseId, string RejectReason)
     {
-        var course = await _courseRepository.GetCourseByStatusAsync(courseId, "pending") ?? throw new KeyNotFoundException("Course not found");
-        course.Status = "rejected";
-        // Use reason from rejectDTO if needed
-        await _unitOfWork.SaveChangesAsync();
+        var adminId = await _adminRepository.GetAdminIdAsync(userId);
+        var recordExist = await _adminRepository.GetAdminReviewCourseRecordAsync(courseId);
+        if (recordExist != null)
+        {
+            if (recordExist.AdminId != adminId)
+            {
+                throw new UnauthorizedAccessException("You are not authorized to approve this course.");
+            }
+            if (recordExist.Status == REVIEWED_STATUS && string.IsNullOrEmpty(recordExist.Reason))
+            {
+                throw new InvalidOperationException("This course has already been approved.");
+            }
+        }
+
+        var lessonsReviewed = await _adminRepository.GetAdminReviewedLessonsAsync(adminId, courseId);
+        if (!lessonsReviewed.Any())
+        {
+            throw new InvalidOperationException("You must review at least one lesson before approving the course.");
+        }
+
+        await _adminRepository.UpdateAdminReviewCourseAsync(courseId, REVIEWED_STATUS, RejectReason);
+        await _courseRepository.UpdateCourseStatusAsync(courseId, REJECTED_STATUS);
     }
 
     public async Task<IEnumerable<RefundRequestCourseDTO>> GetPendingRefundRequestsAsync()
@@ -177,6 +218,7 @@ public class AdminService : IAdminService
 
         var AdminReviewCourseRecord = new AdminReviewCourse
         {
+            Id = Guid.NewGuid().ToString(),
             AdminId = adminId,
             CourseId = courseId,
             ReviewedAt = DateTime.UtcNow,

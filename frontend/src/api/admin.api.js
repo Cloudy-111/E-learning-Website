@@ -33,6 +33,8 @@ async function getCoursesByStatusByAdmin(params = {}) {
   try {
     const searchParams = new URLSearchParams();
     if (params.status) searchParams.append("status", params.status);
+    if (params.page) searchParams.append("page", params.page);
+    if (params.pageSize) searchParams.append("pageSize", params.pageSize);
     const queryString = searchParams.toString();
 
     const response = await baseFetch(
@@ -122,10 +124,53 @@ async function adminGetLessonById(courseId, lessonId) {
   }
 }
 
+async function adminApproveCourse(courseId) {
+  try {
+    const response = await baseFetch(`/api/admin/courses/${courseId}/approve`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        accept: "*/*",
+        ...authHeader(),
+      },
+    });
+    if (response.status === "error") {
+      throw new Error(response.message);
+    }
+    return response;
+  } catch (error) {
+    console.error("Admin approve course error:", error);
+    throw new Error(error);
+  }
+}
+
+async function adminRejectCourse(courseId, reason) {
+  try {
+    const response = await baseFetch(`/api/admin/courses/${courseId}/reject`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        accept: "*/*",
+        ...authHeader(),
+      },
+      body: JSON.stringify({ RejectReason: reason }),
+    });
+    if (response.status === "error") {
+      throw new Error(response.message);
+    }
+    return response;
+  } catch (error) {
+    console.error("Admin reject course error:", error);
+    throw new Error(error);
+  }
+}
+
 export {
   adminLogin,
   getCoursesByStatusByAdmin,
   getFullCourseById,
   occupyReviewSlot,
   adminGetLessonById,
+  adminApproveCourse,
+  adminRejectCourse,
 };

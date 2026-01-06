@@ -5,6 +5,8 @@ using project.Models;
 public class AdminReviewCourse
 {
     [Key]
+    public string Id { get; set; } = null!;
+    [Required]
     public string CourseId { get; set; } = null!;
     [Required]
     public string AdminId { get; set; } = null!;
@@ -15,6 +17,7 @@ public class AdminReviewCourse
     [Required]
     public DateTime EndedAt { get; set; }
     public int AllowedLessonCount { get; set; }
+    public string? Reason { get; set; }
 
     [ForeignKey(nameof(CourseId))]
     public Course Course { get; set; } = null!;

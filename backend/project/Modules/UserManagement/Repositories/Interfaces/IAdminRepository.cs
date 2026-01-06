@@ -13,6 +13,7 @@ public interface IAdminRepository
     Task<string> GetAdminIdAsync(string userId);
     Task<string> GetAdminNameAsync(string adminId);
     Task AdminReviewCourseAsync(AdminReviewCourse adminReviewCourse);
+    Task<bool> UpdateAdminReviewCourseAsync(string courseId, string status, string? rejectReason);
     Task<bool> IsAdminReviewCourseRecordExistAsync(string courseId);
     Task<IEnumerable<AdminReviewLesson>> GetAdminReviewedLessonsAsync(string adminId, string courseId);
     Task AdminReviewLessonAsync(AdminReviewLesson adminReviewLesson);

@@ -393,9 +393,6 @@ public class DBContext : IdentityDbContext<User>
             .HasForeignKey<AdminReviewCourse>(arc => arc.CourseId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<AdminReviewCourse>()
-            .HasKey(x => x.CourseId);
-
         modelBuilder.Entity<Course>()
             .HasOne(c => c.AdminReviewCourse)
             .WithOne(arc => arc.Course)

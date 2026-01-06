@@ -137,4 +137,17 @@ public class AdminRepository : IAdminRepository
         _dbContext.AdminReviewLesson.Add(adminReviewLesson);
         await _dbContext.SaveChangesAsync();
     }
+
+    public async Task<bool> UpdateAdminReviewCourseAsync(string courseId, string status, string? rejectReason)
+    {
+        var adminReviewCourse = await _dbContext.AdminReviewCourses
+            .FirstOrDefaultAsync(arc => arc.CourseId == courseId)
+            ?? throw new KeyNotFoundException("Admin review course record not found");
+
+        adminReviewCourse.Status = status;
+        adminReviewCourse.Reason = rejectReason;
+        _dbContext.AdminReviewCourses.Update(adminReviewCourse);
+        await _dbContext.SaveChangesAsync();
+        return true;
+    }
 }

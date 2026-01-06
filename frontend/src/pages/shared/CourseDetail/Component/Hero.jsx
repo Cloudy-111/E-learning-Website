@@ -21,7 +21,7 @@ function Hero({ course, isEnrolledState }) {
   } = course || {};
 
   const hasDiscount = typeof discountPrice === "number" && discountPrice > 0 && discountPrice < price;
-  const finalPrice = hasDiscount ? discountPrice : price;
+  const finalPrice = hasDiscount ? (100 - discountPrice) * price / 100 : price;
 
   return (
     <section className="w-screen overflow-x-hidden pt-8">

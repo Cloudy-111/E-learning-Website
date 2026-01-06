@@ -4,7 +4,7 @@ import { Check, X } from "lucide-react";
 import CourseItem from "./CourseItem";
 import CourseItemReview from "./CourseItemReview";
 
-function CourseList({ courses, statusFilter, actionLoading, handleRejectClick }) {
+function CourseList({ courses, statusFilter, actionLoading, onRejectClick, onApproveClick }) {
     const [course, setCourse] = useState(null);
     const [courseList, setCourseList] = useState(courses);
 
@@ -35,7 +35,6 @@ function CourseList({ courses, statusFilter, actionLoading, handleRejectClick })
                         course={courseItem}
                         statusFilter={statusFilter}
                         actionLoading={actionLoading}
-                        handleRejectClick={handleRejectClick}
                         setCourseReview={setCourseReview}
                     />
                 ))}
@@ -45,6 +44,8 @@ function CourseList({ courses, statusFilter, actionLoading, handleRejectClick })
                     <CourseItemReview
                         course={course}
                         statusFilter={statusFilter}
+                        onApproveClick={onApproveClick}
+                        onRejectClick={onRejectClick}
                     />
                 </div>
             </div>
