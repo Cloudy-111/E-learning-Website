@@ -96,7 +96,13 @@ namespace project.Modules.Posts.Controller
         {
             try
             {
-                await _discussionService.DeleteAsync(GetStudentId(), discussionId);
+                var isAdmin = User.IsInRole("Admin");
+                var studentId = User.FindFirst("StudentId")?.Value;
+
+                if (!isAdmin && string.IsNullOrEmpty(studentId))
+                    return Unauthorized("Không tìm thấy StudentId");
+
+                await _discussionService.DeleteAsync(studentId, discussionId, isAdmin);
                 return Ok(new { message = "Xóa Discussion thành công." });
             }
             catch (Exception ex)

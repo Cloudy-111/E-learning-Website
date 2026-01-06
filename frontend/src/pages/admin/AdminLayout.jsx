@@ -7,7 +7,8 @@ import {
     FileText,
     BarChart,
     Settings,
-    LogOut
+    LogOut,
+    Flag
 } from "lucide-react";
 
 export default function AdminLayout() {

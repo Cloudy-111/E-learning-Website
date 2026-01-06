@@ -9,4 +9,5 @@ public interface IReportService
     Task<List<ReportDto>> GetAllAsync();
     Task ApproveAsync(string reportId);
     Task RejectAsync(string reportId);
+    Task DeleteReportAsync(string id);
 }

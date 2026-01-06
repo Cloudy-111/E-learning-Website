@@ -58,5 +58,14 @@ namespace project.Modules.Posts.Controller
         await _service.RejectAsync(id);
         return Ok(new { message = "Báo cáo đã bị từ chối." });
     }
+
+    // ADMIN xóa report
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Delete(string id)
+    {
+        await _service.DeleteReportAsync(id);
+        return Ok(new { message = "Xóa báo cáo thành công." });
+    }
     }
 }

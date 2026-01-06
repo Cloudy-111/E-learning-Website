@@ -8,8 +8,10 @@ export default function HeroSection() {
             <div className="w-screen px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 items-center gap-10 lg:gap-14">
                 {/* Trái: minh hoạ */}
                 <div className="order-2 lg:order-1">
-                    <div
-                        className="w-full aspect-[4/3] rounded-2xl bg-gradient-to-tr from-blue-100 via-sky-100 to-indigo-100 border grid place-items-center"
+                    <img
+                        src="https://2489013871.e.cdneverest.net/uet.edu.vn/2024/04/3112121-1.png"
+                        alt="Hero illustration"
+                        className="w-full aspect-[4/3] rounded-2xl object-cover border"
                         style={{ borderColor: BORDER }}
                     >
                         <img 
