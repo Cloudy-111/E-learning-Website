@@ -28,7 +28,7 @@ function PopupAlertConfirm({
                 </div>
 
                 <div className="p-5 text-gray-700">
-                    <p className="text-left">{message}</p>
+                    <div className="text-left">{message}</div>
                 </div>
 
                 {needReason && (

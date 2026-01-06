@@ -93,6 +93,9 @@ public class CourseRepository : ICourseRepository
             .Include(c => c.Category)
             .Include(c => c.Teacher)
                 .ThenInclude(t => t.User)
+            .Include(c => c.AdminReviewCourse)
+                .ThenInclude(arc => arc.Admin)
+                .ThenInclude(a => a.User)
             .AsQueryable();
 
         if (!string.IsNullOrEmpty(keyword))

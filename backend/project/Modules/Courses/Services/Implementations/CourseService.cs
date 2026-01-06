@@ -305,7 +305,10 @@ public class CourseService : ICourseService
                 CategoryName = c.Category.Name,
                 TeacherId = c.TeacherId,
                 TeacherName = c.Teacher.User.FullName,
-                EnrollmentCount = c.Enrollments.Count
+                EnrollmentCount = c.Enrollments.Count,
+                ReviewByAdminName = c.AdminReviewCourse?.Admin?.User?.FullName,
+                RejectReason = c.AdminReviewCourse?.Reason,
+                ReviewStatus = c.AdminReviewCourse?.Status,
             });
 
             var CourseStatisticDTO = new CourseStatisticDTO

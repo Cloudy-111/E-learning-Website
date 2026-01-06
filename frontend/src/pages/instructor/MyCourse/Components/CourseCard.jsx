@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { Users, FileClock, MoreVertical, Eye, Rocket, Undo2, Copy, Edit, Plus } from "lucide-react";
+import PopupAlertConfirm from "../../../../components/PopupAlertConfirm";
 
 const BADGE = (s) => {
     if (s === "draft") {
@@ -23,6 +24,7 @@ const formattedDate = (date) => {
 
 function CourseCard({ c, onRequestPublish, onAddExam }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [openRejectInfo, setOpenRejectInfo] = useState(false);
     const menuRef = useRef(null);
 
     // Close menu when clicking outside
@@ -82,6 +84,19 @@ function CourseCard({ c, onRequestPublish, onAddExam }) {
                             >
                                 <Eye className="w-4 h-4" /> Xem bài kiểm tra
                             </Link>
+
+                            {c.status === "rejected" && (
+                                <button
+                                    type="button"
+                                    className="w-full text-left px-3 py-2 text-sm bg-transparent hover:bg-gray-50 inline-flex items-center gap-2"
+                                    onClick={() => {
+                                        setIsMenuOpen(false);
+                                        setOpenRejectInfo(true);
+                                    }}
+                                >
+                                    <Eye className="w-4 h-4" /> Xem lý do từ chối
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>
@@ -131,7 +146,32 @@ function CourseCard({ c, onRequestPublish, onAddExam }) {
                 </div>
             )}
 
-
+            <PopupAlertConfirm
+                open={openRejectInfo}
+                title="Thông tin từ chối khoá học"
+                message={
+                    <div className="space-y-2 text-left">
+                        <p>
+                            <span className="font-medium">Trạng thái duyệt: </span>
+                            {c.reviewStatus || c.ReviewStatus || "N/A"}
+                        </p>
+                        {(c.reviewByAdminName || c.ReviewByAdminName) && (
+                            <p>
+                                <span className="font-medium">Người duyệt: </span>
+                                {c.reviewByAdminName || c.ReviewByAdminName}
+                            </p>
+                        )}
+                        <p>
+                            <span className="font-medium">Lý do từ chối: </span>
+                            {c.rejectReason || c.RejectReason || "Không có lý do từ chối"}
+                        </p>
+                    </div>
+                }
+                confirmText="Đóng"
+                cancelText="Đóng"
+                onConfirm={() => setOpenRejectInfo(false)}
+                onCancel={() => setOpenRejectInfo(false)}
+            />
         </article>
     )
 }
