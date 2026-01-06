@@ -164,13 +164,14 @@ namespace project.Modules.Posts.Controller
         [HttpDelete("deletehard/{id}")]
         public async Task<ActionResult> HardDeletePost(string id)
         {
+            var isAdmin = User.IsInRole("Admin");
             var authorId = User.FindFirst("StudentId")?.Value;
-            if (string.IsNullOrEmpty(authorId))
+            if (!isAdmin && string.IsNullOrEmpty(authorId))
                 return Unauthorized("User not found in token");
 
             try
             {
-                await _postService.HardDeletePostAsync(id, authorId);
+                await _postService.HardDeletePostAsync(id, authorId, isAdmin);
                 return Ok(new { message = "Post permanently deleted successfully" });
             }
             catch (Exception ex)

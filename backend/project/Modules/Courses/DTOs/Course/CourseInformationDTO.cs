@@ -6,6 +6,9 @@ public class CourseInformationDTO
     public decimal Price { get; set; }
     public decimal? DiscountPrice { get; set; }
     public string Status { get; set; } = null!;
+    public string? ReviewStatus { get; set; }
+    public string? ReviewByAdminId { get; set; }
+    public string? ReviewByAdminName { get; set; }
     public string? ThumbnailUrl { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
@@ -18,4 +21,5 @@ public class CourseInformationDTO
     public string? TeacherId { get; set; }
     public string? TeacherName { get; set; }
     public int EnrollmentCount { get; set; }
+    public string? RejectReason { get; set; }
 }

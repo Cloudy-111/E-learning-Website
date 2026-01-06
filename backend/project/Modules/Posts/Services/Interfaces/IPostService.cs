@@ -18,7 +18,7 @@ public interface IPostService
     Task<PostDto> CreatePostAsync(PostCreateDto dto, string authorId, string authorName);
     Task<PostDto> UpdatePostAsync(string id, PostUpdateDto dto, string authorId);
     Task<bool> SoftDeletePostAsync(string id, string authorId);
-    Task<bool> HardDeletePostAsync(string id, string authorId);
+    Task<bool> HardDeletePostAsync(string id, string? authorId, bool isAdmin = false);
 
     Task<PostDto> RestorePostAsync(string id, string authorId);
     Task<IEnumerable<PostDto>> GetPostsByMemberIdAsync(string memberId);

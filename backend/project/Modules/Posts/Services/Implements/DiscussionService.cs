@@ -104,12 +104,13 @@ public class DiscussionService : IDiscussionService
         return MapToDto(updated);
     }
 
-    public async Task DeleteAsync(string studentId, string discussionId)
+    public async Task DeleteAsync(string? studentId, string discussionId, bool isAdmin = false)
     {
         var discussion = await _discussionRepository.GetByIdAsync(discussionId);
         if (discussion == null)
             throw new Exception("Discussion không tồn tại.");
-        if (discussion.StudentId != studentId)
+        
+        if (!isAdmin && discussion.StudentId != studentId)
             throw new Exception("Bạn không có quyền xóa Discussion này.");
 
         await _discussionRepository.DeleteAsync(discussion);

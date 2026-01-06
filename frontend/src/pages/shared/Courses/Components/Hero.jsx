@@ -26,11 +26,11 @@ function Hero() {
       <div className="w-screen px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 items-start gap-10 lg:gap-14">
         {/* LEFT illustration */}
         <div className="order-2 lg:order-1">
-          <div className="w-full aspect-[4/3] rounded-2xl overflow-hidden border">
-            <img
-              src="../../../public/banner2.jpg"
-              alt="Ảnh minh họa khóa học"
-              className="w-full h-full object-cover"
+          <div className="w-full aspect-[4/3] rounded-2xl bg-gradient-to-tr from-blue-100 via-indigo-100 to-sky-100 border grid place-items-center">
+            <img 
+              src="https://images.pexels.com/photos/35391833/pexels-photo-35391833.jpeg" 
+              alt="Learning Illustration" 
+              className="w-full h-full object-cover rounded-lg shadow-lg"
             />
           </div>
         </div>
@@ -47,7 +47,7 @@ function Hero() {
             Hãy chọn ngay khóa học yêu thích từ các chủ đề hàng đầu.
           </p>
 
-          <div className="mt-5 flex items-center justify-between">
+          {/* <div className="mt-5 flex items-center justify-between">
             <div className="text-sm font-medium text-slate-700">Lịch sử học gần đây</div>
             <Link to="/s/enrollments" className="text-sm text-[#2563eb] hover:underline">
               Xem tất cả
@@ -55,23 +55,10 @@ function Hero() {
           </div>
 
           <div className="mt-3 flex gap-3 overflow-x-auto pb-2">
-            {recentCourses.length > 0 ? (
-              recentCourses.map((enrollment) => {
-                // Adapt API data to HistoryCard props
-                // Note: Check if 'enrollment' has course details nested or flat
-                // Assuming structure: enrollment.courseName, enrollment.instructorName, enrollment.progress
-                const item = {
-                  id: enrollment.courseId || enrollment.id,
-                  title: enrollment.courseTitle || enrollment.courseName || "Khóa học",
-                  teacher: enrollment.instructorName || "Giảng viên",
-                  progress: `Hoàn thành ${enrollment.progress || 0}%`
-                };
-                return <HistoryCard key={item.id} item={item} />;
-              })
-            ) : (
-              <div className="text-sm text-slate-500 italic">Bạn chưa đăng ký khóa học nào.</div>
-            )}
-          </div>
+            {HISTORY.map((h) => (
+              <HistoryCard key={h.id} item={h} />
+            ))}
+          </div> */}
         </div>
       </div>
     </section>

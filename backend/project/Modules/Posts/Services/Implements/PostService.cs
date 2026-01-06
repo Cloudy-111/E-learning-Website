@@ -217,13 +217,13 @@ public class PostService : IPostService
     }
 
     // Xóa cứng
-    public async Task<bool> HardDeletePostAsync(string id, string authorId)
+    public async Task<bool> HardDeletePostAsync(string id, string? authorId, bool isAdmin = false)
     {
         var post = await _postRepository.GetAllPostByIdAsync(id);
         if (post == null)
             throw new Exception("Post not found");
 
-        if (post.AuthorId != authorId)
+        if (!isAdmin && post.AuthorId != authorId)
             throw new Exception("You are not the author of this post");
 
         await _postRepository.RemoveAsync(post);

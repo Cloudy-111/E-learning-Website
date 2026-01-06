@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace project.Migrations
 {
     [DbContext(typeof(DBContext))]
-    [Migration("20251203025536_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260106090537_Add_Id_for_AdminReviewCourse")]
+    partial class Add_Id_for_AdminReviewCourse
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -23,6 +23,74 @@ namespace project.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("AdminReviewCourse", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AdminId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("AllowedLessonCount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CourseId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("EndedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ReviewedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdminId");
+
+                    b.HasIndex("CourseId")
+                        .IsUnique();
+
+                    b.ToTable("AdminReviewCourses");
+                });
+
+            modelBuilder.Entity("AdminReviewLesson", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("AdminId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CourseId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("LessonId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AdminId");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("LessonId")
+                        .IsUnique();
+
+                    b.ToTable("AdminReviewLesson");
+                });
 
             modelBuilder.Entity("Category", b =>
                 {
@@ -1291,6 +1359,52 @@ namespace project.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("AdminReviewCourse", b =>
+                {
+                    b.HasOne("project.Models.Admin", "Admin")
+                        .WithMany("AdminReviewCourses")
+                        .HasForeignKey("AdminId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("project.Models.Course", "Course")
+                        .WithOne("AdminReviewCourse")
+                        .HasForeignKey("AdminReviewCourse", "CourseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Admin");
+
+                    b.Navigation("Course");
+                });
+
+            modelBuilder.Entity("AdminReviewLesson", b =>
+                {
+                    b.HasOne("project.Models.Admin", "Admin")
+                        .WithMany("AdminReviewLessons")
+                        .HasForeignKey("AdminId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("project.Models.Course", "Course")
+                        .WithMany("AdminReviewLessons")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("project.Models.Lesson", "Lesson")
+                        .WithOne()
+                        .HasForeignKey("AdminReviewLesson", "LessonId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Admin");
+
+                    b.Navigation("Course");
+
+                    b.Navigation("Lesson");
+                });
+
             modelBuilder.Entity("Choice", b =>
                 {
                     b.HasOne("QuestionExam", "QuestionExam")
@@ -1804,6 +1918,10 @@ namespace project.Migrations
 
             modelBuilder.Entity("project.Models.Admin", b =>
                 {
+                    b.Navigation("AdminReviewCourses");
+
+                    b.Navigation("AdminReviewLessons");
+
                     b.Navigation("RefundRequestCourses");
 
                     b.Navigation("ReviewedRequests");
@@ -1811,7 +1929,12 @@ namespace project.Migrations
 
             modelBuilder.Entity("project.Models.Course", b =>
                 {
-                    b.Navigation("Content");
+                    b.Navigation("AdminReviewCourse");
+
+                    b.Navigation("AdminReviewLessons");
+
+                    b.Navigation("Content")
+                        .IsRequired();
 
                     b.Navigation("CourseStats");
 

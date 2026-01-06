@@ -42,7 +42,7 @@ export default function HeroSection({ query, setQuery, onSearch }) {
                     </div>
 
                     {/* Stats badges */}
-                    <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-[#677788]">
+                    {/* <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-[#677788]">
                         <span className="inline-flex items-center gap-1">
                             <BadgeCheck className="w-4 h-4 text-green-600" /> Nội dung cập nhật hàng tuần
                         </span>
@@ -52,17 +52,17 @@ export default function HeroSection({ query, setQuery, onSearch }) {
                         <span className="inline-flex items-center gap-1">
                             <Stars className="w-4 h-4 text-yellow-600" /> 97% học viên hài lòng
                         </span>
-                    </div>
+                    </div> */}
                 </div>
 
                 {/* Visual */}
-                <div className="rounded-2xl overflow-hidden border shadow-sm">
+                {/* <div className="rounded-2xl overflow-hidden border shadow-sm">
                     <img
                         src="../../../public/banner.jpg"
                         alt="Elearning Hero"
                         className="w-full h-[280px] lg:h-[360px] object-cover"
                     />
-                </div>
+                </div> */}
             </div>
         </section>
     );

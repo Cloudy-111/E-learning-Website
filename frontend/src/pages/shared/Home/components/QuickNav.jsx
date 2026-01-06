@@ -6,8 +6,8 @@ import { BORDER } from "../utils/constants";
 const categories = [
     { icon: <BookOpen className="w-5 h-5" />, label: "Khóa học", to: "/courses", desc: "Lộ trình rõ ràng" },
     { icon: <Library className="w-5 h-5" />, label: "Thư viện đề thi", to: "/exam", desc: "Đáp án chi tiết" },
-    { icon: <Timer className="w-5 h-5" />, label: "Luyện tập nhanh", to: "/s/quick-practice", desc: "Quiz 5-10 phút" },
-    { icon: <PlayCircle className="w-5 h-5" />, label: "Gói thành viên", to: "/membership", desc: "Tiết kiệm 60%" },
+    // { icon: <Timer className="w-5 h-5" />, label: "Luyện tập nhanh", to: "/s/quick-practice", desc: "Quiz 5-10 phút" },
+    // { icon: <PlayCircle className="w-5 h-5" />, label: "Gói thành viên", to: "/membership", desc: "Tiết kiệm 60%" },
 ];
 
 export default function QuickNav() {

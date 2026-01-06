@@ -76,7 +76,7 @@ export default function RegisterForm({
                     <button
                         type="button"
                         onClick={() => setShowPwd((s) => !s)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md focus:outline-none focus:ring-2"
+                        className="absolute bg-transparent right-3 top-1/2 -translate-y-1/2 p-1 rounded-md focus:outline-none focus:ring-2"
                         aria-label={showPwd ? "Ẩn mật khẩu" : "Hiển thị mật khẩu"}
                         style={{ boxShadow: `0 0 0 2px transparent` }}
                     >
@@ -103,14 +103,14 @@ export default function RegisterForm({
             </label>
 
             {/* Teacher option */}
-            <div className="rounded-xl border p-4">
+            {/* <div className="rounded-xl border p-4">
                 <label className="inline-flex items-center gap-2 text-sm">
                     <input type="checkbox" className="accent-blue-600" {...register("isTeacher")} />
                     Đăng ký tài khoản giảng viên
                 </label>
 
                 {isTeacher && <TeacherFields register={register} />}
-            </div>
+            </div> */}
 
             <button
                 type="submit"

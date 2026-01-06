@@ -1,34 +1,67 @@
 import { useState, useEffect, useRef } from "react";
-import { getCoursesByStatusByAdmin } from "../../../api/admin.api";
-import { Check, X, Eye, Clock, CheckCircle, XCircle, GraduationCap } from "lucide-react";
-import { ConfirmModal } from "../../../components/ui/Modal";
-import { useToast } from "../../../components/ui/Toast";
-import { PageLoading } from "../../../components/ui/LoadingSpinner";
+import { adminRejectCourse, getCoursesByStatusByAdmin } from "../../../api/admin.api";
 import { CardSkeleton } from "../../../components/ui/Skeleton";
 import Actions from "./Components/Actions";
 import NoCourse from "./Components/NoCourse";
 import CourseList from "./Components/CourseList/CourseList";
 
 import Pagination from "../../../components/Pagination";
+import PopupAlertConfirm from "../../../components/PopupAlertConfirm";
 
-/**
- * CourseApprovals - Admin page to approve/reject course update requests
- */
+import { adminApproveCourse } from "../../../api/admin.api";
+
 export default function CourseApprovals() {
     const [courses, setCourses] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [statusFilter, setStatusFilter] = useState("pending");
-    const [actionLoading, setActionLoading] = useState(null);
-    const [showRejectModal, setShowRejectModal] = useState(false);
-    const [selectedCourse, setSelectedCourse] = useState(null);
     const [rejectReason, setRejectReason] = useState("");
+
+    const [openPopupAccept, setopenPopupAccept] = useState(false);
+    const [selectedCourseId, setSelectedCourseId] = useState(null);
+    const [selectedCourseTitle, setSelectedCourseTitle] = useState("");
+    const [openPopupReject, setopenPopupReject] = useState(false);
 
     const [totalPages, setTotalPages] = useState(1);
     const [currentPage, setCurrentPage] = useState(1);
 
-    const { showToast } = useToast();
     const cacheRef = useRef(new Map());
+
+    const hanleOpenConfirmAccept = (courseId, courseTitle) => {
+        setSelectedCourseId(courseId);
+        setSelectedCourseTitle(courseTitle);
+        setopenPopupAccept(true);
+    }
+
+    const handleOpenConfirmReject = (courseId, courseTitle) => {
+        setSelectedCourseId(courseId);
+        setSelectedCourseTitle(courseTitle);
+        setopenPopupReject(true);
+    }
+
+    const handleConfirmAccept = async () => {
+        try{
+            const res = await adminApproveCourse(selectedCourseId);
+            alert(res.message || "Duyệt khoá học thành công!");
+            window.location.reload();
+        } catch (e) {
+            alert("Duyệt khoá học thất bại: " + e.message);
+        } finally {
+            setopenPopupAccept(false);
+        }
+    }
+
+    const handleConfirmReject = async () => {
+        try{
+            const res = await adminRejectCourse(selectedCourseId, rejectReason);
+            alert(res.message || "Từ chối duyệt khoá học thành công!");
+            window.location.reload();
+        } catch (e) {
+            alert("Từ chối duyệt khoá học thất bại: " + e.message);
+        } finally {
+            setopenPopupReject(false);
+        }
+    }
 
     async function loadCourses(params = {}){
         const key = JSON.stringify(params);
@@ -65,50 +98,9 @@ export default function CourseApprovals() {
     };
     
     useEffect(() => {
-        loadCourses({status: statusFilter});
+        setCurrentPage(1);
+        loadCourses({status: statusFilter, page: 1});
     }, [statusFilter]);
-
-    // const handleApprove = async (courseId) => {
-    //     setActionLoading(courseId);
-    //     try {
-    //         await approveCourse(courseId);
-    //         showToast("Đã duyệt khóa học thành công!", "success");
-    //         loadCourses(); // Reload list
-    //     } catch (error) {
-    //         showToast("Lỗi khi duyệt khóa học", "error");
-    //         console.error("Approve error:", error);
-    //     } finally {
-    //         setActionLoading(null);
-    //     }
-    // };
-
-    const handleRejectClick = (course) => {
-        setSelectedCourse(course);
-        setRejectReason("");
-        setShowRejectModal(true);
-    };
-
-    // const handleRejectConfirm = async () => {
-    //     if (!rejectReason.trim()) {
-    //         showToast("Vui lòng nhập lý do từ chối", "error");
-    //         return;
-    //     }
-
-    //     setActionLoading(selectedCourse.id);
-    //     try {
-    //         await rejectCourse(selectedCourse.id, rejectReason);
-    //         showToast("Đã từ chối khóa học", "success");
-    //         setShowRejectModal(false);
-    //         loadCourses();
-    //     } catch (error) {
-    //         showToast("Lỗi khi từ chối khóa học", "error");
-    //         console.error("Reject error:", error);
-    //     } finally {
-    //         setActionLoading(null);
-    //     }
-    // };
-
-    
 
     if(loading) return (
         <div className="space-y-4">
@@ -122,16 +114,16 @@ export default function CourseApprovals() {
 
     return (
         <div className="p-8">
-            {/* Header */}
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-gray-900">Quản lý khóa học</h1>
                 <p className="text-gray-600 mt-2">Duyệt và quản lý các yêu cầu cập nhật khóa học</p>
             </div>
 
-            {/* Filter Tabs */}
-            <Actions statusFilter={statusFilter} setStatusFilter={setStatusFilter}/>
+            <Actions 
+                statusFilter={statusFilter} 
+                setStatusFilter={setStatusFilter}
+            />
 
-            {/* Courses List */}
             {courses.length === 0 ? (
                 <NoCourse />
             ) : (
@@ -139,47 +131,60 @@ export default function CourseApprovals() {
                     <CourseList
                         courses={courses}
                         statusFilter={statusFilter}
-                        actionLoading={actionLoading}
-                        handleRejectClick={handleRejectClick}
+                        onApproveClick={hanleOpenConfirmAccept}
+                        onRejectClick={handleOpenConfirmReject}
                     />
                     <Pagination 
                         currentPage={currentPage} 
                         totalPages={totalPages} 
                         onPageChange={(page) => {
                             loadCourses({status: statusFilter, page})
+                            window.scrollTo({
+                                top: 0,
+                                behavior: "smooth",
+                            });
                         }}
                     />
                 </>
             )}
 
-            {/* Reject Modal */}
-            <ConfirmModal
-                isOpen={showRejectModal}
-                onClose={() => setShowRejectModal(false)}
-                // onConfirm={handleRejectConfirm}
-                title="Từ chối khóa học"
-                confirmText="Xác nhận từ chối"
+            <PopupAlertConfirm
+                open={openPopupAccept}
+                title="Xác nhận phê duyệt khóa học"
+                message={
+                    <>
+                        Bạn có chắc chắn muốn phê duyệt khóa học{" "}
+                        <strong>"{selectedCourseTitle}"</strong> không? 
+                        Hành động này sẽ công khai khóa học cho người dùng.
+                    </>
+                }
+                confirmText="Phê duyệt"
                 cancelText="Hủy"
-                variant="danger"
-            >
-                <div className="space-y-4">
-                    <p className="text-gray-600">
-                        Bạn có chắc muốn từ chối khóa học <strong>{selectedCourse?.title}</strong>?
-                    </p>
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Lý do từ chối <span className="text-red-500">*</span>
-                        </label>
-                        <textarea
-                            value={rejectReason}
-                            onChange={(e) => setRejectReason(e.target.value)}
-                            placeholder="Nhập lý do từ chối..."
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                            rows={4}
-                        />
-                    </div>
-                </div>
-            </ConfirmModal>
+                onConfirm={handleConfirmAccept}
+                onCancel={() => setopenPopupAccept(false)}
+            />
+
+            <PopupAlertConfirm
+                open={openPopupReject}
+                title="Xác nhận từ chối khóa học"
+                message={
+                    <>
+                        Bạn có chắc chắn muốn từ chối khóa học{" "}
+                        <strong>"{selectedCourseTitle}"</strong> không? 
+                        Hành động này sẽ gửi khóa học trở lại cho giảng viên để chỉnh sửa.
+                    </>
+                }
+                confirmText="Từ chối"
+                cancelText="Hủy"
+                onConfirm={handleConfirmReject}
+                onCancel={() => {
+                    setopenPopupReject(false)
+                    setRejectReason("")}}
+                needReason={true}
+                reasonLabel="Lý do từ chối khóa học"
+                reasonText={rejectReason}
+                onChangeReasonText={setRejectReason}
+            />
         </div>
     );
 }

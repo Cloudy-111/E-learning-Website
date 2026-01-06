@@ -93,6 +93,9 @@ public class CourseRepository : ICourseRepository
             .Include(c => c.Category)
             .Include(c => c.Teacher)
                 .ThenInclude(t => t.User)
+            .Include(c => c.AdminReviewCourse)
+                .ThenInclude(arc => arc.Admin)
+                .ThenInclude(a => a.User)
             .AsQueryable();
 
         if (!string.IsNullOrEmpty(keyword))
@@ -190,8 +193,16 @@ public class CourseRepository : ICourseRepository
             .FirstOrDefaultAsync();
     }
 
-    // public async Task DeleteCourseAsync(string id)
-    // {
-
-    // }
+    public async Task<bool> UpdateCourseStatusAsync(string courseId, string status)
+    {
+        var course = await _dbContext.Courses.FirstOrDefaultAsync(c => c.Id == courseId);
+        if (course == null)
+        {
+            return false;
+        }
+        course.Status = status.ToLower();
+        _dbContext.Courses.Update(course);
+        await _dbContext.SaveChangesAsync();
+        return true;
+    }
 }

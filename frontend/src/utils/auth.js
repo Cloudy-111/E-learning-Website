@@ -36,7 +36,7 @@ export function getUserFromToken() {
   }
 }
 
-/*** ===== Trạng thái đăng nhập ===== ***/
+/* Trạng thái đăng nhập */
 export function isLoggedIn() {
   try {
     return (
@@ -47,7 +47,7 @@ export function isLoggedIn() {
   }
 }
 
-/*** ===== Lấy/Ghi token ===== ***/
+/* Lấy/Ghi token */
 export function getToken() {
   try {
     return localStorage.getItem(AT_KEY) || null;
@@ -79,10 +79,6 @@ export function getRole() {
   }
 }
 
-/**
- * Lưu cặp access/refresh token (dùng chung).
- * @param {{accessToken?: string, refreshToken?: string}} param0
- */
 export function setTokens({ accessToken, refreshToken }) {
   try {
     if (accessToken) localStorage.setItem(AT_KEY, accessToken);
@@ -91,14 +87,13 @@ export function setTokens({ accessToken, refreshToken }) {
   } catch {}
 }
 
-/** Xoá chỉ access token (giữ refresh nếu muốn) – tương thích http.js cũ */
 export function clearToken() {
   try {
     localStorage.removeItem(AT_KEY);
   } catch {}
 }
 
-/** Đăng xuất hoàn toàn */
+/* Đăng xuất */
 export function clearAllAuth() {
   try {
     localStorage.removeItem(AUTH_KEY);
@@ -112,7 +107,6 @@ export function clearAllAuth() {
 
 /*** ===== Thông tin người dùng để hiển thị header ===== ***/
 export function setUserDisplay(userLike) {
-  // userLike: { name?, fullName?, username?, email?, avatarUrl? }
   try {
     const u = {
       name: userLike?.name || userLike?.fullName || userLike?.username || "",
@@ -130,13 +124,12 @@ export function getUserDisplay() {
   }
 }
 
-/*** ===== Header Authorization ===== ***/
+/*Header Authorization*/
 export function authHeader() {
   const t = getToken();
   return t ? { Authorization: `Bearer ${t}` } : {};
 }
 
-/*** ===== Hỗ trợ điều hướng bắt buộc đăng nhập ===== ***/
 export function requireAuth(navigate, redirectTo) {
   if (isLoggedIn()) return true;
   const target =
@@ -168,18 +161,6 @@ export function redirectBackAfterLogin(navigate, fallback = "/") {
   navigate(saved || fallback, { replace: true });
 }
 
-/*** ===== Helpers map theo format backend của bạn =====
- * Backend trả về:
- *  - /api/Auth/login:
- *      { token, userId, fullName, refreshToken, studentId, teacherId }
- *  - /api/Auth/refresh-token:
- *      { token, userId, fullName, refreshToken, studentId, teacherId }
- */
-
-/**
- * Dùng ngay sau khi gọi /api/Auth/login
- * Tự động lưu token/refresh + user hiển thị.
- */
 export function setLoginPayload(loginJson) {
   if (!loginJson) return;
   setTokens({
@@ -193,10 +174,6 @@ export function setLoginPayload(loginJson) {
   });
 }
 
-/**
- * Dùng sau /api/Auth/refresh-token
- * Lưu lại token/refresh mới + cập nhật user hiển thị (nếu có).
- */
 export function setRefreshPayload(refreshJson) {
   if (!refreshJson) return;
   setTokens({
@@ -212,9 +189,6 @@ export function setRefreshPayload(refreshJson) {
   }
 }
 
-/*** ===== Tiện ích nhỏ: fetch có kèm Bearer (tuỳ chọn dùng) ===== ***/
-// Ví dụ:
-// const res = await authFetch('/api/secure', { method: 'GET' });
 export async function authFetch(input, init = {}) {
   const headers = { ...(init.headers || {}), ...authHeader() };
   return fetch(input, { ...init, headers });

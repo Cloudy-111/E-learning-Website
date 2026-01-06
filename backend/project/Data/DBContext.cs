@@ -40,6 +40,8 @@ public class DBContext : IdentityDbContext<User>
     public DbSet<ForumQuestion> ForumQuestions { get; set; } = null!;
     public DbSet<Likes> Likes { get; set; } = null!;
     public DbSet<Reports> Reports { get; set; } = null!;
+    public DbSet<AdminReviewCourse> AdminReviewCourses { get; set; } = null!;
+    public DbSet<AdminReviewLesson> AdminReviewLesson { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -378,10 +380,41 @@ public class DBContext : IdentityDbContext<User>
             .HasIndex(tp => new { tp.TeacherId, tp.Month, tp.Year })
             .IsUnique(); // mỗi giáo viên chỉ có 1 payout/tháng/năm
 
+        // ========== ADMIN REVIEW COURSE ==========
+        modelBuilder.Entity<AdminReviewCourse>()
+            .HasOne(arc => arc.Admin)
+            .WithMany(a => a.AdminReviewCourses)
+            .HasForeignKey(arc => arc.AdminId)
+            .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<AdminReviewCourse>()
+            .HasOne(arc => arc.Course)
+            .WithOne()
+            .HasForeignKey<AdminReviewCourse>(arc => arc.CourseId)
+            .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<Course>()
+            .HasOne(c => c.AdminReviewCourse)
+            .WithOne(arc => arc.Course)
+            .HasForeignKey<AdminReviewCourse>(arc => arc.CourseId);
 
+        // ========== ADMIN REVIEW LESSON ==========
+        modelBuilder.Entity<AdminReviewLesson>()
+            .HasOne(arl => arl.Admin)
+            .WithMany(a => a.AdminReviewLessons)
+            .HasForeignKey(arl => arl.AdminId)
+            .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<AdminReviewLesson>()
+            .HasOne(arl => arl.Lesson)
+            .WithOne()
+            .HasForeignKey<AdminReviewLesson>(arl => arl.LessonId)
+            .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder.Entity<AdminReviewLesson>()
+            .HasOne(arl => arl.Course)
+            .WithMany(c => c.AdminReviewLessons)
+            .HasForeignKey(arl => arl.CourseId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

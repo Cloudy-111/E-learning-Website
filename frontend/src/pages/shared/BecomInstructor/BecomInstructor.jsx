@@ -201,7 +201,7 @@ export default function BecomInstructor() {
     };
 
     return (
-        <>
+        <div className="min-h-screen bg-white">
             <HeroSection />
             <main className="w-full max-w-3xl mx-auto px-6 lg:px-0 py-8 space-y-8">
                 {eligibilityLoading ? (
@@ -248,6 +248,6 @@ export default function BecomInstructor() {
                     </div>
                 )}
             </main>
-        </>
+        </div>
     );
 }

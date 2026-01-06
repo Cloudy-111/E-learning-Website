@@ -5,7 +5,9 @@ namespace project.Modules.Posts.Services.Interfaces;
 
 public interface IReportService
 {
-    Task<IEnumerable<ReportDto>> GetAllReportsAsync();
-    Task<ReportDto?> GetReportByIdAsync(string id);
-
+    Task CreateReportAsync(string reporterId, CreateReportDto dto);
+    Task<List<ReportDto>> GetAllAsync();
+    Task ApproveAsync(string reportId);
+    Task RejectAsync(string reportId);
+    Task DeleteReportAsync(string id);
 }

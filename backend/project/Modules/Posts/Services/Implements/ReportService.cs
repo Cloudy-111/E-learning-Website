@@ -1,20 +1,37 @@
 using System;
+using project.Models.Posts;
 using project.Modules.Posts.DTOs;
 using project.Modules.Posts.Repositories.Interfaces;
 using project.Modules.Posts.Services.Interfaces;
 
 namespace project.Modules.Posts.Services.Implements;
 
-public class ReportService: IReportService
+public class ReportService : IReportService
 {
-     private readonly IReportRepository _repository;
+ private readonly IReportRepository _repository;
 
     public ReportService(IReportRepository repository)
     {
         _repository = repository;
     }
 
-    public async Task<IEnumerable<ReportDto>> GetAllReportsAsync()
+    public async Task CreateReportAsync(string reporterId, CreateReportDto dto)
+    {
+        var report = new Reports
+        {
+            ReporterId = reporterId,
+            TargetType = dto.TargetType,
+            TargetTypeId = dto.TargetTypeId,
+            Reason = dto.Reason,
+            Description = dto.Description,
+            Status = "Pending"
+        };
+
+        await _repository.AddAsync(report);
+        await _repository.SaveChangesAsync();
+    }
+
+    public async Task<List<ReportDto>> GetAllAsync()
     {
         var reports = await _repository.GetAllAsync();
 
@@ -22,33 +39,39 @@ public class ReportService: IReportService
         {
             Id = r.Id,
             ReporterId = r.ReporterId!,
-            ReporterName = r.Student?.User?.FullName ?? "Ẩn danh",
-            TargetType = r.TargetType,
-            TargetTypeId = r.TargetTypeId,
+            TargetType = r.TargetType!,
+            TargetTypeId = r.TargetTypeId!,
             Reason = r.Reason,
             Description = r.Description,
             Status = r.Status,
             CreatedAt = r.CreatedAt
-        });
+        }).ToList();
     }
 
-    public async Task<ReportDto?> GetReportByIdAsync(string id)
+    public async Task ApproveAsync(string reportId)
     {
-        var r = await _repository.GetByIdAsync(id);
-        if (r == null) return null;
+        var report = await _repository.GetByIdAsync(reportId)
+            ?? throw new Exception("Report not found");
 
-        return new ReportDto
-        {
-            Id = r.Id,
-            ReporterId = r.ReporterId!,
-            ReporterName = r.Student?.User?.FullName ?? "Ẩn danh",
-            TargetType = r.TargetType,
-            TargetTypeId = r.TargetTypeId,
-            Reason = r.Reason,
-            Description = r.Description,
-            Status = r.Status,
-            CreatedAt = r.CreatedAt
-        };
+        report.Status = "Resolved";
+        await _repository.SaveChangesAsync();
     }
 
+    public async Task RejectAsync(string reportId)
+    {
+        var report = await _repository.GetByIdAsync(reportId)
+            ?? throw new Exception("Report not found");
+
+        report.Status = "Rejected";
+        await _repository.SaveChangesAsync();
+    }
+
+    public async Task DeleteReportAsync(string id)
+    {
+        var report = await _repository.GetByIdAsync(id)
+            ?? throw new Exception("Report not found");
+
+        _repository.Delete(report);
+        await _repository.SaveChangesAsync();
+    }
 }

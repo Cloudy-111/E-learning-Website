@@ -85,6 +85,8 @@ const MyQuestions = lazy(() => import("./pages/shared/Forum").then(m => ({ defau
 
 // Admin pages
 const AdminLogin = lazy(() => import("./pages/admin/AdminLogin/AdminLogin.jsx"));
+const Reports = lazy(() => import("./pages/admin/Reports/Reports.jsx"));
+
 
 const BecomeInstructor = lazy(() => import("./pages/shared/BecomInstructor/index.js"));
 
@@ -142,12 +144,15 @@ export default function App() {
                     <Route path="/rankings" element={<Rankings />} />
                     <Route path="/u/:id" element={<PublicProfile />} />
                     <Route path="/forum" element={<ForumHome />} />
+                    <Route path="/forum/:id" element={<QuestionDetail />} />
                      <Route path="/i/become-instructor" element={<BecomeInstructor title="🧾 /i/become-instructor — Đăng ký giảng viên" />} />
 
                     <Route path="/blog" element={<Blog />} />
                     <Route path="/blog/search" element={<BlogSearch />} />
                     <Route path="/blog/author/:memberId" element={<BlogAuthor />} />
                     <Route path="/blog/:id" element={<BlogDetail />} />
+
+                    <Route path="/i/become-instructor" element={<BecomeInstructor title="🧾 /i/become-instructor — Đăng ký giảng viên" />} />
 
                     {/* Student */}
                     <Route element={<RequireRole roles={["Student"]} />}>
@@ -175,6 +180,7 @@ export default function App() {
                     <Route path="/admin" element={<AdminLayout />}>
                       <Route path="dashboard" element={<AdminDashboard />} />
                       <Route path="courses" element={<CourseApprovals />} />
+                      <Route path="reports" element={<Reports />} />
                     </Route>
                   </Route>
 
@@ -194,7 +200,6 @@ export default function App() {
 
 
 
-                  <Route path="/forum/:id" element={<QuestionDetail />} />
 
 
 
@@ -218,7 +223,7 @@ export default function App() {
                     <Route path="/forum/new" element={<AskQuestion />} />
                     <Route path="/forum/:id/edit" element={<EditQuestion />} />
                     <Route path="/forum/my" element={<MyQuestions />} />
-                   
+                    
                   </Route>
 
                   {/* ========== PROTECTED: STUDENT ROUTES (/s/*) ========== */}
@@ -257,14 +262,14 @@ export default function App() {
                   </Route>
 
                   {/* ========== PROTECTED: ADMIN ROUTES (/admin/*) ========== */}
-                  {/* <Route element={<PrivateRoute />}>
+                  <Route element={<PrivateRoute />}>
                     <Route element={<RequireRole roles={["Admin"]} />}>
                       <Route path="/admin" element={<AdminLayout />}>
                         <Route path="dashboard" element={<AdminDashboard />} />
                         
                       </Route>
                     </Route>
-                  </Route> */}
+                  </Route>
 
                   {/* ========== LEGACY ROUTES ========== */}
                   <Route path="/exam/:id/start/:attemptId" element={<QuizTest />} />
