@@ -121,7 +121,7 @@ export default function AdminDashboard() {
                         </div>
                     </a>
                     <a
-                        href="/admin/users"
+                        // href="/admin/users"
                         className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
                     >
                         <Users className="w-6 h-6 text-blue-600" />
@@ -131,7 +131,7 @@ export default function AdminDashboard() {
                         </div>
                     </a>
                     <a
-                        href="/admin/analytics"
+                        // href="/admin/analytics"
                         className="flex items-center gap-3 p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
                     >
                         <TrendingUp className="w-6 h-6 text-blue-600" />

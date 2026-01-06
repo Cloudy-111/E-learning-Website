@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace project.Migrations
 {
     [DbContext(typeof(DBContext))]
-    partial class DBContextModelSnapshot : ModelSnapshot
+    [Migration("20260105151250_AdminReviewLesson")]
+    partial class AdminReviewLesson
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -23,7 +26,7 @@ namespace project.Migrations
 
             modelBuilder.Entity("AdminReviewCourse", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<string>("CourseId")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("AdminId")
@@ -33,15 +36,8 @@ namespace project.Migrations
                     b.Property<int>("AllowedLessonCount")
                         .HasColumnType("int");
 
-                    b.Property<string>("CourseId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<DateTime>("EndedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Reason")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("ReviewedAt")
                         .HasColumnType("datetime2");
@@ -50,12 +46,9 @@ namespace project.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("CourseId");
 
                     b.HasIndex("AdminId");
-
-                    b.HasIndex("CourseId")
-                        .IsUnique();
 
                     b.ToTable("AdminReviewCourses");
                 });

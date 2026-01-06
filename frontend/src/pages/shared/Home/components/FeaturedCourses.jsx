@@ -2,6 +2,8 @@
 import { Link } from "react-router-dom";
 import { PRIMARY, PRIMARY_HOVER, BORDER } from "../utils/constants";
 
+import fallbackImage from "../../../../assets/images/fallback-image.jpeg";
+
 export default function FeaturedCourses({ courses = [], loading = false, error = null, onNavigate }) {
     return (
         <section className="w-full px-6 lg:px-12">
@@ -26,7 +28,12 @@ export default function FeaturedCourses({ courses = [], loading = false, error =
                         style={{ borderColor: BORDER }}
                     >
                         <div className="w-full h-40 bg-gray-100">
-                            {c ? <img src={c.thumb} alt={c.title} className="w-full h-40 object-cover" /> : null}
+                            <img
+                                src={c?.thumb || fallbackImage}
+                                className="w-full h-full object-cover"
+                                loading="lazy"
+                                onError={(e) => e.currentTarget.src = fallbackImage}
+                            />
                         </div>
                         <div className="p-4 flex-1 flex flex-col">
                             <h3 className="font-semibold text-[#1a1a1a] line-clamp-2">{c?.title || "—"}</h3>

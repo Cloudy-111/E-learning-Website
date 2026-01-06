@@ -57,4 +57,18 @@ public class LessonRepository : ILessonRepository
         _dbContext.Lessons.UpdateRange(lessons);
         await _dbContext.SaveChangesAsync();
     }
+
+    public async Task<int> CountLessonsByCourseAsync(string courseId)
+    {
+        return await _dbContext.Lessons
+            .Include(l => l.CourseContent)
+            .Where(l => l.CourseContent.CourseId == courseId)
+            .CountAsync();
+    }
+
+    public async Task<Lesson?> AdminGetLessonByIdAsync(string lessonId)
+    {
+        return await _dbContext.Lessons
+            .FirstOrDefaultAsync(l => l.Id == lessonId);
+    }
 }

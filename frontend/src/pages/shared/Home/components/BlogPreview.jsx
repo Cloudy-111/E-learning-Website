@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { PRIMARY, BORDER } from "../utils/constants";
 
+import fallbackImage from "../../../../assets/images/fallback-image.jpeg";
+
 export default function BlogPreview({ posts = [], loading = false, error = null }) {
     return (
         <section className="w-full px-6 lg:px-12 py-10">
@@ -27,7 +29,15 @@ export default function BlogPreview({ posts = [], loading = false, error = null 
                         style={{ borderColor: BORDER }}
                     >
                         <div className="w-full h-36 bg-gray-100">
-                            {b ? <img src={b.cover} alt={b.title} className="w-full h-36 object-cover" /> : null}
+                            {
+                                <img
+                                    src={b?.thumbnailUrl || fallbackImage}
+                                    // alt={b.title}
+                                    className="w-full h-full object-cover"
+                                    loading="lazy"
+                                    onError={(e) => e.currentTarget.src = fallbackImage}
+                                />
+                            }
                         </div>
                         <div className="p-4">
                             <span className="text-xs font-semibold px-2 py-1 rounded bg-[#eef3ff] text-[#1b3ea9]">

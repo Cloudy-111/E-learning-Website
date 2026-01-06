@@ -96,9 +96,9 @@ export default function Homepage() {
             <HeroSection query={q} setQuery={setQ} onSearch={doSearch} />
             <QuickNav />
             <FeaturedCourses courses={featuredCourses} loading={loading} error={errors.courses} onNavigate={navigate} />
-            <FeaturesSection />
+            {/* <FeaturesSection /> */}
             <ExamShowcase exams={examsShowcase} loading={loading} error={errors.exams} onNavigate={navigate} />
-            <MetricsSection />
+            {/* <MetricsSection /> */}
             <TestimonialSection />
             <BlogPreview posts={blogPosts} loading={loading} error={errors.posts} />
             <NewsletterSection />

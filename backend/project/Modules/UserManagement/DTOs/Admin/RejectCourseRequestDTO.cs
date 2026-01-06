@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
-public class RejectCourseRequestDTO
+public class RejectCourseDTO
 {
     [Required]
-    public string Reason { get; set; } = null!;
+    public string RejectReason { get; set; } = null!;
 }

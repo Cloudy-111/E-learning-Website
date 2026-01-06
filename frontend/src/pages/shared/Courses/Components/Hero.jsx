@@ -14,7 +14,11 @@ function Hero() {
         {/* LEFT illustration */}
         <div className="order-2 lg:order-1">
           <div className="w-full aspect-[4/3] rounded-2xl bg-gradient-to-tr from-blue-100 via-indigo-100 to-sky-100 border grid place-items-center">
-            <span className="text-sm text-blue-500">Ảnh minh họa khóa học</span>
+            <img 
+              src="https://images.pexels.com/photos/35391833/pexels-photo-35391833.jpeg" 
+              alt="Learning Illustration" 
+              className="w-full h-full object-cover rounded-lg shadow-lg"
+            />
           </div>
         </div>
 
@@ -30,7 +34,7 @@ function Hero() {
             Hãy chọn ngay khóa học yêu thích từ các chủ đề hàng đầu.
           </p>
 
-          <div className="mt-5 flex items-center justify-between">
+          {/* <div className="mt-5 flex items-center justify-between">
             <div className="text-sm font-medium text-slate-700">Lịch sử học gần đây</div>
             <Link to="#" className="text-sm text-[#2563eb] hover:underline">
               Xem tất cả
@@ -40,7 +44,7 @@ function Hero() {
             {HISTORY.map((h) => (
               <HistoryCard key={h.id} item={h} />
             ))}
-          </div>
+          </div> */}
         </div>
       </div>
     </section>

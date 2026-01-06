@@ -31,9 +31,9 @@ export default function TestimonialSection() {
                     </div>
                 </div>
 
-                <div className="bg-white border rounded-2xl overflow-hidden" style={{ borderColor: BORDER }}>
+                {/* <div className="bg-white border rounded-2xl overflow-hidden" style={{ borderColor: BORDER }}>
                     <img src="/images/study-banner.jpg" alt="Study Banner" className="w-full h-40 object-cover" />
-                </div>
+                </div> */}
             </div>
         </section>
     );
