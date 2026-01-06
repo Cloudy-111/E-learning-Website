@@ -106,7 +106,11 @@ function Hero({ course, isEnrolledState }) {
               )}
             </div>
 
-            <EnrollButton courseId={course.id} isEnrolledState={isEnrolledState} />
+            <EnrollButton 
+              courseId={course.id} 
+              isEnrolledState={isEnrolledState} 
+              coursePrice={finalPrice}
+            />
 
             <Ghost className="w-full mt-2">Thêm vào yêu thích</Ghost>
             <div className="mt-5 grid gap-2 text-sm text-slate-700">
