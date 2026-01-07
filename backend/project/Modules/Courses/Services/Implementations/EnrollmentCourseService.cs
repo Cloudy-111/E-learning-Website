@@ -197,7 +197,7 @@ public class EnrollmentCourseService : IEnrollmentCourseService
             throw new Exception("Only active enrollment can be updated!");
         }
 
-        // Logic calculate progress enrollment here
+        // Logic calculate progress enrollment
 
         if (dto.LessonId != null && dto.ExamId == null)
         {

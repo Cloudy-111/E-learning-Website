@@ -22,13 +22,13 @@ export default function CTASection() {
                     >
                         Khám phá khoá học
                     </Link>
-                    <Link
+                    {/* <Link
                         to="/exam"
                         className="inline-flex items-center gap-2 rounded-lg px-5 py-3 font-semibold border"
                         style={{ borderColor: BORDER, color: "#1a1a1a" }}
                     >
                         Tới thư viện đề
-                    </Link>
+                    </Link> */}
                 </div>
             </div>
         </section>

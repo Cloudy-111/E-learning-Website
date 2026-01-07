@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Clock } from "../../../../assets/Icons";
 import fallbackImage from "../../../../assets/images/fallback-image.jpeg";
+import noImage from "../../../../assets/images/no-image.jpg";
 
 function CourseCard({ c }) {
   const {
@@ -33,7 +34,7 @@ function CourseCard({ c }) {
 
           />
         ) : (
-          <span className="text-xs text-blue-400">Ảnh khóa học</span>
+          <img src={noImage}/>
         )}
       </div>
       <div className="p-5">
@@ -64,9 +65,9 @@ function CourseCard({ c }) {
 
         <div className="mt-2 text-xs text-slate-500 flex items-center gap-2">
           <span>{categoryName}</span>
-          <span className="inline-flex items-center gap-1 opacity-70">
+          {/* <span className="inline-flex items-center gap-1 opacity-70">
             <Clock /> Online
-          </span>
+          </span> */}
         </div>
       </div>
     </Link>

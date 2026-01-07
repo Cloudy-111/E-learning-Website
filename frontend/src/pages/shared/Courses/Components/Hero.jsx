@@ -9,7 +9,7 @@ const HISTORY = [
 
 function Hero() {
   return (
-    <section className="w-screen overflow-x-hidden pt-8">
+	<section className="w-screen h-[50vh] overflow-hidden pt-8">
       <div className="w-screen px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 items-start gap-10 lg:gap-14">
         {/* LEFT illustration */}
         <div className="order-2 lg:order-1">

@@ -12,18 +12,17 @@ export default function HeroSection({ query, setQuery, onSearch }) {
                         PTIT E-Learning
                     </p>
                     <h1 className="text-[30px] leading-[1.2] lg:text-[44px] font-extrabold text-[#1a1a1a]">
-                        Học thông minh – Luyện đề hiệu quả – Theo dõi tiến độ rõ ràng
+                        Học thông minh – Luyện đề hiệu quả – Theo dõi tiến độ
                     </h1>
                     <p className="mt-4 text-[#677788] max-w-2xl">
-                        Lộ trình rõ ràng, video cô đọng, bài tập tương tác, đề mô phỏng sát format.
-                        Kèm thống kê cá nhân giúp bạn học trúng điểm yếu.
+                        
                     </p>
 
                     {/* Search */}
                     <div className="mt-6 flex gap-2">
                         <input
                             type="text"
-                            placeholder="Tìm khóa học, đề thi, chủ đề…"
+                            placeholder="Tìm khóa học,..."
                             className="flex-1 rounded-lg border px-4 py-3 text-sm outline-none"
                             style={{ borderColor: BORDER }}
                             value={query}

@@ -3,6 +3,9 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { BORDER } from "../utils/constants";
 
+import fallbackImage from "../../../../assets/images/fallback-image.jpeg";
+import noImage from "../../../../assets/images/no-image.jpg";
+
 const EyeIcon = () => (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z" />
@@ -122,10 +125,11 @@ export default function PostCard({ post }) {
                         src={post.cover}
                         alt={post.title}
                         className="w-full h-full object-cover"
+                        onError={(e) => e.currentTarget.src = fallbackImage}
                     />
                 ) : (
                     <div className="w-full h-full grid place-items-center">
-                        <span className="text-xs text-blue-400">Ảnh blog</span>
+                        <img src={noImage}/>
                     </div>
                 )}
             </div>

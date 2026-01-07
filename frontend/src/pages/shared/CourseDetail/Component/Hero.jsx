@@ -3,6 +3,7 @@ import { Ghost } from "../../../../components/Buttons";
 import EnrollButton from "./EnrollButton";
 
 import fallbackImage from "../../../../assets/images/fallback-image.jpeg";
+import noImage from "../../../../assets/images/no-image.jpg";
 
 function Hero({ course, isEnrolledState }) {
   const {
@@ -39,7 +40,7 @@ function Hero({ course, isEnrolledState }) {
               />
             ) : (
               <div className="grid place-items-center h-full">
-                <span className="text-blue-500 text-sm">Video/Ảnh giới thiệu khóa học</span>
+                <img src={noImage} alt="No thumbnail available" className="h-full object-cover" />
               </div>
             )}
           </div>

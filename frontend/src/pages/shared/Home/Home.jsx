@@ -29,7 +29,7 @@ export default function Homepage() {
     const [errors, setErrors] = useState({ courses: null, exams: null, posts: null });
 
     const [courses, setCourses] = useState([]);
-    const [exams, setExams] = useState([]);
+    // const [exams, setExams] = useState([]);
     const [posts, setPosts] = useState([]);
 
     // Fetch initial data
@@ -50,7 +50,7 @@ export default function Homepage() {
                 const eRes = await http(`${API_BASE}/api/exam`, { signal: ac.signal, headers: { accept: "*/*" } });
                 const eJson = eRes.ok ? await eRes.json() : [];
                 const eArr = Array.isArray(eJson?.data ?? eJson) ? (eJson.data ?? eJson) : [];
-                setExams(eArr.map(normExam));
+                // setExams(eArr.map(normExam));
 
                 // Posts
                 const pRes = await http(`${API_BASE}/api/Posts`, { signal: ac.signal, headers: { accept: "*/*" } });
@@ -88,7 +88,7 @@ export default function Homepage() {
 
     // Derived data for display
     const featuredCourses = useMemo(() => courses.slice(0, 8), [courses]);
-    const examsShowcase = useMemo(() => exams.slice(0, 3), [exams]);
+    // const examsShowcase = useMemo(() => exams.slice(0, 3), [exams]);
     const blogPosts = useMemo(() => posts.slice(0, 3), [posts]);
 
     return (
@@ -97,11 +97,11 @@ export default function Homepage() {
             <QuickNav />
             <FeaturedCourses courses={featuredCourses} loading={loading} error={errors.courses} onNavigate={navigate} />
             {/* <FeaturesSection /> */}
-            <ExamShowcase exams={examsShowcase} loading={loading} error={errors.exams} onNavigate={navigate} />
+            {/* <ExamShowcase exams={examsShowcase} loading={loading} error={errors.exams} onNavigate={navigate} /> */}
             {/* <MetricsSection /> */}
-            <TestimonialSection />
+            {/* <TestimonialSection /> */}
             <BlogPreview posts={blogPosts} loading={loading} error={errors.posts} />
-            <NewsletterSection />
+            {/* <NewsletterSection /> */}
             <FAQSection />
             <CTASection />
         </div>
