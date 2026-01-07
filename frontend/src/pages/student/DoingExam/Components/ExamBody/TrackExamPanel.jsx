@@ -38,7 +38,7 @@ function TrackExamPanel({ attemptId, listQuestions, answers, loadStatus = null, 
                     <div className="text-xs text-red-600 mb-2">{loadMessage || 'Can not load answers from server.'}</div>
                 )}
 
-                <div className="grid grid-cols-8 gap-2">
+                <div className="grid grid-cols-8 gap-10">
                     {listQuestions.map((q, i) => {
                         const answered = Array.isArray(answers[q.id]) && answers[q.id].length > 0;
                         return (

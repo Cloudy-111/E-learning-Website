@@ -137,12 +137,12 @@ function CourseCard({ c, onRequestPublish, onAddExam }) {
             )}
             {c.status === "published" && (
                 <div className="mt-4 grid grid-cols-2 gap-2 text-sm">
-                    <Link
+                    {/* <Link
                         to={`/i/courses/${c.id}/lessons`}
                         className="rounded-lg border px-3 py-2 text-center hover:bg-gray-50"
                     >
                         Quản lý bài học
-                    </Link>
+                    </Link> */}
                 </div>
             )}
 

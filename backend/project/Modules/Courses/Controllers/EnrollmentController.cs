@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -83,8 +84,8 @@ public class EnrollmentController : ControllerBase
 
     // Student only
     [Authorize(Roles = "Student")]
-    [HttpPatch("{enrollmentId}/progress")]
-    public async Task<IActionResult> UpdateProgressEnrollmentAsync(string courseId, string enrollmentId, [FromBody] EnrollmentProgressUpdateDTO enrollmentUpdateDTO)
+    [HttpPatch("progress")]
+    public async Task<IActionResult> UpdateProgressEnrollmentAsync(string courseId, [FromBody] EnrollmentProgressUpdateDTO enrollmentUpdateDTO)
     {
         if (!ModelState.IsValid)
         {
@@ -92,8 +93,8 @@ public class EnrollmentController : ControllerBase
         }
         try
         {
-            var userId = User.FindFirst("userId")?.Value;
-            await _enrollmentCourseService.UpdateProgressEnrollmentAsync(userId, courseId, enrollmentId, enrollmentUpdateDTO);
+            var studentId = User.FindFirst("studentId")?.Value;
+            await _enrollmentCourseService.UpdateProgressEnrollmentAsync(studentId, courseId, enrollmentUpdateDTO);
             return Ok(new APIResponse("Success", "Update Progress Enrollment Successfully"));
         }
         catch (KeyNotFoundException knfE)

@@ -14,7 +14,6 @@ using project.Modules.UserManagement.Services;
 using Microsoft.OpenApi.Models;
 using project.Modules.UserManagement.Services.Interfaces;
 using project.Modules.Payment.Service.Interfaces;
-using project.Modules.Payments.Repositories.Interfaces;
 using project.Modules.Payment.Repositories.Implements;
 using project.Modules.Payments.Repositories.Interfaces;
 using project.Modules.Payments.Service.Interfaces;
@@ -88,6 +87,7 @@ builder.Services.AddScoped<ICourseReviewService, CourseReviewService>();
 builder.Services.AddScoped<IEnrollmentCourseService, EnrollmentCourseService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IExamAttempService, ExamAttempService>();
+builder.Services.AddScoped<ITeacherService, TeacherService>();
 // builder.Services.AddScoped<IStudentService, StudentService>();
 
 // Add repository to the container.

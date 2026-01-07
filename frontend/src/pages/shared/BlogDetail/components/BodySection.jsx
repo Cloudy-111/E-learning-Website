@@ -4,6 +4,9 @@ import { BORDER } from "../utils/constants";
 import LikeBar from "./LikeBar";
 import Comments from "./Comments";
 
+import fallbackImage from "../../../../assets/images/fallback-image.jpeg";
+import noImage from "../../../../assets/images/no-image.jpg";
+
 const Primary = ({ children, className = "", ...props }) => (
     <button
         type="button"
@@ -48,10 +51,11 @@ export default function BodySection({ post }) {
                                 src={post.cover}
                                 alt={post.title}
                                 className="w-full aspect-[16/9] object-cover"
+                                onError={(e) => e.currentTarget.src = fallbackImage}
                             />
                         ) : (
                             <div className="aspect-[16/9] bg-blue-50 grid place-items-center">
-                                <span className="text-sm text-blue-500">Ảnh/Video bài viết</span>
+                                <img src={noImage} alt="No cover available" />
                             </div>
                         )}
                     </div>

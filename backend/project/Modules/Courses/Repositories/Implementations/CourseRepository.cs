@@ -205,4 +205,17 @@ public class CourseRepository : ICourseRepository
         await _dbContext.SaveChangesAsync();
         return true;
     }
+
+    public async Task<IEnumerable<Course>> GetTopCoursesByTeacherAsync(string teacherId, int count)
+    {
+        return await _dbContext.Courses
+            .Where(c => c.TeacherId == teacherId && c.Status == "published")
+            .Include(c => c.Category)
+            .Include(c => c.Teacher)
+                .ThenInclude(t => t.User)
+            .Include(c => c.Enrollments)
+            .OrderByDescending(c => c.Enrollments.Count)
+            .Take(count)
+            .ToListAsync();
+    }
 }

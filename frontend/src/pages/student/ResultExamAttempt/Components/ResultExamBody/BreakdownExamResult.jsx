@@ -26,14 +26,14 @@ function BreakdownExamResult( { submissionExam } ) {
                 </div>
             </div>
 
-            <div className="bg-white border rounded-2xl p-5">
+            {/* <div className="bg-white border rounded-2xl p-5">
                 <h4 className="font-semibold text-gray-900 mb-2">Gợi ý tiếp theo</h4>
                 <ul className="text-sm text-gray-700 space-y-2">
                     <li>• Ôn lại câu sai và làm lại sau 24h để ghi nhớ.</li>
                     <li>• Học nội dung liên quan trong khoá học để lấp lỗ hổng.</li>
                     <li>• Khi đạt ≥ 80%, thử đề nâng cao.</li>
                 </ul>
-            </div>
+            </div> */}
         </aside>
     )
 

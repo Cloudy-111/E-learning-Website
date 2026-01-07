@@ -311,7 +311,7 @@ public class CourseService : ICourseService
                 ReviewStatus = c.AdminReviewCourse?.Status,
             });
 
-            var CourseStatisticDTO = new CourseStatisticDTO
+            var InstructorStatisticDTO = new InstructorStatisticDTO
             {
                 TotalCourses = totalCourses,
                 TotalPublishedCourses = courses.Count(c => c.Status == PUBLISHED_STATUS),
@@ -324,7 +324,7 @@ public class CourseService : ICourseService
             return new PageResultInstructorCoursesDTO
             {
                 Courses = courseResult,
-                Statistics = CourseStatisticDTO,
+                Statistics = InstructorStatisticDTO,
                 CurrentPage = page,
                 PageSize = pageSize,
                 TotalCount = totalCourses,

@@ -10,6 +10,7 @@ import Hero from "./Component/Hero";
 import LessonBody from "./Component/LessonBody/LessonBody";
 import { fetchLessonDetail, fetchListLessons } from "../../../api/lessons.api";
 import { fetchExamsByLesson } from "../../../api/exams.api";
+import { updateProgressEnrollment } from "../../../api/enrollments.api";
 
 function LessonDetail() {
   const { lessonId, courseContentId } = useParams();
@@ -20,6 +21,29 @@ function LessonDetail() {
   const [siblings, setSiblings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  // Update learning progress when opening a lesson
+  useEffect(() => {
+    let isMounted = true;
+
+    async function markProgress() {
+      if (!lessonId) return;
+      try {
+        // courseId is different from courseContentId, take it from lesson detail
+        const courseId = lesson?.courseId;
+        if (!courseId) return;
+        await updateProgressEnrollment(courseId, lessonId);
+      } catch (e) {
+        if (!isMounted) return;
+        console.error("Failed to update enrollment progress", e);
+      }
+    }
+
+    markProgress();
+    return () => {
+      isMounted = false;
+    };
+  }, [lessonId, lesson]);
 
   // Fetch lesson detail
   useEffect(() => {

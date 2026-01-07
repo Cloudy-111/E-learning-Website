@@ -7,7 +7,6 @@ import { useLocation, useParams } from "react-router-dom";
 import Hero from "./Components/Hero";
 import ResultExamBody from "./Components/ResultExamBody/ResultExamBody";
 
-/** Xuất CSV đơn giản */
 function exportCSV(filename, rows) {
   const csv = rows.map(r => r.map(cell => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
@@ -35,13 +34,10 @@ function ResultAttempt() {
 
   const onExportCSV = () => {console.log("Export CSV clicked");};
 
-  /* ===== UI ===== */
   return (
     <div className="min-h-screen w-screen max-w-none bg-white">
-      {/* Hero */}
       <Hero />
 
-      {/* Main */}
       <ResultExamBody
         onExportCSV={onExportCSV}
         attemptId={attemptId}

@@ -6,8 +6,7 @@ import BreakdownExamResult from "./BreakdownExamResult";
 
 function ResultExamBody( { 
   onExportCSV,
-  attemptId,
-  onRetake} )   {
+  attemptId} )   {
     const [submissionExam, setSubmissionExam] = useState(null);
     const [loading, setLoading] = useState(true);
     const [err, setErr] = useState(null);
@@ -52,7 +51,6 @@ function ResultExamBody( {
             {/* LEFT: Summary + Review */}
             <SummaryExamResult 
               onExportCSV={onExportCSV}
-              onRetake={onRetake}
               submissionExam={submissionExam}
             />
 

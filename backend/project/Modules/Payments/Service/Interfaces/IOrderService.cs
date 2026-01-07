@@ -6,4 +6,5 @@ namespace project.Modules.Payment.Service.Interfaces;
 public interface IOrderService
 {
       Task<OrderResponseDto> CreateOrderAsync(OrderCreateDto dto, string studentId);
+      Task<OrderResponseDto?> GetOrderByIdAsync(string orderId, string studentId);
 }

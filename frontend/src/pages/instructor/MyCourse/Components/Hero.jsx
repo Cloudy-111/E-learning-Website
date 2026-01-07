@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Download, Plus } from "lucide-react";
 
-function Hero( { exportCSV } ) {
+function Hero() {
     return (
         <section className="w-full bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-b border-gray-200">
             <div className="w-full px-6 lg:px-12 py-6 flex items-center justify-between">
@@ -10,12 +10,6 @@ function Hero( { exportCSV } ) {
                     <p className="text-gray-600">Quản lý khoá học, trạng thái và cập nhật nội dung</p>
                 </div>
                 <div className="flex gap-2">
-                    <button
-                        onClick={exportCSV}
-                        className="rounded-xl bg-transparent border border-gray-300 hover:bg-gray-50 px-4 py-2 text-sm font-medium text-gray-800 inline-flex items-center gap-2"
-                    >
-                        <Download className="w-4 h-4" /> Export CSV
-                    </button>
                     <Link
                         to="/i/courses/new"
                         className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm font-semibold inline-flex items-center gap-2"

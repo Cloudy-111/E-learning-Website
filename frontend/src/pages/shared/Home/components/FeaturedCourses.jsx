@@ -38,9 +38,10 @@ export default function FeaturedCourses({ courses = [], loading = false, error =
                         <div className="p-4 flex-1 flex flex-col">
                             <h3 className="font-semibold text-[#1a1a1a] line-clamp-2">{c?.title || "—"}</h3>
                             <p className="text-sm text-[#677788] mt-1 line-clamp-3">{c?.desc || ""}</p>
-                            <div className="mt-2 text-xs text-[#677788]">
+                            {/* <div className="mt-2 text-xs text-[#677788]">
                                 Bài học: <b>{c?.lessons ?? "—"}</b> • Cấp độ: {c?.level ?? "—"}
-                            </div>
+                            </div> */}
+                            <br />
                             <button
                                 onClick={() => onNavigate(`/courses/${c?.id}`)}
                                 className="mt-auto w-full rounded-lg text-white py-2 font-medium transition"

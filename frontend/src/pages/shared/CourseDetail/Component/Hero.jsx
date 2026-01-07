@@ -3,6 +3,7 @@ import { Ghost } from "../../../../components/Buttons";
 import EnrollButton from "./EnrollButton";
 
 import fallbackImage from "../../../../assets/images/fallback-image.jpeg";
+import noImage from "../../../../assets/images/no-image.jpg";
 
 function Hero({ course, isEnrolledState }) {
   const {
@@ -39,7 +40,7 @@ function Hero({ course, isEnrolledState }) {
               />
             ) : (
               <div className="grid place-items-center h-full">
-                <span className="text-blue-500 text-sm">Video/Ảnh giới thiệu khóa học</span>
+                <img src={noImage} alt="No thumbnail available" className="h-full object-cover" />
               </div>
             )}
           </div>
@@ -106,7 +107,11 @@ function Hero({ course, isEnrolledState }) {
               )}
             </div>
 
-            <EnrollButton courseId={course.id} isEnrolledState={isEnrolledState} />
+            <EnrollButton 
+              courseId={course.id} 
+              isEnrolledState={isEnrolledState} 
+              coursePrice={finalPrice}
+            />
 
             <Ghost className="w-full mt-2">Thêm vào yêu thích</Ghost>
             <div className="mt-5 grid gap-2 text-sm text-slate-700">

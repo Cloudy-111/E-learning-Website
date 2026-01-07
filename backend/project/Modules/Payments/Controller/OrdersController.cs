@@ -44,6 +44,33 @@ namespace project.Modules.Payment.Controller
         }
     }
 
+    /// <summary>
+    /// Lấy thông tin Order theo ID
+    /// </summary>
+    /// <param name="orderId">ID của Order</param>
+    /// <returns>OrderResponseDto</returns>
+    [HttpGet("{orderId}")]
+    [Authorize]
+    public async Task<IActionResult> GetOrderById(string orderId)
+    {
+        var studentId = User.FindFirst("StudentId")?.Value;
+        if (string.IsNullOrEmpty(studentId))
+            return Unauthorized(new { message = "StudentId not found in token." });
+
+        try
+        {
+            var order = await _orderService.GetOrderByIdAsync(orderId, studentId);
+            if (order == null)
+                return NotFound(new { message = "Order not found." });
+            
+            return Ok(order);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
 
     }
 }
