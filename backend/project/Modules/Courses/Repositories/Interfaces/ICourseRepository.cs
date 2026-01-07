@@ -15,4 +15,5 @@ public interface ICourseRepository
     // Task DeleteCourseAsync(string id);
     Task<Course?> GetCourseByIdByTeacherAsync(string courseId, string teacherId);
     Task<bool> UpdateCourseStatusAsync(string courseId, string status);
+    Task<IEnumerable<Course>> GetTopCoursesByTeacherAsync(string teacherId, int count);
 }

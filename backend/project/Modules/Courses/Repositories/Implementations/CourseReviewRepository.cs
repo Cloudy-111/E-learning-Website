@@ -63,4 +63,16 @@ public class CourseReviewRepository : ICourseReviewRepository
         return await _dbContext.CourseReviews
             .FirstOrDefaultAsync(r => r.Id == reviewId);
     }
+
+    public async Task<IEnumerable<CourseReview>> GetRecentCourseReviewsOfTeacherAsync(string teacherId, int count)
+    {
+        return await _dbContext.CourseReviews
+            .Include(r => r.Course)
+            .Include(r => r.Student)
+                .ThenInclude(s => s.User)
+            .Where(r => r.Course.TeacherId == teacherId && r.IsNewest)
+            .OrderByDescending(r => r.CreatedAt)
+            .Take(count)
+            .ToListAsync();
+    }
 }

@@ -51,4 +51,16 @@ public class EnrollmentCourseRepository : IEnrollmentCourseRepository
         return await _dbContext.Enrollments
             .FirstOrDefaultAsync(en => en.CourseId == courseId && en.StudentId == studentId);
     }
+
+    public async Task<IEnumerable<Enrollment_course>> GetRecentEnrollmentsOfTeacherAsync(string teacherId, int count)
+    {
+        return await _dbContext.Enrollments
+            .Include(en => en.Course)
+            .Include(en => en.Student)
+                .ThenInclude(s => s.User)
+            .Where(en => en.Course.TeacherId == teacherId)
+            .OrderByDescending(en => en.EnrolledAt)
+            .Take(count)
+            .ToListAsync();
+    }
 }

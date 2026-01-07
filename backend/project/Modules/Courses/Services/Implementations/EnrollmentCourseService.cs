@@ -335,4 +335,34 @@ public class EnrollmentCourseService : IEnrollmentCourseService
         await _enrollmentRepository.UpdateProgressEnrollmentAsync(enrollment);
         await _requestRefundCourseRepository.CreateRequestRefundCourseAsync(refundRequest);
     }
+
+    public async Task<RecentEnrollmentOfTeacherDTO> GetRecentEnrollmentsOfTeacherAsync(string teacherId, int count)
+    {
+        var teacherIdGuid = GuidHelper.ParseOrThrow(teacherId, nameof(teacherId));
+
+        var teacherExist = await _studentRepository.IsStudentExistAsync(teacherId);
+        if (!teacherExist)
+        {
+            throw new KeyNotFoundException($"Teacher with id: {teacherId} not found");
+        }
+
+        var recentEnrollments = await _enrollmentRepository.GetRecentEnrollmentsOfTeacherAsync(teacherId, count);
+
+        var recentEnrollmentDTOs = recentEnrollments.Select(en => new EnrollmentInforDTO
+        {
+            StudentId = en.StudentId ?? "Unknown",
+            StudentName = en.Student?.User?.FullName ?? "Unknown",
+            CourseId = en.CourseId ?? "Unknown",
+            CourseName = en.Course?.Title ?? "Unknown Title",
+            EnrolledAt = en.EnrolledAt,
+            Progress = en.Progress,
+            Status = en.Status ?? "Unknown",
+            CertificateUrl = en.CertificateUrl ?? "Unknown"
+        });
+
+        return new RecentEnrollmentOfTeacherDTO
+        {
+            RecentEnrollments = recentEnrollmentDTOs
+        };
+    }
 }

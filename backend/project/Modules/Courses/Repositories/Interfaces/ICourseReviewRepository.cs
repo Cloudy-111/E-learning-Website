@@ -10,4 +10,5 @@ public interface ICourseReviewRepository
     Task<CourseReview?> GetCourseReviewByIdAsync(string reviewId);
     Task UpdateReviewAsync(CourseReview review);
     Task DeleteReviewAsync(string reviewId);
+    Task<IEnumerable<CourseReview>> GetRecentCourseReviewsOfTeacherAsync(string teacherId, int count);
 }

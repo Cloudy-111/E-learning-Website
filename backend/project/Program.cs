@@ -87,6 +87,7 @@ builder.Services.AddScoped<ICourseReviewService, CourseReviewService>();
 builder.Services.AddScoped<IEnrollmentCourseService, EnrollmentCourseService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 builder.Services.AddScoped<IExamAttempService, ExamAttempService>();
+builder.Services.AddScoped<ITeacherService, TeacherService>();
 // builder.Services.AddScoped<IStudentService, StudentService>();
 
 // Add repository to the container.

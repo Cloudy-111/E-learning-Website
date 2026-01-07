@@ -8,4 +8,5 @@ public interface IEnrollmentCourseService
     Task CreateEnrollmentAsync(string courseId, string studentId);
     Task UpdateProgressEnrollmentAsync(string studentId, string courseId, EnrollmentProgressUpdateDTO enrollmentProgressUpdateDTO);
     Task RequestCancelEnrollmentAsync(string userId, string courseId, string enrollmentId, RequestCancelEnrollmentDTO dto);
+    Task<RecentEnrollmentOfTeacherDTO> GetRecentEnrollmentsOfTeacherAsync(string teacherId, int count);
 }
