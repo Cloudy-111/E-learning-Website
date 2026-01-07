@@ -1,11 +1,13 @@
 // src/utils/http.js
 import { authHeader, clearToken, getRefreshToken, setTokens, clearAllAuth } from "../utils/auth";
 
-const API_BASE = import.meta.env?.VITE_API_BASE || "http://localhost:5102";
+const API_BASE = import.meta.env?.VITE_API_URL || import.meta.env?.VITE_API_BASE || "http://localhost:5102";
 
 // Helper: gọi fetch
 async function rawFetch(url, opts = {}) {
-  const res = await fetch(url, opts);
+  // Nếu url không bắt đầu bằng http, thêm API_BASE
+  const fullUrl = url.startsWith('http') ? url : `${API_BASE}${url}`;
+  const res = await fetch(fullUrl, opts);
   return res;
 }
 

@@ -7,4 +7,6 @@ public interface IPaymentService
 {
   Task<PaymentQrDto> GeneratePaymentQrAsync(string paymentId, string studentId);
   Task<bool> HandleWebhookAsync(PaymentWebhookDto dto);
-  }
+  Task<bool> HandleSepayWebhookAsync(SepayWebhookDto dto);
+  Task<BankInfoDto> GetBankInfoForOrderAsync(string orderId, string studentId);
+}

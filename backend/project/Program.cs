@@ -14,7 +14,6 @@ using project.Modules.UserManagement.Services;
 using Microsoft.OpenApi.Models;
 using project.Modules.UserManagement.Services.Interfaces;
 using project.Modules.Payment.Service.Interfaces;
-using project.Modules.Payments.Repositories.Interfaces;
 using project.Modules.Payment.Repositories.Implements;
 using project.Modules.Payments.Repositories.Interfaces;
 using project.Modules.Payments.Service.Interfaces;

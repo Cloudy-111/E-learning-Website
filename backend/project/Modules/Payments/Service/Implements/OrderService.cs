@@ -96,6 +96,24 @@ public class OrderService : IOrderService
         }
     }
 
+    public async Task<OrderResponseDto?> GetOrderByIdAsync(string orderId, string studentId)
+    {
+        var order = await _orderRepo.GetByIdAsync(orderId);
+        
+        if (order == null)
+            return null;
 
+        // Kiểm tra quyền truy cập
+        if (order.StudentId != studentId)
+            throw new UnauthorizedAccessException("You don't have permission to access this order.");
+
+        return new OrderResponseDto
+        {
+            OrderId = order.Id,
+            TotalPrice = order.TotalPrice,
+            Status = order.Status,
+            CreatedAt = order.CreatedAt
+        };
+    }
 }
 
