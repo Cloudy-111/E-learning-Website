@@ -45,4 +45,10 @@ public class EnrollmentCourseRepository : IEnrollmentCourseRepository
     // {
 
     // }
+
+    public async Task<Enrollment_course?> GetEnrollmentByStudentAndCourseIdAsync(string studentId, string courseId)
+    {
+        return await _dbContext.Enrollments
+            .FirstOrDefaultAsync(en => en.CourseId == courseId && en.StudentId == studentId);
+    }
 }

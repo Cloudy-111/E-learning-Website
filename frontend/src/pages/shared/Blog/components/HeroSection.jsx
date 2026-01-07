@@ -14,12 +14,7 @@ export default function HeroSection() {
                         className="w-full aspect-[4/3] rounded-2xl object-cover border"
                         style={{ borderColor: BORDER }}
                     >
-                        <img 
-                            src="https://images.pexels.com/photos/35391833/pexels-photo-35391833.jpeg" 
-                            alt="Learning Illustration" 
-                            className="w-full h-full object-cover rounded-lg shadow-lg"
-                        />
-                    </div>
+                    </img>
                 </div>
 
                 {/* Phải: nội dung */}

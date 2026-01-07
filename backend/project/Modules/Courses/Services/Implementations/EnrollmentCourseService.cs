@@ -155,11 +155,10 @@ public class EnrollmentCourseService : IEnrollmentCourseService
         };
     }
 
-    public async Task UpdateProgressEnrollmentAsync(string userId, string courseId, string enrollmentId, EnrollmentProgressUpdateDTO dto)
+    public async Task UpdateProgressEnrollmentAsync(string studentId, string courseId, EnrollmentProgressUpdateDTO dto)
     {
         var courseIdGuid = GuidHelper.ParseOrThrow(courseId, nameof(courseId));
-        var enrollmentGuid = GuidHelper.ParseOrThrow(enrollmentId, nameof(enrollmentId));
-        var userIdGuild = GuidHelper.ParseOrThrow(userId, nameof(userId));
+        var studentIdGuild = GuidHelper.ParseOrThrow(studentId, nameof(studentId));
         if (dto.LessonId != null && dto.ExamId == null)
         {
             var lessonGuild = GuidHelper.ParseOrThrow(dto.LessonId, nameof(dto.LessonId));
@@ -179,18 +178,18 @@ public class EnrollmentCourseService : IEnrollmentCourseService
             throw new KeyNotFoundException($"Course with id: {courseId} not found");
         }
 
-        var enrollment = await _enrollmentRepository.GetEnrrollmentByIdAsync(enrollmentId)
-            ?? throw new KeyNotFoundException($"Enrollment with id: {enrollmentId} not found");
+        var enrollment = await _enrollmentRepository.GetEnrollmentByStudentAndCourseIdAsync(studentId, courseId)
+            ?? throw new KeyNotFoundException($"Enrollment not found for user with id: {studentId} in course with id: {courseId}");
 
-        var userExist = await _userRepository.IsUserExistAsync(userId);
-        if (!userExist)
-        {
-            throw new KeyNotFoundException($"User with id: {userId} not found");
-        }
-        if (enrollment.Student?.User.Id != userId)
-        {
-            throw new UnauthorizedAccessException("You are not authorized to update this enrollment");
-        }
+        // var userExist = await _userRepository.IsUserExistAsync(userId);
+        // if (!userExist)
+        // {
+        //     throw new KeyNotFoundException($"User with id: {userId} not found");
+        // }
+        // if (enrollment.Student?.User.Id != userId)
+        // {
+        //     throw new UnauthorizedAccessException("You are not authorized to update this enrollment");
+        // }
 
         // Check status enrollment
         if (enrollment.Status != "active")

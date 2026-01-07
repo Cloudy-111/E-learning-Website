@@ -43,4 +43,30 @@ async function fetchEnrollmentsByStudentId(params = {}) {
   );
 }
 
-export { postEnrollCourse, isEnrolled, fetchEnrollmentsByStudentId };
+async function updateProgressEnrollment(courseId, lessonId) {
+  try {
+    const response = await baseFetch(
+      `/api/courses/${courseId}/enrollments/progress`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "*/*",
+          ...authHeader(),
+        },
+        body: JSON.stringify({ LessonId: lessonId }),
+      }
+    );
+    return response;
+  } catch (error) {
+    console.error("Failed to update progress:", error);
+    throw error;
+  }
+}
+
+export {
+  postEnrollCourse,
+  isEnrolled,
+  fetchEnrollmentsByStudentId,
+  updateProgressEnrollment,
+};

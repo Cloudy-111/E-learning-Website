@@ -14,8 +14,8 @@ function CourseCard({ c }) {
     thumbnailUrl,
   } = c;
 
-  const hasDiscount =
-    typeof discountPrice === "number" && discountPrice > 0 && discountPrice < price;
+  const hasDiscount = typeof discountPrice === "number" && discountPrice > 0 && discountPrice < price;
+  const finalPrice = hasDiscount ? (100 - discountPrice) * price / 100 : price;
 
   return (
     <Link
@@ -51,7 +51,7 @@ function CourseCard({ c }) {
                   {price?.toLocaleString("vi-VN")}đ
                 </span>
                 <span className="font-semibold text-[#2563eb]">
-                  {discountPrice?.toLocaleString("vi-VN")}đ
+                  {finalPrice?.toLocaleString("vi-VN")}đ
                 </span>
               </>
             ) : (
